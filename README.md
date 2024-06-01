@@ -47,8 +47,9 @@ Why?
 ## Implementation
 
 [Tech Stack](#implementation)<br>
-[Sitemap](#sitemap)<br>
+[GitHub repository structure](#github-repository-structure)<br>
 [APIs](#apis)<br>
+[Sitemap](#sitemap)<br>
 [Project Plan](#project-plan)<br>
 [Mockups](#mockups)<br>
 [Data](#data)<br>
@@ -64,6 +65,36 @@ Why?
 - **Localization:** [react-intl](https://www.npmjs.com/package/react-intl) library for internationalization, using AI translations
 - **Calendar Integration:** built-in Google Calendar integration of [n8n](https://www.npmjs.com/package/n8n) workflow automation library
 - **Deployment:** Heroku or Vercel (for front-end), DigitalOcean or AWS (for back-end)
+
+### GitHub repository structure
+
+```
+your-repo/
+│
+├── client/
+│ ├── src/
+│ │ ├── components/
+│ │ ├── pages/
+│ │ └── ...
+│ ├── public/
+│ └── ...
+│
+├── server/
+│ ├── controllers/
+│ ├── models/
+│ ├── routes/
+│ └── ...
+│
+├── n8n/
+│ ├── workflows/
+│ ├── settings/
+│ └── ...
+│
+├── README.md
+├── .gitignore
+├── package.json
+└── ...
+```
 
 ### APIs
 
