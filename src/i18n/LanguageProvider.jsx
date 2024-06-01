@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { createIntl, createIntlCache, RawIntlProvider } from "react-intl";
-import { messages } from "./messages";
+import messages from "./strings.json"; // Import JSON file
 
 const cache = createIntlCache();
 
