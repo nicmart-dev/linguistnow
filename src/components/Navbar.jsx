@@ -1,21 +1,44 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Link } from "react-router-dom";
+import { FormattedMessage } from "react-intl";
+import { LanguageContext } from "../i18n/LanguageProvider";
 
 const Navbar = () => {
+  const { switchLanguage } = useContext(LanguageContext); // Access switchLanguage function from context
+
   return (
     <nav className="bg-blue-500 p-4">
       <ul className="flex space-x-4 text-white">
         <li>
-          <Link to="/">Home</Link>
+          <Link to="/">
+            <FormattedMessage id="home" />
+          </Link>
         </li>
         <li>
-          <Link to="/login">Login</Link>
+          <Link to="/login">
+            <FormattedMessage id="login" />
+          </Link>
         </li>
         <li>
-          <Link to="/signup">Signup</Link>
+          <Link to="/signup">
+            <FormattedMessage id="signup" />
+          </Link>
         </li>
         <li>
-          <Link to="/dashboard">Dashboard</Link>
+          <Link to="/dashboard">
+            <FormattedMessage id="dashboard" />
+          </Link>
+        </li>
+        {/* Language toggle buttons */}
+        <li>
+          <button onClick={() => switchLanguage("en")}>
+            <FormattedMessage id="english" />
+          </button>
+        </li>
+        <li>
+          <button onClick={() => switchLanguage("fr")}>
+            <FormattedMessage id="french" />
+          </button>
         </li>
       </ul>
     </nav>
