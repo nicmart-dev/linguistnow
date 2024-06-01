@@ -57,7 +57,7 @@ Why?
 
 ### Tech Stack
 
-- **Front-end:** React.js, React Router, Tailwind CSS, Axios
+- **Front-end:** React.js, React Router (for navigation), Tailwind CSS (for styling), Axios
 - **Back-end:** Node.js, Express.js, Knex.js, bcrypt (for password hashing)
 - **Database:** MySQL
 - **Authentication:** JWT (JSON Web Tokens)
