@@ -1,6 +1,7 @@
 import React, { createContext, useState, useEffect } from "react";
 import { createIntl, createIntlCache, RawIntlProvider } from "react-intl";
 import messages from "./strings.json";
+import { getLocale } from "./utils";
 
 const cache = createIntlCache();
 
@@ -10,11 +11,6 @@ const LanguageProvider = ({ children }) => {
   const [locale, setLocale] = useState("en");
 
   useEffect(() => {
-    const getLocale = () => {
-      const language = navigator.language.split(/[-_]/)[0];
-      return ["en", "fr"].includes(language) ? language : "en";
-    };
-
     setLocale(getLocale());
   }, []);
 
