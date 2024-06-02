@@ -1,16 +1,14 @@
-import React, { useState } from "react";
-import { GoogleLogin } from "@react-oauth/google";
-import CalendarSelector from "../components/CalendarSelector";
+import React from "react";
+import { GoogleLogin } from "@react-oauth/google"; // Import required component to login
+import { Navigate } from "react-router-dom"; // Import the Navigate hook
 
+/* On successful login, store token in storage and redirect to Settings */
 const Login = ({ setIsSignedIn }) => {
-  const [calendars, setCalendars] = useState([]);
-
   const handleSuccess = (credentialResponse) => {
     console.log(credentialResponse);
     localStorage.setItem("googleToken", credentialResponse.credential);
     setIsSignedIn(true);
-    setCalendars([]);
-    window.location.href = "/dashboard";
+    return <Navigate to="/settings" />;
   };
 
   const handleError = () => {
@@ -24,10 +22,8 @@ const Login = ({ setIsSignedIn }) => {
       <GoogleLogin
         onSuccess={handleSuccess}
         onError={handleError}
-        auto_select
+        auto_select // Automatically select the first account
       />
-      {/* Render CalendarSelector component */}
-      {calendars.length > 0 && <CalendarSelector calendars={calendars} />}
     </div>
   );
 };

@@ -29,6 +29,11 @@ const Navbar = () => {
             <FormattedMessage id="dashboard" />
           </Link>
         </li>
+        <li>
+          <Link to="/settings">
+            <FormattedMessage id="settings" />
+          </Link>
+        </li>
         {/* Language toggle buttons */}
         <li>
           <button onClick={() => switchLanguage("en")}>

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import Home from "./pages/Home.jsx";
 import Login from "./pages/Login.jsx";
+import AccountSettings from "./pages/AccountSettings.jsx";
 import Signup from "./pages/Signup.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
 import Navbar from "./components/Navbar.jsx";
@@ -40,6 +41,10 @@ const App = () => {
               element={
                 <PrivateRoute isSignedIn={isSignedIn} element={<Dashboard />} />
               }
+            />
+            <Route
+              path="/settings"
+              element={<AccountSettings setIsSignedIn={setIsSignedIn} />}
             />
           </Routes>
         </BrowserRouter>
