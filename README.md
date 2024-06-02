@@ -230,6 +230,13 @@ I will be using n8n built-in Google Calendar integration to get linguist up to d
 
 -
 
+### User flow
+
+1. User signs in with Google account.
+2. User selects one or more calendars.
+3. Application checks for available time slots on selected calendars.
+4. Application filters users based on availability and returns the list of available users for the project.
+
 ### Mockups
 
 TODO: Provide visuals of your app's screens. You can use tools like Figma or pictures of hand-drawn sketches.
