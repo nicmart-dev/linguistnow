@@ -47,7 +47,7 @@ Why?
 ## Implementation
 
 [Tech Stack](#implementation)<br>
-[GitHub repository structure](#github-repository-structure)<br>
+[GitHub process](#github-process)<br>
 [APIs](#apis)<br>
 [Sitemap](#sitemap)<br>
 [Project Plan](#project-plan)<br>
@@ -66,7 +66,17 @@ Why?
 - **Calendar Integration:** built-in Google Calendar integration of [n8n](https://www.npmjs.com/package/n8n) workflow automation library
 - **Deployment:** Heroku or Vercel (for front-end), DigitalOcean or AWS (for back-end)
 
-### GitHub repository structure
+### GitHub process
+
+#### Feature branch naming convention
+
+I decided to follow [this](https://dev.to/varbsan/a-simplified-convention-for-naming-branches-and-commits-in-git-il4) naming convention:
+
+`git branch <category/reference/description-in-kebab-case>`
+
+Example: `git branch -b feature/issue-5/setup-n8n`
+
+#### GitHub repository structure
 
 ```
 your-repo/
