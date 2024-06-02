@@ -252,7 +252,8 @@ TODO: List endpoints that your server will implement, including HTTP methods, pa
 
 ## Roadmap
 
-TODO: Scope your project as a sprint. Break down the tasks that will need to be completed and map out timeframes for implementation. Think about what you can reasonably complete before the due date. The more detail you provide, the easier it will be to build.
+I am using GitHub Project to manage the roadmap and Kanban board.
+Please see the public roadmap here: https://github.com/users/nicmart-dev/projects/1/views/6
 
 ## Nice-to-haves
 
