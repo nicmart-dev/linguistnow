@@ -4,7 +4,7 @@
 [Implementation](#implementation)<br>
 [Roadmap](#roadmap)<br>
 [Nice-to-haves](#nice-to-haves)<br>
-[Project Plan](#project-plan)<br>
+[Install](#install)<br>
 [Behind the scene](#behind-the-scene)
 
 # LinguistNow
@@ -265,6 +265,57 @@ Please see the public roadmap here: https://github.com/users/nicmart-dev/project
   - Integrate with BMS like [XTRF](https://xtrf.eu/) using `n8n`
 - Auto accept/reject translation tasks in [BeLazy](https://belazy.cat/) automated translation project management, based on calendar availability
 - Unit and Integration Tests
+
+## Install
+
+To install and run the LinguistNow application, follow these steps:
+
+### Client
+
+1. Navigate to the `client` directory.
+
+2. Install dependencies using npm.
+
+   ```
+   npm install
+   ```
+
+3. Start the React development server.
+   ```
+   npm start
+   ```
+
+### Server
+
+1. Navigate to the `server` directory.
+
+2. Install dependencies using npm.
+
+   ```
+   npm install
+   ```
+
+3. Start the Express server.
+   ```
+   npm start
+   ```
+
+### n8n
+
+1. Ensure you have Node.js and npm installed on your system.
+
+2. Install n8n globally.
+
+   ```
+   npm install n8n -g
+   ```
+
+3. Start n8n.
+   ```
+   n8n start
+   ```
+
+After following these steps, you should have the LinguistNow application up and running, along with the n8n workflow automation tool.
 
 # Behind the scene
 
