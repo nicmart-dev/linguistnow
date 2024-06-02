@@ -4,7 +4,7 @@
 [Implementation](#implementation)<br>
 [Roadmap](#roadmap)<br>
 [Nice-to-haves](#nice-to-haves)<br>
-[Project Plan](#project-plan)<br>
+[Install](#install)<br>
 [Behind the scene](#behind-the-scene)
 
 # LinguistNow
@@ -47,7 +47,7 @@ Why?
 ## Implementation
 
 [Tech Stack](#implementation)<br>
-[GitHub repository structure](#github-repository-structure)<br>
+[GitHub process](#github-process)<br>
 [APIs](#apis)<br>
 [Sitemap](#sitemap)<br>
 [Project Plan](#project-plan)<br>
@@ -66,7 +66,17 @@ Why?
 - **Calendar Integration:** built-in Google Calendar integration of [n8n](https://www.npmjs.com/package/n8n) workflow automation library
 - **Deployment:** Heroku or Vercel (for front-end), DigitalOcean or AWS (for back-end)
 
-### GitHub repository structure
+### GitHub process
+
+#### Feature branch naming convention
+
+I decided to follow [this](https://dev.to/varbsan/a-simplified-convention-for-naming-branches-and-commits-in-git-il4) naming convention:
+
+`git branch <category/reference/description-in-kebab-case>`
+
+Example: `git branch -b feature/issue-5/setup-n8n`
+
+#### GitHub repository structure
 
 ```
 your-repo/
@@ -220,6 +230,13 @@ I will be using n8n built-in Google Calendar integration to get linguist up to d
 
 -
 
+### User flow
+
+1. User signs in with Google account.
+2. User selects one or more calendars.
+3. Application checks for available time slots on selected calendars.
+4. Application filters users based on availability and returns the list of available users for the project.
+
 ### Mockups
 
 TODO: Provide visuals of your app's screens. You can use tools like Figma or pictures of hand-drawn sketches.
@@ -242,7 +259,8 @@ TODO: List endpoints that your server will implement, including HTTP methods, pa
 
 ## Roadmap
 
-TODO: Scope your project as a sprint. Break down the tasks that will need to be completed and map out timeframes for implementation. Think about what you can reasonably complete before the due date. The more detail you provide, the easier it will be to build.
+I am using GitHub Project to manage the roadmap and Kanban board.
+Please see the public roadmap here: https://github.com/users/nicmart-dev/projects/1/views/6
 
 ## Nice-to-haves
 
@@ -254,6 +272,57 @@ TODO: Scope your project as a sprint. Break down the tasks that will need to be 
   - Integrate with BMS like [XTRF](https://xtrf.eu/) using `n8n`
 - Auto accept/reject translation tasks in [BeLazy](https://belazy.cat/) automated translation project management, based on calendar availability
 - Unit and Integration Tests
+
+## Install
+
+To install and run the LinguistNow application, follow these steps:
+
+### Client
+
+1. Navigate to the `client` directory.
+
+2. Install dependencies using npm.
+
+   ```
+   npm install
+   ```
+
+3. Start the React development server.
+   ```
+   npm start
+   ```
+
+### Server
+
+1. Navigate to the `server` directory.
+
+2. Install dependencies using npm.
+
+   ```
+   npm install
+   ```
+
+3. Start the Express server.
+   ```
+   npm start
+   ```
+
+### n8n
+
+1. Ensure you have Node.js and npm installed on your system.
+
+2. Install n8n globally.
+
+   ```
+   npm install n8n -g
+   ```
+
+3. Start n8n.
+   ```
+   n8n start
+   ```
+
+After following these steps, you should have the LinguistNow application up and running, along with the n8n workflow automation tool.
 
 # Behind the scene
 

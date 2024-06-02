@@ -1,24 +1,27 @@
 import React from "react";
+import { GoogleLogin } from "@react-oauth/google";
 
-const Login = () => {
+const Login = ({ setIsSignedIn }) => {
+  const handleSuccess = (credentialResponse) => {
+    console.log(credentialResponse);
+    localStorage.setItem("googleToken", credentialResponse.credential);
+    setIsSignedIn(true);
+    window.location.href = "/dashboard";
+  };
+
+  const handleError = () => {
+    console.log("Login Failed");
+  };
+
   return (
-    <div className="flex flex-col items-center justify-center h-screen bg-gray-100">
-      <h1 className="text-3xl font-bold">Login</h1>
-      <form className="mt-4">
-        <input
-          type="email"
-          placeholder="Email"
-          className="border p-2 rounded mb-4"
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          className="border p-2 rounded mb-4"
-        />
-        <button type="submit" className="bg-blue-500 text-white p-2 rounded">
-          Login
-        </button>
-      </form>
+    <div>
+      <h2>Login Page</h2>
+      {/* Show Google sign in button */}
+      <GoogleLogin
+        onSuccess={handleSuccess}
+        onError={handleError}
+        auto_select
+      />
     </div>
   );
 };
