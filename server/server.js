@@ -6,6 +6,7 @@ const PORT = process.env.PORT || 5000; // Define the port number, use environmen
 
 const cors = require('cors');
 
+const authController = require('./controllers/authController');
 const { OAuth2Client } = require('google-auth-library'); // needed to get access token from Google
 const oAuth2Client = new OAuth2Client(
     process.env.GOOGLE_CLIENT_ID,
@@ -28,6 +29,10 @@ app.get('/', (req, res) => {
 
 // Use the routes defined in the controller
 app.use('/users', usersController);
+
+// Use routes to handle Google OAuth
+app.post('/auth/google', authController.getAccessToken);
+app.post('/auth/google/refresh-token', authController.refreshToken);
 
 // Start the server
 app.listen(PORT, () => {
