@@ -26,7 +26,7 @@ const App = () => {
     <GoogleOAuthProvider clientId="1013468598501-cunj635lqqs72mar3cfistsaigaop03h.apps.googleusercontent.com">
       <LanguageProvider>
         <BrowserRouter>
-          {isSignedIn && <Navigate to="/dashboard" />}{" "}
+          {/* {isSignedIn && <Navigate to="/dashboard" />}{" "} */}
           {/* Navigate to dashboard if logged in */}
           <Navbar />
           <Routes>
@@ -44,7 +44,12 @@ const App = () => {
             />
             <Route
               path="/settings"
-              element={<AccountSettings setIsSignedIn={setIsSignedIn} />}
+              element={
+                <PrivateRoute
+                  isSignedIn={isSignedIn}
+                  element={<AccountSettings />}
+                />
+              }
             />
           </Routes>
         </BrowserRouter>
