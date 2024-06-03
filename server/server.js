@@ -7,38 +7,25 @@ const PORT = process.env.PORT || 5000; // Define the port number, use environmen
 const cors = require('cors');
 
 const authController = require('./controllers/authController');
-const { OAuth2Client } = require('google-auth-library'); // needed to get access token from Google
-const oAuth2Client = new OAuth2Client(
-    process.env.GOOGLE_CLIENT_ID,
-    process.env.GOOGLE_CLIENT_SECRET,
-    'postmessage',
-);
-
-const usersController = require('./controllers/usersController');
+const usersController = require("./controllers/usersController");
 
 // Middleware
 app.use(express.json()); // Parse JSON bodies
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
 app.use(cors()); // allow * / all to access our api. All domains, ips, ports
 
-// Set Cross-Origin headers
-app.use((req, res, next) => {
-    res.setHeader('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
-    res.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
-    next();
-});
-
 // Default route
 app.get('/', (req, res) => {
     res.send('Welcome to LinguistNow API server!');
 });
 
-// Use the routes defined in the controller
-app.use('/users', usersController);
+// Use routes to handle Google OAuth and fetch user info
+app.post('/auth/google/code', authController.exchangeCodeForToken);
+app.post('/auth/google/userInfo', authController.getUserInfo);
 
-// Use routes to handle Google OAuth
-app.post('/auth/google', authController.getAccessToken);
-app.post('/auth/google/refresh-token', authController.refreshToken);
+
+// Use routes to handle user data
+app.use("/users", usersController);
 
 // Start the server
 app.listen(PORT, () => {
