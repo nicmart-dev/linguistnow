@@ -39,8 +39,7 @@ const Login = ({ setIsSignedIn }) => {
     flow: "auth-code",
     scope: [
       "https://www.googleapis.com/auth/userinfo.profile",
-      "https://www.googleapis.com/auth/calendar.events",
-      "https://www.googleapis.com/auth/calendar",
+      "https://www.googleapis.com/auth/calendar.readonly",
     ].join(" "), // Make sure access token we will get will get access to these scopes
     redirect_uri: `${process.env.REACT_APP_BASE_URL}`,
   });
