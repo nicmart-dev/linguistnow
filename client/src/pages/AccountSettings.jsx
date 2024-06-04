@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import { Navigate } from "react-router-dom";
 import CalendarSelector from "../components/CalendarSelector";
 
+/* The AccountSettings component utilizes the CalendarSelector 
+to manage and save the user's calendar selections. */
 const AccountSettings = () => {
   /* Store selected calendars in state */
   const [selectedCalendars, setSelectedCalendars] = useState([]);

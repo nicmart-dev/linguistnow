@@ -1,17 +1,16 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 
+/* the CalendarSelector component fetches the user's Google Calendars 
+using their access token, handles token expiration by refreshing the access token, 
+and allows the user to select and save their calendars.
+ */
 const CalendarSelector = ({ onSave }) => {
   const [calendars, setCalendars] = useState([]);
   const [selectedCalendars, setSelectedCalendars] = useState([]);
 
-  useEffect(() => {
-    const googleAccessToken = localStorage.getItem("googleAccessToken");
-    if (googleAccessToken) {
-      fetchCalendars(googleAccessToken);
-    }
-  }, []);
-
-  const fetchCalendars = async (accessToken) => {
+  /* Fetch calendars from Google Calendar API.
+  We use useCallback hook to ensure we don't fetch calendars unless needed. */
+  const fetchCalendars = useCallback(async (accessToken) => {
     try {
       console.log("accessToken", accessToken);
       const response = await fetch(
@@ -35,7 +34,14 @@ const CalendarSelector = ({ onSave }) => {
         console.error("Error fetching calendars:", error);
       }
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    const googleAccessToken = localStorage.getItem("googleAccessToken");
+    if (googleAccessToken) {
+      fetchCalendars(googleAccessToken);
+    }
+  }, [fetchCalendars]);
 
   const refreshAccessToken = async () => {
     try {
@@ -46,20 +52,15 @@ const CalendarSelector = ({ onSave }) => {
       const response = await fetch("https://oauth2.googleapis.com/token", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
+          "Content-Type": "application/x-www-form-urlencoded",
         },
-        body: new URLSearchParams({
-          client_id: process.env.REACT_APP_GOOGLE_CLIENT_ID,
-          client_secret: process.env.REACT_APP_GOOGLE_CLIENT_SECRET,
-          refresh_token: refreshToken,
-          grant_type: "refresh_token",
-        }),
+        body: `client_id=${process.env.REACT_APP_GOOGLE_CLIENT_ID}&client_secret=${process.env.REACT_APP_GOOGLE_CLIENT_SECRET}&refresh_token=${refreshToken}&grant_type=refresh_token`,
       });
 
       const tokenData = await response.json();
 
       // Update the access token in local storage
-      localStorage.setItem("googleAccessToken", tokenData.access_token);
+      localStorage.setItem("googleToken", tokenData.access_token);
     } catch (error) {
       console.error("Error refreshing access token:", error);
     }
