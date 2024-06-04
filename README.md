@@ -292,7 +292,9 @@ To install and run the LinguistNow application, follow these steps:
    npm install
    ```
 
-3. Start the Express server.
+3. Download Google client id and secret keys from https://console.cloud.google.com/apis/credentials and store in server\config\oauth2.keys.json
+
+4. Start the Express server.
    ```
    npm start
    ```
