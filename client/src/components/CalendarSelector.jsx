@@ -81,21 +81,24 @@ const CalendarSelector = ({ onSave }) => {
   return (
     <>
       <h3>Choose Calendars:</h3>
-      <ul>
-        {/* Show all calendars from logged in user */}
-        {calendars.map((calendar) => (
-          <li key={calendar.id}>
-            <label>
-              <input
-                type="checkbox"
-                checked={selectedCalendars.includes(calendar.id)}
-                onChange={() => handleSelectCalendar(calendar.id)}
-              />
-              {calendar.summary}
-            </label>
-          </li>
-        ))}
-      </ul>
+      {calendars && calendars.length > 0 ? (
+        <ul>
+          {calendars.map((calendar) => (
+            <li key={calendar.id}>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={selectedCalendars.includes(calendar.id)}
+                  onChange={() => handleSelectCalendar(calendar.id)}
+                />
+                {calendar.summary}
+              </label>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p>No calendars available.</p>
+      )}
       <button onClick={handleSaveCalendars}>Save Calendars</button>
     </>
   );
