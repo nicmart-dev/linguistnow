@@ -5,9 +5,9 @@ const CalendarSelector = ({ onSave }) => {
   const [selectedCalendars, setSelectedCalendars] = useState([]);
 
   useEffect(() => {
-    const googleToken = localStorage.getItem("googleToken");
-    if (googleToken) {
-      fetchCalendars(googleToken);
+    const googleAccessToken = localStorage.getItem("googleAccessToken");
+    if (googleAccessToken) {
+      fetchCalendars(googleAccessToken);
     }
   }, []);
 
@@ -30,7 +30,7 @@ const CalendarSelector = ({ onSave }) => {
         // Token expired, attempt to refresh token
         await refreshAccessToken();
         // Retry fetching calendars
-        fetchCalendars(localStorage.getItem("googleToken"));
+        fetchCalendars(localStorage.getItem("googleAccessToken"));
       } else {
         console.error("Error fetching calendars:", error);
       }
@@ -59,7 +59,7 @@ const CalendarSelector = ({ onSave }) => {
       const tokenData = await response.json();
 
       // Update the access token in local storage
-      localStorage.setItem("googleToken", tokenData.access_token);
+      localStorage.setItem("googleAccessToken", tokenData.access_token);
     } catch (error) {
       console.error("Error refreshing access token:", error);
     }
