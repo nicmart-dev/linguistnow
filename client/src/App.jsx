@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
+import { FormattedMessage } from "react-intl";
 import Home from "./pages/Home.jsx";
 import Login from "./pages/Login.jsx";
 import AccountSettings from "./pages/AccountSettings.jsx";
@@ -24,7 +25,11 @@ const App = () => {
   }, []);
 
   if (loading) {
-    return <div>Loading...</div>; // Show a loading indicator while checking auth status
+    return (
+      <div>
+        <FormattedMessage id="loading" />
+      </div>
+    ); // Show a loading indicator while checking auth status
   }
 
   return (
