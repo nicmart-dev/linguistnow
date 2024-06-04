@@ -15,7 +15,7 @@ const App = () => {
   /* Check authentication on load to check if the user 
   is already signed in by checking the token in localStorage. */
   useEffect(() => {
-    const token = localStorage.getItem("googleToken");
+    const token = localStorage.getItem("googleAccessToken");
     if (token) {
       setIsSignedIn(true);
     }
@@ -28,7 +28,7 @@ const App = () => {
         <BrowserRouter>
           {/* {isSignedIn && <Navigate to="/dashboard" />}{" "} */}
           {/* Navigate to dashboard if logged in */}
-          <Navbar />
+          <Navbar isSignedIn={isSignedIn} />
           <Routes>
             <Route path="/" element={<Home />} />
             <Route
