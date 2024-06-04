@@ -11,6 +11,7 @@ import LanguageProvider from "./i18n/LanguageProvider"; // Package used to manag
 
 const App = () => {
   const [isSignedIn, setIsSignedIn] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   /* Check authentication on load to check if the user 
   is already signed in by checking the token in localStorage. */
@@ -19,7 +20,12 @@ const App = () => {
     if (token) {
       setIsSignedIn(true);
     }
+    setLoading(false); // Authentication status has been determined
   }, []);
+
+  if (loading) {
+    return <div>Loading...</div>; // Show a loading indicator while checking auth status
+  }
 
   return (
     /* Wraps the application to provide the OAuth context */
