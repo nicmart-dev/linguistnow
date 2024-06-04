@@ -6,21 +6,26 @@ const PORT = process.env.PORT || 5000; // Define the port number, use environmen
 
 const cors = require('cors');
 
-const usersController = require('./controllers/usersController');
+const authController = require('./controllers/authController');
+const usersController = require("./controllers/usersController");
 
 // Middleware
 app.use(express.json()); // Parse JSON bodies
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
 app.use(cors()); // allow * / all to access our api. All domains, ips, ports
 
-
 // Default route
 app.get('/', (req, res) => {
     res.send('Welcome to LinguistNow API server!');
 });
 
-// Use the routes defined in the controller
-app.use('/users', usersController);
+// Use routes to handle Google OAuth and fetch user info
+app.post('/auth/google/code', authController.exchangeCodeForToken);
+app.post('/auth/google/userInfo', authController.getUserInfo);
+
+
+// Use routes to handle user data
+app.use("/users", usersController);
 
 // Start the server
 app.listen(PORT, () => {

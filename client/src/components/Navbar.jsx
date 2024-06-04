@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { FormattedMessage } from "react-intl";
 import { LanguageContext } from "../i18n/LanguageProvider";
 
-const Navbar = () => {
+const Navbar = ({ isSignedIn }) => {
   const { switchLanguage } = useContext(LanguageContext); // Access switchLanguage function from context
 
   return (
@@ -14,11 +14,13 @@ const Navbar = () => {
             <FormattedMessage id="home" />
           </Link>
         </li>
-        <li>
-          <Link to="/login">
-            <FormattedMessage id="login" />
-          </Link>
-        </li>
+        {!isSignedIn && ( // Render login link only if not signed in
+          <li>
+            <Link to="/login">
+              <FormattedMessage id="login" />
+            </Link>
+          </li>
+        )}
         <li>
           <Link to="/signup">
             <FormattedMessage id="signup" />
@@ -27,6 +29,11 @@ const Navbar = () => {
         <li>
           <Link to="/dashboard">
             <FormattedMessage id="dashboard" />
+          </Link>
+        </li>
+        <li>
+          <Link to="/settings">
+            <FormattedMessage id="settings" />
           </Link>
         </li>
         {/* Language toggle buttons */}

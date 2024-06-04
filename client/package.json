@@ -7,6 +7,7 @@
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
+    "axios": "^1.7.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-intl": "^6.6.8",
@@ -39,8 +40,13 @@
     ]
   },
   "devDependencies": {
+    "assert": "^2.1.0",
     "autoprefixer": "^10.4.19",
+    "https-browserify": "^1.0.0",
     "postcss": "^8.4.38",
-    "tailwindcss": "^3.4.3"
+    "stream-browserify": "^3.0.0",
+    "tailwindcss": "^3.4.3",
+    "url": "^0.11.3",
+    "util": "^0.12.5"
   }
 }

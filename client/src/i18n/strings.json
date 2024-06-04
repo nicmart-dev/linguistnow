@@ -4,19 +4,23 @@
     "login": "Login",
     "signup": "Signup",
     "dashboard": "Dashboard",
+    "settings": "Settings",
     "description": "Simplifying the hassle of finding available linguists for translation projects.",
     "home": "Home",
     "english": "English",
-    "french": "French"
+    "french": "Français",
+    "loading": "Loading..."
   },
   "fr": {
     "welcome": "Bienvenue chez LinguistNow",
     "login": "Connexion",
     "signup": "Inscription",
     "dashboard": "Tableau de bord",
+    "settings": "Paramètres",
     "description": "Simplifier la recherche de linguistes disponibles pour des projets de traduction.",
     "home": "Accueil",
-    "english": "Anglais",
-    "french": "Français"
+    "english": "English",
+    "french": "Français",
+    "loading": "Chargement..."
   }
 }
