@@ -5,6 +5,7 @@ import CalendarSelector from "../components/CalendarSelector";
 to manage and save the user's calendar selections. */
 const AccountSettings = () => {
   /* Store selected calendars in state */
+  // eslint-disable-next-line no-unused-vars
   const [selectedCalendars, setSelectedCalendars] = useState([]);
 
   // Save settings to the database
