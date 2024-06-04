@@ -6,6 +6,8 @@ const PORT = process.env.PORT || 5000; // Define the port number, use environmen
 
 const cors = require('cors');
 
+const calendarRoutes = require('./routes/calendarRoutes');
+
 const authController = require('./controllers/authController');
 const usersController = require("./controllers/usersController");
 
