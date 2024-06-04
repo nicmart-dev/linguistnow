@@ -27,6 +27,9 @@ app.post('/auth/google/userInfo', authController.getUserInfo);
 // Use routes to handle user data
 app.use("/users", usersController);
 
+// Route to manage Google calendar user data handling
+app.use('/api/calendars', calendarRoutes);
+
 // Start the server
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
