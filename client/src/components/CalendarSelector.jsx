@@ -34,7 +34,7 @@ const CalendarSelector = ({ onSave }) => {
           fetchCalendars(localStorage.getItem("googleAccessToken"));
         } else {
           const data = await response.json();
-          console.log("Calendars:", data);
+          console.log("Calendars:", data.items);
           setCalendars(data.items);
         }
       } catch (error) {

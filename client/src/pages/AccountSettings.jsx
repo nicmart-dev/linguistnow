@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import axios from "axios";
 import CalendarSelector from "../components/CalendarSelector";
 
 /* The AccountSettings component utilizes the CalendarSelector 
@@ -8,13 +9,22 @@ const AccountSettings = () => {
   // eslint-disable-next-line no-unused-vars
   const [selectedCalendars, setSelectedCalendars] = useState([]);
 
-  // Save settings to the database
-  const handleSaveCalendars = (selectedCalendars) => {
+  const handleSaveCalendars = async (selectedCalendars) => {
     // store selected calendars in state from the CalendarSelector component
     setSelectedCalendars(selectedCalendars);
 
-    // TODO Save selected calendars to the database
-    console.log("Selected Calendars:", selectedCalendars);
+    // Send selected calendars to the backend to trigger n8n workflow
+    try {
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_URL}/api/calendars/save-calendars`,
+        {
+          calendarIds: selectedCalendars,
+        }
+      );
+      console.log("n8n workflow triggered:", response.data);
+    } catch (error) {
+      console.error("Failed to trigger n8n workflow:", error);
+    }
   };
 
   return (
