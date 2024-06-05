@@ -6,10 +6,10 @@ const PORT = process.env.PORT || 5000; // Define the port number, use environmen
 
 const cors = require('cors');
 
+/* Import routes */
 const calendarRoutes = require('./routes/calendarRoutes');
-
-const authController = require('./controllers/authController');
-const usersController = require("./controllers/usersController");
+const authRoutes = require('./routes/authRoutes');
+const usersRoutes = require('./routes/usersRoutes');
 
 // Middleware
 app.use(express.json()); // Parse JSON bodies
@@ -22,12 +22,10 @@ app.get('/', (req, res) => {
 });
 
 // Use routes to handle Google OAuth and fetch user info
-app.post('/auth/google/code', authController.exchangeCodeForToken);
-app.post('/auth/google/userInfo', authController.getUserInfo);
-
+app.use('/api/auth', authRoutes);
 
 // Use routes to handle user data
-app.use("/users", usersController);
+app.use('/api/users', usersRoutes);
 
 // Route to manage Google calendar user data handling
 app.use('/api/calendars', calendarRoutes);
