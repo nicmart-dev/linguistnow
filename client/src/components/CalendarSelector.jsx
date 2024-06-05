@@ -4,7 +4,7 @@ import React, { useEffect, useState, useCallback } from "react";
 using their access token, handles token expiration by refreshing the access token, 
 and allows the user to select and save their calendars.
  */
-const CalendarSelector = ({ onSave }) => {
+const CalendarSelector = ({ onSave, setAccessToken }) => {
   const [calendars, setCalendars] = useState([]);
   const [selectedCalendars, setSelectedCalendars] = useState([]);
   const [refreshingToken, setRefreshingToken] = useState(false); // flag to track whether the token refresh has already been attempted
@@ -57,8 +57,10 @@ const CalendarSelector = ({ onSave }) => {
     const googleAccessToken = localStorage.getItem("googleAccessToken");
     if (googleAccessToken) {
       fetchCalendars(googleAccessToken);
+      // Set access token in parent component so it can then pass it to n8n workflow
+      setAccessToken(googleAccessToken);
     }
-  }, [fetchCalendars]);
+  }, [fetchCalendars, setAccessToken]);
 
   const refreshAccessToken = async () => {
     try {
