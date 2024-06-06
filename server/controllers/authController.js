@@ -37,7 +37,6 @@ const exchangeCodeForToken = async (req, res) => {
 
 
 /* Route for fetching user info from Google People API 
-TODO: can use this to store user info in DB
 */
 const getUserInfo = async (req, res) => {
     try {
@@ -58,8 +57,6 @@ const getUserInfo = async (req, res) => {
             email: response.data.emailAddresses[0].value,
             name: response.data.names[0].displayName,
             picture: response.data.photos[0].url,
-            given_name: response.data.names[0].givenName,
-            family_name: response.data.names[0].familyName,
         };
 
         console.log('User Info:', userInfo);
@@ -70,8 +67,6 @@ const getUserInfo = async (req, res) => {
               "email": "nicmart@gmail.com",
               "name": "Nicolas Martinez",
               "picture": "https://lh3.googleusercontent.com/a/ACg8ocJyVz9ROm3HrVEUuXn1SgDyqx6iwms5nxnOgFDKyujfVQdJ-1HKLA=s96-c",
-              "given_name": "Nicolas",
-              "family_name": "Martinez"
           }
       }
       */

@@ -38,8 +38,6 @@ const create = async (req, res) => {
             Email: email,
             Name: name,
             Picture: picture_url,
-            'Given Name': given_name,
-            'Family Name': family_name,
             Role: role
         });
         res.json(createdRecord.fields);
