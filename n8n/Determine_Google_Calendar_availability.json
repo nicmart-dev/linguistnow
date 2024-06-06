@@ -143,7 +143,7 @@
     {
       "parameters": {
         "mode": "raw",
-        "jsonOutput": "={\n \"timeMin\": \"{{ $now.plus(1, 'day').startOf('day').toISO() }}\",\n  \"timeMax\": \"{{ $now.plus(4, 'day').startOf('day').toISO() }}\"\n}\n",
+        "jsonOutput": "={\n \"timeMin\": \"{{ $now.plus(1, 'day').startOf('day').toISO() }}\",\n  \"timeMax\": \"{{ $now.plus(7, 'day').endOf('day').toISO() }}\"\n}\n",
         "options": {}
       },
       "id": "5dd3342c-ee3b-40cf-b310-c8b9324a211f",
@@ -372,7 +372,7 @@
     "executionOrder": "v1",
     "saveExecutionProgress": true
   },
-  "versionId": "f47ea8c2-5eab-4e1f-b37a-7a9617bc191e",
+  "versionId": "b4fb1a55-734d-438d-b92a-67633b6facc4",
   "meta": {
     "templateId": "1953",
     "templateCredsSetupCompleted": true,
