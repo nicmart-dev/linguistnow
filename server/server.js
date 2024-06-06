@@ -1,7 +1,14 @@
 const express = require('express');
 const app = express();
 
-require('dotenv').config(); // load environment variables from a .env file into process.env
+// load environment variables from a .env file into process.env
+const dotenv = require('dotenv')
+const envConfig = dotenv.config()
+
+// Expand environment variables for nested variables
+const dotenvExpand = require('dotenv-expand')
+dotenvExpand.expand(envConfig)
+
 const PORT = process.env.PORT || 5000; // Define the port number, use environment variable if available
 
 const cors = require('cors');
