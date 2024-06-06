@@ -6,7 +6,7 @@ import axios from "axios";
 const Login = ({ setIsSignedIn }) => {
   const navigate = useNavigate();
 
-  const handleGoogleLoginSuccess = (response) => {
+  const handleGoogleLoginSuccess = async (response) => {
     console.log("Google Login Success:", response);
     /* Sample response:
     {
@@ -18,20 +18,45 @@ const Login = ({ setIsSignedIn }) => {
     */
     const { code } = response; // Extract the authorization code
 
-    // Send the authorization code to the backend to exchange for tokens
-    axios
-      .post(`${process.env.REACT_APP_API_URL}/api/auth/google/code`, { code })
-      .then((res) => {
-        console.log("Response from server:", res.data);
-        const { accessToken, refreshToken } = res.data;
-        localStorage.setItem("googleAccessToken", accessToken);
-        localStorage.setItem("googleRefreshToken", refreshToken);
-        setIsSignedIn(true);
-        navigate("/settings");
-      })
-      .catch((error) => {
-        console.error("Error during token exchange:", error);
+    try {
+      // Send the authorization code to the backend to exchange for tokens
+      const tokenResponse = await axios.post(
+        `${process.env.REACT_APP_API_URL}/api/auth/google/code`,
+        { code }
+      );
+      console.log("Response from server:", tokenResponse.data);
+      const { accessToken, refreshToken } = tokenResponse.data;
+
+      localStorage.setItem("googleAccessToken", accessToken);
+      localStorage.setItem("googleRefreshToken", refreshToken);
+
+      // Fetch user info from Google
+      const userInfoResponse = await axios.get(
+        "https://www.googleapis.com/oauth2/v3/userinfo",
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
+
+      const userInfo = userInfoResponse.data;
+      console.log("User Info from Google:", userInfo);
+
+      // Create or update the user in Airtable via backend server
+      await axios.post(`${process.env.REACT_APP_API_URL}/api/users`, {
+        email: userInfo.email,
+        name: userInfo.name,
+        picture_url: userInfo.picture,
+        given_name: userInfo.given_name,
+        family_name: userInfo.family_name,
       });
+
+      setIsSignedIn(true); // Update the signed-in state
+      navigate("/settings");
+    } catch (error) {
+      console.error("Error during login process:", error);
+    }
   };
 
   const login = useGoogleLogin({
