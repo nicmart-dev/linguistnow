@@ -60,7 +60,7 @@ Why?
 
 - **Front-end:** React.js, React Router (for navigation), Tailwind CSS (for styling), Axios
 - **Back-end:** Node.js, Express.js, Knex.js, bcrypt (for password hashing)
-- **Database:** MySQL
+- **Database:** Airtable
 - **Authentication:** JWT (JSON Web Tokens)
 - **Localization:** [react-intl](https://www.npmjs.com/package/react-intl) library for internationalization, using AI translations
 - **Calendar Integration:** built-in Google Calendar integration of [n8n](https://www.npmjs.com/package/n8n) workflow automation library
