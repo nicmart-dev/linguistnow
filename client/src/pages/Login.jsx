@@ -20,7 +20,7 @@ const Login = ({ setIsSignedIn }) => {
 
     // Send the authorization code to the backend to exchange for tokens
     axios
-      .post(`${process.env.REACT_APP_API_URL}/auth/google/code`, { code })
+      .post(`${process.env.REACT_APP_API_URL}/api/auth/google/code`, { code })
       .then((res) => {
         console.log("Response from server:", res.data);
         const { accessToken, refreshToken } = res.data;

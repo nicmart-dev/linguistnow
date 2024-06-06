@@ -15,6 +15,7 @@
     "cors": "^2.8.5",
     "cross-env": "^7.0.3",
     "dotenv": "^16.4.5",
+    "dotenv-expand": "^11.0.6",
     "express": "^4.19.2",
     "google-auth-library": "^9.10.0",
     "nodemon": "^3.1.0"
