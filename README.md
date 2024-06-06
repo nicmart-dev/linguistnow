@@ -310,9 +310,12 @@ To install and run the LinguistNow application, follow these steps:
    ```
 
 3. Start n8n.
+
    ```
    n8n start
    ```
+
+4. Import n8n workflow configuration in `n8n\Determine_Google_Calendar_availability.json` per https://docs.n8n.io/courses/level-one/chapter-6
 
 After following these steps, you should have the LinguistNow application up and running, along with the n8n workflow automation tool.
 
