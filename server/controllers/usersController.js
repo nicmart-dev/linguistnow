@@ -9,36 +9,70 @@ var base = new Airtable({ apiKey: process.env.AIRTABLE_PERSONAL_ACCESS_TOKEN }).
 
 
 // GET /users
-const getAll = (req, res) => {
-    // Handle logic to fetch all users from the database
-    res.send('Get all users');
+const getAll = async (req, res) => {
+    try {
+        const records = await base('Users').select().all();
+        const users = records.map(record => record.fields);
+        res.json(users);
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to fetch users' });
+    }
 };
 
 // GET /users/:id
-const getOne = (req, res) => {
+const getOne = async (req, res) => {
     const userId = req.params.id;
-    // Handle logic to fetch user by ID from the database
-    res.send(`Get user with ID ${userId}`);
+    try {
+        const record = await base('Users').find(userId);
+        res.json(record.fields);
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to fetch user' });
+    }
 };
 
 // POST /users
-const create = (req, res) => {
-    // Handle logic to create a new user in the database
-    res.send('Create a new user');
+const create = async (req, res) => {
+    const { email, name, picture_url, given_name, family_name, role = 'Linguist' } = req.body;
+    try {
+        const createdRecord = await base('Users').create({
+            Email: email,
+            Name: name,
+            Picture: picture_url,
+            'Given Name': given_name,
+            'Family Name': family_name,
+            Role: role
+        });
+        res.json(createdRecord.fields);
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to create user' });
+    }
 };
 
 // PUT /users/:id
-const update = (req, res) => {
+const update = async (req, res) => {
     const userId = req.params.id;
-    // Handle logic to update user by ID in the database
-    res.send(`Update user with ID ${userId}`);
+    const { calendarIds, accessToken, refreshToken } = req.body;
+    try {
+        const updatedRecord = await base('Users').update(userId, {
+            'Calendar IDs': calendarIds.join(','),
+            'Access Token': accessToken,
+            'Refresh Token': refreshToken
+        });
+        res.json(updatedRecord.fields);
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to update user' });
+    }
 };
 
 // DELETE /users/:id
-const remove = (req, res) => {
+const remove = async (req, res) => {
     const userId = req.params.id;
-    // Handle logic to delete user by ID from the database
-    res.send(`Delete user with ID ${userId}`);
+    try {
+        await base('Users').destroy(userId);
+        res.send(`Deleted user with ID ${userId}`);
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to delete user' });
+    }
 };
 
 module.exports = {
