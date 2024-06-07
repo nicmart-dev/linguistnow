@@ -8,7 +8,9 @@
     "home": "Home",
     "english": "English",
     "french": "Français",
-    "loading": "Loading..."
+    "loading": "Loading...",
+    "dashboard.title": "Dashboard",
+    "dashboard.description": "Manage your linguists and projects."
   },
   "fr": {
     "welcome": "Bienvenue chez LinguistNow",
@@ -19,6 +21,8 @@
     "home": "Accueil",
     "english": "English",
     "french": "Français",
-    "loading": "Chargement..."
+    "loading": "Chargement...",
+    "dashboard.title": "Tableau de bord",
+    "dashboard.description": "Gérez vos linguistes et projets."
   }
 }
