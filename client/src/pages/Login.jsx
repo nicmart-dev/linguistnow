@@ -49,14 +49,24 @@ const Login = ({ setIsSignedIn }) => {
       // Store user email in local storage so we can then use it to identify the user when saving calendars in account settings
       localStorage.setItem("userEmail", userInfo.email);
 
-      // Create or update the user in Airtable via backend server
-      await axios.post(`${process.env.REACT_APP_API_URL}/api/users`, {
-        email: userInfo.email,
-        name: userInfo.name,
-        picture_url: userInfo.picture,
-        given_name: userInfo.given_name,
-        family_name: userInfo.family_name,
-      });
+      // Check if the user exists in Airtable
+      try {
+        await axios.get(
+          `${process.env.REACT_APP_API_URL}/api/users/${userInfo.email}`
+        );
+      } catch (error) {
+        if (error.response && error.response.status === 404) {
+          // If the user does not exist, create a new user
+          await axios.post(`${process.env.REACT_APP_API_URL}/api/users`, {
+            email: userInfo.email,
+            name: userInfo.name,
+            picture_url: userInfo.picture,
+          });
+        } else {
+          console.error("Error checking user existence:", error);
+          throw error;
+        }
+      }
 
       setIsSignedIn(true); // Update the signed-in state
       navigate("/settings");
