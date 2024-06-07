@@ -8,7 +8,8 @@ const Airtable = require('airtable');
 var base = new Airtable({ apiKey: process.env.AIRTABLE_PERSONAL_ACCESS_TOKEN }).base(process.env.AIRTABLE_BASE_ID);
 
 
-// GET /users
+/* GET /users
+Get all users from Airtable alongside all their fields */
 const getAll = async (req, res) => {
     try {
         const records = await base('Users').select().all();
@@ -20,7 +21,8 @@ const getAll = async (req, res) => {
     }
 };
 
-// GET /users/:id
+/* GET /users/:id
+Get a single user details based on their email address, set as primary key in Airtable */
 const getOne = async (req, res) => {
     const userEmail = req.params.id;
     /* Sample input: http://localhost:8080/api/users/john@gmail.com
@@ -50,7 +52,8 @@ const getOne = async (req, res) => {
     }
 };
 
-// POST /users
+/* POST /users
+Create new user upon first log in based on information from Google User API */
 const create = async (req, res) => {
     const { email, name, picture_url, given_name, family_name, role = 'Linguist' } = req.body;
     try {
@@ -67,7 +70,10 @@ const create = async (req, res) => {
     }
 };
 
-// PUT /users/:id
+/* PUT /users/:id
+Update lists of calendars, and Google oAuth2 tokens for a user.
+Used when user selects calendars and saves them in the account settings, 
+or when the access token is refreshed. */
 const update = async (req, res) => {
     const userEmail = req.params.id;
     const { calendarIds, googleAccessToken, googleRefreshToken } = req.body;
@@ -80,15 +86,21 @@ const update = async (req, res) => {
 
         if (records.length > 0) {
             const recordId = records[0].id;
+            const fieldsToUpdate = {};
 
-            // Update the found record
-            const updatedRecord = await base('Users').update(recordId, {
-                'Calendar IDs': calendarIds.join(','), // Convert array to comma-separated string
-                'Access Token': googleAccessToken,
-                'Refresh Token': googleRefreshToken
-            });
+            // Update the fields if provided
+            if (calendarIds) fieldsToUpdate['Calendar IDs'] = calendarIds.join(',');
+            if (googleAccessToken) fieldsToUpdate['Access Token'] = googleAccessToken;
+            if (googleRefreshToken) fieldsToUpdate['Refresh Token'] = googleRefreshToken;
 
-            res.json(updatedRecord.fields);
+            // Check if any fields to update
+            if (Object.keys(fieldsToUpdate).length > 0) {
+                // Update the found record
+                const updatedRecord = await base('Users').update(recordId, fieldsToUpdate);
+                res.json(updatedRecord.fields);
+            } else {
+                res.status(400).json({ error: 'No fields provided for update' });
+            }
         } else {
             res.status(404).json({ error: 'User not found' });
         }
@@ -99,7 +111,9 @@ const update = async (req, res) => {
 };
 
 
-// DELETE /users/:id
+
+/* DELETE /users/:id
+TODO: not currently used */
 const remove = async (req, res) => {
     const userId = req.params.id;
     try {

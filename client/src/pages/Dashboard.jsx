@@ -1,18 +1,18 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { FormattedMessage } from "react-intl"; // Import FormattedMessage
+import { FormattedMessage } from "react-intl"; // To show localized strings
+import { refreshAccessToken } from "../auth/utils"; // To refresh access token when needed
 
 const Dashboard = () => {
   const [linguists, setLinguists] = useState([]); // store list of users retrieved from Airtable
   const [errors, setErrors] = useState([]); // used to store errors when iterating through users
 
   /* Get list of linguists at page load from Airtable  and 
-  for each check their availability using n8n workflow.
-  If 
+  for each check their availability using n8n workflow. 
   */
   useEffect(() => {
     const fetchLinguists = async () => {
-      const newErrors = []; // Collect errors here
+      const newErrors = []; // Errors stored as we loop through each user
 
       try {
         const response = await axios.get(
@@ -23,21 +23,61 @@ const Dashboard = () => {
 
         for (const user of users) {
           try {
-            // Check if the correct keys are present
-            if (!user["Calendar IDs"] || !user["Access Token"]) {
+            // Check if the calendar list and Google OAuth tokens needed is present
+            if (
+              !user["Calendar IDs"] ||
+              !user["Access Token"] ||
+              !user["Refresh Token"]
+            ) {
               throw new Error(
-                `Calendar IDs or Access Token not available for user: ${user.Email}`
+                `Calendar IDs, Access Token, or Refresh Token not available for user: ${user.Email}. Please ask them to login again with their Google account, select their calendars and click "Save calendars" button in the settings page.`
               );
             }
+            let calendarIds = user["Calendar IDs"];
+            let accessToken = user["Access Token"];
+            let availabilityResponse;
 
-            // Trigger N8n workflow to get availability for each user
-            const availabilityResponse = await axios.post(
-              `${process.env.REACT_APP_API_URL}/api/calendars/free`,
-              {
-                calendarIds: user["Calendar IDs"],
-                accessToken: user["Access Token"],
+            try {
+              // Trigger N8n workflow to get availability for each user
+              availabilityResponse = await axios.post(
+                `${process.env.REACT_APP_API_URL}/api/calendars/free`,
+                {
+                  calendarIds: calendarIds,
+                  accessToken: accessToken,
+                }
+              );
+            } catch (error) {
+              // Check if the token expired and needs to be refreshed
+              if (error.response && error.response.status === 500) {
+                console.log(
+                  `Google OAuth access token invalid or expired for user ${user.Email}. Getting a new one using refresh token...`
+                );
+                accessToken = await refreshAccessToken(user["Refresh Token"]);
+                // Save the new access token to Airtable
+                await axios.put(
+                  `${process.env.REACT_APP_API_URL}/api/users/${user.Email}`,
+                  {
+                    googleAccessToken: accessToken,
+                  }
+                );
+
+                // Retry the availability check with the new access token
+                availabilityResponse = await axios.post(
+                  `${process.env.REACT_APP_API_URL}/api/calendars/free`,
+                  {
+                    calendarIds: calendarIds,
+                    accessToken: accessToken,
+                  }
+                );
+              } else if (error.response && error.response.status === 401) {
+                console.log(
+                  "Could not connect to n8n workflow. Check your API key environment variable."
+                );
+              } else {
+                throw error;
               }
-            );
+            }
+
             const availability = availabilityResponse.data;
             console.log("Availability for", user.Email, ":", availability);
 
