@@ -18,21 +18,7 @@ const triggerN8nWorkflow = async (calendarIds, accessToken) => {
     }
 };
 
-/* Save selected calendars
-TODO: refactor so calendars are stored in DB, and 
-n8n workflow triger only when PM search for available linguists
-*/
-const saveSelectedCalendars = async (req, res) => {
-    const { calendarIds, googleAccessToken } = req.body; // Receive calendar ids list and access token from the front-end
-
-    try {
-        const result = await triggerN8nWorkflow(calendarIds, googleAccessToken); // Pass those to n8n workflow
-        res.status(200).json(result);
-    } catch (error) {
-        res.status(500).json({ error: 'Failed to trigger n8n workflow' });
-    }
-};
 
 module.exports = {
-    saveSelectedCalendars,
+    triggerN8nWorkflow
 };

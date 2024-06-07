@@ -1,66 +1,62 @@
 import React, { useEffect, useState, useCallback } from "react";
 
-/* the CalendarSelector component fetches the user's Google Calendars 
+/* The CalendarSelector component fetches the user's Google Calendars 
 using their access token, handles token expiration by refreshing the access token, 
 and allows the user to select and save their calendars.
  */
-const CalendarSelector = ({ onSave, setAccessToken }) => {
-  const [calendars, setCalendars] = useState([]);
-  const [selectedCalendars, setSelectedCalendars] = useState([]);
-  const [refreshingToken, setRefreshingToken] = useState(false); // flag to track whether the token refresh has already been attempted
+const CalendarSelector = ({ onSave }) => {
+  const [calendars, setCalendars] = useState([]); // all users calendars to display
+  const [selectedCalendars, setSelectedCalendars] = useState([]); // user selected calendars
+  const [googleAccessToken, setGoogleAccessToken] = useState("");
+  const [googleRefreshToken, setGoogleRefreshToken] = useState(false); // refresh token
 
   /* Fetch calendars from Google Calendar API.
   We use useCallback hook to ensure we don't fetch calendars unless needed. */
-
-  const fetchCalendars = useCallback(
-    async (accessToken) => {
-      try {
-        console.log("accessToken", accessToken);
-        const response = await fetch(
-          "https://www.googleapis.com/calendar/v3/users/me/calendarList",
-          {
-            headers: new Headers({
-              Authorization: `Bearer ${accessToken}`,
-            }),
-          }
-        );
-
-        if (response.status === 401 && !refreshingToken) {
-          // Token expired, attempt to refresh token
-          console.log("Token expired, refreshing access token...");
-          setRefreshingToken(true);
-          await refreshAccessToken();
-          // Retry fetching calendars
-          fetchCalendars(localStorage.getItem("googleAccessToken"));
-        } else {
-          const data = await response.json();
-          console.log("Calendars:", data.items);
-          setCalendars(data.items);
+  const fetchCalendars = useCallback(async (accessToken) => {
+    try {
+      console.log("accessToken", accessToken);
+      const response = await fetch(
+        "https://www.googleapis.com/calendar/v3/users/me/calendarList",
+        {
+          headers: new Headers({
+            Authorization: `Bearer ${accessToken}`,
+          }),
         }
-      } catch (error) {
-        if (error.message === "Failed to refresh access token") {
-          // If token refresh fails, don't retry fetching calendars
-          console.error(
-            "Failed to refresh access token. Stopping further attempts."
-          );
-        } else {
-          console.error("Error fetching calendars:", error);
-        }
-      } finally {
-        setRefreshingToken(false); // Reset the flag after attempting token refresh
+      );
+
+      if (response.status === 401) {
+        // Token expired, attempt to refresh token
+        console.log("Token expired, refreshing access token...");
+        await refreshAccessToken();
+        // Retry fetching calendars with the new access token
+        fetchCalendars(localStorage.getItem("googleAccessToken"));
+      } else {
+        const data = await response.json();
+        console.log("Calendars:", data.items);
+        setCalendars(data.items);
       }
-    },
-    [refreshingToken]
-  );
+    } catch (error) {
+      if (error.message === "Failed to refresh access token") {
+        // If token refresh fails, don't retry fetching calendars
+        console.error(
+          "Failed to refresh access token. Stopping further attempts."
+        );
+      } else {
+        console.error("Error fetching calendars:", error);
+      }
+    }
+  }, []);
 
   useEffect(() => {
     const googleAccessToken = localStorage.getItem("googleAccessToken");
+    const googleRefreshToken = localStorage.getItem("googleRefreshToken");
+
     if (googleAccessToken) {
       fetchCalendars(googleAccessToken);
-      // Set access token in parent component so it can then pass it to n8n workflow
-      setAccessToken(googleAccessToken);
+      setGoogleAccessToken(googleAccessToken);
+      setGoogleRefreshToken(googleRefreshToken);
     }
-  }, [fetchCalendars, setAccessToken]);
+  }, [fetchCalendars, setGoogleAccessToken, setGoogleRefreshToken]);
 
   const refreshAccessToken = async () => {
     try {
@@ -99,8 +95,9 @@ const CalendarSelector = ({ onSave, setAccessToken }) => {
     }
   };
 
+  /* Save selected calendars in parent account settings component */
   const handleSaveCalendars = () => {
-    onSave(selectedCalendars);
+    onSave(selectedCalendars, googleAccessToken, googleRefreshToken);
   };
 
   return (

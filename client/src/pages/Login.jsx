@@ -24,7 +24,10 @@ const Login = ({ setIsSignedIn }) => {
         `${process.env.REACT_APP_API_URL}/api/auth/google/code`,
         { code }
       );
-      console.log("Response from server:", tokenResponse.data);
+      console.log(
+        "Google access and refresh tokens from server:",
+        tokenResponse.data
+      );
       const { accessToken, refreshToken } = tokenResponse.data;
 
       localStorage.setItem("googleAccessToken", accessToken);
@@ -42,6 +45,9 @@ const Login = ({ setIsSignedIn }) => {
 
       const userInfo = userInfoResponse.data;
       console.log("User Info from Google:", userInfo);
+
+      // Store user email in local storage so we can then use it to identify the user when saving calendars in account settings
+      localStorage.setItem("userEmail", userInfo.email);
 
       // Create or update the user in Airtable via backend server
       await axios.post(`${process.env.REACT_APP_API_URL}/api/users`, {
