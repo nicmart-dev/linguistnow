@@ -38,10 +38,13 @@ const getOne = async (req, res) => {
             res.json(record.fields);
             /* Sample return
             {
-            "Role": "Linguist",
-            "Picture": "https://lh3.googleusercontent.com/a/ACg8ocJyVz9ROm3HrVEUuXn1SgDyqx6iwms5nxnOgFDKyujfVQdJ-1HKLA=s96-c",
-            "Email": "john@gmail.com",
-            "Name": "John Doe"
+                "Role": "Linguist",
+                "Refresh Token": "1//0678v4x9toSLZCgYIARA[redacted]",
+                "Picture": "https://lh3.googleusercontent.com/a/ACg8ocKHlwJUpk6cYZAH2WfJBUmyvWEP3UOeIlzxGvFwhomNAU1bLQ=s96-c",
+                "Calendar IDs": "family04987092414361716379@group.calendar.google.com",
+                "Access Token": "ya29.a0AXooCgvDaeOHh_jXF32d4M3JIf9Ids[redacted]",
+                "Email": "pokemontest734@gmail.com",
+                "Name": "Pokemon Test2"
             } */
         } else {
             res.status(404).json({ error: 'User not found' });
