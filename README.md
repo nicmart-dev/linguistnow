@@ -102,27 +102,17 @@ I will be using n8n built-in Google Calendar integration to get linguist up to d
 
 ### Sitemap
 
-##### Home
-
 - Landing Page
 - Login
-- Signup
 
 ##### Project Manager Dashboard
 
-- Add/edit/Delete linguist
 - Find available linguist
-
-##### Linguist Dashboard
-
-- Profile Settings
-- Account Settings
-  - Set availability / connect with Google Calendar
 
 ##### Settings
 
-- Profile Settings
 - Account Settings
+  - Connect with Google Calendar (Linguist only)
 - Logout
 
 ### Project Plan
