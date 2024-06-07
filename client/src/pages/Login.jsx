@@ -66,10 +66,18 @@ const Login = ({ setIsSignedIn }) => {
           console.error("Error checking user existence:", error);
           throw error;
         }
+      } finally {
+        // Update the user's access and refresh tokens in Airtable
+        await axios.put(
+          `${process.env.REACT_APP_API_URL}/api/users/${userInfo.email}`,
+          {
+            googleAccessToken: accessToken,
+            googleRefreshToken: refreshToken,
+          }
+        );
+        setIsSignedIn(true); // Update the signed-in state
+        navigate("/settings"); // Redirect to settings page so user can change their calendars
       }
-
-      setIsSignedIn(true); // Update the signed-in state
-      navigate("/settings");
     } catch (error) {
       console.error("Error during login process:", error);
     }

@@ -58,7 +58,7 @@ const getOne = async (req, res) => {
 /* POST /users
 Create new user upon first log in based on information from Google User API */
 const create = async (req, res) => {
-    const { email, name, picture_url, given_name, family_name, role = 'Linguist' } = req.body;
+    const { email, name, picture_url, role = 'Linguist' } = req.body;
     try {
         const createdRecord = await base('Users').create({
             Email: email,
