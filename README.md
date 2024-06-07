@@ -60,7 +60,7 @@ Why?
 
 - **Front-end:** React.js, React Router (for navigation), Tailwind CSS (for styling), Axios
 - **Back-end:** Node.js, Express.js, Knex.js, bcrypt (for password hashing)
-- **Database:** MySQL
+- **Database:** Airtable
 - **Authentication:** JWT (JSON Web Tokens)
 - **Localization:** [react-intl](https://www.npmjs.com/package/react-intl) library for internationalization, using AI translations
 - **Calendar Integration:** built-in Google Calendar integration of [n8n](https://www.npmjs.com/package/n8n) workflow automation library
@@ -102,27 +102,17 @@ I will be using n8n built-in Google Calendar integration to get linguist up to d
 
 ### Sitemap
 
-##### Home
-
 - Landing Page
 - Login
-- Signup
 
 ##### Project Manager Dashboard
 
-- Add/edit/Delete linguist
 - Find available linguist
-
-##### Linguist Dashboard
-
-- Profile Settings
-- Account Settings
-  - Set availability / connect with Google Calendar
 
 ##### Settings
 
-- Profile Settings
 - Account Settings
+  - Connect with Google Calendar (Linguist only)
 - Logout
 
 ### Project Plan
@@ -233,7 +223,7 @@ TODO: Provide visuals of your app's screens. You can use tools like Figma or pic
 
 ### Data
 
-TODO: Describe your data and the relationships between them. You can show this visually using diagrams, or write it out.
+See [Airtable data structure documentation](https://github.com/nicmart-dev/linguistnow/wiki/Store-user-data-in-Airtable#airtable-data-structure) in Wiki.
 
 ### Endpoints
 

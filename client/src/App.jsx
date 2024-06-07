@@ -4,7 +4,6 @@ import { FormattedMessage } from "react-intl";
 import Home from "./pages/Home.jsx";
 import Login from "./pages/Login.jsx";
 import AccountSettings from "./pages/AccountSettings.jsx";
-import Signup from "./pages/Signup.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
 import Navbar from "./components/Navbar.jsx";
 import { GoogleOAuthProvider } from "@react-oauth/google"; // Package used to manage Google OAuth
@@ -46,7 +45,6 @@ const App = () => {
               path="/login"
               element={<Login setIsSignedIn={setIsSignedIn} />}
             />
-            <Route path="/signup" element={<Signup />} />
             <Route
               path="/dashboard"
               element={

@@ -1,8 +1,8 @@
 const express = require('express');
-const { saveSelectedCalendars } = require('../controllers/calendarController');
+const { triggerN8nWorkflow } = require('../controllers/calendarController');
 
 const router = express.Router();
 
-router.post('/save-calendars', saveSelectedCalendars);
+router.post('/free', triggerN8nWorkflow);
 
 module.exports = router;

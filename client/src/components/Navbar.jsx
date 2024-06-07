@@ -22,11 +22,6 @@ const Navbar = ({ isSignedIn }) => {
           </li>
         )}
         <li>
-          <Link to="/signup">
-            <FormattedMessage id="signup" />
-          </Link>
-        </li>
-        <li>
           <Link to="/dashboard">
             <FormattedMessage id="dashboard" />
           </Link>
