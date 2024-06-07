@@ -5,8 +5,6 @@ import { refreshAccessToken } from "../auth/utils"; // To refresh access token w
 
 const Dashboard = () => {
   const [linguists, setLinguists] = useState([]); // store list of users retrieved from Airtable
-  const [errors, setErrors] = useState([]); // used to store errors when iterating through users
-
   /* Get list of linguists at page load from Airtable  and 
   for each check their availability using n8n workflow. 
   */
@@ -94,10 +92,6 @@ const Dashboard = () => {
       } catch (error) {
         console.error("Error fetching linguists:", error);
         newErrors.push("Error fetching linguists: " + error.message);
-      } finally {
-        if (newErrors.length > 0) {
-          setErrors(newErrors);
-        }
       }
     };
 
