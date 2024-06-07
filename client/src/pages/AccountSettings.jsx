@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import CalendarSelector from "../components/CalendarSelector";
+import { useIntl } from "react-intl";
 
 /* The AccountSettings component utilizes the CalendarSelector 
 to manage and save the user's calendar selections. */
@@ -8,6 +9,7 @@ const AccountSettings = () => {
   const [userDetails, setUserDetails] = useState(null);
   const [storedUserEmail, setStoredUserEmail] = useState(""); // used to identify user we want to get details from
   const navigate = useNavigate();
+  const intl = useIntl();
 
   useEffect(() => {
     const storedUserEmail = localStorage.getItem("userEmail");
@@ -82,12 +84,18 @@ const AccountSettings = () => {
 
   return (
     <div>
-      <h2>Account Settings</h2>
+      <h2>{intl.formatMessage({ id: "accountSettings.accountSettings" })}</h2>
       {userDetails && (
         <>
-          <h3>User Details</h3>
-          <p>Email: {userDetails.email}</p>
-          <p>Name: {userDetails.name}</p>
+          <h3>{intl.formatMessage({ id: "accountSettings.userDetails" })}</h3>
+          <p>
+            {intl.formatMessage({ id: "accountSettings.email" })}{" "}
+            {userDetails.Email}
+          </p>
+          <p>
+            {intl.formatMessage({ id: "accountSettings.name" })}{" "}
+            {userDetails.Name}
+          </p>
           {/* Pass user details to child component to display list of calendars, 
           as well as function it can call when saving selected calendars. */}
           <CalendarSelector

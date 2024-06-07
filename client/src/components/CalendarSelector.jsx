@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { refreshAccessToken } from "../auth/utils";
+import { useIntl } from "react-intl"; // to localize text strings
 
 /* The CalendarSelector component fetches the user's Google Calendars 
 using their access token, handles token expiration by refreshing the access token, 
@@ -7,6 +8,7 @@ and allows the user to select and save their calendars.
  */
 const CalendarSelector = ({ userDetails, onSave }) => {
   const [fetchedCalendars, setFetchedCalendars] = useState([]); // all calendars user has access to in Google Calendar
+  const intl = useIntl();
 
   const fetchCalendars = useCallback(
     async (accessToken) => {
@@ -59,7 +61,7 @@ const CalendarSelector = ({ userDetails, onSave }) => {
 
   return (
     <>
-      <h3>Choose Calendars:</h3>
+      <h3>{intl.formatMessage({ id: "calendarSelector.chooseCalendars" })}</h3>
       {fetchedCalendars && fetchedCalendars.length > 0 ? (
         <ul>
           {fetchedCalendars.map((calendar) => (
@@ -76,7 +78,9 @@ const CalendarSelector = ({ userDetails, onSave }) => {
           ))}
         </ul>
       ) : (
-        <p>No calendars available.</p>
+        <p>
+          {intl.formatMessage({ id: "calendarSelector.noCalendarsAvailable" })}
+        </p>
       )}
     </>
   );
