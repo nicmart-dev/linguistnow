@@ -3,10 +3,17 @@ import axios from "axios";
 import { FormattedMessage } from "react-intl"; // Import FormattedMessage
 
 const Dashboard = () => {
-  const [linguists, setLinguists] = useState([]);
+  const [linguists, setLinguists] = useState([]); // store list of users retrieved from Airtable
+  const [errors, setErrors] = useState([]); // used to store errors when iterating through users
 
+  /* Get list of linguists at page load from Airtable  and 
+  for each check their availability using n8n workflow.
+  If 
+  */
   useEffect(() => {
     const fetchLinguists = async () => {
+      const newErrors = []; // Collect errors here
+
       try {
         const response = await axios.get(
           `${process.env.REACT_APP_API_URL}/api/users`
@@ -14,16 +21,13 @@ const Dashboard = () => {
         const users = response.data;
         console.log("Users:", users);
 
-        const linguistData = await Promise.all(
-          users.map(async (user) => {
+        for (const user of users) {
+          try {
             // Check if the correct keys are present
             if (!user["Calendar IDs"] || !user["Access Token"]) {
-              // Handle the case where necessary data is not available
-              console.warn(
-                "Calendar IDs or Access Token not available for user:",
-                user
+              throw new Error(
+                `Calendar IDs or Access Token not available for user: ${user.Email}`
               );
-              return null; // or handle this case appropriately
             }
 
             // Trigger N8n workflow to get availability for each user
@@ -36,22 +40,31 @@ const Dashboard = () => {
             );
             const availability = availabilityResponse.data;
             console.log("Availability for", user.Email, ":", availability);
-            return { ...user, availability };
-          })
-        );
 
-        // Filter out any null values (users with missing data)
-        const validLinguistData = linguistData.filter((data) => data !== null);
-
-        setLinguists(validLinguistData);
+            // Add the user with availability to the linguists state
+            setLinguists((prevLinguists) => [
+              ...prevLinguists,
+              { ...user, availability },
+            ]);
+          } catch (userError) {
+            console.warn(userError);
+            newErrors.push(userError.message);
+          }
+        }
       } catch (error) {
         console.error("Error fetching linguists:", error);
+        newErrors.push("Error fetching linguists: " + error.message);
+      } finally {
+        if (newErrors.length > 0) {
+          setErrors(newErrors);
+        }
       }
     };
 
     fetchLinguists();
   }, []);
 
+  /* Show available linguists in a table. */
   return (
     <div className="flex flex-col items-center justify-center h-screen bg-gray-100">
       <h1 className="text-4xl font-bold">
