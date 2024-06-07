@@ -223,7 +223,7 @@ TODO: Provide visuals of your app's screens. You can use tools like Figma or pic
 
 ### Data
 
-TODO: Describe your data and the relationships between them. You can show this visually using diagrams, or write it out.
+See [Airtable data structure documentation](https://github.com/nicmart-dev/linguistnow/wiki/Store-user-data-in-Airtable#airtable-data-structure) in Wiki.
 
 ### Endpoints
 
