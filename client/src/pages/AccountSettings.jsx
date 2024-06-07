@@ -14,15 +14,32 @@ const AccountSettings = () => {
     googleRefreshToken
   ) => {
     try {
-      const response = await axios.put(
-        `${process.env.REACT_APP_API_URL}/api/users/${userEmail}`,
-        {
-          calendarIds: selectedCalendars,
-          googleAccessToken: googleAccessToken,
-          googleRefreshToken: googleRefreshToken,
+      // Check if the user exists
+      try {
+        await axios.get(
+          `${process.env.REACT_APP_API_URL}/api/users/${userEmail}`
+        );
+
+        // If the user exists, update their information
+        const response = await axios.put(
+          `${process.env.REACT_APP_API_URL}/api/users/${userEmail}`,
+          {
+            calendarIds: selectedCalendars,
+            googleAccessToken: googleAccessToken,
+            googleRefreshToken: googleRefreshToken,
+          }
+        );
+        console.log("Calendars saved:", response.data);
+      } catch (error) {
+        if (error.response && error.response.status === 404) {
+          console.error(
+            "User not found, cannot save selected calendars preferences."
+          );
+        } else {
+          // If there's an error other than 404, log it
+          console.error("Error checking user existence:", error);
         }
-      );
-      console.log("Calendars saved:", response.data);
+      }
     } catch (error) {
       console.error("Failed to save calendars:", error);
     }
