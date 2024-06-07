@@ -36,8 +36,8 @@ const App = () => {
     <GoogleOAuthProvider clientId="1013468598501-cunj635lqqs72mar3cfistsaigaop03h.apps.googleusercontent.com">
       <LanguageProvider>
         <BrowserRouter>
-          {/* {isSignedIn && <Navigate to="/dashboard" />}{" "} */}
-          {/* Navigate to dashboard if logged in */}
+          {/* Need to log in at start */}
+          {!isSignedIn ? <Navigate to="/login" /> : null}
           <Navbar isSignedIn={isSignedIn} />
           <Routes>
             <Route path="/" element={<Home />} />
