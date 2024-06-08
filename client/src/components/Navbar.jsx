@@ -152,7 +152,7 @@ const Navbar = ({ userDetails }) => {
                         }}
                     />
 
-                    {/* TODO implement log out functionality */}
+                    {/* Button to route to logout page but only displayed when logged in */}
                     {userDetails && (
                         <Link
                             to="/logout"

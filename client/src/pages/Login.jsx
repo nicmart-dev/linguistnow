@@ -1,5 +1,5 @@
 import React from 'react'
-import { googleLogout, useGoogleLogin } from '@react-oauth/google'
+import { useGoogleLogin } from '@react-oauth/google'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios' // TODO replace all axios calls with fetch globally
 import { fetchUserDetails } from '../auth/utils'

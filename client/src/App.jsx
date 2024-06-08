@@ -7,6 +7,7 @@ import Dashboard from './pages/Dashboard.jsx'
 import Navbar from './components/Navbar.jsx'
 import { GoogleOAuthProvider } from '@react-oauth/google' // Package used to manage Google OAuth
 import LanguageProvider from './i18n/LanguageProvider' // Package used to manage translations
+import Logout from './pages/Logout.jsx'
 
 const App = () => {
     const [userDetails, setUserDetails] = useState(null)
@@ -16,14 +17,16 @@ const App = () => {
         <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}>
             <LanguageProvider>
                 <BrowserRouter>
-                    {/* Need to log in at start */}
-                    {!userDetails ? <Navigate to="/login" /> : null}
                     <Navbar userDetails={userDetails} />
                     <Routes>
-                        <Route path="/" element={<Home />} />
+                        <Route path="/" element={<Login />} />
                         <Route
                             path="/login"
                             element={<Login setUserDetails={setUserDetails} />}
+                        />
+                        <Route
+                            path="/logout"
+                            element={<Logout setUserDetails={setUserDetails} />}
                         />
                         <Route
                             path="/dashboard"
