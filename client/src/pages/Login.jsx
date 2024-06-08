@@ -1,8 +1,9 @@
 import React from 'react'
-import { GoogleLogin, useGoogleLogin } from '@react-oauth/google'
+import { googleLogout, useGoogleLogin } from '@react-oauth/google'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios' // TODO replace all axios calls with fetch globally
 import { fetchUserDetails } from '../auth/utils'
+import { FormattedMessage } from 'react-intl' // to localize text displayed
 
 const Login = ({ setUserDetails }) => {
     const navigate = useNavigate()
@@ -120,6 +121,7 @@ const Login = ({ setUserDetails }) => {
 
     const login = useGoogleLogin({
         onSuccess: handleGoogleLoginSuccess,
+        onError: (error) => console.log('Login Failed:', error),
         flow: 'auth-code',
         scope: [
             'https://www.googleapis.com/auth/userinfo.profile',
@@ -129,17 +131,9 @@ const Login = ({ setUserDetails }) => {
     })
 
     return (
-        <div>
-            <h2>Login Page</h2>
-            {/* <GoogleLogin
-        onSuccess={login}
-        onError={(error) => console.error("Login Failed:", error)}
-        auto_select // Automatically select the first account
-        useOneTap // Use Google One Tap
-      /> */}
-
+        <div className="flex justify-center">
             <button
-                aria-label="Sign in with Google"
+                aria-label={<FormattedMessage id="signInWithGoogle" />}
                 className="flex items-center bg-white border border-button-border-light rounded-full p-0.5 pr-4"
                 onClick={login}
             >
@@ -149,7 +143,9 @@ const Login = ({ setUserDetails }) => {
                         viewBox="0 0 24 24"
                         className="w-5 h-5"
                     >
-                        <title>Sign in with Google</title>
+                        <title>
+                            <FormattedMessage id="signInWithGoogle" />
+                        </title>
                         <desc>Google G Logo</desc>
                         <path
                             d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -170,7 +166,7 @@ const Login = ({ setUserDetails }) => {
                     </svg>
                 </div>
                 <span className="text-sm text-google-text-gray tracking-wider ml-2">
-                    Sign in with Google
+                    <FormattedMessage id="signInWithGoogle" />
                 </span>
             </button>
         </div>
