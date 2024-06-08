@@ -44,14 +44,15 @@ const Login = ({ setUserDetails }) => {
       const userInfo = userInfoResponse.data;
       console.log("User Info from Google:", userInfo);
 
-      // TODO: replace by a single call to fetchUserDetails. Check if the user exists in Airtable
+      /* Get user info from Google email, creating new user if it doesn't exist, 
+      and save user info in parent state */
       try {
-        await axios.get(
-          `${process.env.REACT_APP_API_URL}/api/users/${userInfo.email}`
-        );
+        // Get latest user details from Airtable, save in parent state
+        await fetchUserDetails(userInfo.email, setUserDetails);
       } catch (error) {
+        // If the user does not exist, create a new user
         if (error.response && error.response.status === 404) {
-          // If the user does not exist, create a new user
+          console.log("User not found, creating a new user...");
           await axios.post(`${process.env.REACT_APP_API_URL}/api/users`, {
             email: userInfo.email,
             name: userInfo.name,
@@ -62,7 +63,8 @@ const Login = ({ setUserDetails }) => {
           throw error;
         }
       } finally {
-        // Update the user's access and refresh tokens in Airtable
+        // Update the user's access and refresh tokens in
+        console.log("Updating user tokens in Airtable...");
         await axios.put(
           `${process.env.REACT_APP_API_URL}/api/users/${userInfo.email}`,
           {
@@ -70,9 +72,14 @@ const Login = ({ setUserDetails }) => {
             googleRefreshToken: refreshToken,
           }
         );
+        // Update user access tokens in the parent state
+        console.log("Updating user details in state...");
+        await setUserDetails((prevDetails) => ({
+          ...prevDetails,
+          "Access Token": accessToken,
+          "Refresh Token": refreshToken,
+        }));
 
-        // Get latest user details from Airtable, save in parent state, to consider user logged in, and access in the app as needed
-        await fetchUserDetails(userInfo.email, setUserDetails);
         navigate("/settings");
         // TODO: move logic to app component. Check if the user is a project manager
         // const isProjectManager = userInfo.role === "Project Manager";

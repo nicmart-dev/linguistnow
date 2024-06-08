@@ -63,19 +63,17 @@ export const refreshAccessToken = async (refreshToken) => {
 
 /* Utility function to get user details from Airtable after a successful log, 
 and save it in state to keep track of user details and consider them logged in */
-export const fetchUserDetails = async (storedUserEmail, setUserDetails) => {
+export const fetchUserDetails = async (email, setUserDetails) => {
     try {
-        const response = await fetch(
-            `${process.env.REACT_APP_API_URL}/api/users/${storedUserEmail}`
-        );
-        if (!response.ok) {
-            throw new Error("Failed to fetch user details");
-        }
-        const userData = await response.json();
-        console.log("User details:", userData);
-        setUserDetails(userData);
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/users/${email}`);
+        setUserDetails(response.data);
     } catch (error) {
-        console.error("Error fetching user details:", error);
+        if (error.response && error.response.status === 404) {
+            // Throw an error with the response property
+            throw { response: { status: 404 } };
+        } else {
+            throw error;
+        }
     }
 };
 

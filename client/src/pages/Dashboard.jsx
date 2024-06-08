@@ -33,12 +33,14 @@ const Dashboard = () => {
             let accessToken = user["Access Token"];
             let availabilityResponse;
 
+            // Check if access token is valid, if not refresh it
             const isValidToken = await isAccessTokenValid(accessToken);
             if (!isValidToken) {
               console.log(
                 `Google OAuth access token invalid or expired for user ${user.Email}. Getting a new one using refresh token...`
               );
               accessToken = await refreshAccessToken(user["Refresh Token"]);
+
               // Save the new access token to Airtable
               await axios.put(
                 `${process.env.REACT_APP_API_URL}/api/users/${user.Email}`,
@@ -58,7 +60,7 @@ const Dashboard = () => {
                 }
               );
             } catch (error) {
-              // Check if the token expired and needs to be refreshed
+              // Check if could not authenticate to execute n8n workflow
               if (error.response && error.response.status === 401) {
                 console.log(
                   "Could not connect to n8n workflow. Check your API key environment variable."
