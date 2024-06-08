@@ -1,5 +1,26 @@
 import axios from "axios";
 
+
+/**
+ * Utility function to check if a Google OAuth2 access token is still valid.
+ * @param {string} accessToken - The access token.
+ * @returns {boolean} True if the token is valid, false otherwise.
+ */
+export const isAccessTokenValid = async (accessToken) => {
+    try {
+        const response = await axios.get("https://www.googleapis.com/oauth2/v1/tokeninfo", {
+            params: {
+                access_token: accessToken,
+            },
+        });
+
+        return response.status === 200;
+    } catch (error) {
+        console.error("Error checking access token validity:", error);
+        return false;
+    }
+};
+
 /* Utility function to refresh access token,
 typically used when linguist selects calendars in account settings, 
 or when PM  displays linguists in dashboard. */
