@@ -15,7 +15,9 @@
         "accountSettings.userDetails": "User Details",
         "accountSettings.email": "Email:",
         "accountSettings.name": "Name:",
-        "signInWithGoogle": "Sign in with Google"
+        "signInWithGoogle": "Sign in with Google",
+        "youHaveBeenLoggedOut": "You have been logged out.",
+        "loggingOut": "Logging out..."
     },
     "fr": {
         "login": "Connexion",
@@ -33,6 +35,8 @@
         "accountSettings.userDetails": "Détails de l'utilisateur",
         "accountSettings.email": "E-mail:",
         "accountSettings.name": "Nom:",
-        "signInWithGoogle": "Se connecter avec Google"
+        "signInWithGoogle": "Se connecter avec Google",
+        "youHaveBeenLoggedOut": "Vous avez été déconnecté.",
+        "loggingOut": "Déconnexion en cours..."
     }
 }

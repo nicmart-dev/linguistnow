@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { googleLogout } from '@react-oauth/google'
 import Login from './Login'
+import { FormattedMessage } from 'react-intl'
 
 const Logout = ({ setUserDetails }) => {
     const [loggedOut, setLoggedOut] = useState(false) // State to track logout status
@@ -21,11 +22,15 @@ const Logout = ({ setUserDetails }) => {
         <div className="flex flex-col items-center space-y-4">
             {loggedOut ? (
                 <>
-                    <p>You have been logged out.</p>
+                    <p>
+                        <FormattedMessage id="youHaveBeenLoggedOut" />
+                    </p>
                     <Login />
                 </>
             ) : (
-                <p>Logging out...</p>
+                <p>
+                    <FormattedMessage id="loggingOut" />
+                </p>
             )}
         </div>
     )
