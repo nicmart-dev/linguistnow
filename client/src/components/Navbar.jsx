@@ -21,16 +21,20 @@ const Navbar = ({ userDetails }) => {
             </Link>
           </li>
         )}
-        <li>
-          <Link to="/dashboard">
-            <FormattedMessage id="dashboard" />
-          </Link>
-        </li>
-        <li>
-          <Link to="/settings">
-            <FormattedMessage id="settings" />
-          </Link>
-        </li>
+        {userDetails && userDetails.Role === "Project Manager" && (
+          <li>
+            <Link to="/dashboard">
+              <FormattedMessage id="dashboard" />
+            </Link>
+          </li>
+        )}
+        {userDetails && userDetails.Role !== "Project Manager" && (
+          <li>
+            <Link to="/settings">
+              <FormattedMessage id="settings" />
+            </Link>
+          </li>
+        )}
         {/* Language toggle buttons */}
         <li>
           <button onClick={() => switchLanguage("en")}>
