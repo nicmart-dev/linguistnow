@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios"; // TODO replace all axios calls with fetch globally
 import { fetchUserDetails } from "../auth/utils";
 
-const Login = ({ userDetails, setUserDetails }) => {
+const Login = ({ setUserDetails }) => {
   const navigate = useNavigate();
 
   const handleGoogleLoginSuccess = async (response) => {
