@@ -1,0 +1,3 @@
+body {
+    @apply bg-white text-gray-600 font-sans leading-normal text-base tracking-normal;
+}
