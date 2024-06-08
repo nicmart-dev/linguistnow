@@ -25,7 +25,7 @@ const Logout = ({ setUserDetails }) => {
                     <p>
                         <FormattedMessage id="youHaveBeenLoggedOut" />
                     </p>
-                    <Login />
+                    <Login setUserDetails={setUserDetails} />
                 </>
             ) : (
                 <p>

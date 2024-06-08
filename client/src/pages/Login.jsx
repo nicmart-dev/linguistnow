@@ -2,7 +2,7 @@ import React from 'react'
 import { useGoogleLogin } from '@react-oauth/google'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios' // TODO replace all axios calls with fetch globally
-import { fetchUserDetails } from '../auth/utils'
+import { fetchUserDetails, createUserIfNotFound } from '../auth/utils'
 import { FormattedMessage } from 'react-intl' // to localize text displayed
 
 const Login = ({ setUserDetails }) => {
@@ -45,40 +45,20 @@ const Login = ({ setUserDetails }) => {
             const userInfo = userInfoResponse.data
             console.log('User Info from Google:', userInfo)
 
-            // Variable to store fetched user details
-            let fetchedUserDetails
-
             /* Get user info from Google email, creating new user if it doesn't exist, 
       and save user info in parent state */
             try {
                 // Get latest user details from Airtable, save in parent state
-                fetchedUserDetails = await fetchUserDetails(
-                    userInfo.email,
-                    setUserDetails
-                )
+                await fetchUserDetails(userInfo.email, setUserDetails)
             } catch (error) {
-                // If the user does not exist, create a new user
+                // Create the user if not found and save to state
                 if (error.response && error.response.status === 404) {
-                    console.log('User not found, creating a new user...')
-                    await axios.post(
-                        `${process.env.REACT_APP_API_URL}/api/users`,
-                        {
-                            email: userInfo.email,
-                            name: userInfo.name,
-                            picture_url: userInfo.picture,
-                        }
-                    )
-                    // Fetch user details again after creating the user
-                    fetchedUserDetails = await fetchUserDetails(
-                        userInfo.email,
-                        setUserDetails
-                    )
+                    await createUserIfNotFound(userInfo, setUserDetails)
                 } else {
-                    console.error('Error checking user existence:', error)
-                    throw error
+                    console.error('An error occurred:', error)
                 }
             } finally {
-                // Update the user's access and refresh tokens in
+                // Update the user's access and refresh tokens in DB
                 console.log('Updating user tokens in Airtable...')
                 await axios.put(
                     `${process.env.REACT_APP_API_URL}/api/users/${userInfo.email}`,
@@ -111,6 +91,7 @@ const Login = ({ setUserDetails }) => {
             'https://www.googleapis.com/auth/calendar.readonly',
         ].join(' '), // Make sure access token we will get will get access to these scopes
         redirect_uri: `${process.env.REACT_APP_BASE_URL}`,
+        onNonOAuthError: () => {}, // Ignore any non-OAuth errors
     })
 
     return (
