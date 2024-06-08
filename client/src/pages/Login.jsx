@@ -31,9 +31,6 @@ const Login = ({ setUserDetails }) => {
       );
       const { accessToken, refreshToken } = tokenResponse.data;
 
-      localStorage.setItem("googleAccessToken", accessToken);
-      localStorage.setItem("googleRefreshToken", refreshToken);
-
       // Fetch user info from Google
       const userInfoResponse = await axios.get(
         "https://www.googleapis.com/oauth2/v3/userinfo",

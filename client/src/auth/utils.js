@@ -18,11 +18,8 @@ export const refreshAccessToken = async (refreshToken) => {
             throw new Error("Failed to refresh access token");
         }
 
-        const newAccessToken = response.data.access_token;
-        // Save the new access token to localStorage or wherever it needs to be stored
-        localStorage.setItem("googleAccessToken", newAccessToken);
-
-        return newAccessToken;
+        // Return the new access token
+        return response.data.access_token;
     } catch (error) {
         console.error("Error refreshing access token:", error);
         throw error;
