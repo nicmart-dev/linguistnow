@@ -23,7 +23,12 @@ const App = () => {
             <Route path="/" element={<Home />} />
             <Route
               path="/login"
-              element={<Login setUserDetails={setUserDetails} />}
+              element={
+                <Login
+                  userDetails={userDetails}
+                  setUserDetails={setUserDetails}
+                />
+              }
             />
             <Route
               path="/dashboard"

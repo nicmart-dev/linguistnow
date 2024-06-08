@@ -66,10 +66,12 @@ and save it in state to keep track of user details and consider them logged in *
 export const fetchUserDetails = async (email, setUserDetails) => {
     try {
         const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/users/${email}`);
-        setUserDetails(response.data);
+        setUserDetails(response.data)
+        return response.data;  // Return the user details data
     } catch (error) {
         if (error.response && error.response.status === 404) {
             // Throw an error with the response property
+            // eslint-disable-next-line no-throw-literal
             throw { response: { status: 404 } };
         } else {
             throw error;

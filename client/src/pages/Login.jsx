@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios"; // TODO replace all axios calls with fetch globally
 import { fetchUserDetails } from "../auth/utils";
 
-const Login = ({ setUserDetails }) => {
+const Login = ({ userDetails, setUserDetails }) => {
   const navigate = useNavigate();
 
   const handleGoogleLoginSuccess = async (response) => {
@@ -44,11 +44,17 @@ const Login = ({ setUserDetails }) => {
       const userInfo = userInfoResponse.data;
       console.log("User Info from Google:", userInfo);
 
+      // Variable to store fetched user details
+      let fetchedUserDetails;
+
       /* Get user info from Google email, creating new user if it doesn't exist, 
       and save user info in parent state */
       try {
         // Get latest user details from Airtable, save in parent state
-        await fetchUserDetails(userInfo.email, setUserDetails);
+        fetchedUserDetails = await fetchUserDetails(
+          userInfo.email,
+          setUserDetails
+        );
       } catch (error) {
         // If the user does not exist, create a new user
         if (error.response && error.response.status === 404) {
@@ -58,6 +64,11 @@ const Login = ({ setUserDetails }) => {
             name: userInfo.name,
             picture_url: userInfo.picture,
           });
+          // Fetch user details again after creating the user
+          fetchedUserDetails = await fetchUserDetails(
+            userInfo.email,
+            setUserDetails
+          );
         } else {
           console.error("Error checking user existence:", error);
           throw error;
@@ -80,16 +91,22 @@ const Login = ({ setUserDetails }) => {
           "Refresh Token": refreshToken,
         }));
 
-        navigate("/settings");
-        // TODO: move logic to app component. Check if the user is a project manager
-        // const isProjectManager = userInfo.role === "Project Manager";
-        // if (isProjectManager) {
-        //   // Redirect to the dashboard view if so
-        //   navigate("/dashboard");
-        // } else {
-        //   // Otherwise redirect to the settings page so user can change their calendars
-        //   navigate("/settings");
-        // }
+        // Access role from fetched user details
+        const userRole = fetchedUserDetails?.Role;
+
+        // Route user to different page depending on their role
+        const isProjectManager = userRole === "Project Manager";
+        if (isProjectManager) {
+          // Redirect to the dashboard view if so
+          console.log(
+            "User has Project Manager role, redirecting to dashboard..."
+          );
+          navigate("/dashboard");
+        } else {
+          // Otherwise redirect to the settings page so user can change their calendars
+          console.log(`User has ${userRole} role, redirecting to settings...`);
+          navigate("/settings");
+        }
       }
     } catch (error) {
       console.error("Error during login process:", error);
