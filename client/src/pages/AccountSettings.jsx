@@ -3,11 +3,10 @@ import { useNavigate } from "react-router-dom";
 import CalendarSelector from "../components/CalendarSelector";
 import { useIntl } from "react-intl";
 
-/* The AccountSettings component utilizes the CalendarSelector 
-to manage and save the user's calendar selections. */
-const AccountSettings = () => {
-  const [userDetails, setUserDetails] = useState(null);
-  const [storedUserEmail, setStoredUserEmail] = useState(""); // used to identify user we want to get details from
+/* The AccountSettings component utilizes the CalendarSelector component 
+to allow the user to select and save their calendars. */
+const AccountSettings = ({ userDetails, setUserDetails }) => {
+  const [storedUserEmail, setStoredUserEmail] = useState("");
   const navigate = useNavigate();
   const intl = useIntl();
 
@@ -19,29 +18,6 @@ const AccountSettings = () => {
     }
     setStoredUserEmail(storedUserEmail);
   }, [navigate]);
-
-  useEffect(() => {
-    const fetchUserDetails = async () => {
-      try {
-        const response = await fetch(
-          `${process.env.REACT_APP_API_URL}/api/users/${storedUserEmail}`
-        );
-        if (!response.ok) {
-          throw new Error("Failed to fetch user details");
-        }
-        const userData = await response.json();
-        console.log("User details:", userData);
-        setUserDetails(userData);
-      } catch (error) {
-        console.error("Error fetching user details:", error);
-        // navigate("/login"); // Ask user to log in again if error occurs
-      }
-    };
-
-    if (storedUserEmail) {
-      fetchUserDetails();
-    }
-  }, [storedUserEmail, navigate]);
 
   /* Save user selected calendars, and Google OAuth2 tokens in Airtable */
   const handleSaveCalendars = async (updatedCalendars) => {

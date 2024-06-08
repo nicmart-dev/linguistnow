@@ -76,7 +76,16 @@ const Login = ({ setIsSignedIn }) => {
           }
         );
         setIsSignedIn(true); // Update the signed-in state
-        navigate("/settings"); // Redirect to settings page so user can change their calendars
+
+        // Check if the user is a project manager
+        const isProjectManager = userInfo.role === "Project Manager";
+        if (isProjectManager) {
+          // Redirect to the dashboard view if so
+          navigate("/dashboard");
+        } else {
+          // Otherwise redirect to the settings page so user can change their calendars
+          navigate("/settings");
+        }
       }
     } catch (error) {
       console.error("Error during login process:", error);

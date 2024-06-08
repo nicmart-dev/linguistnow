@@ -8,15 +8,24 @@ import Dashboard from "./pages/Dashboard.jsx";
 import Navbar from "./components/Navbar.jsx";
 import { GoogleOAuthProvider } from "@react-oauth/google"; // Package used to manage Google OAuth
 import LanguageProvider from "./i18n/LanguageProvider"; // Package used to manage translations
+import { fetchUserDetails } from "./auth/utils"; // Import the fetchUserDetails function
 
 const App = () => {
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [userDetails, setUserDetails] = useState(null);
 
-  /* Check authentication on load to check if the user 
-  is already signed in by checking the token in localStorage. */
+  /* Fetch logged in user details on load if user is signed in */
   useEffect(() => {
-    const token = localStorage.getItem("googleAccessToken");
+    const storedUserEmail = localStorage.getItem("userEmail");
+    if (storedUserEmail) {
+      fetchUserDetails(storedUserEmail, setUserDetails); // get user details from Airtable
+    }
+  }, []);
+
+  /* Check authentication on load to determine if user is signed in */
+  useEffect(() => {
+    const token = localStorage.getItem("googleAccessToken"); // check the access token in localStorage
     if (token) {
       setIsSignedIn(true);
     }
@@ -56,7 +65,12 @@ const App = () => {
               element={
                 <PrivateRoute
                   isSignedIn={isSignedIn}
-                  element={<AccountSettings />}
+                  element={
+                    <AccountSettings
+                      userDetails={userDetails}
+                      setUserDetails={setUserDetails}
+                    />
+                  }
                 />
               }
             />
