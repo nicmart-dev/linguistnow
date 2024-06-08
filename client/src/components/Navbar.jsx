@@ -49,6 +49,9 @@ const Navbar = ({ userDetails }) => {
                         <ul className="md:flex items-center justify-between text-base text-gray-700 pt-4 md:pt-0">
                             <li>
                                 <Link
+                                    onClick={() => {
+                                        setMenuOpen(false)
+                                    }}
                                     className="inline-block no-underline hover:text-black hover:underline py-2 px-4"
                                     to="/"
                                 >
@@ -59,6 +62,9 @@ const Navbar = ({ userDetails }) => {
                                 userDetails.Role === 'Project Manager' && (
                                     <li>
                                         <Link
+                                            onClick={() => {
+                                                setMenuOpen(false)
+                                            }}
                                             className="inline-block no-underline hover:text-black hover:underline py-2 px-4"
                                             to="/dashboard"
                                         >
@@ -182,12 +188,22 @@ const Navbar = ({ userDetails }) => {
                     <nav>
                         <ul className="flex flex-col items-end text-base text-gray-700 pt-4">
                             <li>
-                                <button onClick={() => switchLanguage('en')}>
+                                <button
+                                    onClick={() => {
+                                        switchLanguage('en')
+                                        setLangOpen(false)
+                                    }}
+                                >
                                     <FormattedMessage id="english" />
                                 </button>
                             </li>
                             <li>
-                                <button onClick={() => switchLanguage('fr')}>
+                                <button
+                                    onClick={() => {
+                                        switchLanguage('fr')
+                                        setLangOpen(false)
+                                    }}
+                                >
                                     <FormattedMessage id="french" />
                                 </button>
                             </li>
