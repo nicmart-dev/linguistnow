@@ -1,8 +1,9 @@
 const express = require('express');
-const { triggerN8nWorkflow } = require('../controllers/calendarController');
+const { isUserFree } = require('../controllers/calendarController');
 
 const router = express.Router();
 
-router.post('/free', triggerN8nWorkflow);
+// POST /api/calendars/free
+router.post('/free', isUserFree);
 
 module.exports = router;

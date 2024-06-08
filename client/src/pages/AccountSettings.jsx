@@ -1,64 +1,65 @@
-import { useState, useEffect } from "react";
-import axios from "axios";
 import CalendarSelector from "../components/CalendarSelector";
+import { useIntl } from "react-intl";
 
-/* The AccountSettings component utilizes the CalendarSelector 
-to manage and save the user's calendar selections. */
-const AccountSettings = () => {
-  const [userEmail, setUserEmail] = useState(""); // Keep track of user email
+/* The AccountSettings component utilizes the CalendarSelector component 
+to allow the user to select and save their calendars. */
+const AccountSettings = ({ userDetails, setUserDetails }) => {
+  const intl = useIntl();
 
-  /* Save user selected calendars, and Google tokens in Airtable */
-  const handleSaveCalendars = async (
-    selectedCalendars,
-    googleAccessToken,
-    googleRefreshToken
-  ) => {
+  /* Save user selected calendars */
+  const handleSaveCalendars = async (updatedCalendars) => {
     try {
-      // Check if the user exists
-      try {
-        await axios.get(
-          `${process.env.REACT_APP_API_URL}/api/users/${userEmail}`
-        );
-
-        // If the user exists, update their information
-        const response = await axios.put(
-          `${process.env.REACT_APP_API_URL}/api/users/${userEmail}`,
-          {
-            calendarIds: selectedCalendars,
-            googleAccessToken: googleAccessToken,
-            googleRefreshToken: googleRefreshToken,
-          }
-        );
-        console.log("Calendars saved:", response.data);
-      } catch (error) {
-        if (error.response && error.response.status === 404) {
-          console.error(
-            "User not found, cannot save selected calendars preferences."
-          );
-        } else {
-          // If there's an error other than 404, log it
-          console.error("Error checking user existence:", error);
+      // Update the user's calendar IDs in Airtable
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/api/users/${userDetails.Email}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            calendarIds: updatedCalendars,
+          }),
         }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to save calendars.");
       }
+
+      setUserDetails({
+        ...userDetails,
+        "Calendar IDs": updatedCalendars.join(","),
+      });
+
+      console.log("Calendars saved.");
     } catch (error) {
       console.error("Failed to save calendars:", error);
     }
   };
 
-  /* Get user email set after login and store in state 
-  to be passed to backend to save calendars for the matching user */
-  useEffect(() => {
-    const storedUserEmail = localStorage.getItem("userEmail");
-    if (storedUserEmail) {
-      setUserEmail(storedUserEmail);
-    }
-  }, []);
-
   return (
     <div>
-      <h2>Account Settings</h2>
-      {/* Show list of calendars */}
-      <CalendarSelector onSave={handleSaveCalendars} />
+      <h2>{intl.formatMessage({ id: "accountSettings.accountSettings" })}</h2>
+      {userDetails && (
+        <>
+          <h3>{intl.formatMessage({ id: "accountSettings.userDetails" })}</h3>
+          <p>
+            {intl.formatMessage({ id: "accountSettings.email" })}{" "}
+            {userDetails.Email}
+          </p>
+          <p>
+            {intl.formatMessage({ id: "accountSettings.name" })}{" "}
+            {userDetails.Name}
+          </p>
+          {/* Pass user details to child component to display list of calendars, 
+          as well as function it can call when saving selected calendars. */}
+          <CalendarSelector
+            userDetails={userDetails}
+            onSave={handleSaveCalendars}
+          />
+        </>
+      )}
     </div>
   );
 };

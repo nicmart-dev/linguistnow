@@ -8,7 +8,15 @@
     "home": "Home",
     "english": "English",
     "french": "Français",
-    "loading": "Loading..."
+    "loading": "Loading...",
+    "dashboard.title": "Dashboard",
+    "dashboard.description": "Manage your linguists and projects.",
+    "calendarSelector.chooseCalendars": "Choose Calendars:",
+    "calendarSelector.noCalendarsAvailable": "No calendars available.",
+    "accountSettings.accountSettings": "Account Settings",
+    "accountSettings.userDetails": "User Details",
+    "accountSettings.email": "Email:",
+    "accountSettings.name": "Name:"
   },
   "fr": {
     "welcome": "Bienvenue chez LinguistNow",
@@ -19,6 +27,14 @@
     "home": "Accueil",
     "english": "English",
     "french": "Français",
-    "loading": "Chargement..."
+    "loading": "Chargement...",
+    "dashboard.title": "Tableau de bord",
+    "dashboard.description": "Gérez vos linguistes et projets.",
+    "calendarSelector.chooseCalendars": "Choisissez des calendriers:",
+    "calendarSelector.noCalendarsAvailable": "Aucun calendrier disponible.",
+    "accountSettings.accountSettings": "Paramètres du compte",
+    "accountSettings.userDetails": "Détails de l'utilisateur",
+    "accountSettings.email": "E-mail:",
+    "accountSettings.name": "Nom:"
   }
 }

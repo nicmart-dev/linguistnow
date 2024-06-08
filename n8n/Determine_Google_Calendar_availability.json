@@ -18,7 +18,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Loop over input items and add a new field called 'parsedCalendarIds' to the JSON of each one\nfor (const item of $input.all()) {\n  // Check if the 'json' property exists and if it's an object\n  if (item.json && typeof item.json === 'object' && item.json.body && typeof item.json.body === 'object' && item.json.body.calendarIds) {\n    // Extract the calendar IDs array from the 'calendarIds' property of the 'body' property of the 'json' object\n    const calendarIds = item.json.body.calendarIds;\n\n    // Map each calendar ID to an object with the \"id\" property\n    const parsedCalendarIds = calendarIds.map(id => ({ id }));\n\n    // Stringify the array of objects\n    const parsedCalendarIdsString = JSON.stringify(parsedCalendarIds);\n\n    // Add the stringified array of objects to the 'parsedCalendarIds' property of the 'body' property of the 'json' object\n    item.json.body.parsedCalendarIds = parsedCalendarIdsString;\n  }\n}\n\n// Return all input items\nreturn $input.all();\n"
+        "jsCode": "// Initialize an empty array to store the parsed calendar IDs\nconst parsedCalendarIds = [];\n\n// Loop over each item in the input data\nfor (const item of $input.all()) {\n    // Split the input string by comma to extract calendar IDs\n  const calendarIds = item.json.body.calendarIds.split(',');\n\n  // Map each calendar ID to an object with the \"id\" property\n  calendarIds.forEach(id => {\n    parsedCalendarIds.push({ id: id.trim() });\n  });\n// Stringify the array of objects\n    const parsedCalendarIdsString = JSON.stringify(parsedCalendarIds);\n\n    // Add the stringified array of objects to the 'parsedCalendarIds' property of the 'body' property of the 'json' object\n    item.json.body.parsedCalendarIds = parsedCalendarIdsString;\n  }\n\n\n// Return the parsed calendar IDs as an object with the key \"items\"\nreturn $input.all();\n"
       },
       "id": "dadba61c-5611-4a09-9eb6-cf40ddec6360",
       "name": "Stringify calendar list",
@@ -205,6 +205,22 @@
     },
     {
       "parameters": {
+        "mode": "raw",
+        "jsonOutput": "{\n \"timezone\": \"America/Los_Angeles\"\n}\n",
+        "options": {}
+      },
+      "id": "c20560fe-d452-49ac-a1e5-1c09cc04c4d6",
+      "name": "Set local timezone",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.3,
+      "position": [
+        1180,
+        1600
+      ],
+      "executeOnce": true
+    },
+    {
+      "parameters": {
         "httpMethod": "POST",
         "path": "calendar-check",
         "responseMode": "lastNode",
@@ -222,37 +238,10 @@
         1240
       ],
       "webhookId": "8d0b9ce5-80ca-4260-9766-e03b5dfee892"
-    },
-    {
-      "parameters": {
-        "mode": "raw",
-        "jsonOutput": "{\n \"timezone\": \"America/Los_Angeles\"\n}\n",
-        "options": {}
-      },
-      "id": "c20560fe-d452-49ac-a1e5-1c09cc04c4d6",
-      "name": "Set local timezone",
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 3.3,
-      "position": [
-        1180,
-        1600
-      ],
-      "executeOnce": true
     }
   ],
   "pinData": {},
   "connections": {
-    "Stringify calendar list": {
-      "main": [
-        [
-          {
-            "node": "Define time window",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Return free time slots": {
       "main": [
         [
@@ -330,17 +319,6 @@
         ]
       ]
     },
-    "Webhook": {
-      "main": [
-        [
-          {
-            "node": "Stringify calendar list",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Set local timezone": {
       "main": [
         [
@@ -362,9 +340,31 @@
           }
         ]
       ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Stringify calendar list",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Stringify calendar list": {
+      "main": [
+        [
+          {
+            "node": "Define time window",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
-  "active": false,
+  "active": true,
   "settings": {
     "timezone": "America/Vancouver",
     "saveManualExecutions": true,
@@ -372,7 +372,7 @@
     "executionOrder": "v1",
     "saveExecutionProgress": true
   },
-  "versionId": "45064fc3-884e-4d7a-88b5-6b9f212678fb",
+  "versionId": "5b4ab862-8fb7-46e5-ae44-d32379ba2c8e",
   "meta": {
     "templateId": "1953",
     "templateCredsSetupCompleted": true,
