@@ -1,62 +1,64 @@
 {
-  "name": "linguistnow",
-  "version": "0.1.0",
-  "private": true,
-  "dependencies": {
-    "@headlessui/react": "^2.0.4",
-    "@heroicons/react": "^2.1.3",
-    "@react-oauth/google": "^0.12.1",
-    "@testing-library/jest-dom": "^5.17.0",
-    "@testing-library/react": "^13.4.0",
-    "@testing-library/user-event": "^13.5.0",
-    "axios": "^1.7.2",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "react-intl": "^6.6.8",
-    "react-router-dom": "^6.23.1",
-    "react-scripts": "5.0.1",
-    "web-vitals": "^2.1.4"
-  },
-  "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
-  },
-  "devDependencies": {
-    "assert": "^2.1.0",
-    "autoprefixer": "^10.4.19",
-    "https-browserify": "^1.0.0",
-    "postcss": "^8.4.38",
-    "prettier": "^3.3.1",
-    "prettier-plugin-tailwindcss": "^0.6.2",
-    "stream-browserify": "^3.0.0",
-    "tailwindcss": "^3.4.4",
-    "url": "^0.11.3",
-    "util": "^0.12.5"
-  },
-  "prettier": {
-    "trailingComma": "es5",
-    "tabWidth": 4,
-    "semi": false,
-    "singleQuote": true
-  }
+    "name": "linguistnow",
+    "version": "0.1.0",
+    "private": true,
+    "dependencies": {
+        "@headlessui/react": "^2.0.4",
+        "@heroicons/react": "^2.1.3",
+        "@react-oauth/google": "^0.12.1",
+        "@testing-library/jest-dom": "^5.17.0",
+        "@testing-library/react": "^13.4.0",
+        "@testing-library/user-event": "^13.5.0",
+        "axios": "^1.7.2",
+        "postcss-cli": "^11.0.0",
+        "react": "^18.3.1",
+        "react-dom": "^18.3.1",
+        "react-intl": "^6.6.8",
+        "react-router-dom": "^6.23.1",
+        "react-scripts": "5.0.1",
+        "web-vitals": "^2.1.4"
+    },
+    "scripts": {
+        "start": "react-scripts start",
+        "build": "react-scripts build",
+        "build:css": "postcss build ./src/tailwind.css -o ./public/tailwind.css",
+        "test": "react-scripts test",
+        "eject": "react-scripts eject"
+    },
+    "eslintConfig": {
+        "extends": [
+            "react-app",
+            "react-app/jest"
+        ]
+    },
+    "browserslist": {
+        "production": [
+            ">0.2%",
+            "not dead",
+            "not op_mini all"
+        ],
+        "development": [
+            "last 1 chrome version",
+            "last 1 firefox version",
+            "last 1 safari version"
+        ]
+    },
+    "devDependencies": {
+        "assert": "^2.1.0",
+        "autoprefixer": "^10.4.19",
+        "https-browserify": "^1.0.0",
+        "postcss": "^8.4.38",
+        "prettier": "^3.3.1",
+        "prettier-plugin-tailwindcss": "^0.6.2",
+        "stream-browserify": "^3.0.0",
+        "tailwindcss": "^3.4.4",
+        "url": "^0.11.3",
+        "util": "^0.12.5"
+    },
+    "prettier": {
+        "trailingComma": "es5",
+        "tabWidth": 4,
+        "semi": false,
+        "singleQuote": true
+    }
 }

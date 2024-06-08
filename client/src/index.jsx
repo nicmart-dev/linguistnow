@@ -1,14 +1,13 @@
-import React from "react";
-import { createRoot } from "react-dom/client";
-import "./index.css";
-import App from "./App";
-import { RawIntlProvider, intl } from "./i18n";
+import React from 'react'
+import { createRoot } from 'react-dom/client'
+import App from './App'
+import { RawIntlProvider, intl } from './i18n'
 
-const container = document.getElementById("root");
-const root = createRoot(container);
+const container = document.getElementById('root')
+const root = createRoot(container)
 
 root.render(
-  <RawIntlProvider value={intl}>
-    <App />
-  </RawIntlProvider>
-);
+    <RawIntlProvider value={intl}>
+        <App />
+    </RawIntlProvider>
+)
