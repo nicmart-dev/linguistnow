@@ -1,10 +1,8 @@
 {
     "en": {
-        "welcome": "Welcome to LinguistNow",
         "login": "Login",
         "dashboard": "Dashboard",
         "settings": "Settings",
-        "description": "Simplifying the hassle of finding available linguists for translation projects.",
         "home": "Home",
         "english": "English",
         "french": "Français",
@@ -20,11 +18,9 @@
         "signInWithGoogle": "Sign in with Google"
     },
     "fr": {
-        "welcome": "Bienvenue chez LinguistNow",
         "login": "Connexion",
         "dashboard": "Tableau de bord",
         "settings": "Paramètres",
-        "description": "Simplifier la recherche de linguistes disponibles pour des projets de traduction.",
         "home": "Accueil",
         "english": "English",
         "french": "Français",

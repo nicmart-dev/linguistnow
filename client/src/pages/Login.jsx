@@ -95,24 +95,7 @@ const Login = ({ setUserDetails }) => {
                     'Refresh Token': refreshToken,
                 }))
 
-                // Access role from fetched user details
-                const userRole = fetchedUserDetails?.Role
-
-                // Route user to different page depending on their role
-                const isProjectManager = userRole === 'Project Manager'
-                if (isProjectManager) {
-                    // Redirect to the dashboard view if so
-                    console.log(
-                        'User has Project Manager role, redirecting to dashboard...'
-                    )
-                    navigate('/dashboard')
-                } else {
-                    // Otherwise redirect to the settings page so user can change their calendars
-                    console.log(
-                        `User has ${userRole} role, redirecting to settings...`
-                    )
-                    navigate('/settings')
-                }
+                navigate('/') // navigate to Home route when further routing will be handled
             }
         } catch (error) {
             console.error('Error during login process:', error)

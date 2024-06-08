@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
 import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom'
-import Home from './pages/Home.jsx'
 import Login from './pages/Login.jsx'
 import AccountSettings from './pages/AccountSettings.jsx'
 import Dashboard from './pages/Dashboard.jsx'
@@ -19,7 +18,22 @@ const App = () => {
                 <BrowserRouter>
                     <Navbar userDetails={userDetails} />
                     <Routes>
-                        <Route path="/" element={<Login />} />
+                        {/* Ask user to log in when landing on site, then if role
+                        is PM go to Dashboard, otherwise to Settings page */}
+                        <Route
+                            path="/"
+                            element={
+                                userDetails ? (
+                                    userDetails.Role === 'Project Manager' ? (
+                                        <Navigate to="/dashboard" replace />
+                                    ) : (
+                                        <Navigate to="/settings" replace />
+                                    )
+                                ) : (
+                                    <Navigate to="/login" replace />
+                                )
+                            }
+                        />
                         <Route
                             path="/login"
                             element={<Login setUserDetails={setUserDetails} />}
