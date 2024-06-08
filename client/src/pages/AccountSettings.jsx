@@ -10,6 +10,7 @@ const AccountSettings = ({ userDetails, setUserDetails }) => {
   const navigate = useNavigate();
   const intl = useIntl();
 
+  // TODO: remove userEmail globally, and replace by userDetails.Email
   useEffect(() => {
     const storedUserEmail = localStorage.getItem("userEmail");
     if (!storedUserEmail) {
@@ -26,7 +27,7 @@ const AccountSettings = ({ userDetails, setUserDetails }) => {
         console.error("User email not found.");
         return;
       }
-
+      //TODO refactor to only update calendarIds, as we just updated tokens in Login.jsx
       // If the user exists, update their information
       const response = await fetch(
         `${process.env.REACT_APP_API_URL}/api/users/${storedUserEmail}`,

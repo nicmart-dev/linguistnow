@@ -1,9 +1,10 @@
 import React from "react";
 import { GoogleLogin, useGoogleLogin } from "@react-oauth/google";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import axios from "axios"; // TODO replace all axios calls with fetch globally
+import { fetchUserDetails } from "../auth/utils";
 
-const Login = ({ setIsSignedIn }) => {
+const Login = ({ setUserDetails }) => {
   const navigate = useNavigate();
 
   const handleGoogleLoginSuccess = async (response) => {
@@ -49,7 +50,7 @@ const Login = ({ setIsSignedIn }) => {
       // Store user email in local storage so we can then use it to identify the user when saving calendars in account settings
       localStorage.setItem("userEmail", userInfo.email);
 
-      // Check if the user exists in Airtable
+      // TODO: replace by a single call to fetchUserDetails. Check if the user exists in Airtable
       try {
         await axios.get(
           `${process.env.REACT_APP_API_URL}/api/users/${userInfo.email}`
@@ -75,17 +76,19 @@ const Login = ({ setIsSignedIn }) => {
             googleRefreshToken: refreshToken,
           }
         );
-        setIsSignedIn(true); // Update the signed-in state
 
-        // Check if the user is a project manager
-        const isProjectManager = userInfo.role === "Project Manager";
-        if (isProjectManager) {
-          // Redirect to the dashboard view if so
-          navigate("/dashboard");
-        } else {
-          // Otherwise redirect to the settings page so user can change their calendars
-          navigate("/settings");
-        }
+        // Get latest user details from Airtable, save in parent state, to consider user logged in, and access in the app as needed
+        fetchUserDetails(userInfo.email, setUserDetails);
+        navigate("/settings");
+        // TODO: move logic to app component. Check if the user is a project manager
+        // const isProjectManager = userInfo.role === "Project Manager";
+        // if (isProjectManager) {
+        //   // Redirect to the dashboard view if so
+        //   navigate("/dashboard");
+        // } else {
+        //   // Otherwise redirect to the settings page so user can change their calendars
+        //   navigate("/settings");
+        // }
       }
     } catch (error) {
       console.error("Error during login process:", error);

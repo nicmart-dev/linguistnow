@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
-import { FormattedMessage } from "react-intl";
 import Home from "./pages/Home.jsx";
 import Login from "./pages/Login.jsx";
 import AccountSettings from "./pages/AccountSettings.jsx";
@@ -11,8 +10,6 @@ import LanguageProvider from "./i18n/LanguageProvider"; // Package used to manag
 import { fetchUserDetails } from "./auth/utils"; // Import the fetchUserDetails function
 
 const App = () => {
-  const [isSignedIn, setIsSignedIn] = useState(false);
-  const [loading, setLoading] = useState(true);
   const [userDetails, setUserDetails] = useState(null);
 
   /* Fetch logged in user details on load if user is signed in */
@@ -23,48 +20,34 @@ const App = () => {
     }
   }, []);
 
-  /* Check authentication on load to determine if user is signed in */
-  useEffect(() => {
-    const token = localStorage.getItem("googleAccessToken"); // check the access token in localStorage
-    if (token) {
-      setIsSignedIn(true);
-    }
-    setLoading(false); // Authentication status has been determined
-  }, []);
-
-  if (loading) {
-    return (
-      <div>
-        <FormattedMessage id="loading" />
-      </div>
-    ); // Show a loading indicator while checking auth status
-  }
-
   return (
     /* Wraps the application to provide the OAuth context */
     <GoogleOAuthProvider clientId="1013468598501-cunj635lqqs72mar3cfistsaigaop03h.apps.googleusercontent.com">
       <LanguageProvider>
         <BrowserRouter>
           {/* Need to log in at start */}
-          {!isSignedIn ? <Navigate to="/login" /> : null}
-          <Navbar isSignedIn={isSignedIn} />
+          {!userDetails ? <Navigate to="/login" /> : null}
+          <Navbar userDetails={userDetails} />
           <Routes>
             <Route path="/" element={<Home />} />
             <Route
               path="/login"
-              element={<Login setIsSignedIn={setIsSignedIn} />}
+              element={<Login setUserDetails={setUserDetails} />}
             />
             <Route
               path="/dashboard"
               element={
-                <PrivateRoute isSignedIn={isSignedIn} element={<Dashboard />} />
+                <PrivateRoute
+                  userDetails={userDetails}
+                  element={<Dashboard />}
+                />
               }
             />
             <Route
               path="/settings"
               element={
                 <PrivateRoute
-                  isSignedIn={isSignedIn}
+                  userDetails={userDetails}
                   element={
                     <AccountSettings
                       userDetails={userDetails}
@@ -82,8 +65,8 @@ const App = () => {
 };
 
 /* Protects the routes that require authentication. */
-const PrivateRoute = ({ element, isSignedIn }) => {
-  return isSignedIn ? element : <Navigate to="/login" />;
+const PrivateRoute = ({ element, userDetails }) => {
+  return userDetails ? element : <Navigate to="/login" />;
 };
 
 export default App;
