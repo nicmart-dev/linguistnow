@@ -21,7 +21,7 @@
     "scripts": {
         "start": "react-scripts start",
         "build": "react-scripts build",
-        "build:css": "postcss build ./src/tailwind.css -o ./public/tailwind.css",
+        "build:css": "postcss build ./src/tailwind.css -o ./public/tailwind.min.css",
         "test": "react-scripts test",
         "eject": "react-scripts eject"
     },
