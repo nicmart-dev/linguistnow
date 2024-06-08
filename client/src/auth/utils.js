@@ -43,3 +43,13 @@ export const fetchUserDetails = async (storedUserEmail, setUserDetails) => {
         console.error("Error fetching user details:", error);
     }
 };
+
+/* Get list of linguist users, to display on dashboard page */
+export const fetchUserList = async () => {
+    try {
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/users`);
+        return response.data;
+    } catch (error) {
+        throw new Error("Error fetching user list: " + error.message);
+    }
+};

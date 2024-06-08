@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { FormattedMessage } from "react-intl"; // To show localized strings
 import { refreshAccessToken } from "../auth/utils"; // To refresh access token when needed
+import { fetchUserList } from "../auth/utils";
 
 const Dashboard = () => {
   const [linguists, setLinguists] = useState([]); // store list of users retrieved from Airtable
@@ -13,10 +14,7 @@ const Dashboard = () => {
       const newErrors = []; // Errors stored as we loop through each user
 
       try {
-        const response = await axios.get(
-          `${process.env.REACT_APP_API_URL}/api/users`
-        );
-        const users = response.data;
+        const users = await fetchUserList();
         console.log("Users:", users);
 
         for (const user of users) {
