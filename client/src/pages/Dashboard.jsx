@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { FormattedMessage } from "react-intl"; // To show localized strings
-import { refreshAccessToken } from "../auth/utils"; // To refresh access token when needed
+import { refreshAccessToken, isAccessTokenValid } from "../auth/utils"; // To refresh access token when needed
 import { fetchUserList } from "../auth/utils";
 
 const Dashboard = () => {
@@ -33,6 +33,21 @@ const Dashboard = () => {
             let accessToken = user["Access Token"];
             let availabilityResponse;
 
+            const isValidToken = await isAccessTokenValid(accessToken);
+            if (!isValidToken) {
+              console.log(
+                `Google OAuth access token invalid or expired for user ${user.Email}. Getting a new one using refresh token...`
+              );
+              accessToken = await refreshAccessToken(user["Refresh Token"]);
+              // Save the new access token to Airtable
+              await axios.put(
+                `${process.env.REACT_APP_API_URL}/api/users/${user.Email}`,
+                {
+                  googleAccessToken: accessToken,
+                }
+              );
+            }
+
             try {
               // Trigger N8n workflow to get availability for each user
               availabilityResponse = await axios.post(
@@ -44,31 +59,11 @@ const Dashboard = () => {
               );
             } catch (error) {
               // Check if the token expired and needs to be refreshed
-              if (error.response && error.response.status === 500) {
-                console.log(
-                  `Google OAuth access token invalid or expired for user ${user.Email}. Getting a new one using refresh token...`
-                );
-                accessToken = await refreshAccessToken(user["Refresh Token"]);
-                // Save the new access token to Airtable
-                await axios.put(
-                  `${process.env.REACT_APP_API_URL}/api/users/${user.Email}`,
-                  {
-                    googleAccessToken: accessToken,
-                  }
-                );
-
-                // Retry the availability check with the new access token
-                availabilityResponse = await axios.post(
-                  `${process.env.REACT_APP_API_URL}/api/calendars/free`,
-                  {
-                    calendarIds: calendarIds,
-                    accessToken: accessToken,
-                  }
-                );
-              } else if (error.response && error.response.status === 401) {
+              if (error.response && error.response.status === 401) {
                 console.log(
                   "Could not connect to n8n workflow. Check your API key environment variable."
                 );
+                continue; // Skip to the next user
               } else {
                 throw error;
               }

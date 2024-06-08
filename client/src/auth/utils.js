@@ -14,10 +14,24 @@ export const isAccessTokenValid = async (accessToken) => {
             },
         });
 
-        return response.status === 200;
+        // If response status is 200, access token is valid
+        if (response.status === 200) {
+            return true;
+        } else {
+            // If response status is not 200, access token might be malformed
+            return false;
+        }
     } catch (error) {
-        console.error("Error checking access token validity:", error);
-        return false;
+        // If an error occurs, return false (access token is not valid)
+        if (error.response && error.response.status === 400) {
+            // If status code is 400, access token is likely malformed
+            console.log("Google OAuth access token invalid or expired.");
+            return false;
+        } else {
+            // For other errors, log and return false
+            console.error("Error checking access token validity:", error);
+            return false;
+        }
     }
 };
 
