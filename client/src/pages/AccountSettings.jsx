@@ -6,11 +6,10 @@ to allow the user to select and save their calendars. */
 const AccountSettings = ({ userDetails, setUserDetails }) => {
   const intl = useIntl();
 
-  /* Save user selected calendars, and Google OAuth2 tokens in Airtable */
+  /* Save user selected calendars */
   const handleSaveCalendars = async (updatedCalendars) => {
     try {
-      //TODO refactor to only update calendarIds, as we just updated tokens in Login.jsx
-      // If the user exists, update their information
+      // Update the user's calendar IDs in Airtable
       const response = await fetch(
         `${process.env.REACT_APP_API_URL}/api/users/${userDetails.Email}`,
         {
@@ -20,8 +19,6 @@ const AccountSettings = ({ userDetails, setUserDetails }) => {
           },
           body: JSON.stringify({
             calendarIds: updatedCalendars,
-            googleAccessToken: userDetails.googleAccessToken,
-            googleRefreshToken: userDetails.googleRefreshToken,
           }),
         }
       );
