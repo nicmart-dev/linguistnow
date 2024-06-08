@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { refreshAccessToken } from "../auth/utils";
+import { refreshAccessToken, isAccessTokenValid } from "../auth/utils";
 import { useIntl } from "react-intl"; // to localize text strings
 
 /* The CalendarSelector component fetches the user's Google Calendars 
@@ -13,6 +13,12 @@ const CalendarSelector = ({ userDetails, onSave }) => {
   const fetchCalendars = useCallback(
     async (accessToken) => {
       try {
+        const isValidToken = await isAccessTokenValid(accessToken);
+        if (!isValidToken) {
+          console.log("Token expired, refreshing access token...");
+          accessToken = await refreshAccessToken(userDetails["Refresh Token"]);
+        }
+
         const response = await fetch(
           "https://www.googleapis.com/calendar/v3/users/me/calendarList",
           {
@@ -21,17 +27,9 @@ const CalendarSelector = ({ userDetails, onSave }) => {
             }),
           }
         );
-        // Access token expired, attempt to refresh token
-        if (response.status === 401) {
-          console.log("Token expired, refreshing access token...");
-          const newAccessToken = await refreshAccessToken(
-            userDetails["Refresh Token"]
-          );
-          fetchCalendars(newAccessToken);
-        } else {
-          const data = await response.json();
-          setFetchedCalendars(data.items);
-        }
+
+        const data = await response.json();
+        setFetchedCalendars(data.items);
       } catch (error) {
         console.error("Error fetching calendars:", error);
       }
