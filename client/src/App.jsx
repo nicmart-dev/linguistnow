@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import Home from "./pages/Home.jsx";
 import Login from "./pages/Login.jsx";
@@ -7,18 +7,9 @@ import Dashboard from "./pages/Dashboard.jsx";
 import Navbar from "./components/Navbar.jsx";
 import { GoogleOAuthProvider } from "@react-oauth/google"; // Package used to manage Google OAuth
 import LanguageProvider from "./i18n/LanguageProvider"; // Package used to manage translations
-import { fetchUserDetails } from "./auth/utils"; // Import the fetchUserDetails function
 
 const App = () => {
   const [userDetails, setUserDetails] = useState(null);
-
-  /* Fetch logged in user details on load if user is signed in */
-  useEffect(() => {
-    const storedUserEmail = localStorage.getItem("userEmail");
-    if (storedUserEmail) {
-      fetchUserDetails(storedUserEmail, setUserDetails); // get user details from Airtable
-    }
-  }, []);
 
   return (
     /* Wraps the application to provide the OAuth context */

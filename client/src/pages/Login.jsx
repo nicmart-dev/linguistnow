@@ -47,9 +47,6 @@ const Login = ({ setUserDetails }) => {
       const userInfo = userInfoResponse.data;
       console.log("User Info from Google:", userInfo);
 
-      // Store user email in local storage so we can then use it to identify the user when saving calendars in account settings
-      localStorage.setItem("userEmail", userInfo.email);
-
       // TODO: replace by a single call to fetchUserDetails. Check if the user exists in Airtable
       try {
         await axios.get(
@@ -78,7 +75,7 @@ const Login = ({ setUserDetails }) => {
         );
 
         // Get latest user details from Airtable, save in parent state, to consider user logged in, and access in the app as needed
-        fetchUserDetails(userInfo.email, setUserDetails);
+        await fetchUserDetails(userInfo.email, setUserDetails);
         navigate("/settings");
         // TODO: move logic to app component. Check if the user is a project manager
         // const isProjectManager = userInfo.role === "Project Manager";

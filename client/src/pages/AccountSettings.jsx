@@ -1,36 +1,18 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import CalendarSelector from "../components/CalendarSelector";
 import { useIntl } from "react-intl";
 
 /* The AccountSettings component utilizes the CalendarSelector component 
 to allow the user to select and save their calendars. */
 const AccountSettings = ({ userDetails, setUserDetails }) => {
-  const [storedUserEmail, setStoredUserEmail] = useState("");
-  const navigate = useNavigate();
   const intl = useIntl();
-
-  // TODO: remove userEmail globally, and replace by userDetails.Email
-  useEffect(() => {
-    const storedUserEmail = localStorage.getItem("userEmail");
-    if (!storedUserEmail) {
-      navigate("/login"); // Redirect to login if no user email is stored
-      return;
-    }
-    setStoredUserEmail(storedUserEmail);
-  }, [navigate]);
 
   /* Save user selected calendars, and Google OAuth2 tokens in Airtable */
   const handleSaveCalendars = async (updatedCalendars) => {
     try {
-      if (!storedUserEmail) {
-        console.error("User email not found.");
-        return;
-      }
       //TODO refactor to only update calendarIds, as we just updated tokens in Login.jsx
       // If the user exists, update their information
       const response = await fetch(
-        `${process.env.REACT_APP_API_URL}/api/users/${storedUserEmail}`,
+        `${process.env.REACT_APP_API_URL}/api/users/${userDetails.Email}`,
         {
           method: "PUT",
           headers: {

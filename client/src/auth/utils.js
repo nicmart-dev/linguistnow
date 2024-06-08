@@ -29,7 +29,8 @@ export const refreshAccessToken = async (refreshToken) => {
     }
 };
 
-/* Utility function to get user details from Airtable, typically after a successful log in */
+/* Utility function to get user details from Airtable after a successful log, 
+and save it in state to keep track of user details and consider them logged in */
 export const fetchUserDetails = async (storedUserEmail, setUserDetails) => {
     try {
         const response = await fetch(
