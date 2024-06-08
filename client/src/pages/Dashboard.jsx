@@ -17,7 +17,11 @@ const Dashboard = () => {
         const users = await fetchUserList();
         console.log("Users:", users);
 
-        for (const user of users) {
+        // Filter out users who are not Linguists
+        const linguists = users.filter((user) => user.Role === "Linguist");
+        console.log("Filtered Linguists:", linguists);
+
+        for (const user of linguists) {
           try {
             // Check if the calendar list and Google OAuth tokens needed is present
             if (
