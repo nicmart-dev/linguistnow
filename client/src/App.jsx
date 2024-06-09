@@ -7,7 +7,6 @@ import Navbar from './components/Navbar.jsx'
 import { GoogleOAuthProvider } from '@react-oauth/google' // Package used to manage Google OAuth
 import LanguageProvider from './i18n/LanguageProvider' // Package used to manage translations
 import Logout from './pages/Logout.jsx'
-import Hero from './components/Hero.jsx'
 
 const App = () => {
     const [userDetails, setUserDetails] = useState(null)

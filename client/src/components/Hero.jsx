@@ -22,18 +22,31 @@ const Hero = ({ cta, userName }) => {
         ctaIcon = googleIcon
     } else if (location.pathname === '/dashboard') {
         title = 'Find an available linguist.'
-        subtitle = `Welcome ${userName}!`
-        description =
-            'Linguists below are available to work 8h per work day from tomorrow until a week after that.'
+        subtitle = `Hey ${userName}!`
+        description = (
+            <>
+                Linguists below can be assigned to your project.
+                <span className="block">
+                    They are available to work 8h per work day from tomorrow
+                    until a week after that.
+                </span>
+            </>
+        )
         backgroundImage = heroImage3
         ctaButtonText = '' // No CTA button on this page
         ctaIcon = null
-    } else if (location.pathname === '/account-settings') {
-        title = 'Manage Your Calendars'
+    } else if (location.pathname === '/settings') {
+        title = 'Manage your calendars.'
         subtitle = `Welcome ${userName}!`
-        description =
-            'Select the calendars we need to check availability against.'
-        backgroundImage = heroImage2
+        description = (
+            <>
+                Select the calendars we need to check availability against.
+                <span className="block">
+                    Your choices are automatically saved.
+                </span>
+            </>
+        )
+        backgroundImage = heroImage1
         ctaButtonText = '' // No CTA button on this page
         ctaIcon = null
     } else {
@@ -50,7 +63,7 @@ const Hero = ({ cta, userName }) => {
             className="mt-4 w-full bg-center bg-cover"
             style={{ backgroundImage: `url(${backgroundImage})` }}
         >
-            <div className="flex items-center justify-center w-full h-full bg-gray-900 bg-opacity-50 py-12">
+            <div className="flex items-center justify-center w-full h-full bg-gray-900 bg-opacity-50 py-6">
                 <div className="text-center container px-4 max-w-4xl mx-auto">
                     <span className="text-gray-200 font-semibold uppercase tracking-widest">
                         {subtitle}
@@ -58,14 +71,14 @@ const Hero = ({ cta, userName }) => {
                     <h2 className="mt-8 mb-6 text-4xl lg:text-5xl font-bold text-gray-100">
                         {title}
                     </h2>
-                    <p className="max-w-3xl mx-auto mb-10 text-lg text-gray-300">
+                    <p className="max-w-3xl mx-auto mb-5 text-lg text-gray-300">
                         {description}
                     </p>
                     {/* Show CTA button only when icon and text defined */}
                     {ctaIcon && ctaButtonText && (
                         <button
                             onClick={cta}
-                            className="inline-flex justify-center items-center w-full md:w-auto py-5 px-8 text-sm font-bold uppercase border-2 border-transparent bg-gray-200 rounded hover:bg-gray-100 text-gray-800 transition duration-200"
+                            className="inline-flex justify-center items-center w-full mb-4 md:w-auto py-5 px-8 text-sm font-bold uppercase border-2 border-transparent bg-gray-200 rounded hover:bg-gray-100 text-gray-800 transition duration-200"
                         >
                             <img
                                 className="h-6 w-6 inline-block mr-4"

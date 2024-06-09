@@ -550,14 +550,14 @@ video {
   margin-left: auto;
   margin-right: auto;
 }
-.mb-10 {
-  margin-bottom: 2.5rem;
+.mb-4 {
+  margin-bottom: 1rem;
+}
+.mb-5 {
+  margin-bottom: 1.25rem;
 }
 .mb-6 {
   margin-bottom: 1.5rem;
-}
-.ml-2 {
-  margin-left: 0.5rem;
 }
 .mr-2 {
   margin-right: 0.5rem;
@@ -592,14 +592,8 @@ video {
 .hidden {
   display: none;
 }
-.h-5 {
-  height: 1.25rem;
-}
 .h-6 {
   height: 1.5rem;
-}
-.h-9 {
-  height: 2.25rem;
 }
 .h-full {
   height: 100%;
@@ -607,14 +601,8 @@ video {
 .h-screen {
   height: 100vh;
 }
-.w-5 {
-  width: 1.25rem;
-}
 .w-6 {
   width: 1.5rem;
-}
-.w-9 {
-  width: 2.25rem;
 }
 .w-full {
   width: 100%;
@@ -657,9 +645,6 @@ video {
 .rounded {
   border-radius: 0.25rem;
 }
-.rounded-full {
-  border-radius: 9999px;
-}
 .border {
   border-width: 1px;
 }
@@ -685,10 +670,6 @@ video {
   --tw-bg-opacity: 1;
   background-color: rgb(17 24 39 / var(--tw-bg-opacity));
 }
-.bg-white {
-  --tw-bg-opacity: 1;
-  background-color: rgb(255 255 255 / var(--tw-bg-opacity));
-}
 .bg-opacity-50 {
   --tw-bg-opacity: 0.5;
 }
@@ -700,24 +681,6 @@ video {
 }
 .fill-current {
   fill: currentColor;
-}
-.fill-google-logo-blue {
-  fill: #4285f4;
-}
-.fill-google-logo-green {
-  fill: #34a853;
-}
-.fill-google-logo-red {
-  fill: #ea4335;
-}
-.fill-google-logo-yellow {
-  fill: #fbbc05;
-}
-.p-0 {
-  padding: 0px;
-}
-.p-0\.5 {
-  padding: 0.125rem;
 }
 .p-2 {
   padding: 0.5rem;
@@ -738,10 +701,6 @@ video {
   padding-top: 0.25rem;
   padding-bottom: 0.25rem;
 }
-.py-12 {
-  padding-top: 3rem;
-  padding-bottom: 3rem;
-}
 .py-2 {
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
@@ -754,11 +713,12 @@ video {
   padding-top: 1.25rem;
   padding-bottom: 1.25rem;
 }
+.py-6 {
+  padding-top: 1.5rem;
+  padding-bottom: 1.5rem;
+}
 .pl-3 {
   padding-left: 0.75rem;
-}
-.pr-4 {
-  padding-right: 1rem;
 }
 .pt-4 {
   padding-top: 1rem;
@@ -798,15 +758,8 @@ video {
 .tracking-wide {
   letter-spacing: 0.025em;
 }
-.tracking-wider {
-  letter-spacing: 0.05em;
-}
 .tracking-widest {
   letter-spacing: 0.1em;
-}
-.text-google-text-gray {
-  --tw-text-opacity: 1;
-  color: rgb(60 64 67 / var(--tw-text-opacity));
 }
 .text-gray-100 {
   --tw-text-opacity: 1;
