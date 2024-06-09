@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react'
 import { refreshAccessToken, isAccessTokenValid } from '../auth/utils'
 import { useIntl } from 'react-intl' // to localize text strings
+import loadingIcon from '../assets/icons/refresh.svg'
 
 /* The CalendarSelector component fetches the user's Google Calendars 
 using their access token, handles token expiration by refreshing the access token, 
@@ -8,6 +9,7 @@ and allows the user to select and save their calendars.
  */
 const CalendarSelector = ({ userDetails, onSave }) => {
     const [fetchedCalendars, setFetchedCalendars] = useState([]) // all calendars user has access to in Google Calendar
+    const [loading, setLoading] = useState(true) // state to track loading status
     const intl = useIntl()
 
     const fetchCalendars = useCallback(
@@ -34,6 +36,8 @@ const CalendarSelector = ({ userDetails, onSave }) => {
                 setFetchedCalendars(data.items)
             } catch (error) {
                 console.error('Error fetching calendars:', error)
+            } finally {
+                setLoading(false) // set loading to false after fetch is complete
             }
         },
         [userDetails]
@@ -70,7 +74,13 @@ const CalendarSelector = ({ userDetails, onSave }) => {
                 </legend>
 
                 <div className="space-y-2">
-                    {fetchedCalendars && fetchedCalendars.length > 0 ? (
+                    {loading ? (
+                        <img // show a loading icon while fetching calendars
+                            className="h-6 w-6 inline-block mr-4"
+                            src={loadingIcon}
+                            alt="loading icon"
+                        />
+                    ) : fetchedCalendars && fetchedCalendars.length > 0 ? (
                         <>
                             {fetchedCalendars.map((calendar) => (
                                 <label
