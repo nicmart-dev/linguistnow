@@ -3,11 +3,14 @@ import DataTable from './DataTable.jsx'
 import { useIntl } from 'react-intl'
 
 const columns = [
+    { data: 'Picture', titleId: 'accountSettings.picture' },
     { data: 'Name', titleId: 'accountSettings.name' },
     { data: 'Email', titleId: 'accountSettings.email' },
     { data: 'availability', titleId: 'dashboard.availability' },
 ]
 
+/* Display table of available linguists using DataTables library 
+and handle localization of columns and availability field. */
 const LinguistTable = ({ linguists }) => {
     const intl = useIntl()
 
@@ -25,6 +28,7 @@ const LinguistTable = ({ linguists }) => {
         return {
             ...linguist,
             availability: intl.formatMessage({ id: availabilityId }),
+            Picture: `<img src="${linguist.Picture}" alt="Linguist Picture" style="width: 50px; height: 50px;" />`, // Convert Picture URL to an img element
         }
     }
 
