@@ -4,6 +4,7 @@ import heroImage2 from '../assets/images/hero-image2.jpg'
 import heroImage3 from '../assets/images/hero-image3.jpg'
 import heroImage4 from '../assets/images/hero-image4.jpg'
 import googleIcon from '../assets/icons/google.svg'
+import calendarIcon from '../assets/icons/calendar.svg'
 import { useLocation } from 'react-router-dom' // to check the current route
 import { FormattedMessage } from 'react-intl' // to localize text displayed
 
@@ -29,8 +30,8 @@ const Hero = ({ cta, userName }) => {
         title = 'hero.settings.title'
         subtitle = 'hero.settings.subtitle'
         backgroundImage = heroImage1
-        ctaButtonText = '' // No CTA button on this page
-        ctaIcon = null
+        ctaButtonText = 'accountSettings.checkGoogleCalendar'
+        ctaIcon = calendarIcon
     } else if (location.pathname === '/logout') {
         title = 'hero.logout.title'
         subtitle = 'hero.logout.subtitle'
