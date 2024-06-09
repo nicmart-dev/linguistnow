@@ -2,9 +2,11 @@ import React from 'react'
 import heroImage1 from '../assets/images/hero-image1.jpg'
 import heroImage2 from '../assets/images/hero-image2.jpg'
 import heroImage3 from '../assets/images/hero-image3.jpg'
+import heroImage4 from '../assets/images/hero-image4.jpg'
 import googleIcon from '../assets/icons/google.svg'
 import { useLocation } from 'react-router-dom' // to check the current route
 import { FormattedMessage } from 'react-intl' // to localize text displayed
+import { availableUntil } from '../utils' // import the function
 
 const Hero = ({ cta, userName }) => {
     const location = useLocation()
@@ -27,8 +29,8 @@ const Hero = ({ cta, userName }) => {
             <>
                 Linguists below can be assigned to your project.
                 <span className="block">
-                    They are available to work 8h per work day from tomorrow
-                    until a week after that.
+                    They are available 8h a day Monday to Friday, from tomorrow
+                    until {availableUntil()} included.
                 </span>
             </>
         )
@@ -47,6 +49,14 @@ const Hero = ({ cta, userName }) => {
             </>
         )
         backgroundImage = heroImage1
+        ctaButtonText = '' // No CTA button on this page
+        ctaIcon = null
+    } else if (location.pathname === '/logout') {
+        title = 'Thanks for trusting us!'
+        subtitle = 'Goodbye!'
+        description =
+            'You have been successfully logged out. We hope to see you again soon.'
+        backgroundImage = heroImage4
         ctaButtonText = '' // No CTA button on this page
         ctaIcon = null
     } else {
