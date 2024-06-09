@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react'
 import { refreshAccessToken, isAccessTokenValid } from '../auth/utils'
 import { useIntl } from 'react-intl' // to localize text strings
-import loadingIcon from '../assets/icons/refresh.svg'
+import Skeleton from './Skeleton'
 
 /* The CalendarSelector component fetches the user's Google Calendars 
 using their access token, handles token expiration by refreshing the access token, 
@@ -67,19 +67,16 @@ const CalendarSelector = ({ userDetails, onSave }) => {
         <>
             {/* TODO: refactor using new control */}
             <fieldset className="max-w-3xl mx-auto">
-                <legend>
+                <legend className="mb-4">
                     {intl.formatMessage({
                         id: 'calendarSelector.chooseCalendars',
                     })}
                 </legend>
 
                 <div className="space-y-2">
+                    {/* Show skeleton loader while loading list of calendars */}
                     {loading ? (
-                        <img // show a loading icon while fetching calendars
-                            className="h-6 w-6 inline-block mr-4"
-                            src={loadingIcon}
-                            alt="loading icon"
-                        />
+                        <Skeleton />
                     ) : fetchedCalendars && fetchedCalendars.length > 0 ? (
                         <>
                             {fetchedCalendars.map((calendar) => (
