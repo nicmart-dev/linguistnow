@@ -66,7 +66,7 @@ const CalendarSelector = ({ userDetails, onSave }) => {
     return (
         <>
             {/* TODO: refactor using new control */}
-            <fieldset className="max-w-3xl mx-auto">
+            <fieldset className="max-w-3xl">
                 <legend className="mb-4">
                     {intl.formatMessage({
                         id: 'calendarSelector.chooseCalendars',

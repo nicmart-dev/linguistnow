@@ -46,25 +46,27 @@ const AccountSettings = ({ userDetails, setUserDetails }) => {
     return (
         <>
             <Hero userName={userDetails.Name} cta={handleGoToCalendar} />
-            <div>
-                <p className="max-w-3xl mx-auto mb-5 text-lg text-black mt-4">
-                    <FormattedMessage id="accountSettings.selectCalendars" />
-                    <span className="block">
-                        <FormattedMessage id="accountSettings.automaticSave" />
-                    </span>
-                </p>
+            <main className="container mx-auto px-3 mb-5">
+                <div>
+                    <p className="max-w-3xl text-lg text-black my-4">
+                        <FormattedMessage id="accountSettings.selectCalendars" />
+                        <span className="block">
+                            <FormattedMessage id="accountSettings.automaticSave" />
+                        </span>
+                    </p>
 
-                {userDetails && (
-                    <>
-                        {/* Pass user details to child component to display list of calendars,
+                    {userDetails && (
+                        <>
+                            {/* Pass user details to child component to display list of calendars,
             as well as function it can call when saving selected calendars. */}
-                        <CalendarSelector
-                            userDetails={userDetails}
-                            onSave={handleSaveCalendars}
-                        />
-                    </>
-                )}
-            </div>
+                            <CalendarSelector
+                                userDetails={userDetails}
+                                onSave={handleSaveCalendars}
+                            />
+                        </>
+                    )}
+                </div>
+            </main>
         </>
     )
 }

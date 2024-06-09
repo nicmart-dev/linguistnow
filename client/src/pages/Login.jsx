@@ -99,9 +99,11 @@ const Login = ({ setUserDetails }) => {
     return (
         <>
             <Hero cta={login} />
-            <p className="max-w-3xl mx-auto mb-5 text-lg text-black mt-4">
-                <FormattedMessage id="loginDescription" />
-            </p>
+            <main className="container mx-auto px-3 mb-5">
+                <p className="max-w-3xl text-lg text-black mt-4">
+                    <FormattedMessage id="loginDescription" />
+                </p>
+            </main>
         </>
     )
 }

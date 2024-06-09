@@ -116,53 +116,55 @@ const Dashboard = ({ userName }) => {
     return (
         <>
             <Hero userName={userName} />
-            <div className="items-center justify-center h-screen bg-gray-100">
-                <p className="max-w-3xl mx-auto mb-5 text-lg text-black">
-                    <FormattedMessage id="dashboard.linguistsDescription" />
-                    <span className="block">
-                        <FormattedMessage
-                            id="dashboard.availabilityDescription"
-                            values={{
-                                ts: Date.now() + 7 * 24 * 60 * 60 * 1000,
-                            }}
-                        />
-                    </span>
-                </p>
-                <table className="mt-4 border-collapse border border-gray-800">
-                    <thead>
-                        <tr>
-                            <th className="border border-gray-800 p-2">
-                                <FormattedMessage id="accountSettings.name" />
-                            </th>
-                            <th className="border border-gray-800 p-2">
-                                <FormattedMessage id="accountSettings.email" />
-                            </th>
-                            <th className="border border-gray-800 p-2">
-                                <FormattedMessage id="dashboard.availability" />
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {linguists.map((linguist) => (
-                            <tr key={linguist.Email}>
-                                <td className="border border-gray-800 p-2">
-                                    {linguist.Name}
-                                </td>
-                                <td className="border border-gray-800 p-2">
-                                    {linguist.Email}
-                                </td>
-                                <td className="border border-gray-800 p-2">
-                                    {linguist.availability[0].result ? (
-                                        <FormattedMessage id="dashboard.available" />
-                                    ) : (
-                                        <FormattedMessage id="dashboard.notAvailable" />
-                                    )}
-                                </td>
+            <main className="container mx-auto px-3 mb-5">
+                <div className="items-center justify-center h-screen bg-gray-100">
+                    <p className="max-w-3xl mx-auto mb-5 text-lg text-black">
+                        <FormattedMessage id="dashboard.linguistsDescription" />
+                        <span className="block">
+                            <FormattedMessage
+                                id="dashboard.availabilityDescription"
+                                values={{
+                                    ts: Date.now() + 7 * 24 * 60 * 60 * 1000,
+                                }}
+                            />
+                        </span>
+                    </p>
+                    <table className="mt-4 border-collapse border border-gray-800">
+                        <thead>
+                            <tr>
+                                <th className="border border-gray-800 p-2">
+                                    <FormattedMessage id="accountSettings.name" />
+                                </th>
+                                <th className="border border-gray-800 p-2">
+                                    <FormattedMessage id="accountSettings.email" />
+                                </th>
+                                <th className="border border-gray-800 p-2">
+                                    <FormattedMessage id="dashboard.availability" />
+                                </th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
+                        </thead>
+                        <tbody>
+                            {linguists.map((linguist) => (
+                                <tr key={linguist.Email}>
+                                    <td className="border border-gray-800 p-2">
+                                        {linguist.Name}
+                                    </td>
+                                    <td className="border border-gray-800 p-2">
+                                        {linguist.Email}
+                                    </td>
+                                    <td className="border border-gray-800 p-2">
+                                        {linguist.availability[0].result ? (
+                                            <FormattedMessage id="dashboard.available" />
+                                        ) : (
+                                            <FormattedMessage id="dashboard.notAvailable" />
+                                        )}
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </main>
         </>
     )
 }
