@@ -88,3 +88,13 @@ export const fetchUserList = async () => {
         throw new Error("Error fetching user list: " + error.message);
     }
 };
+
+/* Create user on first login and save to state */
+export const createUserIfNotFound = async (userInfo, setUserDetails) => {
+    const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/users`, {
+        email: userInfo.email,
+        name: userInfo.name,
+        picture_url: userInfo.picture,
+    });
+    setUserDetails(response.data); // Set the user details after creating the user
+};
