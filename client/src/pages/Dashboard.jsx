@@ -4,13 +4,13 @@ import { FormattedMessage } from 'react-intl' // To show localized strings
 import { refreshAccessToken, isAccessTokenValid } from '../auth/utils' // To refresh access token when needed
 import { fetchUserList } from '../auth/utils'
 import Hero from '../components/Hero'
-import { availableUntil } from '../utils' // import the function
 
 const Dashboard = ({ userName }) => {
     const [linguists, setLinguists] = useState([]) // store list of users retrieved from Airtable
     /* Get list of linguists at page load from Airtable  and 
-  for each check their availability using n8n workflow. 
-  */
+    for each check their availability using n8n workflow. 
+    */
+
     useEffect(() => {
         const fetchLinguists = async () => {
             const newErrors = [] // Errors stored as we loop through each user
@@ -117,22 +117,28 @@ const Dashboard = ({ userName }) => {
         <>
             <Hero userName={userName} />
             <div className="items-center justify-center h-screen bg-gray-100">
-                <p className="max-w-3xl mx-auto mb-5 text-lg text-black mb-4">
-                    Linguists below can be assigned to your project.
+                <p className="max-w-3xl mx-auto mb-5 text-lg text-black">
+                    <FormattedMessage id="dashboard.linguistsDescription" />
                     <span className="block">
-                        They are available 8h a day Monday to Friday, from
-                        tomorrow until {availableUntil()} included.
+                        <FormattedMessage
+                            id="dashboard.availabilityDescription"
+                            values={{
+                                ts: Date.now() + 7 * 24 * 60 * 60 * 1000,
+                            }}
+                        />
                     </span>
                 </p>
                 <table className="mt-4 border-collapse border border-gray-800">
                     <thead>
                         <tr>
-                            <th className="border border-gray-800 p-2">Name</th>
                             <th className="border border-gray-800 p-2">
-                                Email
+                                <FormattedMessage id="accountSettings.name" />
                             </th>
                             <th className="border border-gray-800 p-2">
-                                Availability
+                                <FormattedMessage id="accountSettings.email" />
+                            </th>
+                            <th className="border border-gray-800 p-2">
+                                <FormattedMessage id="dashboard.availability" />
                             </th>
                         </tr>
                     </thead>
@@ -146,9 +152,11 @@ const Dashboard = ({ userName }) => {
                                     {linguist.Email}
                                 </td>
                                 <td className="border border-gray-800 p-2">
-                                    {linguist.availability[0].result
-                                        ? 'Available'
-                                        : 'Not Available'}
+                                    {linguist.availability[0].result ? (
+                                        <FormattedMessage id="dashboard.available" />
+                                    ) : (
+                                        <FormattedMessage id="dashboard.notAvailable" />
+                                    )}
                                 </td>
                             </tr>
                         ))}

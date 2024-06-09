@@ -1,9 +1,10 @@
 import React from 'react'
 import { useGoogleLogin } from '@react-oauth/google'
 import { useNavigate } from 'react-router-dom'
-import axios from 'axios' // TODO replace all axios calls with fetch globally
+import axios from 'axios'
 import { fetchUserDetails, createUserIfNotFound } from '../auth/utils'
 import Hero from '../components/Hero.jsx'
+import { FormattedMessage } from 'react-intl' // To show localized strings
 
 const Login = ({ setUserDetails }) => {
     const navigate = useNavigate()
@@ -99,8 +100,7 @@ const Login = ({ setUserDetails }) => {
         <>
             <Hero cta={login} />
             <p className="max-w-3xl mx-auto mb-5 text-lg text-black mt-4">
-                Just log in to your Google account, select your calendars, and
-                we'll take care of the rest:
+                <FormattedMessage id="loginDescription" />
             </p>
         </>
     )

@@ -40,7 +40,12 @@ const App = () => {
                         />
                         <Route
                             path="/logout"
-                            element={<Logout setUserDetails={setUserDetails} />}
+                            element={
+                                <Logout
+                                    setUserDetails={setUserDetails}
+                                    userDetails={userDetails}
+                                />
+                            }
                         />
                         <Route
                             path="/dashboard"

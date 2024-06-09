@@ -11,33 +11,29 @@ const Hero = ({ cta, userName }) => {
     const location = useLocation()
 
     // Define different content based on the route
-    let title, subtitle, description, backgroundImage, ctaButtonText, ctaIcon
+    let title, subtitle, backgroundImage, ctaButtonText, ctaIcon
 
     if (location.pathname === '/login') {
-        title = "Let's make it easy to work together."
-        subtitle = 'Great to see you!'
-        description = ''
+        title = 'hero.login.title'
+        subtitle = 'hero.login.subtitle'
         backgroundImage = heroImage2
         ctaButtonText = 'signInWithGoogle'
         ctaIcon = googleIcon
     } else if (location.pathname === '/dashboard') {
-        title = 'Find an available linguist.'
-        subtitle = `Hey ${userName}!`
-        description = ''
+        title = 'hero.dashboard.title'
+        subtitle = 'hero.dashboard.subtitle'
         backgroundImage = heroImage3
         ctaButtonText = '' // No CTA button on this page
         ctaIcon = null
     } else if (location.pathname === '/settings') {
-        title = 'Manage your calendars.'
-        subtitle = `Welcome ${userName}!`
-        description = ''
+        title = 'hero.settings.title'
+        subtitle = 'hero.settings.subtitle'
         backgroundImage = heroImage1
         ctaButtonText = '' // No CTA button on this page
         ctaIcon = null
     } else if (location.pathname === '/logout') {
-        title = 'Time to spread your wings!'
-        subtitle = 'Goodbye!'
-        description = ''
+        title = 'hero.logout.title'
+        subtitle = 'hero.logout.subtitle'
         backgroundImage = heroImage4
         ctaButtonText = '' // No CTA button on this page
         ctaIcon = null
@@ -45,7 +41,6 @@ const Hero = ({ cta, userName }) => {
         /* Empty page */
         title = ''
         subtitle = ''
-        description = ''
         backgroundImage = heroImage2
         ctaButtonText = ''
         ctaIcon = null
@@ -58,14 +53,16 @@ const Hero = ({ cta, userName }) => {
             <div className="flex items-center justify-center w-full h-full bg-gray-900 bg-opacity-50 py-6">
                 <div className="text-center container px-4 max-w-4xl mx-auto">
                     <span className="text-gray-200 font-semibold uppercase tracking-widest">
-                        {subtitle}
+                        <FormattedMessage
+                            id={subtitle}
+                            values={{
+                                userName: userName,
+                            }}
+                        />
                     </span>
                     <h2 className="mt-8 mb-6 text-4xl lg:text-5xl font-bold text-gray-100">
-                        {title}
+                        <FormattedMessage id={title} />
                     </h2>
-                    <p className="max-w-3xl mx-auto mb-5 text-lg text-gray-300">
-                        {description}
-                    </p>
                     {/* Show CTA button only when icon and text defined */}
                     {ctaIcon && ctaButtonText && (
                         <button
