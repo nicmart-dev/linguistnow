@@ -1,8 +1,13 @@
 import { useEffect, useRef } from 'react'
 
 /* Import DataTables and extensions */
-import DataTables from 'datatables.net-dt'
-import 'datatables.net-responsive-dt'
+import jszip from 'jszip' // For Excel export
+import DataTables from 'datatables.net-zf'
+import 'datatables.net-buttons-zf'
+import 'datatables.net-buttons/js/buttons.html5.mjs'
+import DateTime from 'datatables.net-datetime'
+import 'datatables.net-responsive-zf'
+import $ from 'jquery'
 
 /* DataTables is a powerful Javascript library for adding interaction features 
 to HTML tables, with simplicity a core design principle for the project as a whole */

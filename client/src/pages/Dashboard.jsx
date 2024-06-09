@@ -122,7 +122,7 @@ const Dashboard = ({ userName }) => {
         <>
             <Hero userName={userName} />
             <main className="container mx-auto px-3 mb-5">
-                <div className="items-center justify-center h-screen bg-gray-100">
+                <div className="items-center justify-center h-screen">
                     <p className="max-w-3xl mx-auto mb-5 text-lg text-black">
                         <FormattedMessage id="dashboard.linguistsDescription" />
                         <span className="block">
