@@ -1,12 +1,10 @@
 import CalendarSelector from '../components/CalendarSelector'
-import { useIntl } from 'react-intl'
+import { FormattedMessage } from 'react-intl' // To show localized strings
 import Hero from '../components/Hero'
 
 /* The AccountSettings component utilizes the CalendarSelector component 
 to allow the user to select and save their calendars. */
 const AccountSettings = ({ userDetails, setUserDetails }) => {
-    const intl = useIntl()
-
     /* Save user selected calendars */
     const handleSaveCalendars = async (updatedCalendars) => {
         try {
@@ -44,31 +42,25 @@ const AccountSettings = ({ userDetails, setUserDetails }) => {
             <Hero userName={userDetails.Name} />
             <div>
                 <p className="max-w-3xl mx-auto mb-5 text-lg text-black mt-4">
-                    Select the calendars we need to check availability against.
+                    <FormattedMessage id="accountSettings.selectCalendars" />
                     <span className="block">
-                        Your choices are automatically saved.
+                        <FormattedMessage id="accountSettings.automaticSave" />
                     </span>
                 </p>
                 <h2>
-                    {intl.formatMessage({
-                        id: 'accountSettings.accountSettings',
-                    })}
+                    <FormattedMessage id="accountSettings.accountSettings" />
                 </h2>
                 {userDetails && (
                     <>
                         <h3>
-                            {intl.formatMessage({
-                                id: 'accountSettings.userDetails',
-                            })}
+                            <FormattedMessage id="accountSettings.userDetails" />
                         </h3>
                         <p>
-                            {intl.formatMessage({
-                                id: 'accountSettings.email',
-                            })}{' '}
+                            <FormattedMessage id="accountSettings.email" />{' '}
                             {userDetails.Email}
                         </p>
                         <p>
-                            {intl.formatMessage({ id: 'accountSettings.name' })}{' '}
+                            <FormattedMessage id="accountSettings.name" />{' '}
                             {userDetails.Name}
                         </p>
                         {/* Pass user details to child component to display list of calendars,
