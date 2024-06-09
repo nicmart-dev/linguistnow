@@ -6,7 +6,6 @@ import heroImage4 from '../assets/images/hero-image4.jpg'
 import googleIcon from '../assets/icons/google.svg'
 import { useLocation } from 'react-router-dom' // to check the current route
 import { FormattedMessage } from 'react-intl' // to localize text displayed
-import { availableUntil } from '../utils' // import the function
 
 const Hero = ({ cta, userName }) => {
     const location = useLocation()
@@ -16,46 +15,29 @@ const Hero = ({ cta, userName }) => {
 
     if (location.pathname === '/login') {
         title = "Let's make it easy to work together."
-        subtitle = 'Login to your account'
-        description =
-            "Just log in to your Google account, select your calendars, and we'll take care of the rest."
+        subtitle = 'Great to see you!'
+        description = ''
         backgroundImage = heroImage2
         ctaButtonText = 'signInWithGoogle'
         ctaIcon = googleIcon
     } else if (location.pathname === '/dashboard') {
         title = 'Find an available linguist.'
         subtitle = `Hey ${userName}!`
-        description = (
-            <>
-                Linguists below can be assigned to your project.
-                <span className="block">
-                    They are available 8h a day Monday to Friday, from tomorrow
-                    until {availableUntil()} included.
-                </span>
-            </>
-        )
+        description = ''
         backgroundImage = heroImage3
         ctaButtonText = '' // No CTA button on this page
         ctaIcon = null
     } else if (location.pathname === '/settings') {
         title = 'Manage your calendars.'
         subtitle = `Welcome ${userName}!`
-        description = (
-            <>
-                Select the calendars we need to check availability against.
-                <span className="block">
-                    Your choices are automatically saved.
-                </span>
-            </>
-        )
+        description = ''
         backgroundImage = heroImage1
         ctaButtonText = '' // No CTA button on this page
         ctaIcon = null
     } else if (location.pathname === '/logout') {
-        title = 'Thanks for trusting us!'
+        title = 'Time to spread your wings!'
         subtitle = 'Goodbye!'
-        description =
-            'You have been successfully logged out. We hope to see you again soon.'
+        description = ''
         backgroundImage = heroImage4
         ctaButtonText = '' // No CTA button on this page
         ctaIcon = null

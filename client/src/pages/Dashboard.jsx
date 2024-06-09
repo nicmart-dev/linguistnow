@@ -4,6 +4,7 @@ import { FormattedMessage } from 'react-intl' // To show localized strings
 import { refreshAccessToken, isAccessTokenValid } from '../auth/utils' // To refresh access token when needed
 import { fetchUserList } from '../auth/utils'
 import Hero from '../components/Hero'
+import { availableUntil } from '../utils' // import the function
 
 const Dashboard = ({ userName }) => {
     const [linguists, setLinguists] = useState([]) // store list of users retrieved from Airtable
@@ -115,12 +116,13 @@ const Dashboard = ({ userName }) => {
     return (
         <>
             <Hero userName={userName} />
-            <div className="flex flex-col items-center justify-center h-screen bg-gray-100">
-                <h1 className="text-4xl font-bold">
-                    <FormattedMessage id="dashboard.title" />
-                </h1>
-                <p className="text-xl mt-4">
-                    <FormattedMessage id="dashboard.description" />
+            <div className="items-center justify-center h-screen bg-gray-100">
+                <p className="max-w-3xl mx-auto mb-5 text-lg text-black mb-4">
+                    Linguists below can be assigned to your project.
+                    <span className="block">
+                        They are available 8h a day Monday to Friday, from
+                        tomorrow until {availableUntil()} included.
+                    </span>
                 </p>
                 <table className="mt-4 border-collapse border border-gray-800">
                     <thead>

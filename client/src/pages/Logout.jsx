@@ -17,6 +17,10 @@ const Logout = ({ setUserDetails }) => {
     return (
         <>
             <Hero />
+            <p className="max-w-3xl mx-auto mb-5 text-lg text-black mt-4">
+                You have been successfully logged out. We hope to see you again
+                soon.
+            </p>
         </>
     )
 }

@@ -98,6 +98,10 @@ const Login = ({ setUserDetails }) => {
     return (
         <>
             <Hero cta={login} />
+            <p className="max-w-3xl mx-auto mb-5 text-lg text-black mt-4">
+                Just log in to your Google account, select your calendars, and
+                we'll take care of the rest:
+            </p>
         </>
     )
 }

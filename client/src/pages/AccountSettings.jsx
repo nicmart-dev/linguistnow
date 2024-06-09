@@ -43,6 +43,12 @@ const AccountSettings = ({ userDetails, setUserDetails }) => {
         <>
             <Hero userName={userDetails.Name} />
             <div>
+                <p className="max-w-3xl mx-auto mb-5 text-lg text-black mt-4">
+                    Select the calendars we need to check availability against.
+                    <span className="block">
+                        Your choices are automatically saved.
+                    </span>
+                </p>
                 <h2>
                     {intl.formatMessage({
                         id: 'accountSettings.accountSettings',
