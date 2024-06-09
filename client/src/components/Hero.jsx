@@ -26,7 +26,8 @@ const Hero = ({ cta, userName }) => {
         description =
             'Linguists below are available to work 8h per work day from tomorrow until a week after that.'
         backgroundImage = heroImage3
-        ctaButtonText = 'Set your availability'
+        ctaButtonText = '' // No CTA button on this page
+        ctaIcon = null
     } else if (location.pathname === '/account-settings') {
         title = 'Manage Your Calendars'
         subtitle = `Welcome ${userName}!`
@@ -34,6 +35,7 @@ const Hero = ({ cta, userName }) => {
             'Select the calendars we need to check availability against.'
         backgroundImage = heroImage2
         ctaButtonText = '' // No CTA button on this page
+        ctaIcon = null
     } else {
         /* Empty page */
         title = ''
@@ -41,6 +43,7 @@ const Hero = ({ cta, userName }) => {
         description = ''
         backgroundImage = heroImage2
         ctaButtonText = ''
+        ctaIcon = null
     }
     return (
         <section
@@ -58,17 +61,20 @@ const Hero = ({ cta, userName }) => {
                     <p className="max-w-3xl mx-auto mb-10 text-lg text-gray-300">
                         {description}
                     </p>
-                    <button
-                        onClick={cta}
-                        className="inline-flex justify-center items-center w-full md:w-auto py-5 px-8 text-sm font-bold uppercase border-2 border-transparent bg-gray-200 rounded hover:bg-gray-100 text-gray-800 transition duration-200"
-                    >
-                        <img
-                            className="h-6 w-6 inline-block mr-4"
-                            src={ctaIcon}
-                            alt="call to action"
-                        />
-                        <FormattedMessage id={ctaButtonText} />
-                    </button>
+                    {/* Show CTA button only when icon and text defined */}
+                    {ctaIcon && ctaButtonText && (
+                        <button
+                            onClick={cta}
+                            className="inline-flex justify-center items-center w-full md:w-auto py-5 px-8 text-sm font-bold uppercase border-2 border-transparent bg-gray-200 rounded hover:bg-gray-100 text-gray-800 transition duration-200"
+                        >
+                            <img
+                                className="h-6 w-6 inline-block mr-4"
+                                src={ctaIcon}
+                                alt="call to action"
+                            />
+                            <FormattedMessage id={ctaButtonText} />
+                        </button>
+                    )}
                 </div>
             </div>
         </section>

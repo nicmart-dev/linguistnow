@@ -3,7 +3,6 @@ import { useGoogleLogin } from '@react-oauth/google'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios' // TODO replace all axios calls with fetch globally
 import { fetchUserDetails, createUserIfNotFound } from '../auth/utils'
-import { FormattedMessage } from 'react-intl' // to localize text displayed
 import Hero from '../components/Hero.jsx'
 
 const Login = ({ setUserDetails }) => {
@@ -95,10 +94,10 @@ const Login = ({ setUserDetails }) => {
         onNonOAuthError: () => {}, // Ignore any non-OAuth errors
     })
 
+    /* Show custom hero with cta to show Google login popup */
     return (
         <>
-            <Hero cta={login} />{' '}
-            {/* Show custom hero with cta to show Google login popup */}
+            <Hero cta={login} />
         </>
     )
 }

@@ -48,7 +48,15 @@ const App = () => {
                             element={
                                 <PrivateRoute
                                     userDetails={userDetails}
-                                    element={<Dashboard />}
+                                    element={
+                                        userDetails ? (
+                                            <Dashboard
+                                                userName={userDetails.Name}
+                                            />
+                                        ) : (
+                                            ''
+                                        )
+                                    }
                                 />
                             }
                         />
