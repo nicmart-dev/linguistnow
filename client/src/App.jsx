@@ -18,7 +18,6 @@ const App = () => {
             <LanguageProvider>
                 <BrowserRouter>
                     <Navbar userDetails={userDetails} />
-                    <Hero />
                     <Routes>
                         {/* Ask user to log in when landing on site, then if role
                         is PM go to Dashboard, otherwise to Settings page */}

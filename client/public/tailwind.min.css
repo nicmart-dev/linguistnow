@@ -531,15 +531,6 @@ video {
 .collapse {
   visibility: collapse;
 }
-.absolute {
-  position: absolute;
-}
-.relative {
-  position: relative;
-}
-.inset-0 {
-  inset: 0px;
-}
 .top-0 {
   top: 0px;
 }
@@ -559,15 +550,8 @@ video {
   margin-left: auto;
   margin-right: auto;
 }
-.my-4 {
-  margin-top: 1rem;
-  margin-bottom: 1rem;
-}
 .mb-10 {
   margin-bottom: 2.5rem;
-}
-.mb-4 {
-  margin-bottom: 1rem;
 }
 .mb-6 {
   margin-bottom: 1.5rem;
@@ -577,6 +561,9 @@ video {
 }
 .mr-2 {
   margin-right: 0.5rem;
+}
+.mr-4 {
+  margin-right: 1rem;
 }
 .mt-0 {
   margin-top: 0px;
@@ -596,6 +583,9 @@ video {
 .flex {
   display: flex;
 }
+.inline-flex {
+  display: inline-flex;
+}
 .table {
   display: table;
 }
@@ -604,6 +594,9 @@ video {
 }
 .h-5 {
   height: 1.25rem;
+}
+.h-6 {
+  height: 1.5rem;
 }
 .h-9 {
   height: 2.25rem;
@@ -616,6 +609,9 @@ video {
 }
 .w-5 {
   width: 1.25rem;
+}
+.w-6 {
+  width: 1.5rem;
 }
 .w-9 {
   width: 2.25rem;
@@ -657,9 +653,6 @@ video {
   --tw-space-y-reverse: 0;
   margin-top: calc(1rem * calc(1 - var(--tw-space-y-reverse)));
   margin-bottom: calc(1rem * var(--tw-space-y-reverse));
-}
-.overflow-hidden {
-  overflow: hidden;
 }
 .rounded {
   border-radius: 0.25rem;
@@ -839,10 +832,6 @@ video {
   --tw-text-opacity: 1;
   color: rgb(17 24 39 / var(--tw-text-opacity));
 }
-.text-white {
-  --tw-text-opacity: 1;
-  color: rgb(255 255 255 / var(--tw-text-opacity));
-}
 .no-underline {
   text-decoration-line: none;
 }
@@ -887,10 +876,6 @@ video {
     order: 3;
   }
 
-  .md\:mr-6 {
-    margin-right: 1.5rem;
-  }
-
   .md\:flex {
     display: flex;
   }
@@ -907,39 +892,14 @@ video {
     align-items: center;
   }
 
-  .md\:bg-bottom {
-    background-position: bottom;
-  }
-
   .md\:pt-0 {
     padding-top: 0px;
-  }
-
-  .md\:text-6xl {
-    font-size: 3.75rem;
-    line-height: 1;
   }
 }
 @media (min-width: 1024px) {
 
-  .lg\:bg-top {
-    background-position: top;
-  }
-
   .lg\:text-5xl {
     font-size: 3rem;
-    line-height: 1;
-  }
-
-  .lg\:text-7xl {
-    font-size: 4.5rem;
-    line-height: 1;
-  }
-}
-@media (min-width: 1280px) {
-
-  .xl\:text-8xl {
-    font-size: 6rem;
     line-height: 1;
   }
 }
