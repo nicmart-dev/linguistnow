@@ -37,9 +37,15 @@ const AccountSettings = ({ userDetails, setUserDetails }) => {
         }
     }
 
+    const handleGoToCalendar = () => {
+        // Replace 'url' with the URL you want to open
+        const url = 'https://calendar.google.com/'
+        window.open(url, '_blank')
+    }
+
     return (
         <>
-            <Hero userName={userDetails.Name} />
+            <Hero userName={userDetails.Name} cta={handleGoToCalendar} />
             <div>
                 <p className="max-w-3xl mx-auto mb-5 text-lg text-black mt-4">
                     <FormattedMessage id="accountSettings.selectCalendars" />
@@ -47,22 +53,9 @@ const AccountSettings = ({ userDetails, setUserDetails }) => {
                         <FormattedMessage id="accountSettings.automaticSave" />
                     </span>
                 </p>
-                <h2>
-                    <FormattedMessage id="accountSettings.accountSettings" />
-                </h2>
+
                 {userDetails && (
                     <>
-                        <h3>
-                            <FormattedMessage id="accountSettings.userDetails" />
-                        </h3>
-                        <p>
-                            <FormattedMessage id="accountSettings.email" />{' '}
-                            {userDetails.Email}
-                        </p>
-                        <p>
-                            <FormattedMessage id="accountSettings.name" />{' '}
-                            {userDetails.Name}
-                        </p>
                         {/* Pass user details to child component to display list of calendars,
             as well as function it can call when saving selected calendars. */}
                         <CalendarSelector
