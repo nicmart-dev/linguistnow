@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import { FormattedMessage } from 'react-intl' // To show localized strings
-import { refreshAccessToken, isAccessTokenValid } from '../auth/utils' // To refresh access token when needed
-import { fetchUserList } from '../auth/utils'
+import { refreshAccessToken, isAccessTokenValid } from '../auth-users/utils' // To refresh access token when needed
+import { fetchUserList } from '../auth-users/utils'
 import Hero from '../components/Hero'
 
 const Dashboard = ({ userName }) => {

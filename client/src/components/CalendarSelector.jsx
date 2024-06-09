@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react'
-import { refreshAccessToken, isAccessTokenValid } from '../auth/utils'
+import { refreshAccessToken, isAccessTokenValid } from '../auth-users/utils'
 import { useIntl } from 'react-intl' // to localize text strings
 import Skeleton from './Skeleton'
 
