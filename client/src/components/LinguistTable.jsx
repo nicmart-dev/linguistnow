@@ -11,7 +11,6 @@ const columns = [
 const LinguistTable = ({ linguists }) => {
     const intl = useIntl()
 
-    // Refresh table columns with matching localized strings
     const localizeColumns = () => {
         return columns.map((column) => ({
             ...column,
@@ -19,23 +18,30 @@ const LinguistTable = ({ linguists }) => {
         }))
     }
 
-    /* TODO: update table state with linguists array with Available/Not available status before rendering table
-   {linguist.availability[0].result ? (
-intl.formatMessage({ id: dashboard.available })
-    ) : (
-intl.formatMessage({ id: dashboard.notAvailable })
-    )}
-*/
+    const initialAvailabilityCheck = (linguist) => {
+        const availabilityId = linguist.availability[0].result
+            ? 'dashboard.available'
+            : 'dashboard.notAvailable'
+        return {
+            ...linguist,
+            availability: intl.formatMessage({ id: availabilityId }),
+        }
+    }
 
-    const [table, setTable] = useState(localizeColumns) // store table data in state
+    const processRows = (linguists) => {
+        return linguists.map(initialAvailabilityCheck)
+    }
 
-    /* Refresh table data if language change */
+    const [localizedColumns, setLocalizedColumns] = useState(localizeColumns)
+    const [localizedRows, setLocalizedRows] = useState(processRows(linguists))
+
     useEffect(() => {
-        setTable(localizeColumns)
+        setLocalizedColumns(localizeColumns)
+        setLocalizedRows(processRows(linguists))
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [intl])
+    }, [intl, linguists])
 
-    console.log('Linguists table list:', linguists)
+    console.log('Linguists table list:', localizedRows)
     /* Sample format of linguists array:
     [
     {
@@ -57,7 +63,7 @@ intl.formatMessage({ id: dashboard.notAvailable })
     
     */
 
-    return <DataTable data={linguists} columns={table} />
+    return <DataTable data={localizedRows} columns={localizedColumns} />
 }
 
 export default LinguistTable
