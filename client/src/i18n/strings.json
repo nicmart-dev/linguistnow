@@ -24,16 +24,13 @@
         "dashboard.availability": "Availability",
         "hero.login.title": "Let's make it easy to work together.",
         "hero.login.subtitle": "Great to see you!",
-        "hero.login.description": "",
         "hero.dashboard.title": "Find an available linguist.",
         "hero.dashboard.subtitle": "Hey {userName}!",
-        "hero.dashboard.description": "",
         "hero.settings.title": "Which calendars should we check?",
         "hero.settings.subtitle": "Welcome {userName}!",
-        "hero.settings.description": "",
         "hero.logout.title": "Time to spread your wings!",
         "hero.logout.subtitle": "Goodbye {userName}!",
-        "hero.logout.description": ""
+        "logoutSuccessMessage": "You have been successfully logged out. We hope to see you again soon."
     },
     "fr": {
         "login": "Connexion",
@@ -60,15 +57,12 @@
         "dashboard.availability": "Disponibilité",
         "hero.login.title": "Rendons le travail ensemble facile.",
         "hero.login.subtitle": "Ravi de vous voir !",
-        "hero.login.description": "",
         "hero.dashboard.title": "Trouvez un linguiste disponible.",
         "hero.dashboard.subtitle": "Bonjour {userName}!",
-        "hero.dashboard.description": "",
         "hero.settings.title": "Quels calendriers devrions-nous vérifier?",
         "hero.settings.subtitle": "Bienvenue {userName}!",
-        "hero.settings.description": "",
         "hero.logout.title": "Il est temps de prendre votre envol!",
         "hero.logout.subtitle": "Au revoir {userName} !",
-        "hero.logout.description": ""
+        "logoutSuccessMessage": "Vous avez été déconnecté avec succès. Nous espérons vous revoir bientôt."
     }
 }

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { googleLogout } from '@react-oauth/google'
 import { useNavigate } from 'react-router-dom'
 import Hero from '../components/Hero'
+import { FormattedMessage } from 'react-intl'
 
 const Logout = ({ setUserDetails, userDetails }) => {
     const [userName, setUserName] = useState('') // store user name so we can display it after logout
@@ -28,8 +29,7 @@ const Logout = ({ setUserDetails, userDetails }) => {
         <>
             <Hero userName={userName} />
             <p className="max-w-3xl mx-auto mb-5 text-lg text-black mt-4">
-                You have been successfully logged out. We hope to see you again
-                soon.
+                <FormattedMessage id="logoutSuccessMessage" />
             </p>
         </>
     )
