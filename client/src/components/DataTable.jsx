@@ -72,3 +72,4 @@ export function DataTable({ columns, data }) {
         </div>
     )
 }
+export default DataTable

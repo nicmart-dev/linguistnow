@@ -1,15 +1,13 @@
 import * as React from 'react'
 
-import { cn } from '@/lib/utils'
+import { cn } from '../lib/utils'
 
 /* 
-Powerful table and datagrids built using TanStack Table
-File auto generated:
-
-1. during step 1 npx shadcn-ui@latest add table
+Building block for powerful table and datagrids built using TanStack Table
+File auto generated during step 1 npx shadcn-ui@latest add table
 of installation instructions https://ui.shadcn.com/docs/components/data-table
 
-2. Then https://ui.shadcn.com/docs/installation/manual
+cn library then installed following https://ui.shadcn.com/docs/installation/manual
 
 */
 

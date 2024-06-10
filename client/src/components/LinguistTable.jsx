@@ -3,10 +3,10 @@ import DataTable from './DataTable.jsx'
 import { useIntl } from 'react-intl'
 
 const columns = [
-    { data: 'Picture', titleId: 'accountSettings.picture' },
-    { data: 'Name', titleId: 'accountSettings.name' },
-    { data: 'Email', titleId: 'accountSettings.email' },
-    { data: 'availability', titleId: 'dashboard.availability' },
+    // TODO fix for TanStack table library { accessorKey: 'Picture', header: 'accountSettings.picture' },
+    { accessorKey: 'Name', headerId: 'accountSettings.name' },
+    { accessorKey: 'Email', headerId: 'accountSettings.email' },
+    { accessorKey: 'availability', headerId: 'dashboard.availability' },
 ]
 
 /* Display table of available linguists using DataTables library 
@@ -32,7 +32,7 @@ const LinguistTable = ({ linguists }) => {
     const localizeColumns = () => {
         return columns.map((column) => ({
             ...column,
-            title: intl.formatMessage({ id: column.titleId }),
+            header: intl.formatMessage({ id: column.headerId }),
         }))
     }
 
