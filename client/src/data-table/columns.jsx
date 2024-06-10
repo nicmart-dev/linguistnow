@@ -1,6 +1,5 @@
 import { FormattedMessage } from 'react-intl' // To show localized strings
-import { ColumnDef } from '@tanstack/react-table'
-import { ArrowUpDown, MoreHorizontal } from 'lucide-react'
+import { ArrowUpDown } from 'lucide-react'
 import { Button } from '../components/Button' // used for sorting
 
 // Defining the columns array

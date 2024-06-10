@@ -1,8 +1,10 @@
 import React, { useState } from 'react'
 import {
     useReactTable,
+    ColumnFiltersState,
     SortingState,
     getCoreRowModel,
+    getFilteredRowModel,
     getPaginationRowModel,
     getSortedRowModel,
     flexRender,
@@ -18,9 +20,14 @@ import {
 } from './Table'
 
 import { Button } from './Button'
+import { Input } from './Input'
+
+import { FormattedMessage, useIntl } from 'react-intl' // To show localized strings
 
 export function DataTable({ columns, data }) {
     const [sorting, setSorting] = useState([])
+    const [columnFilters, setColumnFilters] = useState([])
+    const intl = useIntl()
 
     const table = useReactTable({
         data,
@@ -29,13 +36,30 @@ export function DataTable({ columns, data }) {
         getPaginationRowModel: getPaginationRowModel(),
         onSortingChange: setSorting,
         getSortedRowModel: getSortedRowModel(),
+        onColumnFiltersChange: setColumnFilters,
+        getFilteredRowModel: getFilteredRowModel(),
         state: {
             sorting,
+            columnFilters,
         },
     })
 
     return (
         <div>
+            <div className="flex items-center py-4">
+                <Input
+                    placeholder={intl.formatMessage({
+                        id: 'dashboard.filterEmailPlaceholder',
+                    })}
+                    value={table.getColumn('Email')?.getFilterValue() ?? ''}
+                    onChange={(event) =>
+                        table
+                            .getColumn('Email')
+                            ?.setFilterValue(event.target.value)
+                    }
+                    className="max-w-sm"
+                />
+            </div>
             <div className="rounded-md border">
                 <Table>
                     <TableHeader>
@@ -80,7 +104,7 @@ export function DataTable({ columns, data }) {
                                     colSpan={columns.length}
                                     className="h-24 text-center"
                                 >
-                                    No results.
+                                    <FormattedMessage id="dashboard.noResults" />
                                 </TableCell>
                             </TableRow>
                         )}
@@ -94,7 +118,7 @@ export function DataTable({ columns, data }) {
                     onClick={() => table.previousPage()}
                     disabled={!table.getCanPreviousPage()}
                 >
-                    Previous
+                    <FormattedMessage id="dashboard.previous" />
                 </Button>
                 <Button
                     variant="outline"
@@ -102,7 +126,7 @@ export function DataTable({ columns, data }) {
                     onClick={() => table.nextPage()}
                     disabled={!table.getCanNextPage()}
                 >
-                    Next
+                    <FormattedMessage id="dashboard.next" />
                 </Button>
             </div>
         </div>
