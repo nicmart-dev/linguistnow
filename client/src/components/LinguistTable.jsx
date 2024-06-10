@@ -29,7 +29,6 @@ const LinguistTable = ({ linguists }) => {
             const textToDisplay = isAvailable
                 ? intl.formatMessage({ id: 'dashboard.available' })
                 : intl.formatMessage({ id: 'dashboard.notAvailable' })
-            console.log('Text to display:', textToDisplay)
             return {
                 ...linguist,
                 availability: textToDisplay,

@@ -20,16 +20,6 @@ export const columns = [
                 </Button>
             )
         },
-        // cell: ({ row }) => {
-        //     const isAvailable = row.getValue('availability')
-        //     const formatted = isAvailable[0].result ? (
-        //         <FormattedMessage id="dashboard.available" />
-        //     ) : (
-        //         <FormattedMessage id="dashboard.notAvailable" />
-        //     )
-
-        //     return formatted
-        // },
     },
     {
         accessorKey: 'Picture',
