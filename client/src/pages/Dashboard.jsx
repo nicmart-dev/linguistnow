@@ -5,6 +5,7 @@ import { refreshAccessToken, isAccessTokenValid } from '../auth-users/utils' // 
 import { fetchUserList } from '../auth-users/utils'
 import Hero from '../components/Hero'
 import LinguistTable from '../components/LinguistTable.jsx'
+import Skeleton from '../components/Skeleton' // to sisplay while data is loading
 
 const Dashboard = ({ userName }) => {
     const [linguists, setLinguists] = useState([]) // store list of users retrieved from Airtable
@@ -136,7 +137,7 @@ const Dashboard = ({ userName }) => {
                     </p>
                     {/* Show table of available linguists, but only if data has been loaded */}
                     {loading ? (
-                        <p>Loading...</p>
+                        <Skeleton />
                     ) : (
                         <LinguistTable linguists={linguists} />
                     )}
