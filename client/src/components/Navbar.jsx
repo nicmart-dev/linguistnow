@@ -207,6 +207,16 @@ const Navbar = ({ userDetails }) => {
                                     <FormattedMessage id="french" />
                                 </button>
                             </li>
+                            <li>
+                                <button
+                                    onClick={() => {
+                                        switchLanguage('zh-cn')
+                                        setLangOpen(false)
+                                    }}
+                                >
+                                    <FormattedMessage id="simplifiedChinese" />
+                                </button>
+                            </li>
                         </ul>
                     </nav>
                 </div>

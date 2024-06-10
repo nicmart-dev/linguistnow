@@ -1,16 +1,20 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import { FormattedMessage } from 'react-intl' // To show localized strings
-import { refreshAccessToken, isAccessTokenValid } from '../auth/utils' // To refresh access token when needed
-import { fetchUserList } from '../auth/utils'
+import { refreshAccessToken, isAccessTokenValid } from '../auth-users/utils' // To refresh access token when needed
+import { fetchUserList } from '../auth-users/utils'
 import Hero from '../components/Hero'
+import LinguistTable from '../components/LinguistTable.jsx'
+import Skeleton from '../components/Skeleton' // to sisplay while data is loading
 
 const Dashboard = ({ userName }) => {
     const [linguists, setLinguists] = useState([]) // store list of users retrieved from Airtable
+
+    const [loading, setLoading] = useState(true) // State to track loading status so we display table only after fetching data
+
     /* Get list of linguists at page load from Airtable  and 
     for each check their availability using n8n workflow. 
     */
-
     useEffect(() => {
         const fetchLinguists = async () => {
             const newErrors = [] // Errors stored as we loop through each user
@@ -107,6 +111,8 @@ const Dashboard = ({ userName }) => {
                 console.error('Error fetching linguists:', error)
                 newErrors.push('Error fetching linguists: ' + error.message)
             }
+
+            setLoading(false) // Set loading to false after fetch is done
         }
 
         fetchLinguists()
@@ -116,53 +122,27 @@ const Dashboard = ({ userName }) => {
     return (
         <>
             <Hero userName={userName} />
-            <div className="items-center justify-center h-screen bg-gray-100">
-                <p className="max-w-3xl mx-auto mb-5 text-lg text-black">
-                    <FormattedMessage id="dashboard.linguistsDescription" />
-                    <span className="block">
+            <main className="container mx-auto px-3 mb-5">
+                <div className="items-center justify-center h-screen">
+                    <p className="max-w-3xl mx-auto my-5 text-lg text-black">
                         <FormattedMessage
-                            id="dashboard.availabilityDescription"
+                            id="dashboard.linguistsDescription"
                             values={{
                                 ts: Date.now() + 7 * 24 * 60 * 60 * 1000,
                             }}
                         />
-                    </span>
-                </p>
-                <table className="mt-4 border-collapse border border-gray-800">
-                    <thead>
-                        <tr>
-                            <th className="border border-gray-800 p-2">
-                                <FormattedMessage id="accountSettings.name" />
-                            </th>
-                            <th className="border border-gray-800 p-2">
-                                <FormattedMessage id="accountSettings.email" />
-                            </th>
-                            <th className="border border-gray-800 p-2">
-                                <FormattedMessage id="dashboard.availability" />
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {linguists.map((linguist) => (
-                            <tr key={linguist.Email}>
-                                <td className="border border-gray-800 p-2">
-                                    {linguist.Name}
-                                </td>
-                                <td className="border border-gray-800 p-2">
-                                    {linguist.Email}
-                                </td>
-                                <td className="border border-gray-800 p-2">
-                                    {linguist.availability[0].result ? (
-                                        <FormattedMessage id="dashboard.available" />
-                                    ) : (
-                                        <FormattedMessage id="dashboard.notAvailable" />
-                                    )}
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
+                        <span className="block">
+                            <FormattedMessage id="dashboard.availabilityDescription" />
+                        </span>
+                    </p>
+                    {/* Show table of available linguists, but only if data has been loaded */}
+                    {loading ? (
+                        <Skeleton />
+                    ) : (
+                        <LinguistTable linguists={linguists} />
+                    )}
+                </div>
+            </main>
         </>
     )
 }

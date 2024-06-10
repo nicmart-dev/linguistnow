@@ -129,7 +129,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Define the minimum number of hours required each day\nconst minHoursPerDay = $node[\"Set min hours per day\"].json[\"minHoursPerDay\"];\n\n// Initialize an object to store the total working hours for each day\nconst workingHoursPerDay = {};\n\n// Define timezone\nconst timezone = $node[\"Set local timezone\"].json[\"timezone\"]; // Pacific Time (PT)\n\n// Loop over all free slots\nfor (const slot of $(\"Exclude non-working hours\").all()) {\n    // Convert the start and end times to Date objects\n    const startDate = new Date(slot.json.start);\n    let endDate = new Date(slot.json.end);\n\n    // Convert times to specified timezone\n    startDate.toLocaleString('en-US', { timeZone: timezone });\n    endDate.toLocaleString('en-US', { timeZone: timezone });\n\n    // Get the date string in YYYY-MM-DD format for start and end dates\n    const startDateString = startDate.toISOString().split('T')[0];\n    const endDateString = endDate.toISOString().split('T')[0];\n\n    // Calculate the duration of the slot in hours\n    const duration = (endDate - startDate) / (1000 * 60 * 60); // duration in hours\n\n    // Add the duration to the respective day\n    if (!workingHoursPerDay[startDateString]) {\n        workingHoursPerDay[startDateString] = 0;\n    }\n    workingHoursPerDay[startDateString] += duration;\n}\n\n// Check if each day has at least the minimum required hours\nlet allDaysHaveMinHours = true;\nfor (const day in workingHoursPerDay) {\n    if (workingHoursPerDay[day] < minHoursPerDay) {\n        allDaysHaveMinHours = false;\n        break;\n    }\n}\n\n// Return the result in the desired format\nreturn [{ result: allDaysHaveMinHours }];\n"
+        "jsCode": "// Define the minimum number of hours required each day\nconst minHoursPerDay = $node[\"Set min hours per day\"].json[\"minHoursPerDay\"];\n\n// Initialize an object to store the total working hours for each day\nconst workingHoursPerDay = {};\n\n// Define timezone\nconst timezone = $node[\"Set local timezone\"].json[\"timezone\"]; // Pacific Time (PT)\n\n// Helper function to convert to specified timezone\nfunction convertToTimezone(dateString, timezone) {\n    return new Date(new Date(dateString).toLocaleString('en-US', { timeZone: timezone }));\n}\n\n// Helper function to add hours to a specific date\nfunction addHoursToDay(date, hours) {\n    const dateString = date.toISOString().split('T')[0];\n    if (!workingHoursPerDay[dateString]) {\n        workingHoursPerDay[dateString] = 0;\n    }\n    workingHoursPerDay[dateString] += hours;\n}\n\n// Get the start and end dates for the period covered by the input slots\nlet periodStartDate = new Date($(\"Exclude non-working hours\").first().json.start);\nlet periodEndDate = new Date($(\"Exclude non-working hours\").last().json.end);\n\n// Loop over all free slots\nfor (const slot of $(\"Exclude non-working hours\").all()) {\n    // Convert the start and end times to Date objects in the specified timezone\n    let startDate = convertToTimezone(slot.json.start, timezone);\n    let endDate = convertToTimezone(slot.json.end, timezone);\n\n    // Loop through each day spanned by the slot\n    while (startDate < endDate) {\n        const endOfDay = new Date(startDate);\n        endOfDay.setHours(23, 59, 59, 999);\n\n        if (endOfDay > endDate) {\n            endOfDay.setTime(endDate.getTime());\n        }\n\n        const hours = (endOfDay - startDate) / (1000 * 60 * 60);\n        addHoursToDay(startDate, hours);\n\n        // Move to the next day\n        startDate = new Date(startDate);\n        startDate.setHours(0, 0, 0, 0);\n        startDate.setDate(startDate.getDate() + 1);\n    }\n}\n\n// Loop through all days in the period to ensure each day is checked\nlet allDaysHaveMinHours = true;\nwhile (periodStartDate <= periodEndDate) {\n    const dateString = periodStartDate.toISOString().split('T')[0];\n    if (!workingHoursPerDay[dateString] || workingHoursPerDay[dateString] < minHoursPerDay) {\n        allDaysHaveMinHours = false;\n        break;\n    }\n    periodStartDate.setDate(periodStartDate.getDate() + 1);\n}\n\n// Return the result in the desired format\nreturn { result: allDaysHaveMinHours };\n"
       },
       "id": "a16b1f9a-a177-4e3d-a937-bd83f3c2b0e1",
       "name": "Ensure at least 8h free each day",
@@ -341,22 +341,22 @@
         ]
       ]
     },
-    "Webhook": {
+    "Stringify calendar list": {
       "main": [
         [
           {
-            "node": "Stringify calendar list",
+            "node": "Define time window",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Stringify calendar list": {
+    "Webhook": {
       "main": [
         [
           {
-            "node": "Define time window",
+            "node": "Stringify calendar list",
             "type": "main",
             "index": 0
           }
@@ -372,7 +372,7 @@
     "executionOrder": "v1",
     "saveExecutionProgress": true
   },
-  "versionId": "5b4ab862-8fb7-46e5-ae44-d32379ba2c8e",
+  "versionId": "6abe974c-d32b-48a3-b02f-16bf1f6c9878",
   "meta": {
     "templateId": "1953",
     "templateCredsSetupCompleted": true,

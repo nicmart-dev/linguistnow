@@ -2,9 +2,10 @@ import React from 'react'
 import { useGoogleLogin } from '@react-oauth/google'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
-import { fetchUserDetails, createUserIfNotFound } from '../auth/utils'
+import { fetchUserDetails, createUserIfNotFound } from '../auth-users/utils'
 import Hero from '../components/Hero.jsx'
 import { FormattedMessage } from 'react-intl' // To show localized strings
+import backdrop from '../assets/images/desk.jpg'
 
 const Login = ({ setUserDetails }) => {
     const navigate = useNavigate()
@@ -99,9 +100,7 @@ const Login = ({ setUserDetails }) => {
     return (
         <>
             <Hero cta={login} />
-            <p className="max-w-3xl mx-auto mb-5 text-lg text-black mt-4">
-                <FormattedMessage id="loginDescription" />
-            </p>
+            <main className="container mx-auto px-3 mb-20"></main>
         </>
     )
 }

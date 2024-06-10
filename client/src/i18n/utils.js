@@ -14,5 +14,5 @@ Under "Geolocation", select the desired language from the dropdown menu.
 export const getLocale = () => {
     // Check navigator language
     const language = navigator.language.split(/[-_]/)[0]; // Extract language code only
-    return ["en", "fr"].includes(language) ? language : "en";
+    return ["en", "fr", "zh-cn"].includes(language) ? language : "en";
 };
