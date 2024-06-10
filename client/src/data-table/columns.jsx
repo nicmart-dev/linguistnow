@@ -17,11 +17,11 @@ export const columns = [
     },
     {
         accessorKey: 'Name',
-        header: () => <FormattedMessage id="accountSettings.name" />,
+        header: () => <FormattedMessage id="dashboard.name" />,
     },
     {
         accessorKey: 'Email',
-        header: () => <FormattedMessage id="accountSettings.email" />,
+        header: () => <FormattedMessage id="dashboard.email" />,
     },
     {
         accessorKey: 'availability',
@@ -31,7 +31,6 @@ export const columns = [
             </div>
         ),
         cell: ({ row }) => {
-            console.log('Row:', row)
             const isAvailable = row.getValue('availability')
             const formatted = isAvailable[0].result ? (
                 <FormattedMessage id="dashboard.available" />
