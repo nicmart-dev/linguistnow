@@ -1,5 +1,6 @@
 import DataTable from './DataTable.jsx'
 import { columns } from '../data-table/columns.jsx' // get localized column headers
+import { useIntl } from 'react-intl'
 
 /* Display table of available linguists using DataTables library 
 and handle localization of columns and availability field. */
@@ -20,7 +21,24 @@ const LinguistTable = ({ linguists }) => {
         },
     ]     */
 
-    return <DataTable data={linguists} columns={columns} />
+    const intl = useIntl()
+
+    const availabilityToText = (linguists) => {
+        return linguists.map((linguist) => {
+            const isAvailable = linguist.availability[0].result
+            const textToDisplay = isAvailable
+                ? intl.formatMessage({ id: 'dashboard.available' })
+                : intl.formatMessage({ id: 'dashboard.notAvailable' })
+            console.log('Text to display:', textToDisplay)
+            return {
+                ...linguist,
+                availability: textToDisplay,
+            }
+        })
+    }
+    const linguistsWithAvailText = availabilityToText(linguists)
+
+    return <DataTable data={linguistsWithAvailText} columns={columns} />
 }
 
 export default LinguistTable

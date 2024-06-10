@@ -1,8 +1,10 @@
-import React from 'react'
+import React, { useState } from 'react'
 import {
     useReactTable,
+    SortingState,
     getCoreRowModel,
     getPaginationRowModel,
+    getSortedRowModel,
     flexRender,
 } from '@tanstack/react-table'
 
@@ -18,11 +20,18 @@ import {
 import { Button } from './Button'
 
 export function DataTable({ columns, data }) {
+    const [sorting, setSorting] = useState([])
+
     const table = useReactTable({
         data,
         columns,
         getCoreRowModel: getCoreRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
+        onSortingChange: setSorting,
+        getSortedRowModel: getSortedRowModel(),
+        state: {
+            sorting,
+        },
     })
 
     return (
