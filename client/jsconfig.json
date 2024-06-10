@@ -4,6 +4,9 @@
         "sourceMap": true,
         "noImplicitAny": true,
         "moduleResolution": "node",
-        "esModuleInterop": true
+        "esModuleInterop": true,
+        "paths": {
+            "@/*": ["./src/*"]
+        }
     }
 }

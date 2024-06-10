@@ -12,6 +12,8 @@
         "@testing-library/react": "^13.4.0",
         "@testing-library/user-event": "^13.5.0",
         "axios": "^1.7.2",
+        "class-variance-authority": "^0.7.0",
+        "clsx": "^2.1.1",
         "datatables.net-buttons-zf": "^3.0.2",
         "datatables.net-datetime": "^1.5.2",
         "datatables.net-dt": "^2.0.8",
@@ -26,6 +28,8 @@
         "react-intl": "^6.6.8",
         "react-router-dom": "^6.23.1",
         "react-scripts": "5.0.1",
+        "tailwind-merge": "^2.3.0",
+        "tailwindcss-animate": "^1.0.7",
         "web-vitals": "^2.1.4"
     },
     "scripts": {
