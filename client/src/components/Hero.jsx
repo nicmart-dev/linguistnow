@@ -4,7 +4,6 @@ import heroImage2 from '../assets/images/hero-image2.jpg'
 import heroImage3 from '../assets/images/hero-image3.jpg'
 import heroImage4 from '../assets/images/hero-image4.jpg'
 import googleIcon from '../assets/icons/google.svg'
-import calendarIcon from '../assets/icons/calendar.svg'
 import { useLocation } from 'react-router-dom' // to check the current route
 import { FormattedMessage } from 'react-intl' // to localize text displayed
 
@@ -30,8 +29,8 @@ const Hero = ({ cta, userName }) => {
         title = 'hero.settings.title'
         subtitle = 'hero.settings.subtitle'
         backgroundImage = heroImage1
-        ctaButtonText = 'accountSettings.checkGoogleCalendar'
-        ctaIcon = calendarIcon
+        ctaButtonText = '' // No CTA button on this page
+        ctaIcon = null
     } else if (location.pathname === '/logout') {
         title = 'hero.logout.title'
         subtitle = 'hero.logout.subtitle'
@@ -64,6 +63,7 @@ const Hero = ({ cta, userName }) => {
                     <h2 className="mt-8 mb-6 text-4xl lg:text-5xl font-bold text-gray-100">
                         <FormattedMessage id={title} />
                     </h2>
+
                     {/* Show CTA button only when icon and text defined */}
                     {ctaIcon && ctaButtonText && (
                         <button
@@ -77,6 +77,12 @@ const Hero = ({ cta, userName }) => {
                             />
                             <FormattedMessage id={ctaButtonText} />
                         </button>
+                    )}
+                    {/* Show description text but only on pages with cta, ie. login */}
+                    {cta && location.pathname === '/login' && (
+                        <p class="max-w-3xl mx-auto mb-10 text-lg text-gray-300">
+                            <FormattedMessage id="loginDescription" />
+                        </p>
                     )}
                 </div>
             </div>

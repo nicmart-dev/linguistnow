@@ -50,9 +50,10 @@ const AccountSettings = ({ userDetails, setUserDetails }) => {
                 <div>
                     <p className="max-w-3xl text-lg text-black my-4">
                         <FormattedMessage id="accountSettings.selectCalendars" />
-                        <span className="block">
-                            <FormattedMessage id="accountSettings.automaticSave" />
-                        </span>
+                        &nbsp;
+                    </p>
+                    <p className="max-w-3xl text-lg text-black my-4">
+                        <FormattedMessage id="accountSettings.notReadingEvents" />
                     </p>
 
                     {userDetails && (

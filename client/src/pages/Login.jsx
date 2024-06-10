@@ -100,21 +100,7 @@ const Login = ({ setUserDetails }) => {
     return (
         <>
             <Hero cta={login} />
-            <main className="container mx-auto px-3 mb-5">
-                <p className="max-w-3xl text-lg text-black mt-4">
-                    <FormattedMessage id="loginDescription" />
-                </p>
-                <img
-                    src={backdrop}
-                    className="mt-4 w-full h-auto rounded-lg b shadow-md grayscale hover:grayscale-0 transition duration-500 ease-in-out transform"
-                    alt="minimalist desk with lamp, plant and clock"
-                />
-                {/* <div
-                    className="mt-4 relative w-4 h-4 bg-center bg-cover bg-opacity-50"
-                    style={{ backgroundImage: `url(${backdrop})` }}
-                    alt="minimalist desk with lamp, plant and clock"
-                ></div> */}
-            </main>
+            <main className="container mx-auto px-3 mb-20"></main>
         </>
     )
 }

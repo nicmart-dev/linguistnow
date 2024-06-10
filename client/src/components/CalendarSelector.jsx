@@ -66,12 +66,18 @@ const CalendarSelector = ({ userDetails, onSave }) => {
     return (
         <>
             {/* TODO: refactor using new control */}
-            <fieldset className="max-w-3xl">
-                <legend className="mb-4">
+            <fieldset className="max-w-3xl mb-8">
+                <legend className="mb-4 text-lg">
                     {intl.formatMessage({
                         id: 'calendarSelector.chooseCalendars',
                     })}
                 </legend>
+                <p className="max-w-3xl text-lg mb-4">
+                    *{' '}
+                    {intl.formatMessage({
+                        id: 'accountSettings.automaticSave',
+                    })}
+                </p>
 
                 <div className="space-y-2">
                     {/* Show skeleton loader while loading list of calendars */}

@@ -125,14 +125,14 @@ const Dashboard = ({ userName }) => {
             <main className="container mx-auto px-3 mb-5">
                 <div className="items-center justify-center h-screen">
                     <p className="max-w-3xl mx-auto my-5 text-lg text-black">
-                        <FormattedMessage id="dashboard.linguistsDescription" />
+                        <FormattedMessage
+                            id="dashboard.linguistsDescription"
+                            values={{
+                                ts: Date.now() + 7 * 24 * 60 * 60 * 1000,
+                            }}
+                        />
                         <span className="block">
-                            <FormattedMessage
-                                id="dashboard.availabilityDescription"
-                                values={{
-                                    ts: Date.now() + 7 * 24 * 60 * 60 * 1000,
-                                }}
-                            />
+                            <FormattedMessage id="dashboard.availabilityDescription" />
                         </span>
                     </p>
                     {/* Show table of available linguists, but only if data has been loaded */}
