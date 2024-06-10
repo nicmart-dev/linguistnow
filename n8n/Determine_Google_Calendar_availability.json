@@ -1,0 +1,383 @@
+{
+  "name": "Determine Google Calendar availability",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Get calendar availability\n### Find free times using Google Calendar API",
+        "height": 456.4104721454215,
+        "width": 1612.865671352886
+      },
+      "id": "96248431-290b-4fb1-94a3-714e7c0008d4",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        460,
+        1040
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "jsCode": "// Initialize an empty array to store the parsed calendar IDs\nconst parsedCalendarIds = [];\n\n// Loop over each item in the input data\nfor (const item of $input.all()) {\n    // Split the input string by comma to extract calendar IDs\n  const calendarIds = item.json.body.calendarIds.split(',');\n\n  // Map each calendar ID to an object with the \"id\" property\n  calendarIds.forEach(id => {\n    parsedCalendarIds.push({ id: id.trim() });\n  });\n// Stringify the array of objects\n    const parsedCalendarIdsString = JSON.stringify(parsedCalendarIds);\n\n    // Add the stringified array of objects to the 'parsedCalendarIds' property of the 'body' property of the 'json' object\n    item.json.body.parsedCalendarIds = parsedCalendarIdsString;\n  }\n\n\n// Return the parsed calendar IDs as an object with the key \"items\"\nreturn $input.all();\n"
+      },
+      "id": "dadba61c-5611-4a09-9eb6-cf40ddec6360",
+      "name": "Stringify calendar list",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        529,
+        1160
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Get linguist calendars\n### Get list of calendar ids set by user as well as their Google access token",
+        "height": 460.0809602854765,
+        "width": 337.51818523945883
+      },
+      "id": "ac88d939-31f5-4bfd-b809-3ce586784b69",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        73.92472179996935,
+        1040
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "jsCode": "// Use time window defined previously\nconst timeMin = new Date($node[\"Define time window\"].json[\"timeMin\"]);\nconst timeMax = new Date($node[\"Define time window\"].json[\"timeMax\"]);\n\n// Get the combined availability from the previous node\nconst combinedAvailability = $input.all().map(item => item.json);\n\n// Sort combined availability by start time (if not already sorted)\ncombinedAvailability.sort((a, b) => new Date(a.start) - new Date(b.start));\n\n// Initialize an array to store free time slots\nconst freeSlots = [];\n\n// Find free slots between busy times\nlet lastEnd = timeMin;\nfor (const slot of combinedAvailability) {\n    const start = new Date(slot.start);\n    const end = new Date(slot.end);\n    \n    if (lastEnd < start) {\n        freeSlots.push({ start: lastEnd.toISOString(), end: start.toISOString() });\n    }\n    lastEnd = end > lastEnd ? end : lastEnd;\n}\n\n// Add the final free slot if there's free time until timeMax\nif (lastEnd < timeMax) {\n    freeSlots.push({ start: lastEnd.toISOString(), end: timeMax.toISOString() });\n}\n\n// Return the free slots\nreturn freeSlots.map(slot => ({ json: slot }));\n"
+      },
+      "id": "f38e14ae-3215-495a-99a3-3eb30802dc7d",
+      "name": "Return free time slots",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1240,
+        1100
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://www.googleapis.com/calendar/v3/freeBusy",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"timeMin\": \"{{ $('Define time window').item.json[\"timeMin\"] }}\",\n  \"timeMax\": \"{{ $('Define time window').item.json[\"timeMax\"] }}\",\n  \"items\": \n   {{ $('Stringify calendar list').item.json[\"body\"][\"parsedCalendarIds\"] }}\n  \n}",
+        "options": {}
+      },
+      "id": "36ce414a-f913-467b-95f3-1fcf3d15f5c9",
+      "name": "Check when busy",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        860,
+        1160
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "YroHpy8fiVldP7W0",
+          "name": "Google Access token"
+        },
+        "googleCalendarOAuth2Api": {
+          "id": "e7GAB7xMOx8GUaIM",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Initialize an empty array to store the combined availability\nconst combinedAvailability = [];\n\n// Loop over all input items\nfor (const calendar of $input.all()) {\n    // Get the calendars object from the current item's JSON\n    const calendars = calendar.json.calendars;\n\n    // Loop over each calendar in the calendars object\n    for (const calendarId in calendars) {\n        if (calendars.hasOwnProperty(calendarId)) {\n            // Get the busy slots array from the current calendar\n            const busySlots = calendars[calendarId].busy;\n\n            // Loop over each busy slot in the busy slots array\n            for (const slot of busySlots) {\n                // Extract start and end times from the busy slot\n                const { start, end } = slot;\n\n                // Push the busy slot to the combined availability array\n                combinedAvailability.push({ start, end });\n            }\n        }\n    }\n}\n\n// Sort combined availability by start time\ncombinedAvailability.sort((a, b) => new Date(a.start) - new Date(b.start));\n\n// Return the combined availability\nreturn combinedAvailability;\n"
+      },
+      "id": "2e3e76e5-2688-4617-b06a-7e3fe5a5111e",
+      "name": "List when busy across all calendars",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1060,
+        1300
+      ],
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Initialize an array to store the filtered free slots\nconst filteredFreeSlots = [];\n\n// Function to check if a date is a weekend\nfunction isWeekend(date) {\n    const day = date.getDay();\n    return day === 0 || day === 6; // Sunday or Saturday\n}\n\n// Function to add a new slot to the filteredFreeSlots array\nfunction addSlot(start, end) {\n    filteredFreeSlots.push({\n        start: start.toISOString(),\n        end: end.toISOString()\n    });\n}\n\n// Loop over all free slots\nfor (const slot of $input.all()) {\n    // Convert the start and end times to Date objects\n    let startDate = new Date(slot.json.start);\n    let endDate = new Date(slot.json.end);\n\n    // If the slot starts and ends on the same day and it's a weekend, skip it\n    if (isWeekend(startDate) && startDate.toDateString() === endDate.toDateString()) {\n        continue;\n    }\n\n    // Split the slot into smaller slots excluding weekends\n    while (startDate < endDate) {\n        if (isWeekend(startDate)) {\n            // Move to the next day if it's a weekend\n            startDate.setDate(startDate.getDate() + 1);\n            startDate.setHours(0, 0, 0, 0);\n            continue;\n        }\n\n        // Calculate the end of the current day\n        const endOfDay = new Date(startDate);\n        endOfDay.setHours(23, 59, 59, 999);\n\n        // Determine the actual end time for the current slot\n        const actualEnd = endOfDay < endDate ? endOfDay : endDate;\n\n        // Add the slot to the filtered free slots\n        addSlot(startDate, actualEnd);\n\n        // Move to the next day\n        startDate = new Date(actualEnd);\n        startDate.setDate(startDate.getDate() + 1);\n        startDate.setHours(0, 0, 0, 0);\n    }\n}\n\n// Return the filtered free slots\nreturn filteredFreeSlots;\n"
+      },
+      "id": "3bcec5c9-713f-4c4b-9369-1b41c2c6b667",
+      "name": "Exclude weekend",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1380,
+        1320
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Define working hours and timezone\nconst workingHoursStart = $node[\"Define working hours\"].json[\"workingHoursStart\"]; // 8 AM\nconst workingHoursEnd = $node[\"Define working hours\"].json[\"workingHoursEnd\"]; // 6 PM\nconst timezone = $node[\"Set local timezone\"].json[\"timezone\"]; // Pacific Time (PT)\n\n// Initialize an array to store the filtered free slots\nconst filteredFreeSlots = [];\n\n// Function to convert ISO string to a Date object in PT\nfunction toPT(dateString) {\n    return new Date(new Date(dateString).toLocaleString(\"en-US\", { timeZone: timezone }));\n}\n\n// Function to convert a Date object in PT back to ISO string\nfunction toISO(date) {\n    return new Date(date.toISOString()); // Ensuring it remains in UTC format\n}\n\n// Loop over all free slots\nfor (const slot of $(\"Exclude weekend\").all()) {\n    // Convert the start and end times to PT Date objects\n    let startDate = toPT(slot.json.start);\n    let endDate = toPT(slot.json.end);\n\n    // Adjust the slot to exclude non-working hours\n    let adjustedStartDate = new Date(startDate);\n    let adjustedEndDate = new Date(endDate);\n\n    // If the start time is before working hours, set it to the start of working hours\n    if (adjustedStartDate.getHours() < workingHoursStart) {\n        adjustedStartDate.setHours(workingHoursStart, 0, 0, 0);\n    }\n    // If the end time is after working hours, set it to the end of working hours\n    if (adjustedEndDate.getHours() >= workingHoursEnd) {\n        adjustedEndDate.setHours(workingHoursEnd, 0, 0, 0);\n    }\n\n    // If the adjusted start time is before the adjusted end time, add the adjusted slot\n    if (adjustedStartDate < adjustedEndDate) {\n        filteredFreeSlots.push({\n            start: adjustedStartDate.toISOString(),\n            end: adjustedEndDate.toISOString(),\n        });\n    }\n}\n\n// Return the filtered free slots\nreturn filteredFreeSlots;\n"
+      },
+      "id": "7c29d1d5-e3af-45f5-9f78-c0693cc5f185",
+      "name": "Exclude non-working hours",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1620,
+        1260
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Define the minimum number of hours required each day\nconst minHoursPerDay = $node[\"Set min hours per day\"].json[\"minHoursPerDay\"];\n\n// Initialize an object to store the total working hours for each day\nconst workingHoursPerDay = {};\n\n// Define timezone\nconst timezone = $node[\"Set local timezone\"].json[\"timezone\"]; // Pacific Time (PT)\n\n// Helper function to convert to specified timezone\nfunction convertToTimezone(dateString, timezone) {\n    return new Date(new Date(dateString).toLocaleString('en-US', { timeZone: timezone }));\n}\n\n// Helper function to add hours to a specific date\nfunction addHoursToDay(date, hours) {\n    const dateString = date.toISOString().split('T')[0];\n    if (!workingHoursPerDay[dateString]) {\n        workingHoursPerDay[dateString] = 0;\n    }\n    workingHoursPerDay[dateString] += hours;\n}\n\n// Get the start and end dates for the period covered by the input slots\nlet periodStartDate = new Date($(\"Exclude non-working hours\").first().json.start);\nlet periodEndDate = new Date($(\"Exclude non-working hours\").last().json.end);\n\n// Loop over all free slots\nfor (const slot of $(\"Exclude non-working hours\").all()) {\n    // Convert the start and end times to Date objects in the specified timezone\n    let startDate = convertToTimezone(slot.json.start, timezone);\n    let endDate = convertToTimezone(slot.json.end, timezone);\n\n    // Loop through each day spanned by the slot\n    while (startDate < endDate) {\n        const endOfDay = new Date(startDate);\n        endOfDay.setHours(23, 59, 59, 999);\n\n        if (endOfDay > endDate) {\n            endOfDay.setTime(endDate.getTime());\n        }\n\n        const hours = (endOfDay - startDate) / (1000 * 60 * 60);\n        addHoursToDay(startDate, hours);\n\n        // Move to the next day\n        startDate = new Date(startDate);\n        startDate.setHours(0, 0, 0, 0);\n        startDate.setDate(startDate.getDate() + 1);\n    }\n}\n\n// Loop through all days in the period to ensure each day is checked\nlet allDaysHaveMinHours = true;\nwhile (periodStartDate <= periodEndDate) {\n    const dateString = periodStartDate.toISOString().split('T')[0];\n    if (!workingHoursPerDay[dateString] || workingHoursPerDay[dateString] < minHoursPerDay) {\n        allDaysHaveMinHours = false;\n        break;\n    }\n    periodStartDate.setDate(periodStartDate.getDate() + 1);\n}\n\n// Return the result in the desired format\nreturn { result: allDaysHaveMinHours };\n"
+      },
+      "id": "a16b1f9a-a177-4e3d-a937-bd83f3c2b0e1",
+      "name": "Ensure at least 8h free each day",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1880,
+        1160
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n \"timeMin\": \"{{ $now.plus(1, 'day').startOf('day').toISO() }}\",\n  \"timeMax\": \"{{ $now.plus(7, 'day').endOf('day').toISO() }}\"\n}\n",
+        "options": {}
+      },
+      "id": "5dd3342c-ee3b-40cf-b310-c8b9324a211f",
+      "name": "Define time window",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.3,
+      "position": [
+        720,
+        1600
+      ],
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "content": "## Define variables\n### Define time range to look, working hours, and min hours to work per day",
+        "height": 237.23404776143104,
+        "width": 1988.256816643361
+      },
+      "id": "722a5a2a-4a66-422a-8719-e9217b4f73b4",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        80,
+        1540
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "{\n \"workingHoursStart\": 8,\n  \"workingHoursEnd\": 18\n}\n",
+        "options": {}
+      },
+      "id": "ed96b2ad-a71d-4567-89d8-9b48350d1c6a",
+      "name": "Define working hours",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.3,
+      "position": [
+        1360,
+        1600
+      ],
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "{\n \"minHoursPerDay\": 8\n}\n",
+        "options": {}
+      },
+      "id": "48d3e00b-ecef-4fde-8612-dd570c915428",
+      "name": "Set min hours per day",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.3,
+      "position": [
+        1800,
+        1600
+      ],
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "{\n \"timezone\": \"America/Los_Angeles\"\n}\n",
+        "options": {}
+      },
+      "id": "c20560fe-d452-49ac-a1e5-1c09cc04c4d6",
+      "name": "Set local timezone",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.3,
+      "position": [
+        1180,
+        1600
+      ],
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "calendar-check",
+        "responseMode": "lastNode",
+        "responseData": "allEntries",
+        "options": {
+          "rawBody": false
+        }
+      },
+      "id": "242c2951-f6c2-4244-b546-17f7a4ded2e3",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        180,
+        1240
+      ],
+      "webhookId": "8d0b9ce5-80ca-4260-9766-e03b5dfee892"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Return free time slots": {
+      "main": [
+        [
+          {
+            "node": "Exclude weekend",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check when busy": {
+      "main": [
+        [
+          {
+            "node": "List when busy across all calendars",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "List when busy across all calendars": {
+      "main": [
+        [
+          {
+            "node": "Return free time slots",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Exclude weekend": {
+      "main": [
+        [
+          {
+            "node": "Set local timezone",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Exclude non-working hours": {
+      "main": [
+        [
+          {
+            "node": "Set min hours per day",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Define time window": {
+      "main": [
+        [
+          {
+            "node": "Check when busy",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set min hours per day": {
+      "main": [
+        [
+          {
+            "node": "Ensure at least 8h free each day",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set local timezone": {
+      "main": [
+        [
+          {
+            "node": "Define working hours",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Define working hours": {
+      "main": [
+        [
+          {
+            "node": "Exclude non-working hours",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Stringify calendar list": {
+      "main": [
+        [
+          {
+            "node": "Define time window",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Stringify calendar list",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "timezone": "America/Vancouver",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "executionOrder": "v1",
+    "saveExecutionProgress": true
+  },
+  "versionId": "6abe974c-d32b-48a3-b02f-16bf1f6c9878",
+  "meta": {
+    "templateId": "1953",
+    "templateCredsSetupCompleted": true,
+    "instanceId": "9cb45d450cc18e99c5a122327973cf4d8b35f084da3495048f0686159a784725"
+  },
+  "id": "trJMlVZXKJOqYPMs",
+  "tags": []
+}

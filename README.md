@@ -4,7 +4,7 @@
 [Implementation](#implementation)<br>
 [Roadmap](#roadmap)<br>
 [Nice-to-haves](#nice-to-haves)<br>
-[Project Plan](#project-plan)<br>
+[Install](#install)<br>
 [Behind the scene](#behind-the-scene)
 
 # LinguistNow
@@ -46,9 +46,10 @@ Why?
 
 ## Implementation
 
-[Tech Stack](#implementation)<br>
-[Sitemap](#sitemap)<br>
+[Tech Stack](#tech-stack)<br>
+[GitHub folder structure](#github-folder-structure)<br>
 [APIs](#apis)<br>
+[Sitemap](#sitemap)<br>
 [Project Plan](#project-plan)<br>
 [Mockups](#mockups)<br>
 [Data](#data)<br>
@@ -57,13 +58,43 @@ Why?
 
 ### Tech Stack
 
-- **Front-end:** React.js, React Router, Tailwind CSS, Axios
+- **Front-end:** React.js, React Router (for navigation), Tailwind CSS (for styling), Axios
 - **Back-end:** Node.js, Express.js, Knex.js, bcrypt (for password hashing)
-- **Database:** MySQL
+- **Database:** Airtable
 - **Authentication:** JWT (JSON Web Tokens)
 - **Localization:** [react-intl](https://www.npmjs.com/package/react-intl) library for internationalization, using AI translations
 - **Calendar Integration:** built-in Google Calendar integration of [n8n](https://www.npmjs.com/package/n8n) workflow automation library
 - **Deployment:** Heroku or Vercel (for front-end), DigitalOcean or AWS (for back-end)
+
+### GitHub folder structure
+
+```
+your-repo/
+│
+├── client/
+│ ├── src/
+│ │ ├── components/
+│ │ ├── pages/
+│ │ └── ...
+│ ├── public/
+│ └── ...
+│
+├── server/
+│ ├── controllers/
+│ ├── models/
+│ ├── routes/
+│ └── ...
+│
+├── n8n/
+│ ├── workflows/
+│ ├── settings/
+│ └── ...
+│
+├── README.md
+├── .gitignore
+├── package.json
+└── ...
+```
 
 ### APIs
 
@@ -71,27 +102,17 @@ I will be using n8n built-in Google Calendar integration to get linguist up to d
 
 ### Sitemap
 
-##### Home
-
 - Landing Page
 - Login
-- Signup
 
 ##### Project Manager Dashboard
 
-- Add/edit/Delete linguist
 - Find available linguist
-
-##### Linguist Dashboard
-
-- Profile Settings
-- Account Settings
-  - Set availability / connect with Google Calendar
 
 ##### Settings
 
-- Profile Settings
 - Account Settings
+  - Connect with Google Calendar (Linguist only)
 - Logout
 
 ### Project Plan
@@ -189,13 +210,20 @@ I will be using n8n built-in Google Calendar integration to get linguist up to d
 
 -
 
+### User flow
+
+1. User signs in with Google account.
+2. User selects one or more calendars.
+3. Application checks for available time slots on selected calendars.
+4. Application filters users based on availability and returns the list of available users for the project.
+
 ### Mockups
 
 TODO: Provide visuals of your app's screens. You can use tools like Figma or pictures of hand-drawn sketches.
 
 ### Data
 
-TODO: Describe your data and the relationships between them. You can show this visually using diagrams, or write it out.
+See [Airtable data structure documentation](https://github.com/nicmart-dev/linguistnow/wiki/Store-user-data-in-Airtable#airtable-data-structure) in Wiki.
 
 ### Endpoints
 
@@ -211,7 +239,8 @@ TODO: List endpoints that your server will implement, including HTTP methods, pa
 
 ## Roadmap
 
-TODO: Scope your project as a sprint. Break down the tasks that will need to be completed and map out timeframes for implementation. Think about what you can reasonably complete before the due date. The more detail you provide, the easier it will be to build.
+I am using GitHub Project to manage the roadmap and Kanban board.
+Please see the public roadmap here: https://github.com/users/nicmart-dev/projects/1/views/6
 
 ## Nice-to-haves
 
@@ -223,6 +252,62 @@ TODO: Scope your project as a sprint. Break down the tasks that will need to be 
   - Integrate with BMS like [XTRF](https://xtrf.eu/) using `n8n`
 - Auto accept/reject translation tasks in [BeLazy](https://belazy.cat/) automated translation project management, based on calendar availability
 - Unit and Integration Tests
+
+## Install
+
+To install and run the LinguistNow application, follow these steps:
+
+### Client
+
+1. Navigate to the `client` directory.
+
+2. Install dependencies using npm.
+
+   ```
+   npm install
+   ```
+
+3. Start the React development server.
+   ```
+   npm start
+   ```
+
+### Server
+
+1. Navigate to the `server` directory.
+
+2. Install dependencies using npm.
+
+   ```
+   npm install
+   ```
+
+3. Download Google client id and secret keys from https://console.cloud.google.com/apis/credentials and store in server\config\oauth2.keys.json
+
+4. Start the Express server.
+   ```
+   npm start
+   ```
+
+### n8n
+
+1. Ensure you have Node.js and npm installed on your system.
+
+2. Install n8n globally.
+
+   ```
+   npm install n8n -g
+   ```
+
+3. Start n8n.
+
+   ```
+   n8n start
+   ```
+
+4. Import n8n workflow configuration in `n8n\Determine_Google_Calendar_availability.json` per https://docs.n8n.io/courses/level-one/chapter-6
+
+After following these steps, you should have the LinguistNow application up and running, along with the n8n workflow automation tool.
 
 # Behind the scene
 
