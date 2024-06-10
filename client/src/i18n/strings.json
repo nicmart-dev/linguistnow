@@ -40,7 +40,10 @@
         "hero.settings.subtitle": "Welcome {userName}!",
         "hero.logout.title": "Time to spread your wings!",
         "hero.logout.subtitle": "Goodbye {userName}!",
-        "logoutSuccessMessage": "You have been successfully logged out. We hope to see you again soon."
+        "logoutSuccessMessage": "You have been successfully logged out. We hope to see you again soon.",
+        "footer.aboutTitle": "About",
+        "footer.aboutText": "LinguistNow simplifies the hassle of finding available linguists for translation projects. Whether you're a project manager in a translation agency or a linguist seeking new opportunities, LinguistNow provides the tools you need to streamline your workflow and connect with the right people at the right time.",
+        "footer.socialTitle": "Social"
     },
     "fr": {
         "login": "Connexion",
@@ -83,6 +86,9 @@
         "hero.settings.subtitle": "Bienvenue {userName} !",
         "hero.logout.title": "Il est temps de prendre votre envol!",
         "hero.logout.subtitle": "Au revoir {userName} !",
-        "logoutSuccessMessage": "Vous avez été déconnecté avec succès. Nous espérons vous revoir bientôt."
+        "logoutSuccessMessage": "Vous avez été déconnecté avec succès. Nous espérons vous revoir bientôt.",
+        "footer.aboutTitle": "À propos",
+        "footer.aboutText": "LinguistNow simplifie la recherche de linguistes disponibles pour les projets de traduction. Que vous soyez un chef de projet dans une agence de traduction ou un linguiste à la recherche de nouvelles opportunités, LinguistNow fournit les outils dont vous avez besoin pour rationaliser votre flux de travail et vous connecter avec les bonnes personnes au bon moment.",
+        "footer.socialTitle": "Social"
     }
 }
