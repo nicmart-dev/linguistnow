@@ -1,31 +1,74 @@
-import { useEffect, useRef } from 'react'
+import React from 'react'
+import {
+    useReactTable,
+    getCoreRowModel,
+    flexRender,
+} from '@tanstack/react-table'
 
-/* Import DataTables and extensions */
-import jszip from 'jszip' // For Excel export
-import DataTables from 'datatables.net-zf'
-import 'datatables.net-buttons-zf'
-import 'datatables.net-buttons/js/buttons.html5.mjs'
-import DateTime from 'datatables.net-datetime'
-import 'datatables.net-responsive-zf'
-import $ from 'jquery'
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from '@/components/ui/table'
 
-/* DataTables is a powerful Javascript library for adding interaction features 
-to HTML tables, with simplicity a core design principle for the project as a whole */
+export function DataTable({ columns, data }) {
+    const table = useReactTable({
+        data,
+        columns,
+        getCoreRowModel: getCoreRowModel(),
+    })
 
-export function DataTable({ ...props }) {
-    const tableRef = useRef(null)
-
-    useEffect(() => {
-        const dt = new DataTables(tableRef.current, {
-            ...props,
-            responsive: true,
-        })
-        return () => {
-            dt.destroy()
-        }
-    }, [props])
-
-    return <table ref={tableRef}></table>
+    return (
+        <div className="rounded-md border">
+            <Table>
+                <TableHeader>
+                    {table.getHeaderGroups().map((headerGroup) => (
+                        <TableRow key={headerGroup.id}>
+                            {headerGroup.headers.map((header) => (
+                                <TableHead key={header.id}>
+                                    {header.isPlaceholder
+                                        ? null
+                                        : flexRender(
+                                              header.column.columnDef.header,
+                                              header.getContext()
+                                          )}
+                                </TableHead>
+                            ))}
+                        </TableRow>
+                    ))}
+                </TableHeader>
+                <TableBody>
+                    {table.getRowModel().rows?.length ? (
+                        table.getRowModel().rows.map((row) => (
+                            <TableRow
+                                key={row.id}
+                                data-state={row.getIsSelected() && 'selected'}
+                            >
+                                {row.getVisibleCells().map((cell) => (
+                                    <TableCell key={cell.id}>
+                                        {flexRender(
+                                            cell.column.columnDef.cell,
+                                            cell.getContext()
+                                        )}
+                                    </TableCell>
+                                ))}
+                            </TableRow>
+                        ))
+                    ) : (
+                        <TableRow>
+                            <TableCell
+                                colSpan={columns.length}
+                                className="h-24 text-center"
+                            >
+                                No results.
+                            </TableCell>
+                        </TableRow>
+                    )}
+                </TableBody>
+            </Table>
+        </div>
+    )
 }
-
-export default DataTable
