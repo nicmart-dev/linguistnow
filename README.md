@@ -123,7 +123,7 @@ See https://github.com/nicmart-dev/linguistnow/wiki/Sitemap-and-user-journey
 
 I am using a single Users table in Airtable. See [Airtable data structure documentation](https://github.com/nicmart-dev/linguistnow/wiki/Store-user-data-in-Airtable#airtable-data-structure).
 
-![alt text](image-2.png)
+![alt text](./readme_images/airtable.png)
 
 ### Auth
 
@@ -135,19 +135,15 @@ I am using a single Users table in Airtable. See [Airtable data structure docume
 I am using GitHub Project to manage the roadmap and Kanban board.
 Please see the public roadmap here: https://github.com/users/nicmart-dev/projects/1/views/6
 
-![alt text](image.png)
+![alt text](./readme_images/roadmap.png)
 
 ## Nice-to-haves
 
-- Admin page: Add/Edit/Delete project manager users
-- Connect to [Calendly](https://calendly.com/) to support a wider range of calendar providers
-- Manage projects:
-  - directly in the app and create event in linguist calendar
-  - Integrate with BMS like [XTRF](https://xtrf.eu/) using `n8n`
-- Auto accept/reject translation tasks in [BeLazy](https://belazy.cat/) automated translation project management, based on calendar availability
-- Unit and Integration Tests
+PLease see the nice to have [backlog list](https://github.com/users/nicmart-dev/projects/1/views/8)
 
-More at https://github.com/users/nicmart-dev/projects/1/views/8
+Examples:
+
+![alt text](./readme_images/nice-to-have.png)
 
 # Behind the scene
 
