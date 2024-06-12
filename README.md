@@ -74,6 +74,8 @@ Follow the steps on https://github.com/nicmart-dev/linguistnow/wiki/Install-inst
 - **Calendar Integration:** [n8n](https://www.npmjs.com/package/n8n) workflow automation library
 - **Deployment:** Netlify (for front-end), Render (for back-end)
 
+Note: see design documents in the Wiki [here](https://github.com/nicmart-dev/linguistnow/wiki#software-design-documents) for implementation details.
+
 ### GitHub folder structure
 
 For ease of maintenance as a solo developer, I created a single repository for client and server.
@@ -117,7 +119,7 @@ I am using the following external APIs:
 
 ### Sitemap, User journey and Screenshots
 
-See https://github.com/nicmart-dev/linguistnow/wiki/Sitemap-and-user-journey
+See user journey, and sitemap with screenshots in the Wiki [here](https://github.com/nicmart-dev/linguistnow/wiki/Sitemap-and-user-journey).
 
 ### Data
 
