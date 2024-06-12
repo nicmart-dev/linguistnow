@@ -127,19 +127,18 @@ I am using a single Users table in Airtable. See [Airtable data structure docume
 
 ### Auth
 
-- Google OAuth2 access and refresn tokens saved to state alongside user profile, and in Airtable user table
-- When checking for user availability in Dashboard page, access token read from Airtable and passed to n8n workflow to use to connect to Google Calendar API
+The app is using Google OAuth2 authentication. See related design information [here](https://github.com/nicmart-dev/linguistnow/wiki/Google-Authentication).
 
 ## Roadmap
 
 I am using GitHub Project to manage the roadmap and Kanban board.
-Please see the public roadmap here: https://github.com/users/nicmart-dev/projects/1/views/6
+Please see the public roadmap [here](https://github.com/users/nicmart-dev/projects/1/views/6).
 
 ![alt text](./readme_images/roadmap.png)
 
 ## Nice-to-haves
 
-PLease see the nice to have [backlog list](https://github.com/users/nicmart-dev/projects/1/views/8)
+Please see the nice to have [backlog list](https://github.com/users/nicmart-dev/projects/1/views/8)
 
 Examples:
 
