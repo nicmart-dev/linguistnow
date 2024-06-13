@@ -80,7 +80,7 @@ const Hero = ({ cta, userName }) => {
                     )}
                     {/* Show description text but only on pages with cta, ie. login */}
                     {cta && location.pathname === '/login' && (
-                        <p class="max-w-3xl mx-auto mb-10 text-lg text-gray-300">
+                        <p className="max-w-3xl mx-auto mb-10 text-lg text-gray-300">
                             <FormattedMessage id="loginDescription" />
                         </p>
                     )}
