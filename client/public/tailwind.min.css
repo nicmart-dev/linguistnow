@@ -625,6 +625,9 @@ video {
 .ml-2 {
   margin-left: 0.5rem;
 }
+.ml-6 {
+  margin-left: 1.5rem;
+}
 .mr-2 {
   margin-right: 0.5rem;
 }
@@ -742,6 +745,9 @@ video {
 }
 .cursor-pointer {
   cursor: pointer;
+}
+.list-disc {
+  list-style-type: disc;
 }
 .flex-col {
   flex-direction: column;

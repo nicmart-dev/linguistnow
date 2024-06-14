@@ -37,6 +37,12 @@ const Hero = ({ cta, userName }) => {
         backgroundImage = heroImage4
         ctaButtonText = '' // No CTA button on this page
         ctaIcon = null
+    } else if (location.pathname === '/privacy') {
+        title = 'hero.privacy.title'
+        subtitle = 'hero.privacy.subtitle'
+        backgroundImage = heroImage2
+        ctaButtonText = '' // No CTA button on this page
+        ctaIcon = null
     } else {
         /* Empty page */
         title = ''
@@ -56,7 +62,7 @@ const Hero = ({ cta, userName }) => {
                         <FormattedMessage
                             id={subtitle}
                             values={{
-                                userName: userName,
+                                userName: userName || '',
                             }}
                         />
                     </span>

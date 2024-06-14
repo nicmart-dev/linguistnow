@@ -41,6 +41,8 @@
         "hero.settings.subtitle": "Welcome {userName}!",
         "hero.logout.title": "Time to spread your wings!",
         "hero.logout.subtitle": "Goodbye {userName}!",
+        "hero.privacy.title": "Privacy Policy",
+        "hero.privacy.subtitle": "Your Privacy Matters to Us",
         "logoutSuccessMessage": "You have been successfully logged out. We hope to see you again soon.",
         "footer.aboutTitle": "About",
         "footer.aboutText": "LinguistNow simplifies the hassle of finding available linguists for translation projects. Whether you're a project manager in a translation agency or a linguist seeking new opportunities, LinguistNow provides the tools you need to streamline your workflow and connect with the right people at the right time.",

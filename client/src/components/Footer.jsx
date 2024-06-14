@@ -1,5 +1,6 @@
 import React from 'react'
 import { FormattedMessage } from 'react-intl'
+import { Link } from 'react-router-dom' // Add this line for using Link
 import xIcon from '../assets/icons/socials/x.svg'
 import FacebookIcon from '../assets/icons/socials/facebook.svg'
 import InstagramIcon from '../assets/icons/socials/instagram.svg'
@@ -16,6 +17,14 @@ const Footer = () => (
                         </h3>
                         <p className="py-4">
                             <FormattedMessage id="footer.aboutText" />
+                        </p>
+                        <p className="py-2">
+                            <Link
+                                to="/privacy"
+                                className="text-blue-500 hover:underline"
+                            >
+                                Privacy Policy
+                            </Link>
                         </p>
                     </div>
                 </div>
