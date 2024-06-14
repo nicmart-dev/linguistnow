@@ -8,6 +8,7 @@ import { GoogleOAuthProvider } from '@react-oauth/google' // Package used to man
 import LanguageProvider from './i18n/LanguageProvider' // Package used to manage translations
 import Logout from './pages/Logout.jsx'
 import Footer from './components/Footer.jsx'
+import PrivacyPolicy from './pages/PrivacyPolicy.jsx'
 
 const App = () => {
     const [userDetails, setUserDetails] = useState(null)
@@ -79,6 +80,7 @@ const App = () => {
                                 />
                             }
                         />
+                        <Route path="/privacy" element={<PrivacyPolicy />} />
                     </Routes>
                     <Footer />
                 </BrowserRouter>

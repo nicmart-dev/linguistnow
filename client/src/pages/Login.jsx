@@ -4,9 +4,6 @@ import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import { fetchUserDetails, createUserIfNotFound } from '../auth-users/utils'
 import Hero from '../components/Hero.jsx'
-import { FormattedMessage } from 'react-intl' // To show localized strings
-import backdrop from '../assets/images/desk.jpg'
-
 const Login = ({ setUserDetails }) => {
     const navigate = useNavigate()
 

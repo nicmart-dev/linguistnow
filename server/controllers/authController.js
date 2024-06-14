@@ -1,8 +1,18 @@
 const { OAuth2Client } = require('google-auth-library');
 
+const fs = require('fs');
+const path = require('path');
 
-// Download your OAuth2 configuration from Google Developers Console
-const keys = require('../config/oauth2.keys.json');
+// Define the possible paths
+const localPath = path.join(__dirname, '../config/oauth2.keys.json');
+const hostingProviderPath = path.join('/etc/secrets', 'oauth2.keys.json');
+
+// Determine which path to use for OAuth2 configuration from Google Developers Console
+const secretFilePath = fs.existsSync(localPath) ? localPath : hostingProviderPath;
+
+console.log(`Using secret file path: ${secretFilePath}`);
+
+const keys = require(secretFilePath);
 
 // Create an oAuth client to authorize the API call.  Secrets are kept in a `keys.json` file,
 // which should be downloaded from the Google Developers Console.
