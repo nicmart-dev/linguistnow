@@ -24,14 +24,16 @@
         "react-scripts": "5.0.1",
         "tailwind-merge": "^2.3.0",
         "tailwindcss-animate": "^1.0.7",
-        "web-vitals": "^2.1.4"
+        "web-vitals": "^2.1.4",
+        "win-node-env": "^0.6.1"
     },
     "scripts": {
         "start": "react-scripts start",
         "build": "react-scripts build",
         "build:css": "postcss build ./src/tailwind.css -o ./public/tailwind.min.css",
         "test": "react-scripts test",
-        "eject": "react-scripts eject"
+        "eject": "react-scripts eject",
+        "prod": "NODE_ENV=production npx tailwindcss build ./src/tailwind.css -o ./public/tailwind.min.css"
     },
     "eslintConfig": {
         "extends": [
