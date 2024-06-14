@@ -19,11 +19,8 @@ const Footer = () => (
                             <FormattedMessage id="footer.aboutText" />
                         </p>
                         <p className="py-2">
-                            <Link
-                                to="/privacy"
-                                className="text-blue-500 hover:underline"
-                            >
-                                Privacy Policy
+                            <Link to="/privacy" className="hover:underline">
+                                <FormattedMessage id="footer.privacyTitle" />
                             </Link>
                         </p>
                     </div>
