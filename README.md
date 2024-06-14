@@ -74,6 +74,8 @@ Follow the steps on https://github.com/nicmart-dev/linguistnow/wiki/Install-inst
 - **Calendar Integration:** [n8n](https://www.npmjs.com/package/n8n) workflow automation library
 - **Deployment:** Netlify (for front-end), Render (for back-end)
 
+Note: see design documents in the Wiki [here](https://github.com/nicmart-dev/linguistnow/wiki#software-design-documents) for implementation details.
+
 ### GitHub folder structure
 
 For ease of maintenance as a solo developer, I created a single repository for client and server.
@@ -117,37 +119,32 @@ I am using the following external APIs:
 
 ### Sitemap, User journey and Screenshots
 
-See https://github.com/nicmart-dev/linguistnow/wiki/Sitemap-and-user-journey
+See user journey, and sitemap with screenshots in the Wiki [here](https://github.com/nicmart-dev/linguistnow/wiki/Sitemap-and-user-journey).
 
 ### Data
 
 I am using a single Users table in Airtable. See [Airtable data structure documentation](https://github.com/nicmart-dev/linguistnow/wiki/Store-user-data-in-Airtable#airtable-data-structure).
 
-![alt text](image-2.png)
+![alt text](./readme_images/airtable.png)
 
 ### Auth
 
-- Google OAuth2 access and refresn tokens saved to state alongside user profile, and in Airtable user table
-- When checking for user availability in Dashboard page, access token read from Airtable and passed to n8n workflow to use to connect to Google Calendar API
+The app is using Google OAuth2 authentication. See related design information [here](https://github.com/nicmart-dev/linguistnow/wiki/Google-Authentication).
 
 ## Roadmap
 
 I am using GitHub Project to manage the roadmap and Kanban board.
-Please see the public roadmap here: https://github.com/users/nicmart-dev/projects/1/views/6
+Please see the public roadmap [here](https://github.com/users/nicmart-dev/projects/1/views/6).
 
-![alt text](image.png)
+![alt text](./readme_images/roadmap.png)
 
 ## Nice-to-haves
 
-- Admin page: Add/Edit/Delete project manager users
-- Connect to [Calendly](https://calendly.com/) to support a wider range of calendar providers
-- Manage projects:
-  - directly in the app and create event in linguist calendar
-  - Integrate with BMS like [XTRF](https://xtrf.eu/) using `n8n`
-- Auto accept/reject translation tasks in [BeLazy](https://belazy.cat/) automated translation project management, based on calendar availability
-- Unit and Integration Tests
+Please see the nice to have [backlog list](https://github.com/users/nicmart-dev/projects/1/views/8)
 
-More at https://github.com/users/nicmart-dev/projects/1/views/8
+Examples:
+
+![alt text](./readme_images/nice-to-have.png)
 
 # Behind the scene
 

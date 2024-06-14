@@ -122,8 +122,8 @@ const Dashboard = ({ userName }) => {
     return (
         <>
             <Hero userName={userName} />
-            <main className="container mx-auto px-3 mb-5">
-                <div className="items-center justify-center h-screen">
+            <main className="container px-3 mb-5">
+                <div className="items-center justify-center">
                     <p className="max-w-3xl mx-auto my-5 text-lg text-black">
                         <FormattedMessage
                             id="dashboard.linguistsDescription"
