@@ -24,6 +24,8 @@ Why?
 - Invariably that availability is bound to be out of date as not relying on a single source of truth like their Google Calendar.
 - Some linguists may hoard work, and accept tasks even before checking their calendar, to avoid someone else accepting it, and then have to contact the client, who then have to source someone else, incurring delays.
 
+\+ see more in the 3min pitch [slides](https://www.canva.com/design/DAGH8QYv9D0/ErSLJJqaQy9WQG6f6aKHWQ/view) I presented.
+
 ### User Profile
 
 - Project managers in translation agencies or LSPs, who need to add linguists and then find those available to assign to translation projects.
