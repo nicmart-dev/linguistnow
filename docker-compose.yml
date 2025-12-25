@@ -8,9 +8,11 @@ services:
     container_name: linguistnow-backend
     restart: always
     ports:
-      - "5000:5000" # Maps to localhost:5000 for standard users
+      - "5000:5000"
     environment:
+      # Application Port
       - PORT=5000
+      # External Integrations (Set these in your .env file)
       - AIRTABLE_BASE_ID=${AIRTABLE_BASE_ID}
       - AIRTABLE_PERSONAL_ACCESS_TOKEN=${AIRTABLE_PERSONAL_ACCESS_TOKEN}
       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
@@ -23,12 +25,15 @@ services:
       context: ./client
       dockerfile: Dockerfile
       args:
-        # Default to localhost for generic users, override for prod
+        # Default API URL used during the build process
         - REACT_APP_BACKEND_URL=${REACT_APP_BACKEND_URL:-http://localhost:5000}
     container_name: linguistnow-frontend
     restart: always
     ports:
-      - "3000:80" # Maps to localhost:3000
+      - "3000:80"
+    environment:
+      # Runtime Configuration: Overwrites the API URL when the container starts
+      - REACT_APP_BACKEND_URL=${REACT_APP_BACKEND_URL:-http://localhost:5000}
     depends_on:
       - backend
     networks:
@@ -41,7 +46,9 @@ services:
     ports:
       - "5678:5678"
     environment:
+      # n8n Configuration
       - WEBHOOK_URL=${N8N_WEBHOOK_URL:-http://localhost:5678/}
+      - GENERIC_TIMEZONE=${GENERIC_TIMEZONE:-America/Vancouver}
     volumes:
       - n8n_data:/home/node/.n8n
     networks:
