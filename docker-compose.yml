@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: linguistnow-backend
+    restart: always
+    ports:
+      - "5000:5000" # Maps to localhost:5000 for standard users
+    environment:
+      - PORT=5000
+      - AIRTABLE_BASE_ID=${AIRTABLE_BASE_ID}
+      - AIRTABLE_PERSONAL_ACCESS_TOKEN=${AIRTABLE_PERSONAL_ACCESS_TOKEN}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+    networks:
+      - linguistnow-net
+
+  frontend:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+      args:
+        # Default to localhost for generic users, override for prod
+        - REACT_APP_BACKEND_URL=${REACT_APP_BACKEND_URL:-http://localhost:5000}
+    container_name: linguistnow-frontend
+    restart: always
+    ports:
+      - "3000:80" # Maps to localhost:3000
+    depends_on:
+      - backend
+    networks:
+      - linguistnow-net
+
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: linguistnow-n8n
+    restart: always
+    ports:
+      - "5678:5678"
+    environment:
+      - WEBHOOK_URL=${N8N_WEBHOOK_URL:-http://localhost:5678/}
+    volumes:
+      - n8n_data:/home/node/.n8n
+    networks:
+      - linguistnow-net
+
+networks:
+  linguistnow-net:
+    driver: bridge
+
+volumes:
+  n8n_data:
