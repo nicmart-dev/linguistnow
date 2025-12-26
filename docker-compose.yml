@@ -26,15 +26,14 @@ services:
       context: ./client
       dockerfile: Dockerfile
       args:
-        # Default API URL used during the build process
-        - REACT_APP_BACKEND_URL=${REACT_APP_BACKEND_URL:-http://localhost:5000}
+        # Vite environment variables (replaced at build time)
+        - VITE_API_URL=${VITE_API_URL:-http://localhost:5000}
+        - VITE_BASE_URL=${VITE_BASE_URL:-http://localhost:3000}
+        - VITE_GOOGLE_CLIENT_ID=${VITE_GOOGLE_CLIENT_ID}
     container_name: linguistnow-frontend
     restart: always
     ports:
       - "3000:80"
-    environment:
-      # Runtime Configuration: Overwrites the API URL when the container starts
-      - REACT_APP_BACKEND_URL=${REACT_APP_BACKEND_URL:-http://localhost:5000}
     depends_on:
       - backend
     networks:
