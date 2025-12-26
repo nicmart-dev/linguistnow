@@ -14,6 +14,7 @@ services:
       - PORT=5000
       # External Integrations (Set these in your .env file)
       - AIRTABLE_PERSONAL_ACCESS_TOKEN=${AIRTABLE_PERSONAL_ACCESS_TOKEN}
+      - AIRTABLE_BASE_ID=${AIRTABLE_BASE_ID}
       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
       - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
       - N8N_BASE_URL=${N8N_BASE_URL:-http://localhost:5678}

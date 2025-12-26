@@ -1,12 +1,15 @@
 ## Overview:
-Airtable is used is the app to store and manage user data efficiently and effortlessly. 
 
-Access the base at https://airtable.com/ after [creating it](./install-instructions.md#airtable-database). 
+Airtable is used is the app to store and manage user data efficiently and effortlessly.
+
+Access the base at https://airtable.com/ after [creating it](./install-instructions.md#airtable-database).
 
 Below are the key steps and components involved in this implementation:
 
 ### Frontend:
-- **Login Component:** 
+
+- **Login Component:**
+
   - Upon successful login, fetches user data from Google.
   - Checks if the user exists in Airtable and creates a new user if not found.
   - Updates user details and tokens in Airtable.
@@ -17,7 +20,9 @@ Below are the key steps and components involved in this implementation:
   - Validates user existence before updating their information.
 
 ### Backend:
+
 - **Express Routes:**
+
   - Defined routes to handle CRUD operations on user records.
   - Implemented routes for fetching all users, fetching a single user, creating a new user, updating user information, and deleting a user.
 
@@ -31,18 +36,22 @@ Below are the key steps and components involved in this implementation:
 ### Airtable data structure
 
 A simple structure was retained to store the data with appropriate [field types](https://support.airtable.com/docs/supported-field-types-in-airtable-overview), with:
-* Email an `Email` field type, 
-* Picture a `URL`, 
-* Name a `single line text`, 
-* Role a `Single select`, and 
-* all 3 others `Long text`.
+
+- Email an `Email` field type,
+- Picture a `URL`,
+- Name a `single line text`,
+- Role a `Single select`, and
+- all 3 others `Long text`.
 
 <img alt="image" src="https://github.com/nicmart-dev/linguistnow/assets/10499747/3fc40dd9-b868-45bb-89c9-30998d2282fb">
 
 ### Airtable environment
 
 - Created personal access token https://airtable.com/developers/web/guides/personal-access-tokens
-- Stored that token and base ID securely as environment variables.
+- Stored that token and base ID securely as environment variables:
+  - `AIRTABLE_PERSONAL_ACCESS_TOKEN` - Your personal access token (starts with `pat`)
+  - `AIRTABLE_BASE_ID` - Your Airtable base ID (starts with `app`)
+- These are configured in `server/.env` and passed to Docker containers via `docker-compose.yml`
 
 ## Why Airtable?
 
