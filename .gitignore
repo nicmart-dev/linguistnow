@@ -132,3 +132,9 @@ dist
 
 # Google auth client secret keys
 oauth2.keys.json
+config/oauth2.keys.json
+/etc/secrets/oauth2.keys.json
+
+# Vite build output
+client/build
+client/dist
