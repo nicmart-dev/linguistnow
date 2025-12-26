@@ -33,31 +33,14 @@
         "build:css": "postcss build ./src/tailwind.css -o ./public/tailwind.min.css",
         "test": "vitest"
     },
-    "browserslist": {
-        "production": [
-            ">0.2%",
-            "not dead",
-            "not op_mini all"
-        ],
-        "development": [
-            "last 1 chrome version",
-            "last 1 firefox version",
-            "last 1 safari version"
-        ]
-    },
     "devDependencies": {
         "@tailwindcss/postcss": "^4.0.0",
         "@vitejs/plugin-react-swc": "^3.5.0",
-        "assert": "^2.1.0",
         "autoprefixer": "^10.4.19",
-        "https-browserify": "^1.0.0",
         "postcss": "^8.4.38",
         "prettier": "^3.3.1",
         "prettier-plugin-tailwindcss": "^0.6.2",
-        "stream-browserify": "^3.0.0",
         "tailwindcss": "^4.0.0",
-        "url": "^0.11.3",
-        "util": "^0.12.5",
         "vite": "^5.4.0",
         "vitest": "^2.0.0"
     },
