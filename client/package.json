@@ -18,28 +18,20 @@
         "cross-env": "^7.0.3",
         "lucide-react": "^0.390.0",
         "postcss-cli": "^11.0.0",
-        "react": "^18.3.1",
-        "react-dom": "^18.3.1",
+        "react": "^19.0.0",
+        "react-dom": "^19.0.0",
         "react-intl": "^6.6.8",
         "react-router-dom": "^6.23.1",
-        "react-scripts": "5.0.1",
         "tailwind-merge": "^2.3.0",
         "tailwindcss-animate": "^1.0.7",
         "web-vitals": "^2.1.4"
     },
     "scripts": {
-        "start": "react-scripts start",
-        "build": "react-scripts build",
+        "dev": "vite",
+        "build": "vite build",
+        "preview": "vite preview",
         "build:css": "postcss build ./src/tailwind.css -o ./public/tailwind.min.css",
-        "test": "react-scripts test",
-        "eject": "react-scripts eject",
-        "prod": "NODE_ENV=production npx tailwindcss build ./src/tailwind.css -o ./public/tailwind.min.css"
-    },
-    "eslintConfig": {
-        "extends": [
-            "react-app",
-            "react-app/jest"
-        ]
+        "test": "vitest"
     },
     "browserslist": {
         "production": [
@@ -54,6 +46,8 @@
         ]
     },
     "devDependencies": {
+        "@tailwindcss/postcss": "^4.0.0",
+        "@vitejs/plugin-react-swc": "^3.5.0",
         "assert": "^2.1.0",
         "autoprefixer": "^10.4.19",
         "https-browserify": "^1.0.0",
@@ -61,9 +55,11 @@
         "prettier": "^3.3.1",
         "prettier-plugin-tailwindcss": "^0.6.2",
         "stream-browserify": "^3.0.0",
-        "tailwindcss": "^3.4.4",
+        "tailwindcss": "^4.0.0",
         "url": "^0.11.3",
-        "util": "^0.12.5"
+        "util": "^0.12.5",
+        "vite": "^5.4.0",
+        "vitest": "^2.0.0"
     },
     "prettier": {
         "trailingComma": "es5",

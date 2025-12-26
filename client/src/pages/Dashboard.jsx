@@ -58,7 +58,7 @@ const Dashboard = ({ userName }) => {
 
                             // Save the new access token to Airtable
                             await axios.put(
-                                `${process.env.REACT_APP_API_URL}/api/users/${user.Email}`,
+                                `${import.meta.env.VITE_API_URL}/api/users/${user.Email}`,
                                 {
                                     googleAccessToken: accessToken,
                                 }
@@ -68,7 +68,7 @@ const Dashboard = ({ userName }) => {
                         try {
                             // Trigger N8n workflow to get availability for each user
                             availabilityResponse = await axios.post(
-                                `${process.env.REACT_APP_API_URL}/api/calendars/free`,
+                                `${import.meta.env.VITE_API_URL}/api/calendars/free`,
                                 {
                                     calendarIds: calendarIds,
                                     accessToken: accessToken,

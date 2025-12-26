@@ -22,7 +22,7 @@ const Login = ({ setUserDetails }) => {
         try {
             // Send the authorization code to the backend to exchange for tokens
             const tokenResponse = await axios.post(
-                `${process.env.REACT_APP_API_URL}/api/auth/google/code`,
+                `${import.meta.env.VITE_API_URL}/api/auth/google/code`,
                 { code }
             )
             console.log(
@@ -60,7 +60,7 @@ const Login = ({ setUserDetails }) => {
                 // Update the user's access and refresh tokens in DB
                 console.log('Updating user tokens in Airtable...')
                 await axios.put(
-                    `${process.env.REACT_APP_API_URL}/api/users/${userInfo.email}`,
+                    `${import.meta.env.VITE_API_URL}/api/users/${userInfo.email}`,
                     {
                         googleAccessToken: accessToken,
                         googleRefreshToken: refreshToken,
@@ -89,7 +89,7 @@ const Login = ({ setUserDetails }) => {
             'https://www.googleapis.com/auth/userinfo.profile',
             'https://www.googleapis.com/auth/calendar.readonly',
         ].join(' '), // Make sure access token we will get will get access to these scopes
-        redirect_uri: `${process.env.REACT_APP_BASE_URL}`,
+        redirect_uri: `${import.meta.env.VITE_BASE_URL}`,
         onNonOAuthError: () => {}, // Ignore any non-OAuth errors
     })
 
