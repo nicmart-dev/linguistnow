@@ -18,6 +18,7 @@ const Dashboard = ({ userName }) => {
     useEffect(() => {
         const fetchLinguists = async () => {
             const newErrors = [] // Errors stored as we loop through each user
+            const processedLinguists = [] // Collect all linguists before updating state
             setErrors([]) // Clear previous errors
 
             try {
@@ -146,11 +147,8 @@ const Dashboard = ({ userName }) => {
                             availability
                         )
 
-                        // Add the user with availability to the linguists state
-                        setLinguists((prevLinguists) => [
-                            ...prevLinguists,
-                            { ...user, availability },
-                        ])
+                        // Collect the user with availability (batch update later)
+                        processedLinguists.push({ ...user, availability })
                     } catch (userError) {
                         console.warn(userError)
                         // Ensure error is formatted as an object
@@ -172,6 +170,8 @@ const Dashboard = ({ userName }) => {
                 })
             }
 
+            // Batch update: set all linguists at once to avoid multiple re-renders
+            setLinguists(processedLinguists)
             // Store errors in state
             setErrors(newErrors)
             setLoading(false) // Set loading to false after fetch is done
