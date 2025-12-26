@@ -10,7 +10,7 @@ const AccountSettings = ({ userDetails, setUserDetails }) => {
         try {
             // Update the user's calendar IDs in Airtable
             const response = await fetch(
-                `${process.env.REACT_APP_API_URL}/api/users/${userDetails.Email}`,
+                `${import.meta.env.VITE_API_URL}/api/users/${userDetails.Email}`,
                 {
                     method: 'PUT',
                     headers: {

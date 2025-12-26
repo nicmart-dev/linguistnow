@@ -15,7 +15,7 @@ const App = () => {
 
     return (
         /* Wraps the application to provide the OAuth context */
-        <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}>
+        <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
             <LanguageProvider>
                 <BrowserRouter>
                     <Navbar userDetails={userDetails} />

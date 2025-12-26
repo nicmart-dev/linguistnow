@@ -42,8 +42,8 @@ export const refreshAccessToken = async (refreshToken) => {
     try {
         const response = await axios.post("https://oauth2.googleapis.com/token", null, {
             params: {
-                client_id: process.env.REACT_APP_GOOGLE_CLIENT_ID,
-                client_secret: process.env.REACT_APP_GOOGLE_CLIENT_SECRET,
+                client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+                client_secret: import.meta.env.VITE_GOOGLE_CLIENT_SECRET,
                 refresh_token: refreshToken,
                 grant_type: "refresh_token",
             },
@@ -65,7 +65,7 @@ export const refreshAccessToken = async (refreshToken) => {
 and save it in state to keep track of user details and consider them logged in */
 export const fetchUserDetails = async (email, setUserDetails) => {
     try {
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/users/${email}`);
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/users/${email}`);
         setUserDetails(response.data)
         return response.data;  // Return the user details data
     } catch (error) {
@@ -82,7 +82,7 @@ export const fetchUserDetails = async (email, setUserDetails) => {
 /* Get list of linguist users, to display on dashboard page */
 export const fetchUserList = async () => {
     try {
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/users`);
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/users`);
         return response.data;
     } catch (error) {
         throw new Error("Error fetching user list: " + error.message);
@@ -91,7 +91,7 @@ export const fetchUserList = async () => {
 
 /* Create user on first login and save to state */
 export const createUserIfNotFound = async (userInfo, setUserDetails) => {
-    const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/users`, {
+    const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/users`, {
         email: userInfo.email,
         name: userInfo.name,
         picture_url: userInfo.picture,
