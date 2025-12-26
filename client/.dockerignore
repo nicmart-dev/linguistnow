@@ -1,0 +1,42 @@
+# Dependencies
+node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build output
+build
+dist
+
+# Development files
+.env
+.env.local
+.env.development
+.env.test
+.env.production.local
+
+# IDE and editor files
+.idea
+.vscode
+*.swp
+*.swo
+*~
+
+# Git
+.git
+.gitignore
+
+# Documentation
+README.md
+*.md
+
+# Test files
+coverage
+*.test.js
+*.spec.js
+
+# Docker files (prevent recursive copies)
+Dockerfile
+docker-compose*.yml
+.dockerignore
+

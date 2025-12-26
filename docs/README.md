@@ -1,6 +1,12 @@
 # LinguistNow Documentation
 
-This folder contains all the documentation for the LinguistNow project, migrated from the GitHub wiki.
+Welcome to the LinguistNow documentation! This folder contains all project documentation, migrated from the GitHub wiki.
+
+## Project Overview
+
+**LinguistNow** simplifies finding available linguists for translation projects by integrating with Google Calendar to check real-time availability.
+
+📊 [View the 3-minute pitch slides](https://www.canva.com/design/DAGH8QYv9D0/ErSLJJqaQy9WQG6f6aKHWQ/view?utm_content=DAGH8QYv9D0)
 
 ## Viewing Mermaid Diagrams
 
@@ -30,7 +36,6 @@ If Mermaid diagrams don't render in your local markdown preview:
 
 ### Getting Started
 
-- [Home](./home.md) - Overview and user experience
 - [Install Instructions](./install-instructions.md) - Setup guide for local development
 - [Set up OAuth in Google Cloud](./set-up-oauth-in-google-cloud.md) - Google OAuth configuration
 
@@ -67,4 +72,12 @@ If Mermaid diagrams don't render in your local markdown preview:
 
 ### Deployment
 
-- [Deploy app to production](./deploy-app-to-production.md) - Production deployment guide
+- [Deploy app to production](./deploy-app-to-production.md) - Production deployment guide for Synology NAS with Portainer
+
+### Docker
+
+The application is fully containerized with Docker:
+
+- `docker-compose.yml` - Complete stack configuration
+- `example.env` - Environment variables template for Docker deployment
+- See the [deployment guide](./deploy-app-to-production.md) for detailed instructions

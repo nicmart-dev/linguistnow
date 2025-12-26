@@ -1,6 +1,13 @@
 # Install
 
-To install and run the LinguistNow application, follow these steps in order listed below:
+To install and run the LinguistNow application, you have two options:
+
+1. **Local Development** - Install and run each component separately (described below)
+2. **Docker Deployment** - Use Docker Compose for a containerized setup (see [Docker Quick Start](#docker-quick-start))
+
+## Local Development Setup
+
+Follow these steps in order:
 
 
 ## Install front-end and backend
@@ -126,3 +133,74 @@ To do this:
 1. Log in to the app with each Google, account, so the corresponding user row is created in Airtable. 
 
 2. Change one of the accounts to have Project Manager role, by logging in to [Airtable](./store-user-data-in-airtable.md) and then changing role for corresponding user from `Linguist` to `Project Manager`.
+
+---
+
+## Docker Quick Start
+
+For a containerized setup using Docker Compose:
+
+### Prerequisites
+
+- [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/) installed
+- Google OAuth credentials (see [Set up OAuth in Google Cloud](./set-up-oauth-in-google-cloud.md))
+- Airtable database set up (see [Airtable Database](#airtable-database) above)
+
+### Steps
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/nicmart-dev/linguistnow.git
+   cd linguistnow
+   ```
+
+2. **Configure environment variables**
+   ```bash
+   cp example.env .env
+   ```
+   
+   Edit `.env` with your configuration:
+   ```bash
+   # Required
+   GOOGLE_CLIENT_ID=your_google_client_id
+   GOOGLE_CLIENT_SECRET=your_google_client_secret
+   AIRTABLE_PERSONAL_ACCESS_TOKEN=your_token
+   AIRTABLE_BASE_ID=your_base_id
+   
+   # URLs (defaults work for local development)
+   FRONTEND_URL=http://localhost:3000
+   VITE_API_URL=http://localhost:5000
+   ```
+
+3. **Build and start all services**
+   ```bash
+   docker-compose up -d --build
+   ```
+
+4. **Configure n8n workflow**
+   - Access n8n at `http://localhost:5678`
+   - Import the workflow from `n8n/Determine_Google_Calendar_availability.json`
+   - Configure credentials and activate the workflow (see [Configure workflow](#configure-workflow))
+
+5. **Access the application**
+   - Frontend: `http://localhost:3000`
+   - Backend API: `http://localhost:5000`
+   - n8n: `http://localhost:5678`
+
+### Useful Commands
+
+```bash
+# View logs
+docker-compose logs -f
+
+# Stop all services
+docker-compose down
+
+# Rebuild after code changes
+docker-compose up -d --build
+
+# Check container health
+docker-compose ps
+```
+
+For production deployment on a NAS or server, see [Deploy app to production](./deploy-app-to-production.md).

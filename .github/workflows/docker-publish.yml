@@ -2,11 +2,26 @@ name: Build and Push Docker Images
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
+    tags: ["v*.*.*"]
+  pull_request:
+    branches: ["main"]
+  workflow_dispatch:
+    inputs:
+      vite_api_url:
+        description: "Backend API URL for frontend build (e.g., https://api.yourdomain.com)"
+        required: false
+      vite_base_url:
+        description: "Frontend base URL for OAuth redirects (e.g., https://app.yourdomain.com)"
+        required: false
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: nicmart-dev/linguistnow
+  IMAGE_NAME: ${{ github.repository }}
+  # Default URLs used when secrets are not configured
+  # For production, configure repository secrets: VITE_API_URL, VITE_BASE_URL, VITE_GOOGLE_CLIENT_ID
+  DEFAULT_API_URL: "http://localhost:5000"
+  DEFAULT_BASE_URL: "http://localhost:3000"
 
 jobs:
   build-and-push:
@@ -14,32 +29,116 @@ jobs:
     permissions:
       contents: read
       packages: write
+      attestations: write
+      id-token: write
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Log in to the Container registry
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Container Registry
+        if: github.event_name != 'pull_request'
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # BACKEND (Standard Node app - No special handling needed)
+      # =========================================================================
+      # BACKEND - Node.js Express API Server
+      # =========================================================================
+      - name: Extract metadata for Backend
+        id: meta-backend
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-backend
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha,prefix=
+            type=raw,value=latest,enable={{is_default_branch}}
+
       - name: Build and push Backend
-        uses: docker/build-push-action@v5
+        id: push-backend
+        uses: docker/build-push-action@v6
         with:
           context: ./server
-          push: true
-          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-backend:latest
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta-backend.outputs.tags }}
+          labels: ${{ steps.meta-backend.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
-      # FRONTEND (React - Bakes in a placeholder)
+      # =========================================================================
+      # FRONTEND - Vite React Application
+      # =========================================================================
+      # IMPORTANT: Vite bakes environment variables into static files at build time.
+      #
+      # To build with your production URLs, add these repository secrets:
+      #   - VITE_API_URL (e.g., https://api.yourdomain.com)
+      #   - VITE_BASE_URL (e.g., https://app.yourdomain.com)
+      #   - VITE_GOOGLE_CLIENT_ID (your Google OAuth client ID)
+      #
+      # Without secrets, images are built with localhost URLs (for local testing).
+      # See: docs/deploy-app-to-production.md for setup instructions.
+      # =========================================================================
+      - name: Extract metadata for Frontend
+        id: meta-frontend
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-frontend
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha,prefix=
+            type=raw,value=latest,enable={{is_default_branch}}
+
       - name: Build and push Frontend
-        uses: docker/build-push-action@v5
+        id: push-frontend
+        uses: docker/build-push-action@v6
         with:
           context: ./client
-          push: true
-          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-frontend:latest
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta-frontend.outputs.tags }}
+          labels: ${{ steps.meta-frontend.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
           build-args: |
-            REACT_APP_BACKEND_URL=__BACKEND_URL_PLACEHOLDER__
+            VITE_API_URL=${{ github.event.inputs.vite_api_url || secrets.VITE_API_URL || env.DEFAULT_API_URL }}
+            VITE_BASE_URL=${{ github.event.inputs.vite_base_url || secrets.VITE_BASE_URL || env.DEFAULT_BASE_URL }}
+            VITE_GOOGLE_CLIENT_ID=${{ secrets.VITE_GOOGLE_CLIENT_ID || '' }}
+
+      # =========================================================================
+      # Summary
+      # =========================================================================
+      - name: Generate Summary
+        if: github.event_name != 'pull_request'
+        run: |
+          echo "## 🐳 Docker Images Published" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Backend" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          echo "${{ steps.meta-backend.outputs.tags }}" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Frontend" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          echo "${{ steps.meta-frontend.outputs.tags }}" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Usage" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
+          echo "# Pull the images" >> $GITHUB_STEP_SUMMARY
+          echo "docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-backend:latest" >> $GITHUB_STEP_SUMMARY
+          echo "docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-frontend:latest" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "# Or use docker-compose to build with your own environment variables" >> $GITHUB_STEP_SUMMARY
+          echo "docker-compose up -d --build" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
