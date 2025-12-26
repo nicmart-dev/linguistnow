@@ -1,12 +1,10 @@
 /** @type {import('tailwindcss').Config} */
 
-const defaultTheme = require('tailwindcss/defaultTheme');
-
 module.exports = {
   content: ['./index.html', './src/**/*.{html,js,jsx,ts,tsx}'],
   theme: {
     fontFamily: {
-      sans: ['Inter var', ...defaultTheme.fontFamily.sans],
+      sans: ['Inter var', 'ui-sans-serif', 'system-ui', 'sans-serif'],
     },
     container: {
       center: true,
@@ -52,11 +50,10 @@ module.exports = {
         },
       },
       borderRadius: {
-        lg: `var(--radius)`,
-        md: `calc(var(--radius) - 2px)`,
+        lg: "var(--radius)",
+        md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
-
       keyframes: {
         "accordion-down": {
           from: { height: "0" },
