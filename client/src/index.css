@@ -1,3 +1,8 @@
 body {
-    @apply bg-white text-gray-600 font-sans leading-normal text-base tracking-normal;
+    background-color: white;
+    color: rgb(75 85 99);
+    font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    line-height: 1.5;
+    font-size: 1rem;
+    letter-spacing: 0;
 }
