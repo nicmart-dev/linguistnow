@@ -37,24 +37,21 @@ export const isAccessTokenValid = async (accessToken) => {
 
 /* Utility function to refresh access token,
 typically used when linguist selects calendars in account settings, 
-or when PM  displays linguists in dashboard. */
+or when PM  displays linguists in dashboard.
+Now uses server endpoint to keep client secret secure. */
 export const refreshAccessToken = async (refreshToken) => {
     try {
-        const response = await axios.post("https://oauth2.googleapis.com/token", null, {
-            params: {
-                client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
-                client_secret: import.meta.env.VITE_GOOGLE_CLIENT_SECRET,
-                refresh_token: refreshToken,
-                grant_type: "refresh_token",
-            },
-        });
+        const response = await axios.post(
+            `${import.meta.env.VITE_API_URL}/api/auth/google/refresh`,
+            { refreshToken }
+        );
 
-        if (!response.data.access_token) {
+        if (!response.data.accessToken) {
             throw new Error("Failed to refresh access token");
         }
 
         // Return the new access token
-        return response.data.access_token;
+        return response.data.accessToken;
     } catch (error) {
         console.error("Error refreshing access token:", error);
         throw error;

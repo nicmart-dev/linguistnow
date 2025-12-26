@@ -9,4 +9,7 @@ router.post('/google/code', authController.exchangeCodeForToken);
 // Route for fetching user info from Google People API
 router.post('/google/userInfo', authController.getUserInfo);
 
+// Route for refreshing access token (keeps client secret secure on server)
+router.post('/google/refresh', authController.refreshAccessToken);
+
 module.exports = router;
