@@ -1,0 +1,223 @@
+### Overview
+This design outlines how Google Authentication, as configured [here](./set-up-oauth-in-google-cloud.md) is integrated into:
+* the React application using the `@react-oauth/google` package, and Google OAuth2 authorization flow with both access and refresh tokens.
+  Considering the limited time, that package was implemented, preferring a simpler, more streamlined approach to OAuth integration which suits React application.
+
+## Authentication Flow
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant Login as Login Page
+    participant Google as Google OAuth
+    participant Server as Express Server
+    participant Airtable as Airtable DB
+    
+    User->>Login: Click "Sign in with Google"
+    Login->>Google: Redirect to OAuth consent
+    Google->>Login: Return authorization code
+    Login->>Server: POST /api/auth/google/code<br/>{ code }
+    Server->>Google: Exchange code for tokens
+    Google->>Server: { accessToken, refreshToken }
+    Server->>Login: { accessToken, refreshToken }
+    Login->>Google: GET user info (with accessToken)
+    Google->>Login: User profile data
+    Login->>Airtable: Check if user exists
+    alt User not found
+        Login->>Airtable: Create new user
+    else User exists
+        Login->>Airtable: Update tokens
+    end
+    Airtable->>Login: User data
+    Login->>User: Navigate to Dashboard/Settings
+```
+
+  <details>
+    <summary>Show Pros/Cons</summary>
+  
+  **google-auth-library:**
+
+  **Pros:**
+
+  Broad Usage: `google-auth-library` is a general-purpose library for working with Google APIs. It's not tied to any specific framework, making it suitable for various use cases beyond React.
+Customization: Provides fine-grained control over the authentication flow and allows integration with any frontend or backend technology.
+Comprehensive Features: Offers a wide range of features for handling authentication, including support for multiple authentication flows, token management, and verification.
+
+  **Cons:**
+
+  More Complex: Implementing authentication with `google-auth-library` typically requires more manual configuration and coding, especially if integrating with a frontend framework like React.
+Requires Backend: Since it's a server-side library, it's primarily used for backend authentication flows. You would need to build your own frontend integration to handle user interactions and token exchange.
+
+  **@react-oauth/google:**
+
+  **Pros:**
+
+  Specifically for React: `@react-oauth/google` is tailored for React applications, providing a more straightforward integration process for React developers.
+Pre-built Components: Offers pre-built React components (like `GoogleOAuthProvider` and `useGoogleLogin`) that abstract away much of the OAuth implementation complexity.
+Simplified Setup: Provides a more opinionated approach, reducing the amount of boilerplate code required to set up OAuth authentication in a React application.
+
+  **Cons:**
+
+  Limited Customization: While `@react-oauth/google` streamlines the OAuth integration process, it may offer less flexibility and customization compared to using a more general-purpose library like `google-auth-library`.
+Tied to React: Since it's specifically designed for React, it may not be suitable if you're working with other frontend frameworks or need to integrate authentication across multiple platforms.
+
+  **Which One to Choose?**
+
+  For React Projects: If you're building a React application and prefer a simpler, more streamlined approach to OAuth integration, `@react-oauth/google` may be a better choice.
+For Complex Requirements: If your project involves more complex authentication scenarios, requires integration with other frameworks or technologies, or needs fine-grained control over the authentication flow, `google-auth-library` may be more suitable.
+Ultimately, the best choice depends on your project's specific needs, your team's familiarity with the libraries, and your preferences regarding customization and flexibility. If you prioritize ease of use and React-specific integrations, `@react-oauth/google` may be a better fit. If you require more control and flexibility, especially for non-React components or complex authentication scenarios, `google-auth-library` may be the preferred option.
+
+  </details>
+
+* the [n8n workflow](./n8n-workflow-integration.md#check-when-busy) when checking for availability.
+
+
+
+### Components
+
+### App Component
+
+- Manages access and refresh OAuth tokens in `userDetails` state and route redirection.
+- Uses `GoogleOAuthProvider` to wrap the app around [Google client id](./set-up-oauth-in-google-cloud.md#google-api-client-id-setup-instructions) stored in `.env` variable.
+- Checks for existing access token in state for initial authentication.
+- Implements `PrivateRoute` for protecting routes that require login (ie. account settings, and dashboard pages)
+
+### Login page
+
+- Renders Google sign-in button and on click invoke `useGoogleLogin` of `@react-oauth/google` library.
+- Handles successful and failed sign-in attempts.
+- Get user info from Google
+- Create/get matching user in Airtable and store user and access and refresh tokens there
+- Stores tokens in `userDetails` parent state.
+
+### Dashboard page
+
+- Get list of linguists at page load from Airtable
+- Check validity of access token for each user against Google API and use refresh token to get new one if needed
+- For each linguist, check their availability using n8n workflow, sending `Calendar IDs` and `access token` stored in Airtable
+- n8n workflow runs once for each linguist and uses access token given in [Check when busy](./n8n-workflow-integration.md#check-when-busy) action node
+
+## Token Refresh Flow
+
+```mermaid
+sequenceDiagram
+    participant Component
+    participant Utils as auth-users/utils.js
+    participant Server as Express Server
+    participant Google as Google OAuth API
+    
+    Note over Component,Google: Token expires or becomes invalid
+    
+    Component->>Utils: refreshAccessToken(refreshToken)
+    Utils->>Server: POST /api/auth/google/refresh<br/>{ refreshToken }
+    Server->>Google: Refresh access token<br/>(with client secret)
+    Google->>Server: New accessToken
+    Server->>Utils: { accessToken }
+    Utils->>Component: accessToken
+    
+    Note over Component: Component updates state<br/>with new token
+```
+
+## Security Improvements
+
+### Server-Side Token Refresh
+
+**Previous Implementation:**
+- Client secret was exposed in frontend code
+- Token refresh handled client-side
+
+**Current Implementation:**
+- Client secret stored securely on server
+- Token refresh endpoint: `POST /api/auth/google/refresh`
+- Frontend calls server endpoint with refresh token
+- Server uses `google-auth-library` to refresh tokens securely
+
+**Benefits:**
+- ✅ Client secret never exposed to browser
+- ✅ Centralized token management
+- ✅ Easier to rotate credentials
+- ✅ Better security audit trail
+
+### Security Architecture
+
+```mermaid
+graph TB
+    subgraph "Frontend (Public)"
+        A[React App]
+        B[Client ID Only]
+    end
+    
+    subgraph "Backend (Secure)"
+        C[Express Server]
+        D[Client Secret]
+        E[Token Refresh Endpoint]
+    end
+    
+    subgraph "Google OAuth"
+        F[OAuth2 API]
+    end
+    
+    A -->|Uses| B
+    A -->|Calls| E
+    E -->|Uses| D
+    E -->|Authenticates| F
+    
+    style B fill:#90ee90
+    style D fill:#ff6d5a
+    style E fill:#ffd700
+```
+
+### Implementation Details
+
+**Server Endpoint** (`server/controllers/authController.js`):
+```javascript
+const refreshAccessToken = async (req, res) => {
+    const { refreshToken } = req.body;
+    // Uses server-side google-auth-library
+    // Keeps client secret secure
+}
+```
+
+**Client Utility** (`client/src/auth-users/utils.js`):
+```javascript
+export const refreshAccessToken = async (refreshToken) => {
+    const response = await axios.post(
+        `${import.meta.env.VITE_API_URL}/api/auth/google/refresh`,
+        { refreshToken }
+    );
+    return response.data.accessToken;
+};
+```
+
+### Environment Variables
+
+**Frontend** (`.env`):
+```env
+VITE_GOOGLE_CLIENT_ID=your-client-id
+VITE_API_URL=http://localhost:8080
+# Note: No client secret in frontend
+```
+
+**Backend** (`.env`):
+```env
+GOOGLE_CLIENT_ID=your-client-id
+GOOGLE_CLIENT_SECRET=your-client-secret  # Server-side only
+GOOGLE_REDIRECT_URI=http://localhost:8080
+```
+
+## DRY Principles in Authentication
+
+All authentication logic is centralized in `client/src/auth-users/utils.js`:
+
+- **Single Source of Truth** - All auth functions in one place
+- **Reusability** - Functions used across Login, Dashboard, and Settings
+- **Consistency** - Same error handling and patterns everywhere
+- **Maintainability** - Changes made in one location
+
+### Utility Functions
+
+1. `isAccessTokenValid(accessToken)` - Validates tokens
+2. `refreshAccessToken(refreshToken)` - Refreshes expired tokens
+3. `fetchUserDetails(email, setUserDetails)` - Gets user from Airtable
+4. `fetchUserList()` - Retrieves all users
+5. `createUserIfNotFound(userInfo, setUserDetails)` - Creates new users

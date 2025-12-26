@@ -54,7 +54,7 @@ Why?
 
 To install and run the LinguistNow application, follow these steps:
 
-Follow the steps on https://github.com/nicmart-dev/linguistnow/wiki/Install-instructions
+Follow the steps in the [Install Instructions](./docs/install-instructions.md)
 
 ## Implementation
 
@@ -67,16 +67,23 @@ Follow the steps on https://github.com/nicmart-dev/linguistnow/wiki/Install-inst
 
 ### Tech Stack
 
-- **Front-end:** React.js, React Router (for navigation), Tailwind CSS (for styling), Axios (for API calls)
+- **Front-end:**
+  - React 19 with Vite (migrated from Create React App)
+  - React Router v6 (for navigation)
+  - Tailwind CSS v4 (utility-first styling)
+  - shadcn/ui (component library)
+  - TanStack Table (data tables)
+  - Axios (for API calls)
 - **Back-end:** Node.js, Express.js
 - **Database:** Airtable
-- **Authentication:** Google OAuth2 tokens
-- **Localization:** [react-intl](https://www.npmjs.com/package/react-intl) library for internationalization, using AI translations
-- **Datagrid** TanStack Table headless table library
+- **Authentication:** Google OAuth2 (server-side token refresh)
+- **Localization:** [react-intl](https://www.npmjs.com/package/react-intl) library for internationalization
 - **Calendar Integration:** [n8n](https://www.npmjs.com/package/n8n) workflow automation library
 - **Deployment:** Netlify (for front-end), Render (for back-end)
 
-Note: see design documents in the Wiki [here](https://github.com/nicmart-dev/linguistnow/wiki#software-design-documents) for implementation details.
+**Architecture:** Component-based design with DRY principles. See [Architecture Overview](./docs/architecture-overview.md) for details.
+
+Note: see design documents in the [docs folder](./docs/) for implementation details.
 
 ### GitHub folder structure
 
@@ -115,23 +122,23 @@ your-repo/
 I am using the following external APIs:
 
 - Google APIs used:
-  - by n8n to [check when busy](https://github.com/nicmart-dev/linguistnow/wiki/n8n-workflow-integration#check-when-busy) to get up to date availability and
-  - by the Node server to get [calendar list](https://github.com/nicmart-dev/linguistnow/wiki/Integration-of-Google-Calendar-API)
-- Connection to [Airtable](https://github.com/nicmart-dev/linguistnow/wiki/Store-user-data-in-Airtable) cloud-based database platform is managed through `airtable` package
+  - by n8n to [check when busy](./docs/n8n-workflow-integration.md#check-when-busy) to get up to date availability and
+  - by the Node server to get [calendar list](./docs/integration-of-google-calendar-api.md)
+- Connection to [Airtable](./docs/store-user-data-in-airtable.md) cloud-based database platform is managed through `airtable` package
 
 ### Sitemap, User journey and Screenshots
 
-See user journey, and sitemap with screenshots in the Wiki [here](https://github.com/nicmart-dev/linguistnow/wiki/Sitemap-and-user-journey).
+See user journey, and sitemap with screenshots in the [Sitemap and User Journey](./docs/sitemap-and-user-journey.md) documentation.
 
 ### Data
 
-I am using a single Users table in Airtable. See [Airtable data structure documentation](https://github.com/nicmart-dev/linguistnow/wiki/Store-user-data-in-Airtable#airtable-data-structure).
+I am using a single Users table in Airtable. See [Airtable data structure documentation](./docs/store-user-data-in-airtable.md#airtable-data-structure).
 
 ![alt text](./readme_images/airtable.png)
 
 ### Auth
 
-The app is using Google OAuth2 authentication. See related design information [here](https://github.com/nicmart-dev/linguistnow/wiki/Google-Authentication).
+The app is using Google OAuth2 authentication. See related design information in the [Google Authentication](./docs/google-authentication.md) documentation.
 
 ## Roadmap
 
