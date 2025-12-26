@@ -66,6 +66,13 @@ Nodes are executed in order stated below for separation of concerns.
 
 This node takes the input items and adds a new field called 'parsedCalendarIds' to the JSON of each one. It parses the list of calendar IDs received from the previous node and converts them into an array of objects with an 'id' property. The resulting array is then stringified and added to the 'parsedCalendarIds' property of the input JSON.
 
+**Optimization Note**: The node has been optimized for performance and reliability:
+- Processes only the first input item (webhooks typically send one item)
+- Includes comprehensive input validation with clear error messages
+- Uses efficient single-pass parsing with `split()`, `map()`, and `filter()`
+- Prevents timeout issues that occurred with the previous nested loop implementation
+- Validates structure before processing to avoid runtime errors
+
 #### Check when busy
 
 This node sends an HTTP POST request to the `freeBusy` [Google Calendar API](https://developers.google.com/calendar/api/v3/reference/freebusy), using [credentials set up](./set-up-oauth-in-google-cloud.md), to check when the specified calendars are busy within the defined time window. It uses the time window and calendar IDs obtained from previous nodes to construct the request body.
@@ -109,3 +116,56 @@ This node sets the local timezone for date/time conversions. It ensures that dat
 #### Set Working Hours
 
 This node sets the working hours start and end times. It defines the start and end times of the working hours to be considered for scheduling.
+
+## n8n Runner Configuration
+
+For optimal performance, especially when using Code nodes, n8n should be configured with external task runners. This offloads JavaScript execution to separate processes, improving workflow execution speed and preventing timeouts.
+
+### Required Configuration
+
+When deploying n8n with Docker Compose, the following environment variables are critical for runner functionality:
+
+**n8n Service:**
+- `N8N_RUNNERS_ENABLED=true` - Enables task runners
+- `N8N_RUNNERS_MODE=external` - Uses external runner processes
+- `N8N_RUNNERS_BROKER_LISTEN_ADDRESS=0.0.0.0` - **CRITICAL**: Allows runner container to connect (default is localhost only)
+- `N8N_RUNNERS_BROKER_PORT=5679` - Port for runner broker (default: 5679)
+- `N8N_RUNNERS_AUTH_TOKEN=<shared-secret>` - Shared secret for authentication
+- `N8N_RUNNERS_TASK_REQUEST_TIMEOUT=120` - Timeout in seconds (default: 20, increased for resource-constrained systems)
+- `N8N_RUNNERS_MAX_CONCURRENCY=10` - Max concurrent tasks per runner (default: 5)
+
+**n8n-runner Service:**
+- `N8N_RUNNERS_AUTH_TOKEN=<same-shared-secret>` - Must match n8n service
+- `N8N_RUNNERS_TASK_BROKER_URI=http://n8n:5679` - Use Docker network DNS name, not host IP
+- `N8N_RUNNERS_TASK_REQUEST_TIMEOUT=120` - Should match n8n service
+- `N8N_RUNNERS_MAX_CONCURRENCY=10` - Should match n8n service
+
+### Performance Optimizations
+
+The "Stringify calendar list" Code node has been optimized to:
+- Process only the first input item (webhooks send one item)
+- Use efficient single-pass parsing instead of nested loops
+- Include comprehensive validation to prevent runtime errors
+- Prevent timeout issues on resource-constrained systems
+
+**Before optimization**: The node used nested loops that could timeout after 60 seconds on slower systems.
+
+**After optimization**: The node completes in seconds with proper error handling.
+
+### Troubleshooting
+
+**Runner not connecting:**
+- Verify `N8N_RUNNERS_BROKER_LISTEN_ADDRESS=0.0.0.0` is set in n8n service
+- Check that both services use the same `N8N_RUNNERS_AUTH_TOKEN`
+- Ensure runner uses Docker network DNS (`http://n8n:5679`) not host IP
+- Verify both containers are on the same Docker network
+
+**Task request timeout:**
+- Increase `N8N_RUNNERS_TASK_REQUEST_TIMEOUT` (default 20s, recommended 120s for NAS)
+- Check runner logs: `docker logs n8n-runner`
+- Verify runner is healthy: `docker exec n8n-runner pgrep -f task-runner-launcher`
+
+**Code node timeout:**
+- Optimize JavaScript code in Code nodes (avoid nested loops, use efficient array methods)
+- Ensure runner is connected and healthy
+- Check resource limits (memory/CPU) for both n8n and runner containers

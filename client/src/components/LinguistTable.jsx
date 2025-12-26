@@ -4,7 +4,7 @@ import { useIntl } from 'react-intl'
 
 /* Display table of available linguists using DataTables library 
 and handle localization of columns and availability field. */
-const LinguistTable = ({ linguists }) => {
+const LinguistTable = ({ linguists, errors = [] }) => {
     /* Sample linguists prop format:
     [
         {
