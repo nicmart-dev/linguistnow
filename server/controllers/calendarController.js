@@ -7,7 +7,18 @@ const isUserFree = async (req, res) => {
 
     try {
         // URL of N8n webhook per https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.webhook/?utm_source=n8n_app&utm_medium=node_settings_modal-credential_link&utm_campaign=n8n-nodes-base.webhook
-        const webhookUrl = `${process.env.N8N_WEBHOOK_URL}/calendar-check`;
+        // Construct webhook URL from base URL and path
+        const n8nBaseUrl = process.env.N8N_BASE_URL;
+        const webhookPath = process.env.N8N_WEBHOOK_PATH || '/webhook/calendar-check';
+        
+        if (!n8nBaseUrl) {
+            return res.status(500).json({ error: 'N8N_BASE_URL environment variable is not set' });
+        }
+        
+        // Ensure base URL doesn't end with slash, and path starts with slash
+        const baseUrl = n8nBaseUrl.replace(/\/$/, '');
+        const webhookUrl = `${baseUrl}${webhookPath}`;
+        
         const response = await axios.post(webhookUrl, { calendarIds }, {
             headers: {
                 Authorization: `Bearer ${accessToken}` // Pass access token in the header
