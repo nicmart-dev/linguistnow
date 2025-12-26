@@ -1,25 +1,27 @@
 const { OAuth2Client } = require('google-auth-library');
 
-const fs = require('fs');
-const path = require('path');
+// Get OAuth credentials from environment variables
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
+const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
+const GOOGLE_REDIRECT_URI = process.env.GOOGLE_REDIRECT_URI || process.env.BACKEND_URL;
 
-// Define the possible paths
-const localPath = path.join(__dirname, '../config/oauth2.keys.json');
-const hostingProviderPath = path.join('/etc/secrets', 'oauth2.keys.json');
+// Validate required environment variables
+if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET || !GOOGLE_REDIRECT_URI) {
+    console.error('Missing required environment variables for Google OAuth:');
+    if (!GOOGLE_CLIENT_ID) console.error('  - GOOGLE_CLIENT_ID is required');
+    if (!GOOGLE_CLIENT_SECRET) console.error('  - GOOGLE_CLIENT_SECRET is required');
+    if (!GOOGLE_REDIRECT_URI) console.error('  - GOOGLE_REDIRECT_URI or BACKEND_URL is required');
+    process.exit(1);
+}
 
-// Determine which path to use for OAuth2 configuration from Google Developers Console
-const secretFilePath = fs.existsSync(localPath) ? localPath : hostingProviderPath;
+console.log('Using Google OAuth credentials from environment variables');
+console.log(`Redirect URI: ${GOOGLE_REDIRECT_URI}`);
 
-console.log(`Using secret file path: ${secretFilePath}`);
-
-const keys = require(secretFilePath);
-
-// Create an oAuth client to authorize the API call.  Secrets are kept in a `keys.json` file,
-// which should be downloaded from the Google Developers Console.
+// Create an oAuth client to authorize the API call. Secrets are kept in environment variables.
 const oAuth2Client = new OAuth2Client(
-    keys.web.client_id,
-    keys.web.client_secret,
-    keys.web.redirect_uris[0]
+    GOOGLE_CLIENT_ID,
+    GOOGLE_CLIENT_SECRET,
+    GOOGLE_REDIRECT_URI
 );
 
 
@@ -32,7 +34,7 @@ const exchangeCodeForToken = async (req, res) => {
         // Exchange the authorization code for access token and refresh token
         const { tokens } = await oAuth2Client.getToken({
             code,
-            redirect_uri: keys.web.redirect_uris[0] // Ensure this matches the registered redirect URI
+            redirect_uri: GOOGLE_REDIRECT_URI // Ensure this matches the registered redirect URI
         });
         // Set the refresh token
         oAuth2Client.setCredentials({
