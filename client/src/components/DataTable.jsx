@@ -1,8 +1,6 @@
 import React, { useState } from 'react'
 import {
     useReactTable,
-    ColumnFiltersState,
-    SortingState,
     getCoreRowModel,
     getFilteredRowModel,
     getPaginationRowModel,
