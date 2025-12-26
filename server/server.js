@@ -28,6 +28,15 @@ app.get('/', (req, res) => {
     res.send('Welcome to LinguistNow API server!');
 });
 
+// Health check endpoint for container orchestration (Docker, Portainer)
+app.get('/api/health', (req, res) => {
+    res.status(200).json({ 
+        status: 'healthy',
+        timestamp: new Date().toISOString(),
+        uptime: process.uptime()
+    });
+});
+
 // Use routes to handle Google OAuth and fetch user info
 app.use('/api/auth', authRoutes);
 

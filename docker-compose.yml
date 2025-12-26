@@ -1,64 +1,158 @@
-version: '3.8'
+# =============================================================================
+# LinguistNow Docker Compose Configuration
+# =============================================================================
+# Deployment target: Synology DS425+ with Portainer
+#
+# USAGE:
+# 1. Copy example.env files and configure your environment:
+#    - Root .env for docker-compose variables
+#    - server/example.env -> server/.env for local development
+#    - client/example.env -> client/.env for local development
+#
+# 2. For production on Synology/Portainer:
+#    - Set environment variables in Portainer stack configuration
+#    - Or create a .env file in the same directory as docker-compose.yml
+#
+# 3. Build and run:
+#    docker-compose up -d --build
+#
+# 4. View logs:
+#    docker-compose logs -f
+# =============================================================================
 
 services:
+  # ---------------------------------------------------------------------------
+  # Backend API Server (Node.js Express)
+  # ---------------------------------------------------------------------------
   backend:
     build:
       context: ./server
       dockerfile: Dockerfile
+    image: linguistnow-backend:latest
     container_name: linguistnow-backend
-    restart: always
+    restart: unless-stopped
     ports:
-      - "5000:5000"
+      - "${BACKEND_PORT:-5000}:5000"
     environment:
-      # Application Port
+      # Server Configuration
       - PORT=5000
-      # External Integrations (Set these in your .env file)
-      - AIRTABLE_PERSONAL_ACCESS_TOKEN=${AIRTABLE_PERSONAL_ACCESS_TOKEN}
-      - AIRTABLE_BASE_ID=${AIRTABLE_BASE_ID}
+      - NODE_ENV=${NODE_ENV:-production}
+      
+      # Frontend URL (for CORS and OAuth redirect)
+      - FRONTEND_URL=${FRONTEND_URL:-http://localhost:3000}
+      
+      # Google OAuth Configuration
       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
       - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
-      - N8N_BASE_URL=${N8N_BASE_URL:-http://localhost:5678}
+      - GOOGLE_REDIRECT_URI=${GOOGLE_REDIRECT_URI:-${FRONTEND_URL:-http://localhost:3000}}
+      
+      # Airtable Database Configuration
+      - AIRTABLE_PERSONAL_ACCESS_TOKEN=${AIRTABLE_PERSONAL_ACCESS_TOKEN}
+      - AIRTABLE_BASE_ID=${AIRTABLE_BASE_ID}
+      
+      # n8n Workflow Configuration
+      # Note: Use Docker service name 'n8n' for internal network communication
+      - N8N_BASE_URL=${N8N_BASE_URL:-http://n8n:5678}
       - N8N_WEBHOOK_PATH=${N8N_WEBHOOK_PATH:-/webhook/calendar-check}
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:5000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
     networks:
       - linguistnow-net
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
+  # ---------------------------------------------------------------------------
+  # Frontend Application (React + Nginx)
+  # ---------------------------------------------------------------------------
   frontend:
     build:
       context: ./client
       dockerfile: Dockerfile
       args:
-        # Vite environment variables (replaced at build time)
+        # These are baked into the static files at build time
+        # For production, set these to your public-facing URLs
         - VITE_API_URL=${VITE_API_URL:-http://localhost:5000}
         - VITE_BASE_URL=${VITE_BASE_URL:-http://localhost:3000}
-        - VITE_GOOGLE_CLIENT_ID=${VITE_GOOGLE_CLIENT_ID}
+        - VITE_GOOGLE_CLIENT_ID=${VITE_GOOGLE_CLIENT_ID:-${GOOGLE_CLIENT_ID}}
+    image: linguistnow-frontend:latest
     container_name: linguistnow-frontend
-    restart: always
+    restart: unless-stopped
     ports:
-      - "3000:80"
+      - "${FRONTEND_PORT:-3000}:80"
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
     networks:
       - linguistnow-net
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
+  # ---------------------------------------------------------------------------
+  # n8n Workflow Automation
+  # ---------------------------------------------------------------------------
   n8n:
     image: n8nio/n8n:latest
     container_name: linguistnow-n8n
-    restart: always
+    restart: unless-stopped
     ports:
-      - "5678:5678"
+      - "${N8N_PORT:-5678}:5678"
     environment:
       # n8n Configuration
-      # Use N8N_BASE_URL for webhook URL (n8n expects base URL with trailing slash)
-      - WEBHOOK_URL=${N8N_BASE_URL:-http://localhost:5678}/
+      # WEBHOOK_URL should be the external URL where n8n is accessible
+      # For Synology with reverse proxy: https://n8n.yourdomain.com/
+      - WEBHOOK_URL=${N8N_EXTERNAL_URL:-http://localhost:5678}/
       - GENERIC_TIMEZONE=${GENERIC_TIMEZONE:-America/Vancouver}
+      
+      # Optional: Basic auth for n8n UI (recommended for production)
+      - N8N_BASIC_AUTH_ACTIVE=${N8N_BASIC_AUTH_ACTIVE:-false}
+      - N8N_BASIC_AUTH_USER=${N8N_BASIC_AUTH_USER:-}
+      - N8N_BASIC_AUTH_PASSWORD=${N8N_BASIC_AUTH_PASSWORD:-}
+      
+      # Optional: Disable public API
+      - N8N_PUBLIC_API_DISABLED=${N8N_PUBLIC_API_DISABLED:-false}
     volumes:
       - n8n_data:/home/node/.n8n
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:5678/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
     networks:
       - linguistnow-net
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
+# =============================================================================
+# Networks
+# =============================================================================
 networks:
   linguistnow-net:
     driver: bridge
+    name: linguistnow-network
 
+# =============================================================================
+# Volumes
+# =============================================================================
 volumes:
   n8n_data:
+    name: linguistnow-n8n-data
