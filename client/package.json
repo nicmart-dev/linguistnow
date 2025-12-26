@@ -5,7 +5,7 @@
     "dependencies": {
         "@heroicons/react": "^2.1.3",
         "@popperjs/core": "^2.11.8",
-        "@radix-ui/react-icons": "^1.3.0",
+        "@radix-ui/react-icons": "^1.3.2",
         "@radix-ui/react-slot": "^1.0.2",
         "@react-oauth/google": "^0.12.1",
         "@tanstack/react-table": "^8.17.3",
@@ -38,6 +38,7 @@
         "@tailwindcss/postcss": "^4.0.0",
         "@vitejs/plugin-react-swc": "^3.5.0",
         "autoprefixer": "^10.4.19",
+        "caniuse-lite": "^1.0.30001761",
         "postcss": "^8.4.38",
         "prettier": "^3.3.1",
         "prettier-plugin-tailwindcss": "^0.6.2",
