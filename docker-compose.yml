@@ -13,10 +13,11 @@ services:
       # Application Port
       - PORT=5000
       # External Integrations (Set these in your .env file)
-      - AIRTABLE_BASE_ID=${AIRTABLE_BASE_ID}
       - AIRTABLE_PERSONAL_ACCESS_TOKEN=${AIRTABLE_PERSONAL_ACCESS_TOKEN}
       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
       - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      - N8N_BASE_URL=${N8N_BASE_URL:-http://localhost:5678}
+      - N8N_WEBHOOK_PATH=${N8N_WEBHOOK_PATH:-/webhook/calendar-check}
     networks:
       - linguistnow-net
 
@@ -47,7 +48,8 @@ services:
       - "5678:5678"
     environment:
       # n8n Configuration
-      - WEBHOOK_URL=${N8N_WEBHOOK_URL:-http://localhost:5678/}
+      # Use N8N_BASE_URL for webhook URL (n8n expects base URL with trailing slash)
+      - WEBHOOK_URL=${N8N_BASE_URL:-http://localhost:5678}/
       - GENERIC_TIMEZONE=${GENERIC_TIMEZONE:-America/Vancouver}
     volumes:
       - n8n_data:/home/node/.n8n
