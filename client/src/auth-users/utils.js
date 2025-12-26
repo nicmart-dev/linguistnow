@@ -54,6 +54,15 @@ export const refreshAccessToken = async (refreshToken) => {
         return response.data.accessToken;
     } catch (error) {
         console.error("Error refreshing access token:", error);
+
+        // Re-throw with detailed error information for invalid_grant errors
+        if (error.response?.data?.code === 'INVALID_REFRESH_TOKEN') {
+            const enhancedError = new Error(error.response.data.details || 'Refresh token is invalid or expired');
+            enhancedError.response = error.response;
+            enhancedError.code = 'INVALID_REFRESH_TOKEN';
+            throw enhancedError;
+        }
+
         throw error;
     }
 };
