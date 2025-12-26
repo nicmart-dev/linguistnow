@@ -121,7 +121,7 @@ const remove = async (req, res) => {
     const userId = req.params.id;
     try {
         await base('Users').destroy(userId);
-        res.send(`Deleted user with ID ${userId}`);
+        res.json({ message: 'Deleted user', id: userId });
     } catch (error) {
         console.log("Error deleting user", error)
         res.status(500).json({ error: 'Failed to delete user' });

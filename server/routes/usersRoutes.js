@@ -204,10 +204,16 @@ router.put('/:id', usersController.update);
  *       200:
  *         description: User deleted successfully
  *         content:
- *           text/plain:
+ *           application/json:
  *             schema:
- *               type: string
- *               example: Deleted user with ID recABC123
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Deleted user
+ *                 id:
+ *                   type: string
+ *                   example: recABC123
  *       500:
  *         description: Failed to delete user
  *         content:
