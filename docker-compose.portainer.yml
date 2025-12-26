@@ -92,8 +92,8 @@ networks:
 #
 #   frontend:
 #     build:
-#       context: ./client
-#       dockerfile: Dockerfile
+#       context: .
+#       dockerfile: client/Dockerfile
 #       args:
 #         - VITE_API_URL=https://api.yourdomain.com
 #         - VITE_BASE_URL=https://app.yourdomain.com

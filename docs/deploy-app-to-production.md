@@ -48,6 +48,7 @@ This guide covers deploying LinguistNow to a **Synology DS425+ NAS with Portaine
 3. **Portainer** installed for container management (recommended)
 4. **Google OAuth credentials** configured (see [Set up OAuth in Google Cloud](./set-up-oauth-in-google-cloud.md))
 5. **Airtable database** set up (see [Install Instructions](./install-instructions.md#airtable-database))
+6. **pnpm** (for local development) - This project uses pnpm workspaces for package management
 
 ---
 
@@ -132,7 +133,6 @@ If you haven't already installed Portainer:
 3. Download the latest image
 
 4. Create a container with these settings:
-
    - **Port**: Map local port `9443` to container port `9443`
    - **Volume**: Map `/docker/portainer` to `/data`
 
@@ -175,13 +175,17 @@ git clone https://github.com/nicmart-dev/linguistnow.git
 cd linguistnow
 
 # Build frontend with your production URLs
-docker build -t linguistnow-frontend:custom ./client \
+# Note: Build context is the root directory (for pnpm workspace support)
+docker build -t linguistnow-frontend:custom -f client/Dockerfile . \
   --build-arg VITE_API_URL=https://api.yourdomain.com \
   --build-arg VITE_BASE_URL=https://app.yourdomain.com \
   --build-arg VITE_GOOGLE_CLIENT_ID=your_client_id
+
+# Build backend
+docker build -t linguistnow-backend:custom -f server/Dockerfile .
 ```
 
-Then reference `linguistnow-frontend:custom` in your Portainer stack.
+Then reference `linguistnow-frontend:custom` and `linguistnow-backend:custom` in your Portainer stack.
 
 ### Option C: Use docker-compose.yml to Build Everything
 
@@ -352,12 +356,10 @@ After deployment, configure the n8n workflow:
 2. Create an account or log in
 
 3. Import the workflow from `n8n/Determine_Google_Calendar_availability.json`:
-
    - Click **Workflow** menu → **Import from file**
    - Select the JSON file
 
 4. Configure the webhook credentials:
-
    - Open the **Check if busy** node
    - Create a new **Header Auth** credential
    - Name: `Authorization`
@@ -519,6 +521,9 @@ docker-compose logs n8n
 ```bash
 # Pull latest code
 git pull origin main
+
+# Install dependencies (if running locally)
+pnpm install
 
 # Rebuild and restart containers
 docker-compose up -d --build

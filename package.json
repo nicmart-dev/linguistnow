@@ -2,12 +2,15 @@
   "name": "linguistnow",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "pnpm@9.15.2",
   "scripts": {
-    "start": "npm-run-all --parallel server client",
-    "client": "cd client && npm start",
-    "server": "cd server && npm start",
-    "server-dev": "cd server && npm run dev",
-    "dev": "npm-run-all --parallel server client"
+    "start": "pnpm run --parallel --filter client --filter server start",
+    "client": "pnpm --filter client start",
+    "server": "pnpm --filter server start",
+    "server-dev": "pnpm --filter server dev",
+    "dev": "pnpm run --parallel --filter client --filter server dev",
+    "install:all": "pnpm install",
+    "clean": "pnpm -r exec rm -rf node_modules && rm -rf node_modules"
   },
   "repository": {
     "type": "git",
@@ -18,8 +21,5 @@
   "bugs": {
     "url": "https://github.com/nicmart-dev/linguistnow/issues"
   },
-  "homepage": "https://github.com/nicmart-dev/linguistnow",
-  "devDependencies": {
-    "npm-run-all": "^4.1.5"
-  }
+  "homepage": "https://github.com/nicmart-dev/linguistnow"
 }

@@ -8,17 +8,24 @@
 # Stage 1: Build the Vite React application
 FROM node:25-alpine AS build
 
+# Install pnpm globally
+RUN npm install -g pnpm@9.15.2
+
 WORKDIR /app
 
-# Copy package files first for better layer caching
-COPY package*.json ./
+# Copy pnpm workspace files from root context
+COPY pnpm-lock.yaml pnpm-workspace.yaml ./
 
-# Install dependencies (using ci for reproducible builds)
-# --legacy-peer-deps needed for React 19 compatibility with some packages
-RUN npm ci --legacy-peer-deps
+# Copy package.json from client directory
+COPY client/package.json ./client/
 
-# Copy source code
-COPY . .
+# Install dependencies for client workspace
+RUN pnpm install --frozen-lockfile --filter linguistnow
+
+# Copy client source code
+COPY client/ ./client/
+
+WORKDIR /app/client
 
 # Build arguments - these are baked into the static files at build time
 # VITE_API_URL: Backend API endpoint (e.g., https://api.example.com)
@@ -33,7 +40,7 @@ ENV VITE_BASE_URL=$VITE_BASE_URL
 ENV VITE_GOOGLE_CLIENT_ID=$VITE_GOOGLE_CLIENT_ID
 
 # Build the application
-RUN npm run build
+RUN pnpm run build
 
 # Stage 2: Serve with Nginx
 FROM nginx:alpine
@@ -44,10 +51,10 @@ LABEL org.opencontainers.image.description="LinguistNow Frontend - React applica
 LABEL org.opencontainers.image.licenses="MIT"
 
 # Copy custom nginx configuration for SPA routing
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY client/nginx.conf /etc/nginx/conf.d/default.conf
 
 # Copy built assets from build stage
-COPY --from=build /app/build /usr/share/nginx/html
+COPY --from=build /app/client/build /usr/share/nginx/html
 
 # Expose port 80
 EXPOSE 80
