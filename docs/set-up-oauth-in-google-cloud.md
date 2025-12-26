@@ -32,7 +32,8 @@ Note: please set up at least 2 Google accounts to use as test users, one of whic
 3. In the Application type dropdown, select `Web application` and give it a recognizable name like `google-auth-library`
 
 4. Under `Authorized redirect URIs`, select + ADD URI. Paste in `http://localhost:3000`.
-   You may also want to set `http://localhost:3000` `http://localhost:8080` `http://localhost` in `Authorized JavaScript origins` field too.
+   **Important**: The redirect URI must be `http://localhost:3000` (the frontend URL), not the backend URL.
+   You may also want to set `http://localhost:3000`, `http://localhost:8080`, `http://localhost` in `Authorized JavaScript origins` field too.
 
 5. Select `CREATE` button
 
@@ -46,4 +47,10 @@ Prerequisite: complete [install](./install-instructions.md#install-front-end-and
 
 2. Navigate to `server` and `client` directories, and copy `example.env` as `.env` file in each case
 
-3. Extract from `oauth2.keys.json` `REACT_APP_GOOGLE_CLIENT_ID` and `REACT_APP_GOOGLE_CLIENT_SECRET` and save it to `client\.env`
+3. Extract the `client_id` and `client_secret` from `oauth2.keys.json`:
+   - For `client\.env`: Set `VITE_GOOGLE_CLIENT_ID` to the `client_id` value
+   - For `server\.env`: Set `GOOGLE_CLIENT_ID` to the `client_id` value and `GOOGLE_CLIENT_SECRET` to the `client_secret` value
+   - For `server\.env`: Set `FRONTEND_URL=http://localhost:3000` (this must match the redirect URI configured in Google Cloud Console)
+   - For `server\.env`: Set `GOOGLE_REDIRECT_URI=${FRONTEND_URL}` or `GOOGLE_REDIRECT_URI=http://localhost:3000`
+
+**Important**: The `GOOGLE_REDIRECT_URI` in the server `.env` file must match the `Authorized redirect URIs` configured in Google Cloud Console (which should be `http://localhost:3000`, the frontend URL).
