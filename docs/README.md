@@ -45,6 +45,10 @@ If Mermaid diagrams don't render in your local markdown preview:
 
 - [Architecture Overview](./architecture-overview.md) - Component-based design, DRY principles, and modern architecture
 
+#### API
+
+- [API Documentation](./api-documentation.md) - Interactive OpenAPI/Swagger documentation
+
 #### Authentication and Google APIs
 
 - [Google Authentication](./google-authentication.md) - Authentication implementation details

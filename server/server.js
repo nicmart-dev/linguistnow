@@ -13,6 +13,10 @@ const PORT = process.env.PORT || 5000; // Define the port number, use environmen
 
 const cors = require('cors');
 
+// Swagger/OpenAPI documentation
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpec = require('./swagger');
+
 /* Import routes */
 const calendarRoutes = require('./routes/calendarRoutes');
 const authRoutes = require('./routes/authRoutes');
@@ -30,12 +34,35 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 
-// Default route
-app.get('/', (req, res) => {
-    res.send('Welcome to LinguistNow API server!');
+// Swagger UI at root URL
+app.use('/', swaggerUi.serve);
+app.get('/', swaggerUi.setup(swaggerSpec, {
+    customCss: '.swagger-ui .topbar { display: none }',
+    customSiteTitle: 'LinguistNow API Documentation'
+}));
+
+// Raw OpenAPI spec endpoint
+app.get('/api-docs.json', (req, res) => {
+    res.setHeader('Content-Type', 'application/json');
+    res.send(swaggerSpec);
 });
 
-// Health check endpoint for container orchestration (Docker, Portainer)
+/**
+ * @openapi
+ * /api/health:
+ *   get:
+ *     tags:
+ *       - Health
+ *     summary: Health check endpoint
+ *     description: Returns the health status of the API server. Used for container orchestration (Docker, Portainer).
+ *     responses:
+ *       200:
+ *         description: Server is healthy
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/HealthCheck'
+ */
 app.get('/api/health', (req, res) => {
     res.status(200).json({
         status: 'healthy',
