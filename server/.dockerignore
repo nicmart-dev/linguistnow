@@ -17,9 +17,14 @@ config/oauth2.keys.json
 # IDE and editor files
 .idea
 .vscode
+.cursor
 *.swp
 *.swo
 *~
+
+# OS files
+.DS_Store
+Thumbs.db
 
 # Git
 .git
@@ -39,4 +44,3 @@ __tests__
 Dockerfile
 docker-compose*.yml
 .dockerignore
-

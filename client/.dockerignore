@@ -18,9 +18,14 @@ dist
 # IDE and editor files
 .idea
 .vscode
+.cursor
 *.swp
 *.swo
 *~
+
+# OS files
+.DS_Store
+Thumbs.db
 
 # Git
 .git
@@ -34,9 +39,9 @@ README.md
 coverage
 *.test.js
 *.spec.js
+__tests__
 
 # Docker files (prevent recursive copies)
 Dockerfile
 docker-compose*.yml
 .dockerignore
-
