@@ -21,7 +21,14 @@ const usersRoutes = require('./routes/usersRoutes');
 // Middleware
 app.use(express.json()); // Parse JSON bodies
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
-app.use(cors()); // allow * / all to access our api. All domains, ips, ports
+// Configure CORS - restrict to frontend URL in production
+const corsOptions = {
+    origin: process.env.FRONTEND_URL || '*',
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+};
+app.use(cors(corsOptions));
 
 // Default route
 app.get('/', (req, res) => {
@@ -30,7 +37,7 @@ app.get('/', (req, res) => {
 
 // Health check endpoint for container orchestration (Docker, Portainer)
 app.get('/api/health', (req, res) => {
-    res.status(200).json({ 
+    res.status(200).json({
         status: 'healthy',
         timestamp: new Date().toISOString(),
         uptime: process.uptime()
