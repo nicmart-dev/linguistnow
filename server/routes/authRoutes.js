@@ -3,13 +3,141 @@ const router = express.Router();
 
 const authController = require('../controllers/authController');
 
-// Route for exchanging authorization code for access token and refresh token
+/**
+ * @openapi
+ * /api/auth/google/code:
+ *   post:
+ *     tags:
+ *       - Auth
+ *     summary: Exchange authorization code for tokens
+ *     description: Exchanges a Google OAuth authorization code for access token and refresh token
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - code
+ *             properties:
+ *               code:
+ *                 type: string
+ *                 description: Google OAuth authorization code
+ *                 example: '4/0AeanS0...'
+ *     responses:
+ *       200:
+ *         description: Successfully exchanged code for tokens
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 accessToken:
+ *                   type: string
+ *                   example: 'ya29.a0...'
+ *                 refreshToken:
+ *                   type: string
+ *                   example: '1//0...'
+ *       500:
+ *         description: Failed to exchange code for token
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 router.post('/google/code', authController.exchangeCodeForToken);
 
-// Route for fetching user info from Google People API
+/**
+ * @openapi
+ * /api/auth/google/userInfo:
+ *   post:
+ *     tags:
+ *       - Auth
+ *     summary: Get user info from Google
+ *     description: Fetches user information from Google People API using an access token
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - accessToken
+ *             properties:
+ *               accessToken:
+ *                 type: string
+ *                 description: Google OAuth access token
+ *                 example: 'ya29.a0...'
+ *     responses:
+ *       200:
+ *         description: Successfully fetched user info
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 userInfo:
+ *                   $ref: '#/components/schemas/UserInfo'
+ *       500:
+ *         description: Failed to fetch user info
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 router.post('/google/userInfo', authController.getUserInfo);
 
-// Route for refreshing access token (keeps client secret secure on server)
+/**
+ * @openapi
+ * /api/auth/google/refresh:
+ *   post:
+ *     tags:
+ *       - Auth
+ *     summary: Refresh access token
+ *     description: Refreshes a Google OAuth access token using a refresh token. Keeps client secret secure on server.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - refreshToken
+ *             properties:
+ *               refreshToken:
+ *                 type: string
+ *                 description: Google OAuth refresh token
+ *                 example: '1//0...'
+ *     responses:
+ *       200:
+ *         description: Successfully refreshed access token
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 accessToken:
+ *                   type: string
+ *                   example: 'ya29.a0...'
+ *       400:
+ *         description: Refresh token is required
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       401:
+ *         description: Refresh token is invalid or expired
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Failed to refresh access token
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 router.post('/google/refresh', authController.refreshAccessToken);
 
 module.exports = router;
