@@ -67,7 +67,8 @@ jobs:
         id: push-backend
         uses: docker/build-push-action@v6
         with:
-          context: ./server
+          context: .
+          file: ./server/Dockerfile
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta-backend.outputs.tags }}
           labels: ${{ steps.meta-backend.outputs.labels }}
@@ -104,7 +105,8 @@ jobs:
         id: push-frontend
         uses: docker/build-push-action@v6
         with:
-          context: ./client
+          context: .
+          file: ./client/Dockerfile
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta-frontend.outputs.tags }}
           labels: ${{ steps.meta-frontend.outputs.labels }}

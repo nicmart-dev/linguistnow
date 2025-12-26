@@ -26,8 +26,8 @@ services:
   # ---------------------------------------------------------------------------
   backend:
     build:
-      context: ./server
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: server/Dockerfile
     image: linguistnow-backend:latest
     container_name: linguistnow-backend
     restart: unless-stopped
@@ -73,8 +73,8 @@ services:
   # ---------------------------------------------------------------------------
   frontend:
     build:
-      context: ./client
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: client/Dockerfile
       args:
         # These are baked into the static files at build time
         # For production, set these to your public-facing URLs

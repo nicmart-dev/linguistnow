@@ -9,53 +9,54 @@ To install and run the LinguistNow application, you have two options:
 
 Follow these steps in order:
 
+### Prerequisites
+
+- **Node.js** (v18 or higher)
+- **pnpm** - This project uses pnpm workspaces for package management
+  ```bash
+  npm install -g pnpm
+  ```
 
 ## Install front-end and backend
+
+From the **root directory**, install all dependencies for both client and server:
+
+```bash
+pnpm install
+```
+
+This uses pnpm workspaces to install dependencies for all packages (client, server, n8n).
 
 ### Server
 
 1. Navigate to the `server` directory.
 
-2. Install dependencies using npm.
+2. Copy file `example.env` naming it `.env`
 
-   ```
-   npm install
-   ```
-
-3. Copy file `example.env` naming it `.env`
-
-
-Note: We will start our Express server after setting up Google credentials below. 
-
+Note: We will start our Express server after setting up Google credentials below.
 
 ### React app (Vite)
 
 1. Navigate to the `client` directory.
 
-2. Install dependencies using npm.
-
-   ```
-   npm install
-   ```
-
-3. Copy file `example.env` naming it `.env`
+2. Copy file `example.env` naming it `.env`
 
 **Note:** The application uses **Vite** (migrated from Create React App) for faster development and builds. All frontend environment variables must use the `VITE_` prefix.
 
 **Environment Variables:**
+
 - `VITE_GOOGLE_CLIENT_ID` - Google OAuth client ID
 - `VITE_API_URL` - Backend API URL (e.g., `http://localhost:8080`)
 
-Note: We will start our app after setting up Google credentials below. 
-
+Note: We will start our app after setting up Google credentials below.
 
 ### Airtable Database
 
 1. Click on Airtable share link https://airtable.com/apps6wMV6ppYNZO2L/shriM67YiDaTMkebK
-  
- Note: It will say "No visible records" which is fine.  
 
-2. Click "Use this data". This should create your own empty database with the same schema. 
+Note: It will say "No visible records" which is fine.
+
+2. Click "Use this data". This should create your own empty database with the same schema.
 
 3. Navigate back to `server` and in the `.env` variable `AIRTABLE_BASE_ID` with the url part that starts with "app"
 
@@ -63,25 +64,23 @@ Note: We will start our app after setting up Google credentials below.
 
 5. In that same `.env` variable, update `AIRTABLE_PERSONAL_ACCESS_TOKEN` with your token id (begins with `pat`)
 
-
 ### n8n
 
-#### Install through npm
+#### Install through npm (global)
 
-1. Ensure you have Node.js and npm installed on your system.
+1. Ensure you have Node.js installed on your system.
 
-2. Install n8n globally.
+2. Install n8n globally (this is a standalone tool, not part of the pnpm workspace).
 
-   ```
-   npm install n8n -g
+   ```bash
+   npm install -g n8n
    ```
 
 3. Start n8n.
 
-   ```
+   ```bash
    n8n start
    ```
-
 
 #### Configure workflow
 
@@ -90,39 +89,38 @@ Note: We will start our app after setting up Google credentials below.
 2. import n8n workflow configuration from `n8n\Determine_Google_Calendar_availability.json` by clicking the Workflow menu icon > [Import from file](https://docs.n8n.io/courses/level-one/chapter-6).
 
 3. Notice `Check if busy` node has a warning icon. Double click on it and select _Create new credential_ in _Header Auth_ field:
-  <img width="200" alt="image" src="https://github.com/nicmart-dev/linguistnow/assets/10499747/b9582144-2692-4f90-9b08-a42337af5152">
+   <img width="200" alt="image" src="https://github.com/nicmart-dev/linguistnow/assets/10499747/b9582144-2692-4f90-9b08-a42337af5152">
 
 4. Enter any name such as "Authorization", and as value click _Expression_ (in toggle that appears on field mouse over) paste in below code, and click _Save_:
-`{{ $('Webhook').item.json["headers"]["authorization"] }}`
+   `{{ $('Webhook').item.json["headers"]["authorization"] }}`
 
   <img alt="image" src="https://github.com/nicmart-dev/linguistnow/assets/10499747/dd4abf2e-dd9e-47ff-bc6b-4328d772eb53">
 
-
 5. Toggle to activate workflow:
-  <img alt="image" src="https://github.com/nicmart-dev/linguistnow/assets/10499747/56daf938-f827-4d81-91c4-9b1f7195ba84">
-
+   <img alt="image" src="https://github.com/nicmart-dev/linguistnow/assets/10499747/56daf938-f827-4d81-91c4-9b1f7195ba84">
 
 ## Google OAuth setup
 
 Follow steps in [Set up OAuth in Google Cloud](./set-up-oauth-in-google-cloud.md)
 
-
 ## Start our app
 
 1. Navigate back to the root directory.
 
-2. Install dependencies using npm.
+2. If you haven't already, install dependencies:
 
+   ```bash
+   pnpm install
    ```
-   npm install
-   ```
-3. Run `npm start` which will start both React app client (Vite dev server) and Express server using the `npm-run-all` library.
+
+3. Run `pnpm start` which will start both React app client (Vite dev server) and Express server in parallel.
 
 **Development Servers:**
-- Frontend: `http://localhost:3000` (Vite dev server with HMR)
-- Backend: `http://localhost:8080` (Express server) 
 
-Note: After following these steps, you should have the LinguistNow application up and running, along with the n8n workflow automation tool. 
+- Frontend: `http://localhost:3000` (Vite dev server with HMR)
+- Backend: `http://localhost:8080` (Express server)
+
+Note: After following these steps, you should have the LinguistNow application up and running, along with the n8n workflow automation tool.
 
 ## Set up new users
 
@@ -130,7 +128,8 @@ By default when you run the app `http://localhost:3000/` and first sign in with 
 We recommend you have two Google accounts so the other can be used to sign in as a Project Manager too and you can then follow the [user journey](./sitemap-and-user-journey.md).
 
 To do this:
-1. Log in to the app with each Google, account, so the corresponding user row is created in Airtable. 
+
+1. Log in to the app with each Google, account, so the corresponding user row is created in Airtable.
 
 2. Change one of the accounts to have Project Manager role, by logging in to [Airtable](./store-user-data-in-airtable.md) and then changing role for corresponding user from `Linguist` to `Project Manager`.
 
@@ -149,30 +148,34 @@ For a containerized setup using Docker Compose:
 ### Steps
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/nicmart-dev/linguistnow.git
    cd linguistnow
    ```
 
 2. **Configure environment variables**
+
    ```bash
    cp example.env .env
    ```
-   
+
    Edit `.env` with your configuration:
+
    ```bash
    # Required
    GOOGLE_CLIENT_ID=your_google_client_id
    GOOGLE_CLIENT_SECRET=your_google_client_secret
    AIRTABLE_PERSONAL_ACCESS_TOKEN=your_token
    AIRTABLE_BASE_ID=your_base_id
-   
+
    # URLs (defaults work for local development)
    FRONTEND_URL=http://localhost:3000
    VITE_API_URL=http://localhost:5000
    ```
 
 3. **Build and start all services**
+
    ```bash
    docker-compose up -d --build
    ```
