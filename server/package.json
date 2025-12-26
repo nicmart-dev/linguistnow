@@ -14,7 +14,7 @@
     "airtable": "^0.12.2",
     "axios": "^1.7.2",
     "cors": "^2.8.5",
-    "dotenv": "^16.4.5",
+    "dotenv": "^17.2.3",
     "dotenv-expand": "^11.0.6",
     "express": "^4.19.2",
     "google-auth-library": "^10.5.0"
