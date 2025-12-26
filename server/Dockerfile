@@ -5,7 +5,7 @@
 # container orchestration (Portainer, etc.)
 # =============================================================================
 
-FROM node:20-alpine
+FROM node:25-alpine
 
 # Add labels for container metadata
 LABEL org.opencontainers.image.source="https://github.com/nicmart-dev/linguistnow"
