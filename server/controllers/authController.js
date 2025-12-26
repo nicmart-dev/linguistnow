@@ -88,8 +88,38 @@ const getUserInfo = async (req, res) => {
     }
 };
 
+/* Route for refreshing access token using refresh token
+   This endpoint keeps the client secret secure on the server */
+const refreshAccessToken = async (req, res) => {
+    try {
+        const { refreshToken } = req.body;
+        
+        if (!refreshToken) {
+            return res.status(400).json({ error: 'Refresh token is required' });
+        }
+
+        // Set the refresh token
+        oAuth2Client.setCredentials({
+            refresh_token: refreshToken,
+        });
+
+        // Refresh the access token
+        const { credentials } = await oAuth2Client.refreshAccessToken();
+        
+        if (!credentials.access_token) {
+            return res.status(500).json({ error: 'Failed to refresh access token' });
+        }
+
+        res.json({ accessToken: credentials.access_token });
+    } catch (error) {
+        console.error('Error during token refresh:', error);
+        res.status(500).json({ error: 'Failed to refresh access token' });
+    }
+};
+
 
 module.exports = {
     exchangeCodeForToken,
     getUserInfo,
+    refreshAccessToken,
 };
