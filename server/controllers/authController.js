@@ -3,14 +3,15 @@ const { OAuth2Client } = require('google-auth-library');
 // Get OAuth credentials from environment variables
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
-const GOOGLE_REDIRECT_URI = process.env.GOOGLE_REDIRECT_URI || process.env.BACKEND_URL;
+// Redirect URI must match the frontend URL used in the OAuth flow
+const GOOGLE_REDIRECT_URI = process.env.GOOGLE_REDIRECT_URI || process.env.FRONTEND_URL || process.env.BACKEND_URL;
 
 // Validate required environment variables
 if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET || !GOOGLE_REDIRECT_URI) {
     console.error('Missing required environment variables for Google OAuth:');
     if (!GOOGLE_CLIENT_ID) console.error('  - GOOGLE_CLIENT_ID is required');
     if (!GOOGLE_CLIENT_SECRET) console.error('  - GOOGLE_CLIENT_SECRET is required');
-    if (!GOOGLE_REDIRECT_URI) console.error('  - GOOGLE_REDIRECT_URI or BACKEND_URL is required');
+    if (!GOOGLE_REDIRECT_URI) console.error('  - GOOGLE_REDIRECT_URI or FRONTEND_URL is required');
     process.exit(1);
 }
 
@@ -29,7 +30,6 @@ const oAuth2Client = new OAuth2Client(
 const exchangeCodeForToken = async (req, res) => {
     try {
         const { code } = req.body;
-        console.log(`Code is ${code}`); /* Sample code: 4/0AdLIrYf_Xzy7olraIi3029a4w37TYz... */
 
         // Exchange the authorization code for access token and refresh token
         const { tokens } = await oAuth2Client.getToken({
