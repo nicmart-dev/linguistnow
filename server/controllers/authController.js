@@ -112,14 +112,14 @@ const refreshAccessToken = async (req, res) => {
 
         res.json({ accessToken: credentials.access_token });
     } catch (error) {
-        console.error('Error during token refresh:', error);
-        
         // Handle specific OAuth errors
         if (error.response && error.response.data) {
             const errorData = error.response.data;
             
             // invalid_grant typically means refresh token is revoked/expired
             if (errorData.error === 'invalid_grant') {
+                // Log concise message for this common error (users need to re-authenticate)
+                console.warn('Token refresh failed: invalid_grant - User needs to re-authenticate');
                 return res.status(401).json({ 
                     error: 'Refresh token is invalid or expired',
                     details: 'The refresh token has been revoked or is no longer valid. User needs to re-authenticate.',
@@ -127,12 +127,14 @@ const refreshAccessToken = async (req, res) => {
                 });
             }
             
+            console.error('Error during token refresh:', errorData.error, errorData.error_description);
             return res.status(error.response.status || 500).json({ 
                 error: 'Failed to refresh access token',
                 details: errorData.error_description || errorData.error || 'Unknown OAuth error'
             });
         }
         
+        console.error('Error during token refresh:', error.message || error);
         res.status(500).json({ 
             error: 'Failed to refresh access token',
             details: error.message || 'Unknown error occurred'
