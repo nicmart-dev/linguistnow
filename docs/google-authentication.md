@@ -2,7 +2,7 @@
 
 This design outlines how Google Authentication, as configured [here](./set-up-oauth-in-google-cloud.md) is integrated into:
 
-- the React application using the `@react-oauth/google` package, and Google OAuth2 authorization flow with both access and refresh tokens.
+- the React application (built with **Vite** and **TypeScript/TSX**) using the `@react-oauth/google` package, and Google OAuth2 authorization flow with both access and refresh tokens.
   Considering the limited time, that package was implemented, preferring a simpler, more streamlined approach to OAuth integration which suits React application.
 
 ## Table of Contents
@@ -304,3 +304,7 @@ All authentication logic is centralized in `client/src/auth-users/utils.ts`:
 3. `fetchUserDetails(email, setUserDetails)` - Gets user from Airtable
 4. `fetchUserList()` - Retrieves all users
 5. `createUserIfNotFound(userInfo, setUserDetails)` - Creates new users
+
+## Related Documentation
+
+- [PWA Installation Guide](./PWA-Installation.md) - Information about installing LinguistNow as a Progressive Web App
