@@ -5,6 +5,25 @@ To install and run the LinguistNow application, you have two options:
 1. **Local Development** - Install and run each component separately (described below)
 2. **Docker Deployment** - Use Docker Compose for a containerized setup (see [Docker Quick Start](#docker-quick-start))
 
+## Table of Contents
+
+- [Local Development Setup](#local-development-setup)
+  - [Prerequisites](#prerequisites)
+- [Install front-end and backend](#install-front-end-and-backend)
+  - [Server](#server)
+  - [React app (Vite)](#react-app-vite)
+  - [Airtable Database](#airtable-database)
+  - [n8n](#n8n)
+    - [Install through npm (global)](#install-through-npm-global)
+    - [Configure workflow](#configure-workflow)
+- [Google OAuth setup](#google-oauth-setup)
+- [Start our app](#start-our-app)
+- [Set up new users](#set-up-new-users)
+- [Docker Quick Start](#docker-quick-start)
+  - [Prerequisites](#prerequisites-1)
+  - [Steps](#steps)
+  - [Useful Commands](#useful-commands)
+
 ## Local Development Setup
 
 Follow these steps in order:
