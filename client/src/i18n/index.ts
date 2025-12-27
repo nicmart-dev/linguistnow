@@ -1,5 +1,5 @@
 // src/i18n/index.ts
-import i18next, { type i18n } from 'i18next'
+import i18next from 'i18next'
 import { initReactI18next } from 'react-i18next'
 import { getLocale } from './utils'
 
@@ -29,7 +29,7 @@ const resources = {
     ru: { translation: ruTranslations },
 }
 
-i18next.use(initReactI18next).init({
+void i18next.use(initReactI18next).init({
     resources,
     lng: getLocale(),
     fallbackLng: 'en',

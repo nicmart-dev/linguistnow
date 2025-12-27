@@ -1,10 +1,34 @@
-import { describe, it, expect, afterEach } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { getLocale } from './utils'
 
 describe('getLocale', () => {
     const originalLanguage = navigator.language
+    const storage: Record<string, string> = {}
+    const mockLocalStorage = {
+        getItem: vi.fn((key: string) => storage[key] || null),
+        setItem: vi.fn((key: string, value: string) => {
+            storage[key] = value
+        }),
+        removeItem: vi.fn((key: string) => {
+            delete storage[key]
+        }),
+        clear: vi.fn(() => {
+            Object.keys(storage).forEach((key) => delete storage[key])
+        }),
+    }
+
+    beforeEach(() => {
+        Object.keys(storage).forEach((key) => delete storage[key])
+        Object.defineProperty(window, 'localStorage', {
+            value: mockLocalStorage,
+            writable: true,
+            configurable: true,
+        })
+    })
 
     afterEach(() => {
+        vi.clearAllMocks()
+        Object.keys(storage).forEach((key) => delete storage[key])
         Object.defineProperty(navigator, 'language', {
             writable: true,
             value: originalLanguage,
@@ -43,19 +67,28 @@ describe('getLocale', () => {
         expect(getLocale()).toBe('fr')
     })
 
-    it('should return "en" for Chinese language (zh not in supported list)', () => {
+    it('should return "zh-cn" for Chinese language (zh maps to zh-cn)', () => {
         Object.defineProperty(navigator, 'language', {
             writable: true,
             value: 'zh-CN',
         })
-        // zh-CN splits to "zh" which is not in supported list, defaults to "en"
-        expect(getLocale()).toBe('en')
+        // zh-CN splits to "zh" which maps to "zh-cn"
+        expect(getLocale()).toBe('zh-cn')
+    })
+
+    it('should return "de" for German language (now supported)', () => {
+        Object.defineProperty(navigator, 'language', {
+            writable: true,
+            value: 'de',
+        })
+        // German is now supported
+        expect(getLocale()).toBe('de')
     })
 
     it('should return "en" for unsupported language', () => {
         Object.defineProperty(navigator, 'language', {
             writable: true,
-            value: 'de',
+            value: 'nl', // Dutch is not supported
         })
         expect(getLocale()).toBe('en')
     })

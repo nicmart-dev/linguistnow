@@ -57,7 +57,7 @@ export const getLocale = (): Locale => {
         "ru": "ru"
     }
     
-    const detectedLocale = localeMap[language] || "en"
+    const detectedLocale = localeMap[language] ?? "en"
     
     // Save the detected locale to localStorage for future use
     if (isLocalStorageAvailable()) {

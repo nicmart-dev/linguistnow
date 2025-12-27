@@ -1,23 +1,9 @@
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
-import { IntlProvider } from 'react-intl'
+import { I18nextProvider } from 'react-i18next'
+import i18nInstance from '../i18n'
 import Hero from './Hero'
-
-const messages = {
-    'hero.login.title': 'Login',
-    'hero.login.subtitle': 'Sign in to continue',
-    'hero.dashboard.title': 'Dashboard',
-    'hero.dashboard.subtitle': 'Welcome {userName}',
-    'hero.settings.title': 'Settings',
-    'hero.settings.subtitle': 'Manage your account',
-    'hero.logout.title': 'Goodbye',
-    'hero.logout.subtitle': 'See you soon',
-    'hero.privacy.title': 'Privacy',
-    'hero.privacy.subtitle': 'Our privacy policy',
-    signInWithGoogle: 'Sign in with Google',
-    loginDescription: 'Login description text',
-}
 
 const renderWithProviders = (
     component: React.ReactNode,
@@ -25,9 +11,9 @@ const renderWithProviders = (
 ) => {
     return render(
         <MemoryRouter initialEntries={[initialRoute]}>
-            <IntlProvider locale="en" messages={messages}>
+            <I18nextProvider i18n={i18nInstance}>
                 {component}
-            </IntlProvider>
+            </I18nextProvider>
         </MemoryRouter>
     )
 }
@@ -35,8 +21,8 @@ const renderWithProviders = (
 describe('Hero', () => {
     it('renders login page content', () => {
         renderWithProviders(<Hero cta={() => {}} userName="" />, '/login')
-        expect(screen.getByText('Login')).toBeDefined()
-        expect(screen.getByText('Sign in to continue')).toBeDefined()
+        expect(screen.getByText("Let's make it easy to work together.")).toBeDefined()
+        expect(screen.getByText('Great to see you!')).toBeDefined()
     })
 
     it('shows CTA button on login page', () => {
@@ -62,8 +48,8 @@ describe('Hero', () => {
             <Hero cta={undefined} userName="John" />,
             '/dashboard'
         )
-        expect(screen.getByText('Dashboard')).toBeDefined()
-        expect(screen.getByText('Welcome John')).toBeDefined()
+        expect(screen.getByText('Find an available linguist.')).toBeDefined()
+        expect(screen.getByText('Hey John!')).toBeDefined()
     })
 
     it('does not show CTA button on dashboard', () => {
@@ -77,21 +63,21 @@ describe('Hero', () => {
 
     it('renders settings page content', () => {
         renderWithProviders(<Hero cta={undefined} userName="" />, '/settings')
-        expect(screen.getByText('Settings')).toBeDefined()
+        expect(screen.getByText('Which calendars should we check?')).toBeDefined()
     })
 
     it('renders logout page content', () => {
         renderWithProviders(<Hero cta={undefined} userName="" />, '/logout')
-        expect(screen.getByText('Goodbye')).toBeDefined()
+        expect(screen.getByText('Time to spread your wings!')).toBeDefined()
     })
 
     it('renders privacy page content', () => {
         renderWithProviders(<Hero cta={undefined} userName="" />, '/privacy')
-        expect(screen.getByText('Privacy')).toBeDefined()
+        expect(screen.getByText('Privacy Policy')).toBeDefined()
     })
 
     it('renders section for unknown route', () => {
-        // Unknown routes render with empty title/subtitle which causes FormattedMessage error
+        // Unknown routes render with empty title/subtitle
         // This is expected behavior - skip testing empty message IDs
         const section = document.createElement('section')
         expect(section).toBeDefined()

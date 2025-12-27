@@ -1,22 +1,16 @@
 import { describe, it, expect } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import { BrowserRouter } from 'react-router-dom'
-import { IntlProvider } from 'react-intl'
+import { I18nextProvider } from 'react-i18next'
+import i18nInstance from '../i18n'
 import Footer from './Footer'
-
-const messages = {
-    'footer.aboutTitle': 'About',
-    'footer.aboutText': 'About LinguistNow',
-    'footer.privacyTitle': 'Privacy Policy',
-    'footer.socialTitle': 'Social',
-}
 
 const renderWithProviders = (component: React.ReactNode) => {
     return render(
         <BrowserRouter>
-            <IntlProvider locale="en" messages={messages}>
+            <I18nextProvider i18n={i18nInstance}>
                 {component}
-            </IntlProvider>
+            </I18nextProvider>
         </BrowserRouter>
     )
 }

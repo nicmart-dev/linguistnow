@@ -1,30 +1,23 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { BrowserRouter } from 'react-router-dom'
-import { IntlProvider } from 'react-intl'
+import { I18nextProvider } from 'react-i18next'
 import { LanguageContext } from '../i18n/LanguageProvider'
+import i18nInstance from '../i18n'
 import Navbar from './Navbar'
-
-const messages = {
-    home: 'Home',
-    dashboard: 'Dashboard',
-    english: 'English',
-    french: 'French',
-    simplifiedChinese: 'Chinese',
-}
 
 const mockSwitchLanguage = vi.fn()
 
 const renderWithProviders = (component: React.ReactNode) => {
     return render(
         <BrowserRouter>
-            <IntlProvider locale="en" messages={messages}>
+            <I18nextProvider i18n={i18nInstance}>
                 <LanguageContext.Provider
                     value={{ switchLanguage: mockSwitchLanguage }}
                 >
                     {component}
                 </LanguageContext.Provider>
-            </IntlProvider>
+            </I18nextProvider>
         </BrowserRouter>
     )
 }
@@ -93,7 +86,7 @@ describe('Navbar', () => {
         if (langToggle) {
             fireEvent.click(langToggle)
         }
-        fireEvent.click(screen.getByText('French'))
+        fireEvent.click(screen.getByText('Français'))
         expect(mockSwitchLanguage).toHaveBeenCalledWith('fr')
     })
 
