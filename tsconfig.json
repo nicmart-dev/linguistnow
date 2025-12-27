@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "strict": false,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": true,
+    "allowJs": true
+  },
+  "include": [
+    ".lintstagedrc.js",
+    "commitlint.config.js",
+    ".github/**/*.ts",
+    ".github/**/*.js"
+  ],
+  "exclude": ["node_modules", "dist", "client", "server", "shared"]
+}
