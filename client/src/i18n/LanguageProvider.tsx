@@ -1,11 +1,8 @@
 import React, { createContext, useEffect, type ReactNode } from 'react'
 import { I18nextProvider } from 'react-i18next'
-import type { i18n as I18nType } from 'i18next'
+import type { i18n } from 'i18next'
 import i18nInstance from './index'
 import { getLocale, saveLocale, type Locale } from './utils'
-
-// i18next instance is properly typed after initialization
-const i18n = i18nInstance as I18nType
 
 interface LanguageContextType {
     switchLanguage: (lang: Locale) => void
@@ -18,6 +15,9 @@ export const LanguageContext = createContext<LanguageContextType | undefined>(
 interface LanguageProviderProps {
     children: ReactNode
 }
+
+// Type assertion for i18next instance - needed due to module resolution
+const i18n = i18nInstance as unknown as i18n
 
 const LanguageProvider = ({ children }: LanguageProviderProps) => {
     useEffect(() => {
