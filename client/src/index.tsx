@@ -1,7 +1,7 @@
 import React from 'react'
 import { createRoot } from 'react-dom/client'
 import App from './App'
-import { RawIntlProvider, intl } from './i18n'
+import './i18n' // Initialize i18n
 import './tailwind.css'
 import './index.css'
 import { env } from './env'
@@ -59,7 +59,5 @@ if (!container) {
 const root = createRoot(container)
 
 root.render(
-    <RawIntlProvider value={intl}>
-        <App />
-    </RawIntlProvider>
+    <App />
 )

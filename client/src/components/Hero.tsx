@@ -5,9 +5,10 @@ import heroImage3 from '../assets/images/hero-image3.jpg'
 import heroImage4 from '../assets/images/hero-image4.jpg'
 import googleIcon from '../assets/icons/google.svg'
 import { useLocation } from 'react-router-dom' // to check the current route
-import { FormattedMessage } from 'react-intl' // to localize text displayed
+import { useTranslation } from 'react-i18next' // to localize text displayed
 
 const Hero = ({ cta, userName }) => {
+    const { t } = useTranslation()
     const location = useLocation()
 
     // Define different content based on the route
@@ -17,7 +18,7 @@ const Hero = ({ cta, userName }) => {
         title = 'hero.login.title'
         subtitle = 'hero.login.subtitle'
         backgroundImage = heroImage2
-        ctaButtonText = 'signInWithGoogle'
+        ctaButtonText = 'auth.signInWithGoogle'
         ctaIcon = googleIcon
     } else if (location.pathname === '/dashboard') {
         title = 'hero.dashboard.title'
@@ -59,15 +60,10 @@ const Hero = ({ cta, userName }) => {
             <div className="flex items-center justify-center w-full min-h-[350px] md:min-h-[400px] bg-gray-900/50 py-6">
                 <div className="text-center container px-4 max-w-4xl mx-auto">
                     <span className="text-gray-200 font-semibold uppercase tracking-widest">
-                        <FormattedMessage
-                            id={subtitle}
-                            values={{
-                                userName: userName || '',
-                            }}
-                        />
+                        {t(subtitle, { userName: userName || '' })}
                     </span>
                     <h2 className="mt-8 mb-6 text-4xl lg:text-5xl font-bold text-gray-100">
-                        <FormattedMessage id={title} />
+                        {t(title)}
                     </h2>
 
                     {/* Show CTA button only when icon and text defined */}
@@ -79,15 +75,15 @@ const Hero = ({ cta, userName }) => {
                             <img
                                 className="h-6 w-6 inline-block mr-4"
                                 src={ctaIcon}
-                                alt="call to action"
+                                alt={t('hero.alt.callToAction')}
                             />
-                            <FormattedMessage id={ctaButtonText} />
+                            {t(ctaButtonText)}
                         </button>
                     )}
                     {/* Show description text but only on pages with cta, ie. login */}
                     {cta && location.pathname === '/login' && (
                         <p className="max-w-3xl mx-auto mb-10 text-lg text-gray-300">
-                            <FormattedMessage id="loginDescription" />
+                            {t('auth.loginDescription')}
                         </p>
                     )}
                 </div>

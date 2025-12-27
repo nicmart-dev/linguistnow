@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
-import { FormattedMessage } from 'react-intl' // To show localized strings
+import { useTranslation } from 'react-i18next' // To show localized strings
 import { refreshAccessToken, isAccessTokenValid } from '../auth-users/utils' // To refresh access token when needed
 import { fetchUserList } from '../auth-users/utils'
 import Hero from '../components/Hero'
 import LinguistTable from '../components/LinguistTable'
 import Skeleton from '../components/Skeleton' // to sisplay while data is loading
 import { logger } from '../utils/logger'
+import i18n from '../i18n'
 
 // Consolidate similar errors to avoid showing duplicate messages
 function consolidateErrors(errors: Array<{ message: string; userEmail?: string | null; code?: string; severity?: string }>) {
@@ -91,6 +92,7 @@ function consolidateErrors(errors: Array<{ message: string; userEmail?: string |
 }
 
 const Dashboard = ({ userName }) => {
+    const { t } = useTranslation()
     const [linguists, setLinguists] = useState([]) // store list of users retrieved from Airtable
     const [errors, setErrors] = useState([]) // store error messages to display to users
     const [loading, setLoading] = useState(true) // State to track loading status so we display table only after fetching data
@@ -288,14 +290,15 @@ const Dashboard = ({ userName }) => {
             <main className="container px-3 mb-5">
                 <div className="items-center justify-center">
                     <p className="max-w-3xl mx-auto my-5 text-lg text-black">
-                        <FormattedMessage
-                            id="dashboard.linguistsDescription"
-                            values={{
-                                ts: Date.now() + 7 * 24 * 60 * 60 * 1000,
-                            }}
-                        />
+                        {t('dashboard.linguistsDescription', {
+                            date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toLocaleDateString(i18n.language === 'zh-cn' ? 'zh-CN' : i18n.language, {
+                                day: 'numeric',
+                                month: 'short',
+                                year: 'numeric'
+                            })
+                        })}
                         <span className="block">
-                            <FormattedMessage id="dashboard.availabilityDescription" />
+                            {t('dashboard.availabilityDescription')}
                         </span>
                     </p>
                     {/* Show error messages if any */}
@@ -339,13 +342,10 @@ const Dashboard = ({ userName }) => {
                                                 <div className="ml-3 flex-1">
                                                     {hasI18n ? (
                                                         <p className="text-sm font-medium">
-                                                            <FormattedMessage
-                                                                id={errorObj.i18nKey}
-                                                                values={errorObj.i18nValues}
-                                                            />
+                                                            {t(errorObj.i18nKey, errorObj.i18nValues)}
                                                         </p>
                                                     ) : (
-                                                        <p className="text-sm font-medium">{errorObj.message || 'An unknown error occurred'}</p>
+                                                        <p className="text-sm font-medium">{errorObj.message || t('dashboard.errors.unknownError')}</p>
                                                     )}
                                                 </div>
                                             </div>

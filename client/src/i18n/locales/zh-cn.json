@@ -1,0 +1,144 @@
+{
+    "calendarSelector": {
+        "chooseCalendars": "选择日历：",
+        "noCalendarsAvailable": "没有可用的日历。"
+    },
+    "accountSettings": {
+        "accountSettings": "帐户设置",
+        "userDetails": "用户详情",
+        "picture": "照片",
+        "email": "电子邮件：",
+        "name": "姓名：",
+        "selectCalendars": "为了协助日程安排，我们需要知道要检查您的可用性的谷歌日历。放心，我们只会保存您选择的日期并验证您的可用性。",
+        "automaticSave": "您的选择将自动保存。",
+        "notReadingEvents": "出于安全考虑，我们将不会查看您的日历内容。"
+    },
+    "dashboard": {
+        "linguistsDescription": "以下是从明天起直到 {{date}}（含）的日程安排。",
+        "availabilityDescription": "有空的人可以承诺在工作日每天从上午 8 点到下午 6 点提供 8 小时的服务。",
+        "available": "可用",
+        "notAvailable": "不可用",
+        "availability": "可用性",
+        "email": "电子邮件",
+        "name": "姓名",
+        "filterEmailPlaceholder": "按电子邮件筛选...",
+        "noResults": "没有结果。",
+        "previous": "上一页",
+        "next": "下一页",
+        "errors": {
+            "title": "检查可用性时发生错误",
+            "n8nWorkflowInactive": "n8n 工作流未激活。请在 n8n 中激活工作流。",
+            "n8nServiceUnavailable": "n8n 服务当前不可用。",
+            "networkError": "无法连接到 n8n 服务。服务可能已关闭。",
+            "authenticationError": "身份验证失败。请检查您的 API 配置。",
+            "unknownError": "检查可用性时发生错误。",
+            "invalidRefreshToken_one": "刷新令牌已被撤销或不再有效，涉及 {{count}} 位语言学家（{{emails}}）。他们需要重新登录其 Google 账户，并在设置页面重新选择其日历。",
+            "invalidRefreshToken_other": "刷新令牌已被撤销或不再有效，涉及 {{count}} 位语言学家（{{emails}}）。他们需要重新登录其 Google 账户，并在设置页面重新选择其日历。",
+            "missingCredentials_one": "日历 ID、访问令牌或刷新令牌不可用，涉及 {{count}} 位语言学家（{{emails}}）。请要求他们使用其 Google 账户重新登录，选择其日历，并在设置页面点击\"保存日历\"按钮。",
+            "missingCredentials_other": "日历 ID、访问令牌或刷新令牌不可用，涉及 {{count}} 位语言学家（{{emails}}）。请要求他们使用其 Google 账户重新登录，选择其日历，并在设置页面点击\"保存日历\"按钮。",
+            "genericMultiple_one": "{{message}}（{{count}} 位用户受影响：{{emails}}）",
+            "genericMultiple_other": "{{message}}（{{count}} 位用户受影响：{{emails}}）"
+        },
+        "alt": {
+            "userProfileAvatar": "用户个人资料头像"
+        }
+    },
+    "hero": {
+        "login": {
+            "title": "让我们轻松地共同工作。",
+            "subtitle": "很高兴见到你！"
+        },
+        "dashboard": {
+            "title": "找到一个可用的语言学家。",
+            "subtitle": "嗨，{{userName}}！"
+        },
+        "settings": {
+            "title": "我们应该检查哪些日历？",
+            "subtitle": "欢迎，{{userName}}！"
+        },
+        "logout": {
+            "title": "是时候展翅高飞了！",
+            "subtitle": "再见，{{userName}}！"
+        },
+        "privacy": {
+            "title": "隐私政策",
+            "subtitle": "我们重视您的隐私"
+        },
+        "alt": {
+            "callToAction": "行动号召"
+        }
+    },
+    "footer": {
+        "aboutTitle": "关于",
+        "aboutText": "LinguistNow简化了为翻译项目找到可用的语言学家的麻烦。无论您是翻译机构的项目经理还是语言学家寻找新机会，LinguistNow都为您提供了简化工作流程、在正确的时间与正确的人联系的工具。",
+        "socialTitle": "社交",
+        "privacyTitle": "隐私政策",
+        "alt": {
+            "xIcon": "X 图标",
+            "facebookIcon": "Facebook 图标",
+            "instagramIcon": "Instagram 图标",
+            "linkedinIcon": "LinkedIn 图标"
+        }
+    },
+    "privacyPolicy": {
+        "title": "隐私政策",
+        "subtitle": "我们重视您的隐私",
+        "effectiveDate": "生效日期：2024年6月14日",
+        "introductionTitle": "1. 介绍",
+        "introductionText": "本隐私政策说明了您使用我们的应用程序时，我们如何收集、使用、披露和保护您的信息。我们致力于保护您的个人数据和隐私权利。如果您对本政策或者我们对您的个人信息的处理有任何疑问或者顾虑，请通过nicmart@gmail.com与我们联系。",
+        "infoWeCollectTitle": "2. 我们收集的信息",
+        "infoWeCollectText1": "当您注册应用程序、表达对我们或我们产品和服务信息的兴趣、参与应用程序活动或以其他方式联系我们时，我们会收集您自愿提供给我们的个人信息。",
+        "infoWeCollectText2": "我们收集的个人信息可能包括以下内容：",
+        "nameContactData": "姓名和联系方式：当您登录您的Google账户时，我们会收集您的姓名、电子邮件地址和个人资料图片。",
+        "calendarAccess": "Google日历访问：为了启用应用程序的功能，我们请求访问您的Google日历。我们请求权限仅用于查看您的日历事件，以获取日历ID列表，并使用Google的Freebusy API检查您的可用性。我们不会读取或存储您的日历事件的详细信息。",
+        "useOfInfoTitle": "3. 我们如何使用您的信息",
+        "useOfInfoText1": "我们使用我们收集或接收到的信息：",
+        "useOfInfoItem1": "为了便捷的账户创建和登录过程。",
+        "useOfInfoItem2": "根据Google日历提供的日历列表，检查您在特定日期和时间是否空闲。",
+        "sharingInfoTitle": "4. 我们如何分享您的信息",
+        "sharingInfoText1": "根据以下法律基础，我们可能处理或共享我们持有的您的数据：",
+        "sharingInfoItem1": "同意：如果您已经给予我们特定的同意，用于特定目的使用您的个人信息，我们可能会处理您的数据。",
+        "sharingInfoItem2": "合法利益：我们可能会在合理需要实现我们的合法业务利益时处理您的数据。",
+        "sharingInfoItem3": "履行合同：在与您签订合同的情况下，我们可能会处理您的个人信息以履行我们的合同条款。",
+        "sharingInfoItem4": "法律义务：我们可能会根据适用法律、政府要求、司法程序、法院命令或法律程序的要求而披露您的信息。",
+        "securityTitle": "5. 您的信息安全",
+        "securityText": "我们采用行政、技术和物理安全措施来帮助保护您的个人信息。尽管我们已经采取了合理的步骤来保护您提供给我们的个人信息，但请注意，尽管我们的努力，没有任何安全措施是完美的或不可渗透的，也没有任何数据传输方法可以保证免于任何窃听或其他类型的滥用。",
+        "rightsTitle": "6. 您的隐私权利",
+        "rightsText": "根据适用的数据保护法律，您拥有一定的权利，包括访问、更正、更新或删除我们持有的关于您的个人信息的权利。如果您希望行使这些权利中的任何一个，请通过nicmart@gmail.com与我们联系。",
+        "changesTitle": "7. 本隐私政策的变更",
+        "changesText": "我们可能会不时更新本隐私政策，以反映我们的实践变化或出于其他运营、法律或监管原因。我们将通过在本页面发布新的隐私政策来通知您任何变更。建议您定期查阅本隐私政策以了解任何变更。",
+        "contactTitle": "8. 联系我们",
+        "contactText": "如果您对本隐私政策有任何疑问，请通过电子邮件联系我们，邮件地址为nicmart@gmail.com。"
+    },
+    "nav": {
+        "menuIcon": "菜单",
+        "languageIcon": "语言",
+        "dashboard": "仪表板",
+        "settings": "设置",
+        "home": "首页"
+    },
+    "general": {
+        "loading": "加载中..."
+    },
+    "languageSelection": {
+        "english": "English",
+        "french": "Français",
+        "simplifiedChinese": "简体中文",
+        "spanish": "Español",
+        "german": "Deutsch",
+        "italian": "Italiano",
+        "portuguese": "Português",
+        "japanese": "日本語",
+        "korean": "한국어",
+        "arabic": "العربية",
+        "russian": "Русский"
+    },
+    "auth": {
+        "login": "登录",
+        "signInWithGoogle": "使用 Google 登录",
+        "youHaveBeenLoggedOut": "您已登出。",
+        "loggingOut": "正在登出...",
+        "loginDescription": "选择您的日历，剩下的就交给我们。",
+        "logoutSuccessMessage": "您已成功登出。希望很快再见到您。"
+    }
+}

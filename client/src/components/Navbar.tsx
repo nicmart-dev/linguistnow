@@ -1,9 +1,10 @@
 import React, { useContext, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { FormattedMessage } from 'react-intl'
+import { useTranslation } from 'react-i18next'
 import { LanguageContext } from '../i18n/LanguageProvider'
 
 const Navbar = ({ userDetails }) => {
+    const { t } = useTranslation()
     const { switchLanguage } = useContext(LanguageContext) // Access switchLanguage function from context
     const [menuOpen, setMenuOpen] = useState(false) // track if menu is open or not
     const [langOpen, setLangOpen] = useState(false) // track if language toggle is open or not
@@ -23,7 +24,7 @@ const Navbar = ({ userDetails }) => {
                         height="20"
                         viewBox="0 0 20 20"
                     >
-                        <title>menu</title>
+                        <title>{t('nav.menuIcon')}</title>
                         <path d="M0 3h20v2H0V3zm0 6h20v2H0V9zm0 6h20v2H0v-2z"></path>
                     </svg>
                 </label>
@@ -55,7 +56,7 @@ const Navbar = ({ userDetails }) => {
                                     className="inline-block no-underline hover:text-black hover:underline py-2 px-4"
                                     to="/"
                                 >
-                                    <FormattedMessage id="home" />
+                                    {t('nav.home')}
                                 </Link>
                             </li>
                             {userDetails &&
@@ -68,7 +69,7 @@ const Navbar = ({ userDetails }) => {
                                             className="inline-block no-underline hover:text-black hover:underline py-2 px-4"
                                             to="/dashboard"
                                         >
-                                            <FormattedMessage id="dashboard" />
+                                            {t('nav.dashboard')}
                                         </Link>
                                     </li>
                                 )}
@@ -135,7 +136,7 @@ const Navbar = ({ userDetails }) => {
                             height="24"
                             viewBox="0 0 24 24"
                         >
-                            <title>language</title>
+                            <title>{t('nav.languageIcon')}</title>
 
                             <path
                                 fillRule="evenodd"
@@ -194,7 +195,7 @@ const Navbar = ({ userDetails }) => {
                                         setLangOpen(false)
                                     }}
                                 >
-                                    <FormattedMessage id="english" />
+                                    {t('languageSelection.english')}
                                 </button>
                             </li>
                             <li>
@@ -204,7 +205,7 @@ const Navbar = ({ userDetails }) => {
                                         setLangOpen(false)
                                     }}
                                 >
-                                    <FormattedMessage id="french" />
+                                    {t('languageSelection.french')}
                                 </button>
                             </li>
                             <li>
@@ -214,7 +215,87 @@ const Navbar = ({ userDetails }) => {
                                         setLangOpen(false)
                                     }}
                                 >
-                                    <FormattedMessage id="simplifiedChinese" />
+                                    {t('languageSelection.simplifiedChinese')}
+                                </button>
+                            </li>
+                            <li>
+                                <button
+                                    onClick={() => {
+                                        switchLanguage('es')
+                                        setLangOpen(false)
+                                    }}
+                                >
+                                    {t('languageSelection.spanish')}
+                                </button>
+                            </li>
+                            <li>
+                                <button
+                                    onClick={() => {
+                                        switchLanguage('de')
+                                        setLangOpen(false)
+                                    }}
+                                >
+                                    {t('languageSelection.german')}
+                                </button>
+                            </li>
+                            <li>
+                                <button
+                                    onClick={() => {
+                                        switchLanguage('it')
+                                        setLangOpen(false)
+                                    }}
+                                >
+                                    {t('languageSelection.italian')}
+                                </button>
+                            </li>
+                            <li>
+                                <button
+                                    onClick={() => {
+                                        switchLanguage('pt')
+                                        setLangOpen(false)
+                                    }}
+                                >
+                                    {t('languageSelection.portuguese')}
+                                </button>
+                            </li>
+                            <li>
+                                <button
+                                    onClick={() => {
+                                        switchLanguage('ja')
+                                        setLangOpen(false)
+                                    }}
+                                >
+                                    {t('languageSelection.japanese')}
+                                </button>
+                            </li>
+                            <li>
+                                <button
+                                    onClick={() => {
+                                        switchLanguage('ko')
+                                        setLangOpen(false)
+                                    }}
+                                >
+                                    {t('languageSelection.korean')}
+                                </button>
+                            </li>
+                            <li>
+                                <button
+                                    onClick={() => {
+                                        switchLanguage('ar')
+                                        setLangOpen(false)
+                                    }}
+                                >
+                                    {t('languageSelection.arabic')}
+                                </button>
+                            </li>
+                            <li>
+                                <button
+                                    onClick={() => {
+                                        switchLanguage('ru')
+                                        setLangOpen(false)
+                                    }}
+                                >
+                                    {t('languageSelection.russian')}
                                 </button>
                             </li>
                         </ul>

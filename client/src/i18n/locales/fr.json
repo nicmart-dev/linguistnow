@@ -1,0 +1,144 @@
+{
+    "calendarSelector": {
+        "chooseCalendars": "Choisissez des calendriers:",
+        "noCalendarsAvailable": "Aucun calendrier disponible."
+    },
+    "accountSettings": {
+        "accountSettings": "Paramètres du compte",
+        "userDetails": "Détails de l'utilisateur",
+        "picture": "Photo",
+        "email": "E-mail :",
+        "name": "Nom :",
+        "selectCalendars": "Pour faciliter la planification, nous aurons besoin de savoir quel calendrier Google vérifier pour votre disponibilité.",
+        "automaticSave": "Vos choix sont automatiquement enregistrés.",
+        "notReadingEvents": "Pour des raisons de sécurité, nous ne consulterons pas le contenu de votre calendrier."
+    },
+    "dashboard": {
+        "linguistsDescription": "Voici le programme de demain jusqu'au {{date}} inclus.",
+        "availabilityDescription": "Ceux qui sont disponibles le sont pour au moins 8 heures chaque jour de semaine, de 8h à 18h PST.",
+        "available": "Disponible",
+        "notAvailable": "Indisponible",
+        "availability": "Disponibilité",
+        "email": "E-mail",
+        "name": "Nom",
+        "filterEmailPlaceholder": "Filtrer par email...",
+        "noResults": "Aucun résultat.",
+        "previous": "Précédent",
+        "next": "Suivant",
+        "errors": {
+            "title": "Des erreurs se sont produites lors de la vérification de la disponibilité",
+            "n8nWorkflowInactive": "Le workflow n8n n'est pas actif. Veuillez activer le workflow dans n8n.",
+            "n8nServiceUnavailable": "Le service n8n est actuellement indisponible.",
+            "networkError": "Impossible d'atteindre le service n8n. Le service peut être en panne.",
+            "authenticationError": "L'authentification a échoué. Veuillez vérifier votre configuration API.",
+            "unknownError": "Une erreur s'est produite lors de la vérification de la disponibilité.",
+            "invalidRefreshToken_one": "Le jeton d'actualisation a été révoqué ou n'est plus valide pour {{count}} linguiste ({{emails}}). Ils doivent se ré-authentifier en se connectant à nouveau avec leur compte Google et en re-sélectionnant leurs calendriers dans la page des paramètres.",
+            "invalidRefreshToken_other": "Le jeton d'actualisation a été révoqué ou n'est plus valide pour {{count}} linguistes ({{emails}}). Ils doivent se ré-authentifier en se connectant à nouveau avec leur compte Google et en re-sélectionnant leurs calendriers dans la page des paramètres.",
+            "missingCredentials_one": "Les identifiants de calendrier, le jeton d'accès ou le jeton d'actualisation ne sont pas disponibles pour {{count}} linguiste ({{emails}}). Veuillez leur demander de se connecter à nouveau avec leur compte Google, de sélectionner leurs calendriers et de cliquer sur le bouton \"Enregistrer les calendriers\" dans la page des paramètres.",
+            "missingCredentials_other": "Les identifiants de calendrier, le jeton d'accès ou le jeton d'actualisation ne sont pas disponibles pour {{count}} linguistes ({{emails}}). Veuillez leur demander de se connecter à nouveau avec leur compte Google, de sélectionner leurs calendriers et de cliquer sur le bouton \"Enregistrer les calendriers\" dans la page des paramètres.",
+            "genericMultiple_one": "{{message}} ({{count}} utilisateur affecté : {{emails}})",
+            "genericMultiple_other": "{{message}} ({{count}} utilisateurs affectés : {{emails}})"
+        },
+        "alt": {
+            "userProfileAvatar": "avatar de profil utilisateur"
+        }
+    },
+    "hero": {
+        "login": {
+            "title": "Rendons le travail ensemble facile.",
+            "subtitle": "Ravi de vous voir !"
+        },
+        "dashboard": {
+            "title": "Trouvez un linguiste disponible.",
+            "subtitle": "Bonjour {{userName}} !"
+        },
+        "settings": {
+            "title": "Quels calendriers devrions-nous vérifier?",
+            "subtitle": "Bienvenue {{userName}} !"
+        },
+        "logout": {
+            "title": "Il est temps de prendre votre envol!",
+            "subtitle": "Au revoir {{userName}} !"
+        },
+        "privacy": {
+            "title": "Politique de confidentialité",
+            "subtitle": "Votre vie privée nous importe"
+        },
+        "alt": {
+            "callToAction": "appel à l'action"
+        }
+    },
+    "footer": {
+        "aboutTitle": "À propos",
+        "aboutText": "LinguistNow simplifie la recherche de linguistes disponibles pour les projets de traduction. Que vous soyez un chef de projet dans une agence de traduction ou un linguiste à la recherche de nouvelles opportunités, LinguistNow fournit les outils dont vous avez besoin pour rationaliser votre flux de travail et vous connecter avec les bonnes personnes au bon moment.",
+        "socialTitle": "Social",
+        "privacyTitle": "Politique de confidentialité",
+        "alt": {
+            "xIcon": "Icône X",
+            "facebookIcon": "Icône Facebook",
+            "instagramIcon": "Icône Instagram",
+            "linkedinIcon": "Icône LinkedIn"
+        }
+    },
+    "privacyPolicy": {
+        "title": "Politique de confidentialité",
+        "subtitle": "Votre vie privée nous tient à cœur",
+        "effectiveDate": "Date d'entrée en vigueur : 14 juin 2024",
+        "introductionTitle": "1. Introduction",
+        "introductionText": "Cette Politique de confidentialité explique comment nous collectons, utilisons, divulguons et protégeons vos informations lorsque vous utilisez notre application. Nous nous engageons à protéger vos données personnelles et votre droit à la vie privée. Si vous avez des questions ou des préoccupations concernant cette politique ou nos pratiques en matière d'informations personnelles, veuillez nous contacter à l'adresse nicmart@gmail.com.",
+        "infoWeCollectTitle": "2. Informations que nous collectons",
+        "infoWeCollectText1": "Nous collectons des informations personnelles que vous nous fournissez volontairement lorsque vous vous inscrivez sur l'application, manifestez un intérêt pour obtenir des informations sur nous ou nos produits et services, lorsque vous participez à des activités sur l'application, ou autrement lorsque vous nous contactez.",
+        "infoWeCollectText2": "Les informations personnelles que nous collectons peuvent inclure les éléments suivants :",
+        "nameContactData": "Nom et données de contact : Nous collectons votre nom, votre adresse e-mail et votre photo de profil lorsque vous vous connectez à votre compte Google.",
+        "calendarAccess": "Accès au calendrier Google : Pour activer les fonctionnalités de l'application, nous demandons l'accès à votre calendrier Google. Nous demandons la permission de consulter vos événements de calendrier uniquement pour obtenir une liste d'identifiants de calendrier et vérifier votre disponibilité en utilisant l'API Freebusy de Google. Nous ne lisons pas ni ne stockons les détails de vos événements de calendrier.",
+        "useOfInfoTitle": "3. Comment nous utilisons vos informations",
+        "useOfInfoText1": "Nous utilisons les informations que nous collectons ou recevons :",
+        "useOfInfoItem1": "Pour faciliter la création de compte et le processus de connexion.",
+        "useOfInfoItem2": "Pour vérifier par rapport à la liste des calendriers fournie dans Google Calendar si vous êtes libre ou occupé à une date et une heure données.",
+        "sharingInfoTitle": "4. Partage de vos informations",
+        "sharingInfoText1": "Nous pouvons traiter ou partager vos données que nous détenons en fonction des bases légales suivantes :",
+        "sharingInfoItem1": "Consentement : Nous pouvons traiter vos données si vous nous avez donné un consentement spécifique pour utiliser vos informations personnelles à des fins spécifiques.",
+        "sharingInfoItem2": "Intérêts légitimes : Nous pouvons traiter vos données lorsqu'il est raisonnablement nécessaire de réaliser nos intérêts légitimes commerciaux.",
+        "sharingInfoItem3": "Exécution d'un contrat : Lorsque nous avons conclu un contrat avec vous, nous pouvons traiter vos informations personnelles pour remplir les termes de notre contrat.",
+        "sharingInfoItem4": "Obligations légales : Nous pouvons divulguer vos informations lorsque nous sommes légalement tenus de le faire afin de respecter la loi applicable, les demandes gouvernementales, une procédure judiciaire, une ordonnance du tribunal ou un processus juridique.",
+        "securityTitle": "5. Sécurité de vos informations",
+        "securityText": "Nous utilisons des mesures de sécurité administratives, techniques et physiques pour protéger vos informations personnelles. Bien que nous ayons pris des mesures raisonnables pour sécuriser les informations personnelles que vous nous fournissez, veuillez noter qu'en dépit de nos efforts, aucune mesure de sécurité n'est parfaite ou inviolable, et aucune méthode de transmission de données ne peut être garantie contre toute interception ou autre type d'utilisation abusive.",
+        "rightsTitle": "6. Vos droits en matière de confidentialité",
+        "rightsText": "Vous avez certains droits en vertu des lois applicables sur la protection des données, notamment le droit d'accéder, de corriger, de mettre à jour ou de supprimer les informations personnelles que nous avons vous concernant. Si vous souhaitez exercer l'un de ces droits, veuillez nous contacter à l'adresse nicmart@gmail.com.",
+        "changesTitle": "7. Modifications de cette politique de confidentialité",
+        "changesText": "Nous pouvons mettre à jour cette Politique de confidentialité de temps à autre pour refléter, par exemple, des modifications de nos pratiques ou pour d'autres raisons opérationnelles, légales ou réglementaires. Nous vous informerons de toute modification en publiant la nouvelle Politique de confidentialité sur cette page. Nous vous conseillons de consulter cette Politique de confidentialité périodiquement pour toute modification.",
+        "contactTitle": "8. Contactez-nous",
+        "contactText": "Si vous avez des questions concernant cette Politique de confidentialité, veuillez nous contacter par e-mail à l'adresse nicmart@gmail.com."
+    },
+    "nav": {
+        "menuIcon": "menu",
+        "languageIcon": "langue",
+        "dashboard": "Tableau de bord",
+        "settings": "Paramètres",
+        "home": "Accueil"
+    },
+    "general": {
+        "loading": "Chargement..."
+    },
+    "languageSelection": {
+        "english": "English",
+        "french": "Français",
+        "simplifiedChinese": "简体中文",
+        "spanish": "Español",
+        "german": "Deutsch",
+        "italian": "Italiano",
+        "portuguese": "Português",
+        "japanese": "日本語",
+        "korean": "한국어",
+        "arabic": "العربية",
+        "russian": "Русский"
+    },
+    "auth": {
+        "login": "Connexion",
+        "signInWithGoogle": "Se connecter avec Google",
+        "youHaveBeenLoggedOut": "Vous avez été déconnecté.",
+        "loggingOut": "Déconnexion en cours...",
+        "loginDescription": "Connectez-vous simplement à votre compte Google, sélectionnez vos calendriers et nous nous occuperons du reste.",
+        "logoutSuccessMessage": "Vous avez été déconnecté avec succès. Nous espérons vous revoir bientôt."
+    }
+}

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import Login from './pages/Login'
 import AccountSettings from './pages/AccountSettings'
 import Dashboard from './pages/Dashboard'
@@ -13,6 +14,7 @@ import type { User } from '@linguistnow/shared'
 import { fetchUserDetails } from './auth-users/utils'
 
 const App = () => {
+    const { t } = useTranslation()
     const [userDetails, setUserDetails] = useState<User | null>(null)
     const [isRestoringAuth, setIsRestoringAuth] = useState(true)
 
@@ -52,7 +54,7 @@ const App = () => {
                             path="/"
                             element={
                                 isRestoringAuth ? (
-                                    <div>Loading...</div>
+                                    <div>{t('general.loading')}</div>
                                 ) : userDetails ? (
                                     userDetails.role === 'Project Manager' ? (
                                         <Navigate to="/dashboard" replace />
@@ -131,9 +133,10 @@ const PrivateRoute = ({
     userDetails,
     isRestoringAuth,
 }: PrivateRouteProps) => {
+    const { t } = useTranslation()
     // Wait for auth restoration to complete before checking authentication
     if (isRestoringAuth) {
-        return <div>Loading...</div>
+        return <div>{t('general.loading')}</div>
     }
     return userDetails ? element : <Navigate to="/login" />
 }
