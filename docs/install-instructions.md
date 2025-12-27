@@ -113,12 +113,27 @@ Follow steps in [Set up OAuth in Google Cloud](./set-up-oauth-in-google-cloud.md
    pnpm install
    ```
 
-3. Run `pnpm start` which will start both React app client (Vite dev server) and Express server in parallel.
+3. Run the development servers:
 
-**Development Servers:**
+   **Recommended for development (with hot reload):**
 
-- Frontend: `http://localhost:3000` (Vite dev server with HMR)
-- Backend: `http://localhost:8080` (Express server)
+   ```bash
+   pnpm dev
+   ```
+
+   **Or for production-like mode (no hot reload):**
+
+   ```bash
+   pnpm start
+   ```
+
+   **Development Servers:**
+   - Frontend: `http://localhost:3000` (Vite dev server with HMR)
+   - Backend: `http://localhost:8080` (Express server with hot reload in dev mode)
+
+   **Note:** The `dev` command uses `concurrently` to run both services with colored output for easier debugging. Individual services can also be run separately:
+   - `pnpm client` - Frontend only
+   - `pnpm server` - Backend only
 
 Note: After following these steps, you should have the LinguistNow application up and running, along with the n8n workflow automation tool.
 
