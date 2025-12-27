@@ -1,7 +1,29 @@
 ### Overview
+
 This design outlines how Google Authentication, as configured [here](./set-up-oauth-in-google-cloud.md) is integrated into:
-* the React application using the `@react-oauth/google` package, and Google OAuth2 authorization flow with both access and refresh tokens.
+
+- the React application using the `@react-oauth/google` package, and Google OAuth2 authorization flow with both access and refresh tokens.
   Considering the limited time, that package was implemented, preferring a simpler, more streamlined approach to OAuth integration which suits React application.
+
+## Table of Contents
+
+- [Authentication Flow](#authentication-flow)
+  - [Components](#components)
+    - [App Component](#app-component)
+    - [Login page](#login-page)
+    - [Dashboard page](#dashboard-page)
+- [Token Refresh Flow](#token-refresh-flow)
+- [Security Improvements](#security-improvements)
+  - [Server-Side Token Refresh](#server-side-token-refresh)
+  - [Security Architecture](#security-architecture)
+  - [Implementation Details](#implementation-details)
+  - [Environment Variables](#environment-variables)
+- [Authentication Persistence](#authentication-persistence)
+  - [How It Works](#how-it-works)
+  - [Benefits](#benefits)
+  - [Implementation](#implementation)
+- [DRY Principles in Authentication](#dry-principles-in-authentication)
+  - [Utility Functions](#utility-functions)
 
 ## Authentication Flow
 
@@ -12,7 +34,7 @@ sequenceDiagram
     participant Google as Google OAuth
     participant Server as Express Server
     participant Airtable as Airtable DB
-    
+
     User->>Login: Click "Sign in with Google"
     Login->>Google: Redirect to OAuth consent
     Google->>Login: Return authorization code
@@ -37,41 +59,39 @@ sequenceDiagram
   
   **google-auth-library:**
 
-  **Pros:**
+**Pros:**
 
-  Broad Usage: `google-auth-library` is a general-purpose library for working with Google APIs. It's not tied to any specific framework, making it suitable for various use cases beyond React.
+Broad Usage: `google-auth-library` is a general-purpose library for working with Google APIs. It's not tied to any specific framework, making it suitable for various use cases beyond React.
 Customization: Provides fine-grained control over the authentication flow and allows integration with any frontend or backend technology.
 Comprehensive Features: Offers a wide range of features for handling authentication, including support for multiple authentication flows, token management, and verification.
 
-  **Cons:**
+**Cons:**
 
-  More Complex: Implementing authentication with `google-auth-library` typically requires more manual configuration and coding, especially if integrating with a frontend framework like React.
+More Complex: Implementing authentication with `google-auth-library` typically requires more manual configuration and coding, especially if integrating with a frontend framework like React.
 Requires Backend: Since it's a server-side library, it's primarily used for backend authentication flows. You would need to build your own frontend integration to handle user interactions and token exchange.
 
-  **@react-oauth/google:**
+**@react-oauth/google:**
 
-  **Pros:**
+**Pros:**
 
-  Specifically for React: `@react-oauth/google` is tailored for React applications, providing a more straightforward integration process for React developers.
+Specifically for React: `@react-oauth/google` is tailored for React applications, providing a more straightforward integration process for React developers.
 Pre-built Components: Offers pre-built React components (like `GoogleOAuthProvider` and `useGoogleLogin`) that abstract away much of the OAuth implementation complexity.
 Simplified Setup: Provides a more opinionated approach, reducing the amount of boilerplate code required to set up OAuth authentication in a React application.
 
-  **Cons:**
+**Cons:**
 
-  Limited Customization: While `@react-oauth/google` streamlines the OAuth integration process, it may offer less flexibility and customization compared to using a more general-purpose library like `google-auth-library`.
+Limited Customization: While `@react-oauth/google` streamlines the OAuth integration process, it may offer less flexibility and customization compared to using a more general-purpose library like `google-auth-library`.
 Tied to React: Since it's specifically designed for React, it may not be suitable if you're working with other frontend frameworks or need to integrate authentication across multiple platforms.
 
-  **Which One to Choose?**
+**Which One to Choose?**
 
-  For React Projects: If you're building a React application and prefer a simpler, more streamlined approach to OAuth integration, `@react-oauth/google` may be a better choice.
+For React Projects: If you're building a React application and prefer a simpler, more streamlined approach to OAuth integration, `@react-oauth/google` may be a better choice.
 For Complex Requirements: If your project involves more complex authentication scenarios, requires integration with other frameworks or technologies, or needs fine-grained control over the authentication flow, `google-auth-library` may be more suitable.
 Ultimately, the best choice depends on your project's specific needs, your team's familiarity with the libraries, and your preferences regarding customization and flexibility. If you prioritize ease of use and React-specific integrations, `@react-oauth/google` may be a better fit. If you require more control and flexibility, especially for non-React components or complex authentication scenarios, `google-auth-library` may be the preferred option.
 
   </details>
 
-* the [n8n workflow](./n8n-workflow-integration.md#check-when-busy) when checking for availability.
-
-
+- the [n8n workflow](./n8n-workflow-integration.md#check-when-busy) when checking for availability.
 
 ### Components
 
@@ -79,7 +99,8 @@ Ultimately, the best choice depends on your project's specific needs, your team'
 
 - Manages access and refresh OAuth tokens in `userDetails` state and route redirection.
 - Uses `GoogleOAuthProvider` to wrap the app around [Google client id](./set-up-oauth-in-google-cloud.md#google-api-client-id-setup-instructions) stored in `.env` variable.
-- Checks for existing access token in state for initial authentication.
+- **Authentication Persistence**: On app mount, checks `localStorage` for stored user email and automatically restores authentication state by fetching user details from the API. This allows users to remain logged in across page refreshes.
+- Implements `isRestoringAuth` state to show a loading indicator while authentication is being restored, preventing premature route navigation.
 - Implements `PrivateRoute` for protecting routes that require login (ie. account settings, and dashboard pages)
 
 ### Login page
@@ -89,6 +110,7 @@ Ultimately, the best choice depends on your project's specific needs, your team'
 - Get user info from Google
 - Create/get matching user in Airtable and store user and access and refresh tokens there
 - Stores tokens in `userDetails` parent state.
+- **Persistence**: After successful login, stores the user's email in `localStorage` to enable authentication persistence across page refreshes.
 
 ### Dashboard page
 
@@ -105,16 +127,16 @@ sequenceDiagram
     participant Utils as auth-users/utils.js
     participant Server as Express Server
     participant Google as Google OAuth API
-    
+
     Note over Component,Google: Token expires or becomes invalid
-    
+
     Component->>Utils: refreshAccessToken(refreshToken)
     Utils->>Server: POST /api/auth/google/refresh<br/>{ refreshToken }
     Server->>Google: Refresh access token<br/>(with client secret)
     Google->>Server: New accessToken
     Server->>Utils: { accessToken }
     Utils->>Component: accessToken
-    
+
     Note over Component: Component updates state<br/>with new token
 ```
 
@@ -123,16 +145,19 @@ sequenceDiagram
 ### Server-Side Token Refresh
 
 **Previous Implementation:**
+
 - Client secret was exposed in frontend code
 - Token refresh handled client-side
 
 **Current Implementation:**
+
 - Client secret stored securely on server
 - Token refresh endpoint: `POST /api/auth/google/refresh`
 - Frontend calls server endpoint with refresh token
 - Server uses `google-auth-library` to refresh tokens securely
 
 **Benefits:**
+
 - ✅ Client secret never exposed to browser
 - ✅ Centralized token management
 - ✅ Easier to rotate credentials
@@ -146,22 +171,22 @@ graph TB
         A[React App]
         B[Client ID Only]
     end
-    
+
     subgraph "Backend (Secure)"
         C[Express Server]
         D[Client Secret]
         E[Token Refresh Endpoint]
     end
-    
+
     subgraph "Google OAuth"
         F[OAuth2 API]
     end
-    
+
     A -->|Uses| B
     A -->|Calls| E
     E -->|Uses| D
     E -->|Authenticates| F
-    
+
     style B fill:#90ee90
     style D fill:#ff6d5a
     style E fill:#ffd700
@@ -170,28 +195,31 @@ graph TB
 ### Implementation Details
 
 **Server Endpoint** (`server/controllers/authController.js`):
+
 ```javascript
 const refreshAccessToken = async (req, res) => {
-    const { refreshToken } = req.body;
-    // Uses server-side google-auth-library
-    // Keeps client secret secure
-}
+  const { refreshToken } = req.body;
+  // Uses server-side google-auth-library
+  // Keeps client secret secure
+};
 ```
 
 **Client Utility** (`client/src/auth-users/utils.js`):
+
 ```javascript
 export const refreshAccessToken = async (refreshToken) => {
-    const response = await axios.post(
-        `${import.meta.env.VITE_API_URL}/api/auth/google/refresh`,
-        { refreshToken }
-    );
-    return response.data.accessToken;
+  const response = await axios.post(
+    `${import.meta.env.VITE_API_URL}/api/auth/google/refresh`,
+    { refreshToken }
+  );
+  return response.data.accessToken;
 };
 ```
 
 ### Environment Variables
 
 **Frontend** (`.env`):
+
 ```env
 VITE_GOOGLE_CLIENT_ID=your-client-id
 VITE_API_URL=http://localhost:8080
@@ -199,15 +227,70 @@ VITE_API_URL=http://localhost:8080
 ```
 
 **Backend** (`.env`):
+
 ```env
 GOOGLE_CLIENT_ID=your-client-id
 GOOGLE_CLIENT_SECRET=your-client-secret  # Server-side only
 GOOGLE_REDIRECT_URI=http://localhost:8080
 ```
 
+## Authentication Persistence
+
+The application implements session persistence using browser `localStorage` to maintain user authentication across page refreshes.
+
+### How It Works
+
+1. **On Login**: After successful authentication, the user's email is stored in `localStorage` as `userEmail`.
+2. **On App Mount**: The `App` component checks `localStorage` for a stored email on mount:
+   - If found, fetches user details from the API to restore the session
+   - Shows a loading state (`isRestoringAuth`) while restoring authentication
+   - Prevents route navigation until authentication state is fully restored
+3. **On Logout**: The stored email is removed from `localStorage`, requiring a new login.
+
+### Benefits
+
+- ✅ Users remain logged in after page refreshes
+- ✅ Better user experience - no need to re-authenticate frequently
+- ✅ Secure - only email is stored, tokens are fetched fresh from the server
+- ✅ Automatic cleanup on logout
+
+### Implementation
+
+**App Component** (`client/src/App.tsx`):
+
+```typescript
+useEffect(() => {
+  const storedEmail = localStorage.getItem("userEmail");
+  if (storedEmail) {
+    fetchUserDetails(storedEmail, (user) => {
+      setUserDetails(user);
+      setIsRestoringAuth(false);
+    }).catch(() => {
+      localStorage.removeItem("userEmail");
+      setIsRestoringAuth(false);
+    });
+  } else {
+    setIsRestoringAuth(false);
+  }
+}, []);
+```
+
+**Login Component** (`client/src/pages/Login.tsx`):
+
+```typescript
+// After successful login
+localStorage.setItem("userEmail", userInfo.email);
+```
+
+**Logout Component** (`client/src/pages/Logout.tsx`):
+
+```typescript
+localStorage.removeItem("userEmail");
+```
+
 ## DRY Principles in Authentication
 
-All authentication logic is centralized in `client/src/auth-users/utils.js`:
+All authentication logic is centralized in `client/src/auth-users/utils.ts`:
 
 - **Single Source of Truth** - All auth functions in one place
 - **Reusability** - Functions used across Login, Dashboard, and Settings
