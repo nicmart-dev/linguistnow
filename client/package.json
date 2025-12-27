@@ -23,7 +23,6 @@
         "react-router-dom": "^6.23.1",
         "tailwind-merge": "^3.4.0",
         "tailwindcss-animate": "^1.0.7",
-        "web-vitals": "^5.1.0",
         "zod": "^4.2.1"
     },
     "scripts": {
@@ -46,7 +45,6 @@
         "@vitejs/plugin-react-swc": "^3.5.0",
         "@vitest/coverage-v8": "^4.0.16",
         "autoprefixer": "^10.4.19",
-        "caniuse-lite": "^1.0.30001761",
         "eslint-plugin-react": "^7.37.5",
         "eslint-plugin-react-hooks": "^7.0.1",
         "happy-dom": "^20.0.11",
@@ -54,9 +52,7 @@
         "postcss": "^8.4.38",
         "prettier": "^3.3.1",
         "prettier-plugin-tailwindcss": "^0.6.2",
-        "sharp": "^0.34.5",
         "tailwindcss": "^4.0.0",
-        "to-ico": "^1.1.5",
         "typescript": "^5.7.2",
         "vite": "^7.3.0",
         "vite-plugin-pwa": "^1.2.0",
