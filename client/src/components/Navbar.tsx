@@ -3,56 +3,49 @@ import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { LanguageContext } from '../i18n/LanguageProvider'
 
-const Navbar = ({ userDetails }) => {
+interface NavbarProps {
+    userDetails: { Role: string } | null
+}
+
+const Navbar = ({ userDetails }: NavbarProps) => {
     const { t } = useTranslation()
-    const { switchLanguage } = useContext(LanguageContext) // Access switchLanguage function from context
+    const languageContext = useContext(LanguageContext)
+    const switchLanguage = languageContext?.switchLanguage
     const [menuOpen, setMenuOpen] = useState(false) // track if menu is open or not
     const [langOpen, setLangOpen] = useState(false) // track if language toggle is open or not
 
     return (
-        <nav id="header" className="w-full z-30 top-0 py-1">
-            <div className="w-full container mx-auto flex flex-wrap items-center justify-between mt-0 px-6 py-3">
-                {/* Menu toggle button only displayed on mobile */}
-                <label
-                    htmlFor="menu-toggle"
-                    className="cursor-pointer md:hidden block"
-                >
-                    <svg
-                        className="fill-current text-gray-900"
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="20"
-                        height="20"
-                        viewBox="0 0 20 20"
+        <nav id="header" className="w-full z-30 sticky top-0 py-1 bg-white shadow-sm">
+            <div className="w-full container mx-auto flex flex-wrap items-center mt-0 px-6 py-3">
+                {/* Left section - Menu toggle and navigation (desktop) */}
+                <div className="flex-1 flex items-center order-1">
+                    {/* Menu toggle button only displayed on mobile */}
+                    <button
+                        type="button"
+                        className="cursor-pointer md:hidden block"
+                        onClick={() => {
+                            setMenuOpen(!menuOpen)
+                            if (langOpen) {
+                                setLangOpen(false)
+                            }
+                        }}
                     >
-                        <title>{t('nav.menuIcon')}</title>
-                        <path d="M0 3h20v2H0V3zm0 6h20v2H0V9zm0 6h20v2H0v-2z"></path>
-                    </svg>
-                </label>
-                <input
-                    className="hidden"
-                    type="checkbox"
-                    id="menu-toggle"
-                    checked={menuOpen}
-                    onChange={() => {
-                        setMenuOpen(!menuOpen)
-                        if (langOpen) {
-                            setLangOpen(false)
-                        }
-                    }}
-                />
-                {/* Navigation menu hidden by default on mobile
-                On menu toggle click, expand menu, and track if open or not in state */}
-                <div
-                    className={`md:flex md:items-center md:w-auto w-full order-3 md:order-1 ${menuOpen ? 'block' : 'hidden'}`}
-                    id="menu"
-                >
-                    <nav>
-                        <ul className="md:flex items-center justify-between text-base text-gray-700 pt-4 md:pt-0">
+                        <svg
+                            className="fill-current text-gray-900"
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="20"
+                            height="20"
+                            viewBox="0 0 20 20"
+                        >
+                            <title>{t('nav.menuIcon')}</title>
+                            <path d="M0 3h20v2H0V3zm0 6h20v2H0V9zm0 6h20v2H0v-2z"></path>
+                        </svg>
+                    </button>
+                    {/* Desktop navigation - visible on md and up */}
+                    <nav className="hidden md:block">
+                        <ul className="flex items-center text-base text-gray-700">
                             <li>
                                 <Link
-                                    onClick={() => {
-                                        setMenuOpen(false)
-                                    }}
                                     className="inline-block no-underline hover:text-black hover:underline py-2 px-4"
                                     to="/"
                                 >
@@ -63,9 +56,6 @@ const Navbar = ({ userDetails }) => {
                                 userDetails.Role === 'Project Manager' && (
                                     <li>
                                         <Link
-                                            onClick={() => {
-                                                setMenuOpen(false)
-                                            }}
                                             className="inline-block no-underline hover:text-black hover:underline py-2 px-4"
                                             to="/dashboard"
                                         >
@@ -76,8 +66,8 @@ const Navbar = ({ userDetails }) => {
                         </ul>
                     </nav>
                 </div>
-                {/* Site logo */}
-                <div className="order-1 md:order-2">
+                {/* Site logo - always centered */}
+                <div className="order-2 shrink-0">
                     <Link
                         className="flex items-center tracking-wide no-underline hover:no-underline font-bold text-gray-800 text-xl "
                         to="/"
@@ -99,15 +89,13 @@ const Navbar = ({ userDetails }) => {
                     </Link>
                 </div>
 
-                {/* User settings icon. Show to all users for log in but after log in only linguist can see it */}
-
+                {/* Right section - User settings and icons */}
                 <div
-                    className="order-2 md:order-3 flex items-center"
+                    className="flex-1 flex items-center justify-end order-3"
                     id="nav-content"
                 >
                     {(!userDetails ||
-                        (userDetails &&
-                            userDetails.Role !== 'Project Manager')) && (
+                        userDetails.Role !== 'Project Manager') && (
                         <Link
                             to="/settings"
                             className="inline-block no-underline hover:text-black"
@@ -187,7 +175,9 @@ const Navbar = ({ userDetails }) => {
                         {/* Backdrop to close on click outside */}
                         <div
                             className="fixed inset-0 z-40"
-                            onClick={() => setLangOpen(false)}
+                            onClick={() => {
+                                setLangOpen(false)
+                            }}
                         />
                         <div
                             className="absolute right-4 top-16 z-50 bg-white rounded-lg shadow-lg border border-gray-200 p-3"
@@ -195,22 +185,72 @@ const Navbar = ({ userDetails }) => {
                         >
                             <div className="grid grid-cols-3 gap-2 min-w-[280px]">
                                 {[
-                                    { code: 'en', label: t('languageSelection.english') },
-                                    { code: 'fr', label: t('languageSelection.french') },
-                                    { code: 'zh-cn', label: t('languageSelection.simplifiedChinese') },
-                                    { code: 'es', label: t('languageSelection.spanish') },
-                                    { code: 'de', label: t('languageSelection.german') },
-                                    { code: 'it', label: t('languageSelection.italian') },
-                                    { code: 'pt', label: t('languageSelection.portuguese') },
-                                    { code: 'ja', label: t('languageSelection.japanese') },
-                                    { code: 'ko', label: t('languageSelection.korean') },
-                                    { code: 'ar', label: t('languageSelection.arabic') },
-                                    { code: 'ru', label: t('languageSelection.russian') },
+                                    {
+                                        code: 'en',
+                                        label: t('languageSelection.english'),
+                                    },
+                                    {
+                                        code: 'fr',
+                                        label: t('languageSelection.french'),
+                                    },
+                                    {
+                                        code: 'zh-cn',
+                                        label: t(
+                                            'languageSelection.simplifiedChinese'
+                                        ),
+                                    },
+                                    {
+                                        code: 'es',
+                                        label: t('languageSelection.spanish'),
+                                    },
+                                    {
+                                        code: 'de',
+                                        label: t('languageSelection.german'),
+                                    },
+                                    {
+                                        code: 'it',
+                                        label: t('languageSelection.italian'),
+                                    },
+                                    {
+                                        code: 'pt',
+                                        label: t(
+                                            'languageSelection.portuguese'
+                                        ),
+                                    },
+                                    {
+                                        code: 'ja',
+                                        label: t('languageSelection.japanese'),
+                                    },
+                                    {
+                                        code: 'ko',
+                                        label: t('languageSelection.korean'),
+                                    },
+                                    {
+                                        code: 'ar',
+                                        label: t('languageSelection.arabic'),
+                                    },
+                                    {
+                                        code: 'ru',
+                                        label: t('languageSelection.russian'),
+                                    },
                                 ].map(({ code, label }) => (
                                     <button
                                         key={code}
                                         onClick={() => {
-                                            switchLanguage(code as 'en' | 'fr' | 'zh-cn' | 'es' | 'de' | 'it' | 'pt' | 'ja' | 'ko' | 'ar' | 'ru')
+                                            switchLanguage?.(
+                                                code as
+                                                    | 'en'
+                                                    | 'fr'
+                                                    | 'zh-cn'
+                                                    | 'es'
+                                                    | 'de'
+                                                    | 'it'
+                                                    | 'pt'
+                                                    | 'ja'
+                                                    | 'ko'
+                                                    | 'ar'
+                                                    | 'ru'
+                                            )
                                             setLangOpen(false)
                                         }}
                                         className="px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md transition-colors duration-150 text-center whitespace-nowrap"
@@ -219,6 +259,53 @@ const Navbar = ({ userDetails }) => {
                                     </button>
                                 ))}
                             </div>
+                        </div>
+                    </>
+                )}
+                {/* Mobile navigation menu - popover style, shown when hamburger clicked */}
+                {menuOpen && (
+                    <>
+                        {/* Backdrop to close on click outside */}
+                        <div
+                            className="fixed inset-0 z-40 md:hidden"
+                            onClick={() => {
+                                setMenuOpen(false)
+                            }}
+                        />
+                        <div
+                            className="absolute left-4 top-16 z-50 bg-white rounded-lg shadow-lg border border-gray-200 p-2 md:hidden min-w-[160px]"
+                            id="menu"
+                        >
+                            <nav>
+                                <ul className="flex flex-col text-base text-gray-700">
+                                    <li>
+                                        <Link
+                                            onClick={() => {
+                                                setMenuOpen(false)
+                                            }}
+                                            className="block no-underline hover:bg-gray-100 hover:text-black rounded-md py-2 px-4 transition-colors duration-150"
+                                            to="/"
+                                        >
+                                            {t('nav.home')}
+                                        </Link>
+                                    </li>
+                                    {userDetails &&
+                                        userDetails.Role ===
+                                            'Project Manager' && (
+                                            <li>
+                                                <Link
+                                                    onClick={() => {
+                                                        setMenuOpen(false)
+                                                    }}
+                                                    className="block no-underline hover:bg-gray-100 hover:text-black rounded-md py-2 px-4 transition-colors duration-150"
+                                                    to="/dashboard"
+                                                >
+                                                    {t('nav.dashboard')}
+                                                </Link>
+                                            </li>
+                                        )}
+                                </ul>
+                            </nav>
                         </div>
                     </>
                 )}
