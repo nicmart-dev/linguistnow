@@ -115,7 +115,7 @@ const router: Router = express.Router();
  *               $ref: '#/components/schemas/Error'
  */
 router.post('/free', (req, res, next) => {
-  isUserFree(req, res, next);
+  void isUserFree(req, res, next);
 });
 
 export default router;

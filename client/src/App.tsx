@@ -24,7 +24,7 @@ const App = () => {
             fetchUserDetails(storedEmail, (user) => {
                 setUserDetails(user)
                 setIsRestoringAuth(false)
-            }).catch((error) => {
+            }).catch(() => {
                 // If user not found or error, clear stored email
                 localStorage.removeItem('userEmail')
                 setIsRestoringAuth(false)
@@ -126,7 +126,11 @@ interface PrivateRouteProps {
     isRestoringAuth: boolean
 }
 
-const PrivateRoute = ({ element, userDetails, isRestoringAuth }: PrivateRouteProps) => {
+const PrivateRoute = ({
+    element,
+    userDetails,
+    isRestoringAuth,
+}: PrivateRouteProps) => {
     // Wait for auth restoration to complete before checking authentication
     if (isRestoringAuth) {
         return <div>Loading...</div>

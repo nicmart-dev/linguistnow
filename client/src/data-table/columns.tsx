@@ -21,9 +21,9 @@ export const columns: ColumnDef<LinguistRow>[] = [
             return (
                 <Button
                     variant="ghost"
-                    onClick={() =>
+                    onClick={() => {
                         column.toggleSorting(column.getIsSorted() === 'asc')
-                    }
+                    }}
                 >
                     <FormattedMessage id="dashboard.availability" />
                     <ArrowUpDown className="ml-2 h-4 w-4" />
@@ -35,7 +35,7 @@ export const columns: ColumnDef<LinguistRow>[] = [
         accessorKey: 'Picture',
         header: () => <FormattedMessage id="accountSettings.picture" />,
         cell: ({ row }) => {
-            const pictureUrl = row.getValue('Picture') as string | undefined
+            const pictureUrl = row.getValue('Picture')
             // Use a default placeholder if Picture is missing or invalid
             const src =
                 pictureUrl &&
@@ -70,9 +70,9 @@ export const columns: ColumnDef<LinguistRow>[] = [
             return (
                 <Button
                     variant="ghost"
-                    onClick={() =>
+                    onClick={() => {
                         column.toggleSorting(column.getIsSorted() === 'asc')
-                    }
+                    }}
                 >
                     <FormattedMessage id="dashboard.email" />
                     <ArrowUpDown className="ml-2 h-4 w-4" />
