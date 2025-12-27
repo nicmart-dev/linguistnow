@@ -3,17 +3,27 @@ import dotenv from "dotenv";
 import dotenvExpand from "dotenv-expand";
 import cors from "cors";
 import swaggerUi from "swagger-ui-express";
-import swaggerSpec from "./swagger.js";
-import calendarRoutes from "./routes/calendarRoutes.js";
-import authRoutes from "./routes/authRoutes.js";
-import usersRoutes from "./routes/usersRoutes.js";
-import { env } from "./env.js";
 
 const app = express();
 
-// Load and expand environment variables
+// Load and expand environment variables FIRST, before importing ANY modules that use env
+// This must happen before routes are imported, as they may import controllers that use env
 const envConfig = dotenv.config();
+if (envConfig.error) {
+  console.error("Error loading .env file:", envConfig.error);
+}
 dotenvExpand.expand(envConfig);
+console.log(
+  "After expand - GOOGLE_CLIENT_ID:",
+  process.env.GOOGLE_CLIENT_ID ? "SET" : "NOT_SET"
+);
+
+// Import modules that use env AFTER dotenv is loaded and expanded
+import calendarRoutes from "./routes/calendarRoutes.js";
+import authRoutes from "./routes/authRoutes.js";
+import usersRoutes from "./routes/usersRoutes.js";
+import swaggerSpec from "./swagger.js";
+import { env } from "./env.js";
 
 const PORT = env.PORT;
 
@@ -52,8 +62,8 @@ const corsOptions: cors.CorsOptions = {
       }
       callback(
         new Error(
-          "CORS: No allowed origins configured. Set FRONTEND_URL environment variable.",
-        ),
+          "CORS: No allowed origins configured. Set FRONTEND_URL environment variable."
+        )
       );
       return;
     }
@@ -82,16 +92,16 @@ app.use(cors(corsOptions));
 app.use("/", swaggerUi.serve);
 app.get(
   "/",
-  swaggerUi.setup(swaggerSpec, {
+  swaggerUi.setup(swaggerSpec(), {
     customCss: ".swagger-ui .topbar { display: none }",
     customSiteTitle: "LinguistNow API Documentation",
-  }),
+  })
 );
 
 // Raw OpenAPI spec endpoint
 app.get("/api-docs.json", (_req: Request, res: Response) => {
   res.setHeader("Content-Type", "application/json");
-  res.send(swaggerSpec);
+  res.send(swaggerSpec());
 });
 
 /**
