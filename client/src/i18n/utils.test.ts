@@ -3,24 +3,27 @@ import { getLocale } from './utils'
 
 describe('getLocale', () => {
     const originalLanguage = navigator.language
-    const storage: Record<string, string> = {}
-    const mockLocalStorage = {
-        getItem: vi.fn((key: string) => storage[key] || null),
+    let storage: Record<string, string> = {}
+
+    const createMockLocalStorage = () => ({
+        getItem: vi.fn((key: string) => storage[key] ?? null),
         setItem: vi.fn((key: string, value: string) => {
             storage[key] = value
         }),
         removeItem: vi.fn((key: string) => {
-            delete storage[key]
+            const { [key]: _removed, ...rest } = storage
+            void _removed // Mark as intentionally unused
+            storage = rest
         }),
         clear: vi.fn(() => {
-            Object.keys(storage).forEach((key) => delete storage[key])
+            storage = {}
         }),
-    }
+    })
 
     beforeEach(() => {
-        Object.keys(storage).forEach((key) => delete storage[key])
+        storage = {}
         Object.defineProperty(window, 'localStorage', {
-            value: mockLocalStorage,
+            value: createMockLocalStorage(),
             writable: true,
             configurable: true,
         })
@@ -28,7 +31,7 @@ describe('getLocale', () => {
 
     afterEach(() => {
         vi.clearAllMocks()
-        Object.keys(storage).forEach((key) => delete storage[key])
+        storage = {}
         Object.defineProperty(navigator, 'language', {
             writable: true,
             value: originalLanguage,
