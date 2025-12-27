@@ -181,126 +181,47 @@ const Navbar = ({ userDetails }) => {
                         </Link>
                     )}
                 </div>
-                {/* Language selection menu displayed only when clicking on language toggle button */}
-                <div
-                    className={`order-3 w-full ${langOpen ? 'block' : 'hidden'}`}
-                    id="lang-menu"
-                >
-                    <nav>
-                        <ul className="flex flex-col items-end text-base text-gray-700 pt-4">
-                            <li>
-                                <button
-                                    onClick={() => {
-                                        switchLanguage('en')
-                                        setLangOpen(false)
-                                    }}
-                                >
-                                    {t('languageSelection.english')}
-                                </button>
-                            </li>
-                            <li>
-                                <button
-                                    onClick={() => {
-                                        switchLanguage('fr')
-                                        setLangOpen(false)
-                                    }}
-                                >
-                                    {t('languageSelection.french')}
-                                </button>
-                            </li>
-                            <li>
-                                <button
-                                    onClick={() => {
-                                        switchLanguage('zh-cn')
-                                        setLangOpen(false)
-                                    }}
-                                >
-                                    {t('languageSelection.simplifiedChinese')}
-                                </button>
-                            </li>
-                            <li>
-                                <button
-                                    onClick={() => {
-                                        switchLanguage('es')
-                                        setLangOpen(false)
-                                    }}
-                                >
-                                    {t('languageSelection.spanish')}
-                                </button>
-                            </li>
-                            <li>
-                                <button
-                                    onClick={() => {
-                                        switchLanguage('de')
-                                        setLangOpen(false)
-                                    }}
-                                >
-                                    {t('languageSelection.german')}
-                                </button>
-                            </li>
-                            <li>
-                                <button
-                                    onClick={() => {
-                                        switchLanguage('it')
-                                        setLangOpen(false)
-                                    }}
-                                >
-                                    {t('languageSelection.italian')}
-                                </button>
-                            </li>
-                            <li>
-                                <button
-                                    onClick={() => {
-                                        switchLanguage('pt')
-                                        setLangOpen(false)
-                                    }}
-                                >
-                                    {t('languageSelection.portuguese')}
-                                </button>
-                            </li>
-                            <li>
-                                <button
-                                    onClick={() => {
-                                        switchLanguage('ja')
-                                        setLangOpen(false)
-                                    }}
-                                >
-                                    {t('languageSelection.japanese')}
-                                </button>
-                            </li>
-                            <li>
-                                <button
-                                    onClick={() => {
-                                        switchLanguage('ko')
-                                        setLangOpen(false)
-                                    }}
-                                >
-                                    {t('languageSelection.korean')}
-                                </button>
-                            </li>
-                            <li>
-                                <button
-                                    onClick={() => {
-                                        switchLanguage('ar')
-                                        setLangOpen(false)
-                                    }}
-                                >
-                                    {t('languageSelection.arabic')}
-                                </button>
-                            </li>
-                            <li>
-                                <button
-                                    onClick={() => {
-                                        switchLanguage('ru')
-                                        setLangOpen(false)
-                                    }}
-                                >
-                                    {t('languageSelection.russian')}
-                                </button>
-                            </li>
-                        </ul>
-                    </nav>
-                </div>
+                {/* Language selection menu - compact grid popover */}
+                {langOpen && (
+                    <>
+                        {/* Backdrop to close on click outside */}
+                        <div
+                            className="fixed inset-0 z-40"
+                            onClick={() => setLangOpen(false)}
+                        />
+                        <div
+                            className="absolute right-4 top-16 z-50 bg-white rounded-lg shadow-lg border border-gray-200 p-3"
+                            id="lang-menu"
+                        >
+                            <div className="grid grid-cols-3 gap-2 min-w-[280px]">
+                                {[
+                                    { code: 'en', label: t('languageSelection.english') },
+                                    { code: 'fr', label: t('languageSelection.french') },
+                                    { code: 'zh-cn', label: t('languageSelection.simplifiedChinese') },
+                                    { code: 'es', label: t('languageSelection.spanish') },
+                                    { code: 'de', label: t('languageSelection.german') },
+                                    { code: 'it', label: t('languageSelection.italian') },
+                                    { code: 'pt', label: t('languageSelection.portuguese') },
+                                    { code: 'ja', label: t('languageSelection.japanese') },
+                                    { code: 'ko', label: t('languageSelection.korean') },
+                                    { code: 'ar', label: t('languageSelection.arabic') },
+                                    { code: 'ru', label: t('languageSelection.russian') },
+                                ].map(({ code, label }) => (
+                                    <button
+                                        key={code}
+                                        onClick={() => {
+                                            switchLanguage(code as 'en' | 'fr' | 'zh-cn' | 'es' | 'de' | 'it' | 'pt' | 'ja' | 'ko' | 'ar' | 'ru')
+                                            setLangOpen(false)
+                                        }}
+                                        className="px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md transition-colors duration-150 text-center whitespace-nowrap"
+                                    >
+                                        {label}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    </>
+                )}
             </div>
         </nav>
     )
