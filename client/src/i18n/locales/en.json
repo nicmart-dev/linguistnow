@@ -1,0 +1,144 @@
+{
+    "general": {
+        "loading": "Loading..."
+    },
+    "languageSelection": {
+        "english": "English",
+        "french": "Français",
+        "simplifiedChinese": "简体中文",
+        "spanish": "Español",
+        "german": "Deutsch",
+        "italian": "Italiano",
+        "portuguese": "Português",
+        "japanese": "日本語",
+        "korean": "한국어",
+        "arabic": "العربية",
+        "russian": "Русский"
+    },
+    "auth": {
+        "login": "Login",
+        "signInWithGoogle": "Sign in with Google",
+        "youHaveBeenLoggedOut": "You have been logged out.",
+        "loggingOut": "Logging out...",
+        "loginDescription": "Select your calendars, and we'll take care of the rest.",
+        "logoutSuccessMessage": "You have been successfully logged out. We hope to see you again soon."
+    },
+    "calendarSelector": {
+        "chooseCalendars": "Choose Calendars:",
+        "noCalendarsAvailable": "No calendars available."
+    },
+    "accountSettings": {
+        "accountSettings": "Account Settings",
+        "userDetails": "User Details",
+        "picture": "Photo",
+        "email": "Email:",
+        "name": "Name:",
+        "selectCalendars": "To assist with scheduling, we will need to know which Google Calendar to check for your availability.",
+        "automaticSave": "Your choices are automatically saved.",
+        "notReadingEvents": "For security reasons, we will not view the content of your calendar."
+    },
+    "dashboard": {
+        "linguistsDescription": "Here is the schedule from tomorrow until {{date}} included.",
+        "availabilityDescription": "Those available can commit to 8-hour shifts every weekday, from 8AM to 6PM PST.",
+        "available": "Available",
+        "notAvailable": "Not Available",
+        "availability": "Availability",
+        "email": "Email",
+        "name": "Name",
+        "filterEmailPlaceholder": "Filter by email...",
+        "noResults": "No results.",
+        "previous": "Previous",
+        "next": "Next",
+        "alt": {
+            "userProfileAvatar": "user profile avatar"
+        },
+        "errors": {
+            "title": "Errors occurred while checking availability",
+            "n8nWorkflowInactive": "The n8n workflow is not active. Please activate the workflow in n8n.",
+            "n8nServiceUnavailable": "The n8n service is currently unavailable.",
+            "networkError": "Unable to reach the n8n service. The service may be down.",
+            "authenticationError": "Authentication failed. Please check your API configuration.",
+            "unknownError": "An error occurred while checking availability.",
+            "invalidRefreshToken_one": "The refresh token has been revoked or is no longer valid for {{count}} linguist ({{emails}}). They need to re-authenticate by logging in again with their Google account and re-selecting their calendars in the settings page.",
+            "invalidRefreshToken_other": "The refresh token has been revoked or is no longer valid for {{count}} linguists ({{emails}}). They need to re-authenticate by logging in again with their Google account and re-selecting their calendars in the settings page.",
+            "missingCredentials_one": "Calendar IDs, Access Token, or Refresh Token not available for {{count}} linguist ({{emails}}). Please ask them to login again with their Google account, select their calendars and click \"Save calendars\" button in the settings page.",
+            "missingCredentials_other": "Calendar IDs, Access Token, or Refresh Token not available for {{count}} linguists ({{emails}}). Please ask them to login again with their Google account, select their calendars and click \"Save calendars\" button in the settings page.",
+            "genericMultiple_one": "{{message}} ({{count}} user affected: {{emails}})",
+            "genericMultiple_other": "{{message}} ({{count}} users affected: {{emails}})"
+        }
+    },
+    "hero": {
+        "login": {
+            "title": "Let's make it easy to work together.",
+            "subtitle": "Great to see you!"
+        },
+        "dashboard": {
+            "title": "Find an available linguist.",
+            "subtitle": "Hey {{userName}}!"
+        },
+        "settings": {
+            "title": "Which calendars should we check?",
+            "subtitle": "Welcome {{userName}}!"
+        },
+        "logout": {
+            "title": "Time to spread your wings!",
+            "subtitle": "Goodbye {{userName}}!"
+        },
+        "privacy": {
+            "title": "Privacy Policy",
+            "subtitle": "Your Privacy Matters to Us"
+        },
+        "alt": {
+            "callToAction": "call to action"
+        }
+    },
+    "footer": {
+        "aboutTitle": "About",
+        "aboutText": "LinguistNow simplifies the hassle of finding available linguists for translation projects. Whether you're a project manager in a translation agency or a linguist seeking new opportunities, LinguistNow provides the tools you need to streamline your workflow and connect with the right people at the right time.",
+        "socialTitle": "Social",
+        "privacyTitle": "Privacy Policy",
+        "alt": {
+            "xIcon": "X Icon",
+            "facebookIcon": "Facebook Icon",
+            "instagramIcon": "Instagram Icon",
+            "linkedinIcon": "LinkedIn Icon"
+        }
+    },
+    "privacyPolicy": {
+        "title": "Privacy Policy",
+        "subtitle": "Your Privacy Matters to Us",
+        "effectiveDate": "Effective Date: 14 June 2024",
+        "introductionTitle": "1. Introduction",
+        "introductionText": "This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our application. We are committed to protecting your personal data and your right to privacy. If you have any questions or concerns about this policy, or our practices with regards to your personal information, please contact us at nicmart@gmail.com.",
+        "infoWeCollectTitle": "2. Information We Collect",
+        "infoWeCollectText1": "We collect personal information that you voluntarily provide to us when you register on the application, express an interest in obtaining information about us or our products and services, when you participate in activities on the application, or otherwise when you contact us.",
+        "infoWeCollectText2": "The personal information we collect may include the following:",
+        "nameContactData": "Name and Contact Data: We collect your name, email address, and profile picture when you log in to your Google Account.",
+        "calendarAccess": "Google Calendar Access: To enable the application's functionality, we request access to your Google Calendar. We ask for permission to view your calendar events solely to get a list of calendar IDs and check your availability using Google's Freebusy API. We do not read or store the details of your calendar events.",
+        "useOfInfoTitle": "3. How We Use Your Information",
+        "useOfInfoText1": "We use the information we collect or receive:",
+        "useOfInfoItem1": "To facilitate account creation and logon process.",
+        "useOfInfoItem2": "To check against the provided list of calendars in Google Calendar if you are free or busy at a given date and time.",
+        "sharingInfoTitle": "4. Sharing Your Information",
+        "sharingInfoText1": "We may process or share your data that we hold based on the following legal basis:",
+        "sharingInfoItem1": "Consent: We may process your data if you have given us specific consent to use your personal information for a specific purpose.",
+        "sharingInfoItem2": "Legitimate Interests: We may process your data when it is reasonably necessary to achieve our legitimate business interests.",
+        "sharingInfoItem3": "Performance of a Contract: Where we have entered into a contract with you, we may process your personal information to fulfill the terms of our contract.",
+        "sharingInfoItem4": "Legal Obligations: We may disclose your information where we are legally required to do so in order to comply with applicable law, governmental requests, a judicial proceeding, court order, or legal process.",
+        "securityTitle": "5. Security of Your Information",
+        "securityText": "We use administrative, technical, and physical security measures to help protect your personal information. While we have taken reasonable steps to secure the personal information you provide to us, please be aware that despite our efforts, no security measures are perfect or impenetrable, and no method of data transmission can be guaranteed against any interception or other type of misuse.",
+        "rightsTitle": "6. Your Privacy Rights",
+        "rightsText": "You have certain rights under applicable data protection laws, including the right to access, correct, update, or delete the personal information we have about you. If you wish to exercise any of these rights, please contact us at nicmart@gmail.com.",
+        "changesTitle": "7. Changes to This Privacy Policy",
+        "changesText": "We may update this Privacy Policy from time to time in order to reflect, for example, changes to our practices or for other operational, legal, or regulatory reasons. We will notify you of any changes by posting the new Privacy Policy on this page. You are advised to review this Privacy Policy periodically for any changes.",
+        "contactTitle": "8. Contact Us",
+        "contactText": "If you have any questions about this Privacy Policy, please contact us by email at nicmart@gmail.com."
+    },
+    "nav": {
+        "home": "Home",
+        "dashboard": "Dashboard",
+        "settings": "Settings",
+        "menuIcon": "menu",
+        "languageIcon": "language"
+    }
+}

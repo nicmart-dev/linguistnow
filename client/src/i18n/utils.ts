@@ -11,10 +11,64 @@ Go to "More tools" > "Sensors".
 Under "Geolocation", select the desired language from the dropdown menu.
 */
 
-export type Locale = "en" | "fr" | "zh-cn";
+export type Locale = "en" | "fr" | "zh-cn" | "es" | "de" | "it" | "pt" | "ja" | "ko" | "ar" | "ru";
+
+const STORAGE_KEY = 'linguistnow-language';
+
+const isLocalStorageAvailable = (): boolean => {
+    try {
+        const test = '__localStorage_test__'
+        localStorage.setItem(test, test)
+        localStorage.removeItem(test)
+        return true
+    } catch {
+        return false
+    }
+}
 
 export const getLocale = (): Locale => {
-    // Check navigator language
-    const language = navigator.language.split(/[-_]/)[0]; // Extract language code only
-    return (["en", "fr", "zh-cn"].includes(language) ? language : "en") as Locale;
-};
+    // First, check localStorage for saved language preference
+    if (isLocalStorageAvailable()) {
+        const savedLanguage = localStorage.getItem(STORAGE_KEY)
+        if (savedLanguage) {
+            const supportedLocales: Locale[] = ["en", "fr", "zh-cn", "es", "de", "it", "pt", "ja", "ko", "ar", "ru"]
+            if (supportedLocales.includes(savedLanguage as Locale)) {
+                return savedLanguage as Locale
+            }
+        }
+    }
+    
+    // Fall back to browser language if no saved preference
+    const browserLang = navigator.language.toLowerCase()
+    const language = browserLang.split(/[-_]/)[0] // Extract language code only
+    
+    // Map browser language codes to our locale codes
+    const localeMap: Record<string, Locale> = {
+        "en": "en",
+        "fr": "fr",
+        "zh": "zh-cn",
+        "es": "es",
+        "de": "de",
+        "it": "it",
+        "pt": "pt",
+        "ja": "ja",
+        "ko": "ko",
+        "ar": "ar",
+        "ru": "ru"
+    }
+    
+    const detectedLocale = localeMap[language] || "en"
+    
+    // Save the detected locale to localStorage for future use
+    if (isLocalStorageAvailable()) {
+        localStorage.setItem(STORAGE_KEY, detectedLocale)
+    }
+    
+    return detectedLocale
+}
+
+export const saveLocale = (locale: Locale): void => {
+    if (isLocalStorageAvailable()) {
+        localStorage.setItem(STORAGE_KEY, locale)
+    }
+}

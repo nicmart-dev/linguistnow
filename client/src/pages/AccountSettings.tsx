@@ -1,11 +1,12 @@
 import CalendarSelector from '../components/CalendarSelector'
-import { FormattedMessage } from 'react-intl' // To show localized strings
+import { useTranslation } from 'react-i18next' // To show localized strings
 import Hero from '../components/Hero'
 import { logger } from '../utils/logger'
 
 /* The AccountSettings component utilizes the CalendarSelector component 
 to allow the user to select and save their calendars. */
 const AccountSettings = ({ userDetails, setUserDetails }) => {
+    const { t } = useTranslation()
     /* Save user selected calendars */
     const handleSaveCalendars = async (updatedCalendars) => {
         try {
@@ -57,11 +58,11 @@ const AccountSettings = ({ userDetails, setUserDetails }) => {
             <main className="container mx-auto px-3 mb-5">
                 <div>
                     <p className="max-w-3xl text-lg text-black my-4">
-                        <FormattedMessage id="accountSettings.selectCalendars" />
+                        {t('accountSettings.selectCalendars')}
                         &nbsp;
                     </p>
                     <p className="max-w-3xl text-lg text-black my-4">
-                        <FormattedMessage id="accountSettings.notReadingEvents" />
+                        {t('accountSettings.notReadingEvents')}
                     </p>
 
                     {userDetails && (

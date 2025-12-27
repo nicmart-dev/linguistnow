@@ -20,12 +20,12 @@ import {
 import { Button } from './Button'
 import { Input } from './Input'
 
-import { FormattedMessage, useIntl } from 'react-intl' // To show localized strings
+import { useTranslation } from 'react-i18next' // To show localized strings
 
 export function DataTable({ columns, data }) {
+    const { t } = useTranslation()
     const [sorting, setSorting] = useState([])
     const [columnFilters, setColumnFilters] = useState([])
-    const intl = useIntl()
 
     const table = useReactTable({
         data,
@@ -46,9 +46,7 @@ export function DataTable({ columns, data }) {
         <div className="max-w-3xl mx-auto">
             <div className="flex items-center py-4">
                 <Input
-                    placeholder={intl.formatMessage({
-                        id: 'dashboard.filterEmailPlaceholder',
-                    })}
+                    placeholder={t('dashboard.filterEmailPlaceholder')}
                     value={table.getColumn('Email')?.getFilterValue() ?? ''}
                     onChange={(event) =>
                         table
@@ -102,7 +100,7 @@ export function DataTable({ columns, data }) {
                                     colSpan={columns.length}
                                     className="h-24 text-center"
                                 >
-                                    <FormattedMessage id="dashboard.noResults" />
+                                    {t('dashboard.noResults')}
                                 </TableCell>
                             </TableRow>
                         )}
@@ -116,7 +114,7 @@ export function DataTable({ columns, data }) {
                     onClick={() => table.previousPage()}
                     disabled={!table.getCanPreviousPage()}
                 >
-                    <FormattedMessage id="dashboard.previous" />
+                    {t('dashboard.previous')}
                 </Button>
                 <Button
                     variant="outline"
@@ -124,7 +122,7 @@ export function DataTable({ columns, data }) {
                     onClick={() => table.nextPage()}
                     disabled={!table.getCanNextPage()}
                 >
-                    <FormattedMessage id="dashboard.next" />
+                    {t('dashboard.next')}
                 </Button>
             </div>
         </div>

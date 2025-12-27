@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react'
 import { refreshAccessToken, isAccessTokenValid } from '../auth-users/utils'
-import { useIntl } from 'react-intl' // to localize text strings
+import { useTranslation } from 'react-i18next' // to localize text strings
 import Skeleton from './Skeleton'
 import { logger } from '../utils/logger'
 
@@ -11,7 +11,7 @@ and allows the user to select and save their calendars.
 const CalendarSelector = ({ userDetails, onSave }) => {
     const [fetchedCalendars, setFetchedCalendars] = useState([]) // all calendars user has access to in Google Calendar
     const [loading, setLoading] = useState(true) // state to track loading status
-    const intl = useIntl()
+    const { t } = useTranslation()
 
     const fetchCalendars = useCallback(
         async (accessToken) => {
@@ -69,15 +69,11 @@ const CalendarSelector = ({ userDetails, onSave }) => {
             {/* TODO: refactor using new control */}
             <fieldset className="max-w-3xl mb-8">
                 <legend className="mb-4 text-lg">
-                    {intl.formatMessage({
-                        id: 'calendarSelector.chooseCalendars',
-                    })}
+                    {t('calendarSelector.chooseCalendars')}
                 </legend>
                 <p className="max-w-3xl text-lg mb-4">
                     *{' '}
-                    {intl.formatMessage({
-                        id: 'accountSettings.automaticSave',
-                    })}
+                    {t('accountSettings.automaticSave')}
                 </p>
 
                 <div className="space-y-2">
@@ -119,9 +115,7 @@ const CalendarSelector = ({ userDetails, onSave }) => {
                         </>
                     ) : (
                         <p>
-                            {intl.formatMessage({
-                                id: 'calendarSelector.noCalendarsAvailable',
-                            })}
+                            {t('calendarSelector.noCalendarsAvailable')}
                         </p>
                     )}
                 </div>

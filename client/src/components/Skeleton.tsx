@@ -1,6 +1,8 @@
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 
 const Skeleton = () => {
+    const { t } = useTranslation()
     return (
         <div
             role="status"
@@ -41,7 +43,7 @@ const Skeleton = () => {
                 </div>
                 <div className="h-2.5 bg-gray-300 rounded-full dark:bg-gray-700 w-12"></div>
             </div>
-            <span className="sr-only">Loading...</span>
+            <span className="sr-only">{t('general.loading')}</span>
         </div>
     )
 }

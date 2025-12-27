@@ -2,9 +2,10 @@ import React, { useEffect, useState } from 'react'
 import { googleLogout } from '@react-oauth/google'
 import { useNavigate } from 'react-router-dom'
 import Hero from '../components/Hero'
-import { FormattedMessage } from 'react-intl'
+import { useTranslation } from 'react-i18next'
 
 const Logout = ({ setUserDetails, userDetails }) => {
+    const { t } = useTranslation()
     const [userName, setUserName] = useState('') // store user name so we can display it after logout
     const navigate = useNavigate() // Hook to navigate to different routes
 
@@ -32,7 +33,7 @@ const Logout = ({ setUserDetails, userDetails }) => {
             <Hero userName={userName} />
             <main className="container mx-auto px-3 mb-5">
                 <p className="max-w-3xl text-lg text-black mt-4">
-                    <FormattedMessage id="logoutSuccessMessage" />
+                    {t('auth.logoutSuccessMessage')}
                 </p>
             </main>
         </>

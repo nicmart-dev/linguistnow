@@ -1,44 +1,41 @@
-import React, { createContext, useState, useEffect, type ReactNode } from "react";
-import { createIntl, createIntlCache, RawIntlProvider } from "react-intl";
-import messages from "./strings.json";
-import { getLocale, type Locale } from "./utils";
+import React, { createContext, useEffect, type ReactNode } from 'react'
+import { I18nextProvider } from 'react-i18next'
+import type { i18n as I18nType } from 'i18next'
+import i18nInstance from './index'
+import { getLocale, saveLocale, type Locale } from './utils'
 
-const cache = createIntlCache();
+// i18next instance is properly typed after initialization
+const i18n = i18nInstance as I18nType
 
 interface LanguageContextType {
-    switchLanguage: (lang: Locale) => void;
+    switchLanguage: (lang: Locale) => void
 }
 
-export const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
+export const LanguageContext = createContext<LanguageContextType | undefined>(
+    undefined
+)
 
 interface LanguageProviderProps {
-    children: ReactNode;
+    children: ReactNode
 }
 
 const LanguageProvider = ({ children }: LanguageProviderProps) => {
-    const [locale, setLocale] = useState<Locale>("en");
-
     useEffect(() => {
-        setLocale(getLocale());
-    }, []);
-
-    const intl = createIntl(
-        {
-            locale,
-            messages: messages[locale] as Record<string, string>,
-        },
-        cache
-    );
+        const detectedLocale = getLocale()
+        void i18n.changeLanguage(detectedLocale)
+    }, [])
 
     const switchLanguage = (lang: Locale) => {
-        setLocale(lang);
-    };
+        // Type assertion needed due to TypeScript module resolution
+        ;(saveLocale as (locale: Locale) => void)(lang)
+        void i18n.changeLanguage(lang)
+    }
 
     return (
         <LanguageContext.Provider value={{ switchLanguage }}>
-            <RawIntlProvider value={intl}>{children}</RawIntlProvider>
+            <I18nextProvider i18n={i18n}>{children}</I18nextProvider>
         </LanguageContext.Provider>
-    );
-};
+    )
+}
 
-export default LanguageProvider;
+export default LanguageProvider

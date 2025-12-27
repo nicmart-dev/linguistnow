@@ -19,8 +19,9 @@
         "postcss-cli": "^11.0.0",
         "react": "^19.0.0",
         "react-dom": "^19.0.0",
-        "react-intl": "^8.0.9",
         "react-router-dom": "^7.11.0",
+        "i18next": "^24.0.0",
+        "react-i18next": "^15.1.0",
         "tailwind-merge": "^3.4.0",
         "tailwindcss-animate": "^1.0.7",
         "zod": "^4.2.1"

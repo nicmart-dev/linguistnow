@@ -1,10 +1,11 @@
 import DataTable from './DataTable'
-import { columns } from '../data-table/columns' // get localized column headers
-import { useIntl } from 'react-intl'
+import { useColumns } from '../data-table/columns' // get localized column headers
+import { useTranslation } from 'react-i18next'
 
 /* Display table of available linguists using DataTables library 
 and handle localization of columns and availability field. */
 const LinguistTable = ({ linguists, errors = [] }) => {
+    const columns = useColumns()
     /* Sample linguists prop format:
     [
         {
@@ -21,14 +22,14 @@ const LinguistTable = ({ linguists, errors = [] }) => {
         },
     ]     */
 
-    const intl = useIntl()
+    const { t } = useTranslation()
 
     const availabilityToText = (linguists) => {
         return linguists.map((linguist) => {
             const isAvailable = linguist.availability[0].result
             const textToDisplay = isAvailable
-                ? intl.formatMessage({ id: 'dashboard.available' })
-                : intl.formatMessage({ id: 'dashboard.notAvailable' })
+                ? t('dashboard.available')
+                : t('dashboard.notAvailable')
             return {
                 ...linguist,
                 availability: textToDisplay,
