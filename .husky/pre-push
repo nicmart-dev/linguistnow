@@ -1,0 +1,6 @@
+pnpm lint
+pnpm --filter client exec tsc --noEmit
+pnpm --filter server exec tsc --noEmit
+pnpm --filter client test -- --run
+pnpm --filter server test -- --run
+
