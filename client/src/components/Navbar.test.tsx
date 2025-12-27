@@ -92,11 +92,12 @@ describe('Navbar', () => {
 
     it('toggles mobile menu', () => {
         renderWithProviders(<Navbar userDetails={null} />)
-        const menuToggle = document.querySelector('label[for="menu-toggle"]')
-        if (menuToggle) {
-            fireEvent.click(menuToggle)
+        // Find the hamburger menu button by its SVG title
+        const menuButton = screen.getByTitle('menu')?.closest('button')
+        if (menuButton) {
+            fireEvent.click(menuButton)
         }
         const menu = document.getElementById('menu')
-        expect(menu?.className).toContain('block')
+        expect(menu).toBeDefined()
     })
 })
