@@ -1,0 +1,144 @@
+{
+    "calendarSelector": {
+        "chooseCalendars": "カレンダーを選択:",
+        "noCalendarsAvailable": "利用可能なカレンダーがありません。"
+    },
+    "accountSettings": {
+        "accountSettings": "アカウント設定",
+        "userDetails": "ユーザー詳細",
+        "picture": "写真",
+        "email": "メール:",
+        "name": "名前:",
+        "selectCalendars": "スケジュール調整を支援するため、どのGoogleカレンダーで空き状況を確認するか知る必要があります。",
+        "automaticSave": "選択内容は自動的に保存されます。",
+        "notReadingEvents": "セキュリティ上の理由により、カレンダーの内容は表示しません。"
+    },
+    "hero": {
+        "login": {
+            "title": "一緒に働くことを簡単にしましょう。",
+            "subtitle": "お会いできて嬉しいです！"
+        },
+        "dashboard": {
+            "title": "利用可能な言語学者を見つける。",
+            "subtitle": "こんにちは{{userName}}さん！"
+        },
+        "settings": {
+            "title": "どのカレンダーを確認すべきですか？",
+            "subtitle": "ようこそ{{userName}}さん！"
+        },
+        "logout": {
+            "title": "羽を広げる時です！",
+            "subtitle": "さようなら{{userName}}さん！"
+        },
+        "privacy": {
+            "title": "プライバシーポリシー",
+            "subtitle": "あなたのプライバシーは私たちにとって重要です"
+        },
+        "alt": {
+            "callToAction": "行動を促す"
+        }
+    },
+    "footer": {
+        "aboutTitle": "について",
+        "aboutText": "LinguistNowは、翻訳プロジェクトに利用可能な言語学者を見つける手間を簡素化します。翻訳会社のプロジェクトマネージャーであっても、新しい機会を求める言語学者であっても、LinguistNowは、ワークフローを効率化し、適切なタイミングで適切な人々とつながるために必要なツールを提供します。",
+        "socialTitle": "ソーシャル",
+        "privacyTitle": "プライバシーポリシー",
+        "alt": {
+            "xIcon": "Xアイコン",
+            "facebookIcon": "Facebookアイコン",
+            "instagramIcon": "Instagramアイコン",
+            "linkedinIcon": "LinkedInアイコン"
+        }
+    },
+    "privacyPolicy": {
+        "title": "プライバシーポリシー",
+        "subtitle": "あなたのプライバシーは私たちにとって重要です",
+        "effectiveDate": "発効日: 2024年6月14日",
+        "introductionTitle": "1. はじめに",
+        "introductionText": "このプライバシーポリシーは、当社のアプリケーションを使用する際に、当社がどのように情報を収集、使用、開示、保護するかを説明しています。当社は、お客様の個人データとプライバシーの権利を保護することに取り組んでいます。このポリシーや個人情報に関する当社の慣行についてご質問やご懸念がある場合は、nicmart@gmail.comまでお問い合わせください。",
+        "infoWeCollectTitle": "2. 収集する情報",
+        "infoWeCollectText1": "当社は、アプリケーションに登録する際、当社または当社の製品やサービスに関する情報の取得に関心を示す際、アプリケーションで活動に参加する際、またはその他の方法で当社に連絡する際に、お客様が自発的に提供する個人情報を収集します。",
+        "infoWeCollectText2": "当社が収集する個人情報には、以下が含まれる場合があります:",
+        "nameContactData": "名前と連絡先データ: Googleアカウントにログインする際に、お名前、メールアドレス、プロフィール写真を収集します。",
+        "calendarAccess": "Googleカレンダーへのアクセス: アプリケーションの機能を有効にするため、Googleカレンダーへのアクセスを要求します。カレンダーイベントを表示する許可を要求するのは、カレンダーIDのリストを取得し、GoogleのFreebusy APIを使用して空き状況を確認するためだけです。カレンダーイベントの詳細は読み取りも保存もしません。",
+        "useOfInfoTitle": "3. 情報の使用方法",
+        "useOfInfoText1": "当社は、収集または受信した情報を使用します:",
+        "useOfInfoItem1": "アカウント作成とログインプロセスを容易にするため。",
+        "useOfInfoItem2": "Googleカレンダーで提供されたカレンダーのリストに対して、特定の日時に空いているか忙しいかを確認するため。",
+        "sharingInfoTitle": "4. 情報の共有",
+        "sharingInfoText1": "当社は、以下の法的根拠に基づいて、保有するデータを処理または共有する場合があります:",
+        "sharingInfoItem1": "同意: 特定の目的で個人情報を使用することについて、お客様から特定の同意を得た場合、データを処理する場合があります。",
+        "sharingInfoItem2": "正当な利益: 当社の正当な事業上の利益を達成するために合理的に必要な場合、データを処理する場合があります。",
+        "sharingInfoItem3": "契約の履行: お客様と契約を締結した場合、契約条件を履行するために個人情報を処理する場合があります。",
+        "sharingInfoItem4": "法的義務: 適用される法律、政府の要求、司法手続き、裁判所命令、または法的プロセスに準拠するために、法的に要求される場合、情報を開示する場合があります。",
+        "securityTitle": "5. 情報のセキュリティ",
+        "securityText": "当社は、管理、技術、物理的なセキュリティ対策を使用して、お客様の個人情報を保護します。当社は、お客様が提供する個人情報を保護するために合理的な措置を講じていますが、当社の努力にもかかわらず、セキュリティ対策は完璧ではなく、データ伝送方法は傍受やその他の悪用に対して保証されないことにご注意ください。",
+        "rightsTitle": "6. プライバシー権利",
+        "rightsText": "お客様は、適用されるデータ保護法の下で、当社が保有する個人情報にアクセス、修正、更新、または削除する権利を含む、特定の権利を有します。これらの権利のいずれかを行使したい場合は、nicmart@gmail.comまでお問い合わせください。",
+        "changesTitle": "7. このプライバシーポリシーの変更",
+        "changesText": "当社は、慣行の変更やその他の運営上、法的、または規制上の理由を反映するために、このプライバシーポリシーを随時更新する場合があります。変更がある場合は、このページに新しいプライバシーポリシーを投稿してお知らせします。変更がないか、このプライバシーポリシーを定期的に確認することをお勧めします。",
+        "contactTitle": "8. お問い合わせ",
+        "contactText": "このプライバシーポリシーについてご質問がある場合は、nicmart@gmail.comまでメールでお問い合わせください。"
+    },
+    "nav": {
+        "menuIcon": "メニュー",
+        "languageIcon": "言語",
+        "dashboard": "ダッシュボード",
+        "settings": "設定",
+        "home": "ホーム"
+    },
+    "dashboard": {
+        "linguistsDescription": "こちらが明日から{{date}}まで（含む）のスケジュールです。",
+        "availabilityDescription": "利用可能な人は、平日の毎日、PSTの午前8時から午後6時まで8時間のシフトにコミットできます。",
+        "available": "利用可能",
+        "notAvailable": "利用不可",
+        "availability": "利用可能性",
+        "email": "メール",
+        "name": "名前",
+        "filterEmailPlaceholder": "メールでフィルター...",
+        "noResults": "結果がありません。",
+        "previous": "前へ",
+        "next": "次へ",
+        "errors": {
+            "title": "利用可能性を確認中にエラーが発生しました",
+            "n8nWorkflowInactive": "n8nワークフローがアクティブではありません。n8nでワークフローをアクティブにしてください。",
+            "n8nServiceUnavailable": "n8nサービスは現在利用できません。",
+            "networkError": "n8nサービスに到達できません。サービスがダウンしている可能性があります。",
+            "authenticationError": "認証に失敗しました。API設定を確認してください。",
+            "unknownError": "利用可能性を確認中にエラーが発生しました。",
+            "invalidRefreshToken_one": "更新トークンが取り消されたか、{{count}}人の言語学者（{{emails}}）に対して無効になりました。Googleアカウントで再度ログインし、設定ページでカレンダーを再選択して再認証する必要があります。",
+            "invalidRefreshToken_other": "更新トークンが取り消されたか、{{count}}人の言語学者（{{emails}}）に対して無効になりました。Googleアカウントで再度ログインし、設定ページでカレンダーを再選択して再認証する必要があります。",
+            "missingCredentials_one": "カレンダーID、アクセストークン、または更新トークンが{{count}}人の言語学者（{{emails}}）に対して利用できません。Googleアカウントで再度ログインし、カレンダーを選択して、設定ページで「カレンダーを保存」ボタンをクリックするよう依頼してください。",
+            "missingCredentials_other": "カレンダーID、アクセストークン、または更新トークンが{{count}}人の言語学者（{{emails}}）に対して利用できません。Googleアカウントで再度ログインし、カレンダーを選択して、設定ページで「カレンダーを保存」ボタンをクリックするよう依頼してください。",
+            "genericMultiple_one": "{{message}}（{{count}}人のユーザーが影響を受けました：{{emails}}）",
+            "genericMultiple_other": "{{message}}（{{count}}人のユーザーが影響を受けました：{{emails}}）"
+        },
+        "alt": {
+            "userProfileAvatar": "ユーザープロフィールアバター"
+        }
+    },
+    "general": {
+        "loading": "読み込み中..."
+    },
+    "languageSelection": {
+        "english": "English",
+        "french": "Français",
+        "simplifiedChinese": "简体中文",
+        "spanish": "Español",
+        "german": "Deutsch",
+        "italian": "Italiano",
+        "portuguese": "Português",
+        "japanese": "日本語",
+        "korean": "한국어",
+        "arabic": "العربية",
+        "russian": "Русский"
+    },
+    "auth": {
+        "login": "ログイン",
+        "signInWithGoogle": "Googleでサインイン",
+        "youHaveBeenLoggedOut": "ログアウトしました。",
+        "loggingOut": "ログアウト中...",
+        "loginDescription": "カレンダーを選択してください。残りはお任せください。",
+        "logoutSuccessMessage": "正常にログアウトしました。またお会いできることを楽しみにしています。"
+    }
+}

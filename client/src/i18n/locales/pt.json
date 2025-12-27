@@ -1,0 +1,144 @@
+{
+    "calendarSelector": {
+        "chooseCalendars": "Escolher calendários:",
+        "noCalendarsAvailable": "Nenhum calendário disponível."
+    },
+    "accountSettings": {
+        "accountSettings": "Configurações da conta",
+        "userDetails": "Detalhes do usuário",
+        "picture": "Foto",
+        "email": "E-mail:",
+        "name": "Nome:",
+        "selectCalendars": "Para ajudar com o agendamento, precisaremos saber qual Calendário do Google verificar para sua disponibilidade.",
+        "automaticSave": "Suas escolhas são salvas automaticamente.",
+        "notReadingEvents": "Por razões de segurança, não visualizaremos o conteúdo do seu calendário."
+    },
+    "hero": {
+        "login": {
+            "title": "Vamos facilitar o trabalho em equipe.",
+            "subtitle": "Ótimo te ver!"
+        },
+        "dashboard": {
+            "title": "Encontre um linguista disponível.",
+            "subtitle": "Olá {{userName}}!"
+        },
+        "settings": {
+            "title": "Quais calendários devemos verificar?",
+            "subtitle": "Bem-vindo {{userName}}!"
+        },
+        "logout": {
+            "title": "Hora de alçar voo!",
+            "subtitle": "Adeus {{userName}}!"
+        },
+        "privacy": {
+            "title": "Política de Privacidade",
+            "subtitle": "Sua privacidade é importante para nós"
+        },
+        "alt": {
+            "callToAction": "chamada para ação"
+        }
+    },
+    "footer": {
+        "aboutTitle": "Sobre",
+        "aboutText": "LinguistNow simplifica a dificuldade de encontrar linguistas disponíveis para projetos de tradução. Seja você um gerente de projetos em uma agência de tradução ou um linguista em busca de novas oportunidades, LinguistNow fornece as ferramentas necessárias para otimizar seu fluxo de trabalho e conectar-se com as pessoas certas no momento certo.",
+        "socialTitle": "Social",
+        "privacyTitle": "Política de Privacidade",
+        "alt": {
+            "xIcon": "Ícone X",
+            "facebookIcon": "Ícone do Facebook",
+            "instagramIcon": "Ícone do Instagram",
+            "linkedinIcon": "Ícone do LinkedIn"
+        }
+    },
+    "privacyPolicy": {
+        "title": "Política de Privacidade",
+        "subtitle": "Sua privacidade é importante para nós",
+        "effectiveDate": "Data de vigência: 14 de junho de 2024",
+        "introductionTitle": "1. Introdução",
+        "introductionText": "Esta Política de Privacidade explica como coletamos, usamos, divulgamos e protegemos suas informações quando você usa nossa aplicação. Estamos comprometidos em proteger seus dados pessoais e seu direito à privacidade. Se você tiver dúvidas ou preocupações sobre esta política ou nossas práticas em relação às suas informações pessoais, entre em contato conosco em nicmart@gmail.com.",
+        "infoWeCollectTitle": "2. Informações que Coletamos",
+        "infoWeCollectText1": "Coletamos informações pessoais que você nos fornece voluntariamente quando se registra na aplicação, expressa interesse em obter informações sobre nós ou nossos produtos e serviços, quando participa de atividades na aplicação ou quando nos contata.",
+        "infoWeCollectText2": "As informações pessoais que coletamos podem incluir o seguinte:",
+        "nameContactData": "Nome e Dados de Contato: Coletamos seu nome, endereço de e-mail e foto de perfil quando você faz login em sua Conta do Google.",
+        "calendarAccess": "Acesso ao Calendário do Google: Para habilitar a funcionalidade da aplicação, solicitamos acesso ao seu Calendário do Google. Pedimos permissão para visualizar seus eventos de calendário exclusivamente para obter uma lista de IDs de calendário e verificar sua disponibilidade usando a API Freebusy do Google. Não lemos nem armazenamos os detalhes de seus eventos de calendário.",
+        "useOfInfoTitle": "3. Como Usamos Suas Informações",
+        "useOfInfoText1": "Usamos as informações que coletamos ou recebemos:",
+        "useOfInfoItem1": "Para facilitar o processo de criação de conta e login.",
+        "useOfInfoItem2": "Para verificar na lista fornecida de calendários no Calendário do Google se você está livre ou ocupado em uma data e hora específicas.",
+        "sharingInfoTitle": "4. Compartilhamento de Suas Informações",
+        "sharingInfoText1": "Podemos processar ou compartilhar seus dados que temos com base nas seguintes bases legais:",
+        "sharingInfoItem1": "Consentimento: Podemos processar seus dados se você nos deu consentimento específico para usar suas informações pessoais para um propósito específico.",
+        "sharingInfoItem2": "Interesses Legítimos: Podemos processar seus dados quando é razoavelmente necessário para alcançar nossos interesses comerciais legítimos.",
+        "sharingInfoItem3": "Execução de um Contrato: Quando celebramos um contrato com você, podemos processar suas informações pessoais para cumprir os termos de nosso contrato.",
+        "sharingInfoItem4": "Obrigações Legais: Podemos divulgar suas informações quando somos legalmente obrigados a fazê-lo para cumprir a lei aplicável, solicitações governamentais, um procedimento judicial, ordem judicial ou processo legal.",
+        "securityTitle": "5. Segurança de Suas Informações",
+        "securityText": "Usamos medidas de segurança administrativas, técnicas e físicas para ajudar a proteger suas informações pessoais. Embora tenhamos tomado medidas razoáveis para proteger as informações pessoais que você nos fornece, esteja ciente de que, apesar de nossos esforços, nenhuma medida de segurança é perfeita ou impenetrável, e nenhum método de transmissão de dados pode ser garantido contra qualquer interceptação ou outro tipo de uso indevido.",
+        "rightsTitle": "6. Seus Direitos de Privacidade",
+        "rightsText": "Você tem certos direitos sob as leis de proteção de dados aplicáveis, incluindo o direito de acessar, corrigir, atualizar ou excluir as informações pessoais que temos sobre você. Se desejar exercer qualquer um desses direitos, entre em contato conosco em nicmart@gmail.com.",
+        "changesTitle": "7. Alterações a Esta Política de Privacidade",
+        "changesText": "Podemos atualizar esta Política de Privacidade de tempos em tempos para refletir, por exemplo, mudanças em nossas práticas ou por outras razões operacionais, legais ou regulatórias. Notificaremos você sobre quaisquer alterações publicando a nova Política de Privacidade nesta página. Recomendamos que você revise esta Política de Privacidade periodicamente para quaisquer alterações.",
+        "contactTitle": "8. Entre em Contato",
+        "contactText": "Se você tiver dúvidas sobre esta Política de Privacidade, entre em contato conosco por e-mail em nicmart@gmail.com."
+    },
+    "nav": {
+        "menuIcon": "menu",
+        "languageIcon": "idioma",
+        "dashboard": "Painel",
+        "settings": "Configurações",
+        "home": "Início"
+    },
+    "dashboard": {
+        "linguistsDescription": "Aqui está a programação de amanhã até {{date}} incluído.",
+        "availabilityDescription": "Aqueles disponíveis podem se comprometer com turnos de 8 horas todos os dias úteis, das 8h às 18h PST.",
+        "available": "Disponível",
+        "notAvailable": "Indisponível",
+        "availability": "Disponibilidade",
+        "email": "E-mail",
+        "name": "Nome",
+        "filterEmailPlaceholder": "Filtrar por e-mail...",
+        "noResults": "Nenhum resultado.",
+        "previous": "Anterior",
+        "next": "Próximo",
+        "errors": {
+            "title": "Ocorreram erros ao verificar a disponibilidade",
+            "n8nWorkflowInactive": "O fluxo de trabalho n8n não está ativo. Por favor, ative o fluxo de trabalho no n8n.",
+            "n8nServiceUnavailable": "O serviço n8n não está disponível no momento.",
+            "networkError": "Não foi possível alcançar o serviço n8n. O serviço pode estar inativo.",
+            "authenticationError": "A autenticação falhou. Por favor, verifique sua configuração de API.",
+            "unknownError": "Ocorreu um erro ao verificar a disponibilidade.",
+            "invalidRefreshToken_one": "O token de atualização foi revogado ou não é mais válido para {{count}} linguista ({{emails}}). Eles precisam se reautenticar fazendo login novamente com sua conta do Google e re-selecionando seus calendários na página de configurações.",
+            "invalidRefreshToken_other": "O token de atualização foi revogado ou não é mais válido para {{count}} linguistas ({{emails}}). Eles precisam se reautenticar fazendo login novamente com sua conta do Google e re-selecionando seus calendários na página de configurações.",
+            "missingCredentials_one": "IDs de calendário, token de acesso ou token de atualização não disponíveis para {{count}} linguista ({{emails}}). Por favor, peça-lhes para fazer login novamente com sua conta do Google, selecionar seus calendários e clicar no botão \"Salvar calendários\" na página de configurações.",
+            "missingCredentials_other": "IDs de calendário, token de acesso ou token de atualização não disponíveis para {{count}} linguistas ({{emails}}). Por favor, peça-lhes para fazer login novamente com sua conta do Google, selecionar seus calendários e clicar no botão \"Salvar calendários\" na página de configurações.",
+            "genericMultiple_one": "{{message}} ({{count}} usuário afetado: {{emails}})",
+            "genericMultiple_other": "{{message}} ({{count}} usuários afetados: {{emails}})"
+        },
+        "alt": {
+            "userProfileAvatar": "avatar do perfil do usuário"
+        }
+    },
+    "general": {
+        "loading": "Carregando..."
+    },
+    "languageSelection": {
+        "english": "English",
+        "french": "Français",
+        "simplifiedChinese": "简体中文",
+        "spanish": "Español",
+        "german": "Deutsch",
+        "italian": "Italiano",
+        "portuguese": "Português",
+        "japanese": "日本語",
+        "korean": "한국어",
+        "arabic": "العربية",
+        "russian": "Русский"
+    },
+    "auth": {
+        "login": "Entrar",
+        "signInWithGoogle": "Entrar com Google",
+        "youHaveBeenLoggedOut": "Você foi desconectado.",
+        "loggingOut": "Desconectando...",
+        "loginDescription": "Selecione seus calendários e cuidaremos do resto.",
+        "logoutSuccessMessage": "Você foi desconectado com sucesso. Esperamos vê-lo novamente em breve."
+    }
+}
