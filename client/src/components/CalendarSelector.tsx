@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react'
 import { refreshAccessToken, isAccessTokenValid } from '../auth-users/utils'
 import { useIntl } from 'react-intl' // to localize text strings
 import Skeleton from './Skeleton'
+import { logger } from '../utils/logger'
 
 /* The CalendarSelector component fetches the user's Google Calendars 
 using their access token, handles token expiration by refreshing the access token, 
@@ -17,7 +18,7 @@ const CalendarSelector = ({ userDetails, onSave }) => {
             try {
                 const isValidToken = await isAccessTokenValid(accessToken)
                 if (!isValidToken) {
-                    console.log('Token expired, refreshing access token...')
+                    logger.log('Token expired, refreshing access token...')
                     accessToken = await refreshAccessToken(
                         userDetails['Refresh Token']
                     )
