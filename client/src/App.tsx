@@ -10,6 +10,7 @@ import LanguageProvider from './i18n/LanguageProvider' // Package used to manage
 import Logout from './pages/Logout'
 import Footer from './components/Footer'
 import PrivacyPolicy from './pages/PrivacyPolicy'
+import ScrollToTop from './components/ScrollToTop'
 import type { User } from '@linguistnow/shared'
 import { fetchUserDetails } from './auth-users/utils'
 
@@ -46,6 +47,7 @@ const App = () => {
                         v7_relativeSplatPath: true,
                     }}
                 >
+                    <ScrollToTop />
                     <Navbar userDetails={userDetails} />
                     <Routes>
                         {/* Ask user to log in when landing on site, then if role

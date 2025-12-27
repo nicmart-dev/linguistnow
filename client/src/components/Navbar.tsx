@@ -15,7 +15,10 @@ const Navbar = ({ userDetails }: NavbarProps) => {
     const [langOpen, setLangOpen] = useState(false) // track if language toggle is open or not
 
     return (
-        <nav id="header" className="w-full z-30 sticky top-0 py-1 bg-white shadow-sm">
+        <nav
+            id="header"
+            className="w-full z-30 sticky top-0 py-1 bg-white shadow-sm"
+        >
             <div className="w-full container mx-auto flex flex-wrap items-center mt-0 px-6 py-3">
                 {/* Left section - Menu toggle and navigation (desktop) */}
                 <div className="flex-1 flex items-center order-1">
