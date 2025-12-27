@@ -12,23 +12,6 @@ function getGoogleRedirectUri(): string {
   );
 }
 
-function getOAuth2Client(): OAuth2Client {
-  const redirectUri = getGoogleRedirectUri();
-  if (!redirectUri) {
-    console.error(
-      "Missing required environment variable: GOOGLE_REDIRECT_URI or FRONTEND_URL",
-    );
-    // Use exit code 1 for missing configuration (not a runtime error)
-    // This is intentional - server cannot start without OAuth configuration
-    process.exit(1);
-  }
-  return new OAuth2Client(
-    env.GOOGLE_CLIENT_ID,
-    env.GOOGLE_CLIENT_SECRET,
-    redirectUri,
-  );
-}
-
 // Initialize on first use (lazy)
 let oAuth2Client: OAuth2Client | null = null;
 function getOAuth2ClientInstance(): OAuth2Client {
