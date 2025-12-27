@@ -4,8 +4,91 @@ import { FormattedMessage } from 'react-intl' // To show localized strings
 import { refreshAccessToken, isAccessTokenValid } from '../auth-users/utils' // To refresh access token when needed
 import { fetchUserList } from '../auth-users/utils'
 import Hero from '../components/Hero'
-import LinguistTable from '../components/LinguistTable.jsx'
+import LinguistTable from '../components/LinguistTable'
 import Skeleton from '../components/Skeleton' // to sisplay while data is loading
+import { logger } from '../utils/logger'
+
+// Consolidate similar errors to avoid showing duplicate messages
+function consolidateErrors(errors: Array<{ message: string; userEmail?: string | null; code?: string; severity?: string }>) {
+    const errorGroups = new Map<string, { message: string; userEmails: string[]; code?: string; severity?: string }>()
+    
+    for (const error of errors) {
+        // Create a key based on error code or message pattern
+        const key = error.code || error.message
+        const userEmail = error.userEmail || null
+        
+        if (errorGroups.has(key)) {
+            const group = errorGroups.get(key)!
+            if (userEmail && !group.userEmails.includes(userEmail)) {
+                group.userEmails.push(userEmail)
+            }
+        } else {
+            errorGroups.set(key, {
+                message: error.message,
+                userEmails: userEmail ? [userEmail] : [],
+                code: error.code,
+                severity: error.severity || 'error'
+            })
+        }
+    }
+    
+    // Convert groups back to error objects with consolidated messages
+    return Array.from(errorGroups.values()).map(group => {
+        const count = group.userEmails.length
+        const emailList = count <= 5 ? group.userEmails.join(', ') : group.userEmails.slice(0, 5).join(', ') + ` and ${count - 5} more`
+        
+        // If multiple users have the same error, use i18n keys
+        if (count > 1) {
+            // Check for specific error types to provide better messages
+            if (group.code === 'INVALID_REFRESH_TOKEN' || group.message.includes('refresh token has been revoked') || group.message.includes('refresh token is invalid')) {
+                return {
+                    i18nKey: 'dashboard.errors.invalidRefreshToken',
+                    i18nValues: { count, emails: emailList },
+                    message: group.message, // Fallback for non-i18n contexts
+                    userEmails: group.userEmails,
+                    code: group.code,
+                    severity: group.severity
+                }
+            } else if (group.code === 'MISSING_CREDENTIALS' || group.message.includes('Calendar IDs') || group.message.includes('Access Token') || group.message.includes('Refresh Token')) {
+                return {
+                    i18nKey: 'dashboard.errors.missingCredentials',
+                    i18nValues: { count, emails: emailList },
+                    message: group.message, // Fallback for non-i18n contexts
+                    userEmails: group.userEmails,
+                    code: group.code,
+                    severity: group.severity
+                }
+            } else {
+                // Extract the base message without user-specific details
+                const baseMessage = group.message.replace(/for user [^.]*\./gi, '').replace(/User needs to re-authenticate\./gi, '').trim()
+                return {
+                    i18nKey: 'dashboard.errors.genericMultiple',
+                    i18nValues: { message: baseMessage, count, emails: emailList },
+                    message: group.message, // Fallback for non-i18n contexts
+                    userEmails: group.userEmails,
+                    code: group.code,
+                    severity: group.severity
+                }
+            }
+        } else if (count === 1 && group.userEmails[0]) {
+            // Single user - keep the original message with user email
+            return {
+                message: group.message,
+                userEmails: group.userEmails,
+                code: group.code,
+                severity: group.severity
+            }
+        }
+        
+        // Fallback for errors without user emails
+        return {
+            message: group.message,
+            userEmails: group.userEmails,
+            code: group.code,
+            severity: group.severity
+        }
+    })
+}
 
 const Dashboard = ({ userName }) => {
     const [linguists, setLinguists] = useState([]) // store list of users retrieved from Airtable
@@ -22,14 +105,16 @@ const Dashboard = ({ userName }) => {
             setErrors([]) // Clear previous errors
 
             try {
-                const users = await fetchUserList()
-                console.log('Users:', users)
+                // Fetch users directly from API to get all Airtable fields (Calendar IDs, Access Token, etc.)
+                const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/users`);
+                const users = response.data; // Raw Airtable data with uppercase field names
+                logger.log('Users:', users)
 
                 // Filter out users who are not Linguists
                 const linguists = users.filter(
                     (user) => user.Role === 'Linguist'
                 )
-                console.log('Filtered Linguists:', linguists)
+                logger.log('Filtered Linguists:', linguists)
 
                 for (const user of linguists) {
                     try {
@@ -51,7 +136,7 @@ const Dashboard = ({ userName }) => {
                         const isValidToken =
                             await isAccessTokenValid(accessToken)
                         if (!isValidToken) {
-                            console.log(
+                            logger.log(
                                 `Google OAuth access token invalid or expired for user ${user.Email}. Getting a new one using refresh token...`
                             )
                             try {
@@ -69,9 +154,13 @@ const Dashboard = ({ userName }) => {
                             } catch (refreshError) {
                                 // Handle refresh token errors
                                 if (refreshError.response && refreshError.response.data?.code === 'INVALID_REFRESH_TOKEN') {
-                                    throw new Error(
-                                        `Refresh token is invalid for user ${user.Email}. Please ask them to login again with their Google account and re-select their calendars in the settings page.`
-                                    )
+                                    // Create error object with code for proper consolidation
+                                    const error = new Error(
+                                        `The refresh token has been revoked or is no longer valid. User needs to re-authenticate.`
+                                    ) as Error & { code?: string; userEmail?: string }
+                                    error.code = 'INVALID_REFRESH_TOKEN'
+                                    error.userEmail = user.Email
+                                    throw error
                                 }
                                 throw refreshError
                             }
@@ -110,7 +199,7 @@ const Dashboard = ({ userName }) => {
                                     }
                                 } else if (status === 401) {
                                     errorMessage += 'Authentication failed. Please check your API configuration.'
-                                    console.log('Could not connect to n8n workflow. Check your API key environment variable.')
+                                    logger.log('Could not connect to n8n workflow. Check your API key environment variable.')
                                     continue // Skip to the next user
                                 } else {
                                     errorMessage += errorData.details || errorData.error || 'An error occurred while checking availability.'
@@ -140,7 +229,7 @@ const Dashboard = ({ userName }) => {
                         }
 
                         const availability = availabilityResponse.data
-                        console.log(
+                        logger.log(
                             'Availability for',
                             user.Email,
                             ':',
@@ -153,10 +242,21 @@ const Dashboard = ({ userName }) => {
                         console.warn(userError)
                         // Ensure error is formatted as an object
                         const errorMessage = userError.message || userError.toString() || 'An unknown error occurred'
+                        // Preserve error code if available, or detect from message
+                        let errorCode = (userError as any)?.code
+                        if (!errorCode) {
+                            if (errorMessage.includes('refresh token') && (errorMessage.includes('revoked') || errorMessage.includes('invalid'))) {
+                                errorCode = 'INVALID_REFRESH_TOKEN'
+                            } else if (errorMessage.includes('Calendar IDs') || errorMessage.includes('Access Token') || errorMessage.includes('Refresh Token')) {
+                                errorCode = 'MISSING_CREDENTIALS'
+                            } else {
+                                errorCode = 'USER_ERROR'
+                            }
+                        }
                         newErrors.push({
                             message: errorMessage,
-                            userEmail: user?.Email || null,
-                            code: 'USER_ERROR',
+                            userEmail: (userError as any)?.userEmail || user?.Email || null,
+                            code: errorCode,
                             severity: 'error'
                         })
                     }
@@ -172,8 +272,9 @@ const Dashboard = ({ userName }) => {
 
             // Batch update: set all linguists at once to avoid multiple re-renders
             setLinguists(processedLinguists)
-            // Store errors in state
-            setErrors(newErrors)
+            // Consolidate similar errors to avoid showing duplicate messages
+            const consolidatedErrors = consolidateErrors(newErrors)
+            setErrors(consolidatedErrors)
             setLoading(false) // Set loading to false after fetch is done
         }
 
@@ -211,8 +312,8 @@ const Dashboard = ({ userName }) => {
                                     const errorObj = typeof error === 'string' 
                                         ? { message: error, severity: 'error' }
                                         : error
-                                    const message = errorObj.message || 'An unknown error occurred'
                                     const severity = errorObj.severity || 'error'
+                                    const hasI18n = errorObj.i18nKey && errorObj.i18nValues
                                     
                                     return (
                                         <div
@@ -236,7 +337,16 @@ const Dashboard = ({ userName }) => {
                                                     )}
                                                 </div>
                                                 <div className="ml-3 flex-1">
-                                                    <p className="text-sm font-medium">{message}</p>
+                                                    {hasI18n ? (
+                                                        <p className="text-sm font-medium">
+                                                            <FormattedMessage
+                                                                id={errorObj.i18nKey}
+                                                                values={errorObj.i18nValues}
+                                                            />
+                                                        </p>
+                                                    ) : (
+                                                        <p className="text-sm font-medium">{errorObj.message || 'An unknown error occurred'}</p>
+                                                    )}
                                                 </div>
                                             </div>
                                         </div>
