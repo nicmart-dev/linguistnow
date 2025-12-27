@@ -1,7 +1,12 @@
 {
   "markdown.mermaid.enabled": true,
   "markdown.preview.breaks": true,
-  "markdown.preview.typographer": true
+  "markdown.preview.typographer": true,
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+  "typescript.preferences.importModuleSpecifier": "non-relative",
+  "typescript.tsdk": "node_modules/typescript/lib"
 }
-
-

@@ -1,17 +1,18 @@
 import React, { useState } from 'react'
 import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom'
-import Login from './pages/Login.jsx'
-import AccountSettings from './pages/AccountSettings.jsx'
-import Dashboard from './pages/Dashboard.jsx'
-import Navbar from './components/Navbar.jsx'
+import Login from './pages/Login'
+import AccountSettings from './pages/AccountSettings'
+import Dashboard from './pages/Dashboard'
+import Navbar from './components/Navbar'
 import { GoogleOAuthProvider } from '@react-oauth/google' // Package used to manage Google OAuth
 import LanguageProvider from './i18n/LanguageProvider' // Package used to manage translations
-import Logout from './pages/Logout.jsx'
-import Footer from './components/Footer.jsx'
-import PrivacyPolicy from './pages/PrivacyPolicy.jsx'
+import Logout from './pages/Logout'
+import Footer from './components/Footer'
+import PrivacyPolicy from './pages/PrivacyPolicy'
+import type { User } from '@linguistnow/shared'
 
 const App = () => {
-    const [userDetails, setUserDetails] = useState(null)
+    const [userDetails, setUserDetails] = useState<User | null>(null)
 
     return (
         /* Wraps the application to provide the OAuth context */
@@ -26,7 +27,7 @@ const App = () => {
                             path="/"
                             element={
                                 userDetails ? (
-                                    userDetails.Role === 'Project Manager' ? (
+                                    userDetails.role === 'Project Manager' ? (
                                         <Navigate to="/dashboard" replace />
                                     ) : (
                                         <Navigate to="/settings" replace />
@@ -57,10 +58,10 @@ const App = () => {
                                     element={
                                         userDetails ? (
                                             <Dashboard
-                                                userName={userDetails.Name}
+                                                userName={userDetails.name}
                                             />
                                         ) : (
-                                            ''
+                                            <Navigate to="/login" />
                                         )
                                     }
                                 />
@@ -90,7 +91,12 @@ const App = () => {
 }
 
 /* Protects the routes that require authentication. */
-const PrivateRoute = ({ element, userDetails }) => {
+interface PrivateRouteProps {
+    element: React.ReactElement
+    userDetails: User | null
+}
+
+const PrivateRoute = ({ element, userDetails }: PrivateRouteProps) => {
     return userDetails ? element : <Navigate to="/login" />
 }
 

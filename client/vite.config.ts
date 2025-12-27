@@ -9,7 +9,7 @@ export default defineConfig({
     alias: {
       '@': path.resolve(__dirname, './src'),
       'components': path.resolve(__dirname, './src/components'),
-      'utils': path.resolve(__dirname, './src/lib/utils.js'),
+      'utils': path.resolve(__dirname, './src/lib/utils.ts'),
     },
   },
   server: {
