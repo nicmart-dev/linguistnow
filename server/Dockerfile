@@ -27,8 +27,8 @@ COPY pnpm-lock.yaml pnpm-workspace.yaml ./
 # Copy package.json from server directory
 COPY server/package.json ./server/
 
-# Install dependencies (production only) for server workspace
-RUN pnpm install --frozen-lockfile --prod --filter linguistnow-api && \
+# Install dependencies (including dev dependencies for tsx) for server workspace
+RUN pnpm install --frozen-lockfile --filter linguistnow-api && \
     pnpm store prune
 
 # Copy server source code

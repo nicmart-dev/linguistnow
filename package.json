@@ -10,7 +10,10 @@
     "server-dev": "pnpm --filter server dev",
     "dev": "pnpm run --parallel --filter client --filter server dev",
     "install:all": "pnpm install",
-    "clean": "pnpm -r exec rm -rf node_modules && rm -rf node_modules"
+    "clean": "pnpm -r exec rm -rf node_modules && rm -rf node_modules",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "prepare": "husky"
   },
   "repository": {
     "type": "git",
@@ -21,5 +24,13 @@
   "bugs": {
     "url": "https://github.com/nicmart-dev/linguistnow/issues"
   },
-  "homepage": "https://github.com/nicmart-dev/linguistnow"
+  "homepage": "https://github.com/nicmart-dev/linguistnow",
+  "devDependencies": {
+    "@eslint/js": "^9.39.2",
+    "eslint": "^9.39.2",
+    "globals": "^16.5.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.7",
+    "typescript-eslint": "^8.50.1"
+  }
 }
