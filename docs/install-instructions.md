@@ -5,6 +5,25 @@ To install and run the LinguistNow application, you have two options:
 1. **Local Development** - Install and run each component separately (described below)
 2. **Docker Deployment** - Use Docker Compose for a containerized setup (see [Docker Quick Start](#docker-quick-start))
 
+## Table of Contents
+
+- [Local Development Setup](#local-development-setup)
+  - [Prerequisites](#prerequisites)
+- [Install front-end and backend](#install-front-end-and-backend)
+  - [Server](#server)
+  - [React app (Vite)](#react-app-vite)
+  - [Airtable Database](#airtable-database)
+  - [n8n](#n8n)
+    - [Install through npm (global)](#install-through-npm-global)
+    - [Configure workflow](#configure-workflow)
+- [Google OAuth setup](#google-oauth-setup)
+- [Start our app](#start-our-app)
+- [Set up new users](#set-up-new-users)
+- [Docker Quick Start](#docker-quick-start)
+  - [Prerequisites](#prerequisites-1)
+  - [Steps](#steps)
+  - [Useful Commands](#useful-commands)
+
 ## Local Development Setup
 
 Follow these steps in order:
@@ -113,12 +132,27 @@ Follow steps in [Set up OAuth in Google Cloud](./set-up-oauth-in-google-cloud.md
    pnpm install
    ```
 
-3. Run `pnpm start` which will start both React app client (Vite dev server) and Express server in parallel.
+3. Run the development servers:
 
-**Development Servers:**
+   **Recommended for development (with hot reload):**
 
-- Frontend: `http://localhost:3000` (Vite dev server with HMR)
-- Backend: `http://localhost:8080` (Express server)
+   ```bash
+   pnpm dev
+   ```
+
+   **Or for production-like mode (no hot reload):**
+
+   ```bash
+   pnpm start
+   ```
+
+   **Development Servers:**
+   - Frontend: `http://localhost:3000` (Vite dev server with HMR)
+   - Backend: `http://localhost:8080` (Express server with hot reload in dev mode)
+
+   **Note:** The `dev` command uses `concurrently` to run both services with colored output for easier debugging. Individual services can also be run separately:
+   - `pnpm client` - Frontend only
+   - `pnpm server` - Backend only
 
 Note: After following these steps, you should have the LinguistNow application up and running, along with the n8n workflow automation tool.
 
