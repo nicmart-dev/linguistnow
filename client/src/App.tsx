@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom'
 import Login from './pages/Login'
 import AccountSettings from './pages/AccountSettings'
@@ -10,9 +10,29 @@ import Logout from './pages/Logout'
 import Footer from './components/Footer'
 import PrivacyPolicy from './pages/PrivacyPolicy'
 import type { User } from '@linguistnow/shared'
+import { fetchUserDetails } from './auth-users/utils'
 
 const App = () => {
     const [userDetails, setUserDetails] = useState<User | null>(null)
+    const [isRestoringAuth, setIsRestoringAuth] = useState(true)
+
+    useEffect(() => {
+        // Restore authentication state from localStorage on mount
+        const storedEmail = localStorage.getItem('userEmail')
+        if (storedEmail) {
+            // Fetch user details from API to restore authentication state
+            fetchUserDetails(storedEmail, (user) => {
+                setUserDetails(user)
+                setIsRestoringAuth(false)
+            }).catch((error) => {
+                // If user not found or error, clear stored email
+                localStorage.removeItem('userEmail')
+                setIsRestoringAuth(false)
+            })
+        } else {
+            setIsRestoringAuth(false)
+        }
+    }, [])
 
     return (
         /* Wraps the application to provide the OAuth context */
@@ -31,7 +51,9 @@ const App = () => {
                         <Route
                             path="/"
                             element={
-                                userDetails ? (
+                                isRestoringAuth ? (
+                                    <div>Loading...</div>
+                                ) : userDetails ? (
                                     userDetails.role === 'Project Manager' ? (
                                         <Navigate to="/dashboard" replace />
                                     ) : (
@@ -60,6 +82,7 @@ const App = () => {
                             element={
                                 <PrivateRoute
                                     userDetails={userDetails}
+                                    isRestoringAuth={isRestoringAuth}
                                     element={
                                         userDetails ? (
                                             <Dashboard
@@ -77,6 +100,7 @@ const App = () => {
                             element={
                                 <PrivateRoute
                                     userDetails={userDetails}
+                                    isRestoringAuth={isRestoringAuth}
                                     element={
                                         <AccountSettings
                                             userDetails={userDetails}
@@ -99,9 +123,14 @@ const App = () => {
 interface PrivateRouteProps {
     element: React.ReactElement
     userDetails: User | null
+    isRestoringAuth: boolean
 }
 
-const PrivateRoute = ({ element, userDetails }: PrivateRouteProps) => {
+const PrivateRoute = ({ element, userDetails, isRestoringAuth }: PrivateRouteProps) => {
+    // Wait for auth restoration to complete before checking authentication
+    if (isRestoringAuth) {
+        return <div>Loading...</div>
+    }
     return userDetails ? element : <Navigate to="/login" />
 }
 

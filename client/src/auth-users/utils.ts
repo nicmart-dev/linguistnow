@@ -1,5 +1,6 @@
 import axios from "axios";
 import type { User } from '@linguistnow/shared';
+import { logger } from '../utils/logger';
 
 /**
  * Utility function to check if a Google OAuth2 access token is still valid.
@@ -23,7 +24,7 @@ export const isAccessTokenValid = async (accessToken: string): Promise<boolean> 
         // If an error occurs, return false (access token is not valid)
         if (axios.isAxiosError(error) && error.response?.status === 400) {
             // If status code is 400, access token is likely malformed
-            console.log("Google OAuth access token invalid or expired.");
+            logger.log("Google OAuth access token invalid or expired.");
             return false;
         } else {
             // For other errors, log and return false
@@ -71,16 +72,42 @@ export const fetchUserDetails = async (
     setUserDetails: (user: User | null) => void
 ): Promise<User> => {
     try {
-        const response = await axios.get<User>(`${import.meta.env.VITE_API_URL}/api/users/${email}`);
-        // Map Airtable fields to User type
+        const response = await axios.get<Record<string, unknown>>(`${import.meta.env.VITE_API_URL}/api/users/${email}`);
+        // Get raw Airtable data with uppercase field names
+        const airtableData = response.data as {
+            Email?: string;
+            Name?: string;
+            Role?: string;
+            'Calendar IDs'?: string;
+            'Access Token'?: string;
+            'Refresh Token'?: string;
+            Picture?: string;
+        };
+        
+        // Map Airtable fields to User type for type safety
         const user: User = {
             id: email,
-            email: (response.data as unknown as { Email?: string }).Email || email,
-            name: (response.data as unknown as { Name?: string }).Name || '',
-            role: ((response.data as unknown as { Role?: string }).Role || 'Linguist') as User['role'],
-            googleCalendarId: (response.data as unknown as { 'Calendar IDs'?: string })['Calendar IDs'],
+            email: airtableData.Email || email,
+            name: airtableData.Name || '',
+            role: (airtableData.Role || 'Linguist') as User['role'],
+            googleCalendarId: airtableData['Calendar IDs'],
         };
-        setUserDetails(user);
+        
+        // Merge User type fields with Airtable fields so components can access both
+        // This allows components to use either User type fields or Airtable field names
+        const userWithAirtableFields = {
+            ...user,
+            // Preserve Airtable field names for components that expect them
+            Email: airtableData.Email || email,
+            Name: airtableData.Name || '',
+            Role: airtableData.Role || 'Linguist',
+            'Calendar IDs': airtableData['Calendar IDs'],
+            'Access Token': airtableData['Access Token'],
+            'Refresh Token': airtableData['Refresh Token'],
+            Picture: airtableData.Picture,
+        } as User & typeof airtableData;
+        
+        setUserDetails(userWithAirtableFields);
         return user;
     } catch (error: unknown) {
         if (axios.isAxiosError(error) && error.response?.status === 404) {
@@ -120,17 +147,43 @@ export const createUserIfNotFound = async (
     userInfo: GoogleUserInfo,
     setUserDetails: (user: User | null) => void
 ): Promise<void> => {
-    const response = await axios.post<User>(`${import.meta.env.VITE_API_URL}/api/users`, {
+    const response = await axios.post<Record<string, unknown>>(`${import.meta.env.VITE_API_URL}/api/users`, {
         email: userInfo.email,
         name: userInfo.name,
         picture_url: userInfo.picture,
     });
-    // Map Airtable response to User type
+    // Get raw Airtable data with uppercase field names
+    const airtableData = response.data as {
+        Email?: string;
+        Name?: string;
+        Role?: string;
+        'Calendar IDs'?: string;
+        'Access Token'?: string;
+        'Refresh Token'?: string;
+        Picture?: string;
+    };
+    
+    // Map Airtable fields to User type for type safety
     const user: User = {
         id: userInfo.email,
-        email: (response.data as unknown as { Email?: string }).Email || userInfo.email,
-        name: (response.data as unknown as { Name?: string }).Name || userInfo.name,
-        role: ((response.data as unknown as { Role?: string }).Role || 'Linguist') as User['role'],
+        email: airtableData.Email || userInfo.email,
+        name: airtableData.Name || userInfo.name,
+        role: (airtableData.Role || 'Linguist') as User['role'],
+        googleCalendarId: airtableData['Calendar IDs'],
     };
-    setUserDetails(user);
+    
+    // Merge User type fields with Airtable fields so components can access both
+    const userWithAirtableFields = {
+        ...user,
+        // Preserve Airtable field names for components that expect them
+        Email: airtableData.Email || userInfo.email,
+        Name: airtableData.Name || userInfo.name,
+        Role: airtableData.Role || 'Linguist',
+        'Calendar IDs': airtableData['Calendar IDs'],
+        'Access Token': airtableData['Access Token'],
+        'Refresh Token': airtableData['Refresh Token'],
+        Picture: airtableData.Picture,
+    } as User & typeof airtableData;
+    
+    setUserDetails(userWithAirtableFields);
 };

@@ -23,6 +23,8 @@ const Logout = ({ setUserDetails, userDetails }) => {
         googleLogout()
         setUserName(userDetails?.Name) // Store user name to display on logout
         setUserDetails(null) // Clear user details upon logout
+        // Clear stored email from localStorage
+        localStorage.removeItem('userEmail')
     }
 
     return (
