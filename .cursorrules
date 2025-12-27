@@ -1,0 +1,69 @@
+# Commit Message Guidelines
+
+Follow Conventional Commits specification: https://www.conventionalcommits.org/
+
+## Format
+
+```
+<type>(<scope>): <subject>
+
+<body>
+
+<footer>
+```
+
+## Types
+
+- `refactor`: Code changes that neither fix a bug nor add a feature (e.g., TypeScript migration, code restructuring)
+- `feat`: New feature
+- `fix`: Bug fix
+- `docs`: Documentation only changes
+- `style`: Code style changes (formatting, missing semicolons, etc.)
+- `test`: Adding or updating tests
+- `build`: Changes to build system or dependencies
+- `ci`: Changes to CI configuration
+- `chore`: Other changes that don't modify src or test files
+- `perf`: Performance improvements
+- `revert`: Revert a previous commit
+
+## Scopes
+
+- `client`: Frontend changes
+- `server`: Backend changes
+- `shared`: Shared package changes
+- `deps`: Dependency updates
+- `deps-dev`: Dev dependency updates
+- `config`: Configuration changes
+- `types`: TypeScript type changes
+- `tests`: Test-related changes
+- `docs`: Documentation changes
+- `ci`: CI/CD changes
+- `docker`: Docker-related changes
+
+## Examples
+
+Good:
+- `refactor(types): migrate to TypeScript with strict mode`
+- `refactor(server): convert CommonJS to ES modules`
+- `feat(client): add user authentication`
+- `fix(server): resolve CORS configuration issue`
+- `docs(readme): update installation instructions`
+- `test(client): add component tests with Vitest`
+- `ci(github): add automated testing workflow`
+
+Bad:
+- `feat: TypeScript migration` (should be refactor)
+- `update files` (missing type and scope)
+- `Fix bug` (should be lowercase)
+- `feat: add feature` (too vague)
+
+## Rules
+
+1. Use `refactor` for migrations, restructuring, and code improvements that don't add features
+2. Always include a scope when applicable
+3. Use lowercase for subject (except proper nouns)
+4. No period at the end of subject
+5. Keep subject under 72 characters
+6. Use imperative mood ("add" not "added" or "adds")
+7. Use `chore` for configuration changes, not `fix` (fix is for user-facing issues)
+8. Keep commit messages short and outcome-facing - focus on what was achieved
