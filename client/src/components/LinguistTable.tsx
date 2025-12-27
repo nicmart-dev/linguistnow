@@ -1,5 +1,5 @@
-import DataTable from './DataTable.jsx'
-import { columns } from '../data-table/columns.jsx' // get localized column headers
+import DataTable from './DataTable'
+import { columns } from '../data-table/columns' // get localized column headers
 import { useIntl } from 'react-intl'
 
 /* Display table of available linguists using DataTables library 
