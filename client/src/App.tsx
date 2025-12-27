@@ -18,7 +18,12 @@ const App = () => {
         /* Wraps the application to provide the OAuth context */
         <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
             <LanguageProvider>
-                <BrowserRouter>
+                <BrowserRouter
+                    future={{
+                        v7_startTransition: true,
+                        v7_relativeSplatPath: true,
+                    }}
+                >
                     <Navbar userDetails={userDetails} />
                     <Routes>
                         {/* Ask user to log in when landing on site, then if role

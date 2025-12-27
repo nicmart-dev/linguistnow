@@ -5,8 +5,8 @@
   "type": "module",
   "main": "server.ts",
   "scripts": {
-    "start": "tsx server.ts",
-    "dev": "tsx watch server.ts",
+    "start": "cross-env NODE_OPTIONS=--no-deprecation tsx server.ts",
+    "dev": "cross-env NODE_OPTIONS=--no-deprecation tsx watch server.ts",
     "type-check": "tsc --noEmit",
     "test": "vitest"
   },
@@ -33,6 +33,7 @@
     "@types/swagger-jsdoc": "^6.0.4",
     "@types/swagger-ui-express": "^4.1.8",
     "@vitest/coverage-v8": "^4.0.16",
+    "cross-env": "^7.0.3",
     "nodemon": "^3.1.11",
     "tsx": "^4.21.0",
     "typescript": "^5.7.2",
