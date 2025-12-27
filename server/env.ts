@@ -1,5 +1,4 @@
 import { z } from "zod";
-import "dotenv/config";
 
 const envSchema = z
   .object({
@@ -20,7 +19,27 @@ const envSchema = z
     {
       message:
         "Either AIRTABLE_PERSONAL_ACCESS_TOKEN or AIRTABLE_API_KEY must be set",
-    },
+    }
   );
 
-export const env = envSchema.parse(process.env);
+let _env: z.infer<typeof envSchema> | null = null;
+
+function getEnv() {
+  if (!_env) {
+    _env = envSchema.parse(process.env);
+  }
+  return _env;
+}
+
+// Export as a getter object so it behaves like the original env export
+export const env = new Proxy({} as z.infer<typeof envSchema>, {
+  get(_target, prop) {
+    return getEnv()[prop as keyof typeof _env];
+  },
+  ownKeys() {
+    return Object.keys(getEnv());
+  },
+  has(_target, prop) {
+    return prop in getEnv();
+  },
+});

@@ -15,12 +15,13 @@ function escapeAirtableFormulaString(value: string): string {
 
 /* Configure Airtable DB using token, created using https://airtable.com/create/tokens
 and connecting to associated base ID https://support.airtable.com/docs/finding-airtable-ids
+Lazy initialization to ensure dotenv is loaded before accessing env
 */
-const airtableApiKey =
-  env.AIRTABLE_PERSONAL_ACCESS_TOKEN || env.AIRTABLE_API_KEY || "";
-const base = new Airtable({ apiKey: airtableApiKey }).base(
-  env.AIRTABLE_BASE_ID,
-);
+function getAirtableBase() {
+  const airtableApiKey =
+    env.AIRTABLE_PERSONAL_ACCESS_TOKEN || env.AIRTABLE_API_KEY || "";
+  return new Airtable({ apiKey: airtableApiKey }).base(env.AIRTABLE_BASE_ID);
+}
 
 interface AirtableUserFields {
   Email: string;
@@ -56,7 +57,7 @@ export const getAll = async (
   res: Response,
 ) => {
   try {
-    const records = await base("Users").select().all();
+    const records = await getAirtableBase()("Users").select().all();
     const users = records.map(
       (record) => record.fields as unknown as AirtableUserFields,
     );
@@ -74,7 +75,7 @@ export const getOne = async (req: Request<{ id: string }>, res: Response) => {
   // Escape single quotes in email to prevent formula injection
   const escapedEmail = escapeAirtableFormulaString(userEmail);
   try {
-    const records = await base("Users")
+    const records = await getAirtableBase()("Users")
       .select({
         filterByFormula: `{Email} = '${escapedEmail}'`,
         maxRecords: 1,
@@ -101,7 +102,7 @@ export const create = async (
 ) => {
   const { email, name, picture_url, role = "Linguist" } = req.body;
   try {
-    const createdRecord = await base("Users").create({
+    const createdRecord = await getAirtableBase()("Users").create({
       Email: email,
       Name: name,
       Picture: picture_url,
@@ -128,7 +129,7 @@ export const update = async (
   const escapedEmail = escapeAirtableFormulaString(userEmail);
   try {
     // Find the record with the matching email address
-    const records = await base("Users")
+    const records = await getAirtableBase()("Users")
       .select({
         filterByFormula: `{Email} = '${escapedEmail}'`,
         maxRecords: 1,
@@ -148,7 +149,7 @@ export const update = async (
 
       // Check if any fields to update
       if (Object.keys(fieldsToUpdate).length > 0) {
-        const updatedRecord = await base("Users").update(
+        const updatedRecord = await getAirtableBase()("Users").update(
           recordId,
           fieldsToUpdate,
         );
@@ -170,7 +171,7 @@ Delete user from Airtable by their record ID (not currently used) */
 export const remove = async (req: Request<{ id: string }>, res: Response) => {
   const recordId = req.params.id;
   try {
-    await base("Users").destroy(recordId);
+    await getAirtableBase()("Users").destroy(recordId);
     res.json({ message: "Deleted user", id: recordId });
   } catch (error) {
     console.log("Error deleting user", error);

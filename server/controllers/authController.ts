@@ -2,32 +2,48 @@ import { OAuth2Client } from "google-auth-library";
 import type { Request, Response } from "express";
 import { env } from "../env.js";
 
-// Redirect URI must match the frontend URL used in the OAuth flow
-const GOOGLE_REDIRECT_URI =
-  process.env.GOOGLE_REDIRECT_URI ||
-  env.FRONTEND_URL ||
-  process.env.BACKEND_URL ||
-  "";
-
-if (!GOOGLE_REDIRECT_URI) {
-  console.error(
-    "Missing required environment variable: GOOGLE_REDIRECT_URI or FRONTEND_URL",
+// Lazy initialization functions to ensure dotenv is loaded before accessing env
+function getGoogleRedirectUri(): string {
+  return (
+    process.env.GOOGLE_REDIRECT_URI ||
+    env.FRONTEND_URL ||
+    process.env.BACKEND_URL ||
+    ""
   );
-  // Use exit code 1 for missing configuration (not a runtime error)
-  // This is intentional - server cannot start without OAuth configuration
-
-  process.exit(1);
 }
 
-console.log("Using Google OAuth credentials from environment variables");
-console.log(`Redirect URI: ${GOOGLE_REDIRECT_URI}`);
+function getOAuth2Client(): OAuth2Client {
+  const redirectUri = getGoogleRedirectUri();
+  if (!redirectUri) {
+    console.error(
+      "Missing required environment variable: GOOGLE_REDIRECT_URI or FRONTEND_URL",
+    );
+    // Use exit code 1 for missing configuration (not a runtime error)
+    // This is intentional - server cannot start without OAuth configuration
+    process.exit(1);
+  }
+  return new OAuth2Client(
+    env.GOOGLE_CLIENT_ID,
+    env.GOOGLE_CLIENT_SECRET,
+    redirectUri,
+  );
+}
 
-// Create an oAuth client to authorize the API call. Secrets are kept in environment variables.
-const oAuth2Client = new OAuth2Client(
-  env.GOOGLE_CLIENT_ID,
-  env.GOOGLE_CLIENT_SECRET,
-  GOOGLE_REDIRECT_URI,
-);
+// Initialize on first use (lazy)
+let oAuth2Client: OAuth2Client | null = null;
+function getOAuth2ClientInstance(): OAuth2Client {
+  if (!oAuth2Client) {
+    console.log("Using Google OAuth credentials from environment variables");
+    const redirectUri = getGoogleRedirectUri();
+    console.log(`Redirect URI: ${redirectUri}`);
+    oAuth2Client = new OAuth2Client(
+      env.GOOGLE_CLIENT_ID,
+      env.GOOGLE_CLIENT_SECRET,
+      redirectUri,
+    );
+  }
+  return oAuth2Client;
+}
 
 interface TokenExchangeRequest {
   code: string;
@@ -54,12 +70,13 @@ export const exchangeCodeForToken = async (
     const { code } = req.body;
 
     // Exchange the authorization code for access token and refresh token
-    const { tokens } = await oAuth2Client.getToken({
+    const client = getOAuth2ClientInstance();
+    const { tokens } = await client.getToken({
       code,
-      redirect_uri: GOOGLE_REDIRECT_URI, // Ensure this matches the registered redirect URI
+      redirect_uri: getGoogleRedirectUri(), // Ensure this matches the registered redirect URI
     });
     // Set the refresh token
-    oAuth2Client.setCredentials({
+    client.setCredentials({
       refresh_token: tokens.refresh_token,
     });
     res.json({
@@ -81,14 +98,15 @@ export const getUserInfo = async (
     const { accessToken } = req.body;
 
     // Set the access token
-    oAuth2Client.setCredentials({
+    const client = getOAuth2ClientInstance();
+    client.setCredentials({
       access_token: accessToken,
     });
 
     // You can use this info to get user information too.
     const url =
       "https://people.googleapis.com/v1/people/me?personFields=names,emailAddresses,photos";
-    const response = await oAuth2Client.request({ url });
+    const response = await client.request({ url });
 
     const data = response.data as {
       emailAddresses?: Array<{ value?: string }>;
@@ -127,12 +145,13 @@ export const refreshAccessToken = async (
     }
 
     // Set the refresh token
-    oAuth2Client.setCredentials({
+    const client = getOAuth2ClientInstance();
+    client.setCredentials({
       refresh_token: refreshToken,
     });
 
     // Refresh the access token
-    const { credentials } = await oAuth2Client.refreshAccessToken();
+    const { credentials } = await client.refreshAccessToken();
 
     if (!credentials.access_token) {
       return res.status(500).json({ error: "Failed to refresh access token" });
