@@ -1,6 +1,7 @@
 import { OAuth2Client } from "google-auth-library";
 import type { Request, Response } from "express";
 import { env } from "../env.js";
+import { writeToken, readToken } from "../utils/vaultClient.js";
 
 // Lazy initialization functions to ensure dotenv is loaded before accessing env
 function getGoogleRedirectUri(): string {
@@ -30,6 +31,7 @@ function getOAuth2ClientInstance(): OAuth2Client {
 
 interface TokenExchangeRequest {
   code: string;
+  userEmail?: string;
 }
 
 interface UserInfoRequest {
@@ -37,7 +39,8 @@ interface UserInfoRequest {
 }
 
 interface RefreshTokenRequest {
-  refreshToken: string;
+  refreshToken?: string;
+  userEmail?: string;
 }
 
 /* Route for exchanging authorization code for access token and refresh token */
@@ -62,6 +65,54 @@ export const exchangeCodeForToken = async (
     client.setCredentials({
       refresh_token: tokens.refresh_token,
     });
+
+    // Get userEmail from request or fetch from Google
+    let userEmail = req.body.userEmail;
+    if (!userEmail && tokens.access_token) {
+      try {
+        // Fetch user info from Google's userinfo endpoint (simpler, always available with oauth scopes)
+        const response = await fetch(
+          "https://www.googleapis.com/oauth2/v3/userinfo",
+          {
+            headers: {
+              Authorization: `Bearer ${tokens.access_token}`,
+            },
+          },
+        );
+        if (response.ok) {
+          const data = (await response.json()) as { email?: string };
+          userEmail = data.email;
+          if (userEmail) {
+            console.log("Fetched user email from Google:", userEmail);
+          }
+        }
+      } catch (error) {
+        console.error("Failed to fetch user email:", error);
+      }
+    }
+
+    // Write tokens to Vault if userEmail is available
+    if (userEmail && tokens.access_token && tokens.refresh_token) {
+      try {
+        await writeToken(userEmail, {
+          accessToken: tokens.access_token,
+          refreshToken: tokens.refresh_token,
+        });
+        console.log("Tokens written to Vault for user:", userEmail);
+      } catch (error) {
+        // Log error but don't fail the request - tokens are still returned to client
+        console.error(
+          "Failed to write tokens to Vault for user:",
+          userEmail,
+          error,
+        );
+      }
+    } else {
+      console.warn(
+        `Cannot write to Vault - missing: ${!userEmail ? "userEmail" : ""} ${!tokens.access_token ? "access_token" : ""} ${!tokens.refresh_token ? "refresh_token" : ""}`.trim(),
+      );
+    }
+
     res.json({
       accessToken: tokens.access_token,
       refreshToken: tokens.refresh_token,
@@ -121,16 +172,31 @@ export const refreshAccessToken = async (
   res: Response,
 ) => {
   try {
-    const { refreshToken } = req.body;
+    const { refreshToken, userEmail } = req.body;
+    let tokenToUse = refreshToken;
 
-    if (!refreshToken) {
+    // If userEmail is provided but no refreshToken, read from Vault
+    if (!tokenToUse && userEmail) {
+      try {
+        const tokens = await readToken(userEmail);
+        tokenToUse = tokens.refreshToken;
+      } catch (error) {
+        console.error("Failed to read token from Vault:", error);
+        return res.status(400).json({
+          error: "Refresh token is required",
+          details: "Could not retrieve refresh token from Vault",
+        });
+      }
+    }
+
+    if (!tokenToUse) {
       return res.status(400).json({ error: "Refresh token is required" });
     }
 
     // Set the refresh token
     const client = getOAuth2ClientInstance();
     client.setCredentials({
-      refresh_token: refreshToken,
+      refresh_token: tokenToUse,
     });
 
     // Refresh the access token
@@ -138,6 +204,19 @@ export const refreshAccessToken = async (
 
     if (!credentials.access_token) {
       return res.status(500).json({ error: "Failed to refresh access token" });
+    }
+
+    // Write updated tokens to Vault if userEmail is provided
+    if (userEmail) {
+      try {
+        await writeToken(userEmail, {
+          accessToken: credentials.access_token,
+          refreshToken: tokenToUse,
+        });
+      } catch (error) {
+        // Log error but don't fail the request - token is still returned
+        console.error("Failed to write tokens to Vault:", error);
+      }
     }
 
     res.json({ accessToken: credentials.access_token });

@@ -1,7 +1,21 @@
 # =============================================================================
-# LinguistNow - Portainer Stack Configuration (Pre-built Images)
+# LinguistNow - Production Stack Configuration (Pre-built Images)
 # =============================================================================
-# Use this file for deploying pre-built images from GitHub Container Registry.
+# PURPOSE: Production deployment with Docker/Portainer
+#          Uses pre-built images and connects to existing infrastructure
+#
+# PREREQUISITES:
+#   - shared_net network exists
+#   - Vault deployed separately (see docker-compose.vault.yml)
+#   - n8n deployed separately with external secrets configured
+#
+# USE THIS FILE WHEN:
+#   - Deploying to production with Portainer (any Docker host)
+#   - You have shared infrastructure (Vault, n8n) already running
+#   - You want to use pre-built images from GitHub Container Registry
+#
+# FOR LOCAL DEVELOPMENT OR SELF-CONTAINED DEPLOYMENTS:
+#   Use docker-compose.yml instead (builds from source, includes all services)
 #
 # IMPORTANT: The frontend image has URLs baked in at build time!
 # The default pre-built image uses localhost URLs. For production, you must
@@ -25,30 +39,43 @@ services:
       # Server Configuration
       - PORT=5000
       - NODE_ENV=production
-      
+
       # Frontend URL (for CORS and OAuth redirect validation)
       - FRONTEND_URL=${FRONTEND_URL}
-      
+
       # Google OAuth (Required)
       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
       - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
       - GOOGLE_REDIRECT_URI=${FRONTEND_URL}
-      
+
       # Airtable Database (Required)
       - AIRTABLE_PERSONAL_ACCESS_TOKEN=${AIRTABLE_PERSONAL_ACCESS_TOKEN}
       - AIRTABLE_BASE_ID=${AIRTABLE_BASE_ID}
-      
+
       # n8n Workflow Integration
       - N8N_BASE_URL=${N8N_BASE_URL}
       - N8N_WEBHOOK_PATH=${N8N_WEBHOOK_PATH:-/webhook/calendar-check}
+
+      # HashiCorp Vault (External - deployed separately)
+      - VAULT_ADDR=${VAULT_ADDR:-http://shared-vault:8200}
+      - VAULT_TOKEN=${VAULT_TOKEN}
+      - VAULT_SECRET_PATH=${VAULT_SECRET_PATH:-secret/data/linguistnow/tokens}
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:5000/api/health"]
+      test:
+        [
+          "CMD",
+          "wget",
+          "--no-verbose",
+          "--tries=1",
+          "--spider",
+          "http://localhost:5000/api/health",
+        ]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 10s
     networks:
-      - linguistnow-net
+      - shared_net
 
   # ---------------------------------------------------------------------------
   # Frontend Application
@@ -70,21 +97,44 @@ services:
       backend:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/health"]
+      test:
+        [
+          "CMD",
+          "wget",
+          "--no-verbose",
+          "--tries=1",
+          "--spider",
+          "http://localhost/health",
+        ]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 5s
     networks:
-      - linguistnow-net
+      - shared_net
 
 # =============================================================================
-# Networks
+# Networks - Use external shared network for cross-stack communication
 # =============================================================================
 networks:
-  linguistnow-net:
-    driver: bridge
+  shared_net:
+    external: true
+    name: shared_net
 
+# =============================================================================
+# Required Environment Variables for Portainer
+# =============================================================================
+# Add these in Portainer's "Environment variables" section:
+#
+# FRONTEND_URL=https://linguistnow.yourdomain.com
+# GOOGLE_CLIENT_ID=your_google_client_id
+# GOOGLE_CLIENT_SECRET=your_google_client_secret
+# AIRTABLE_PERSONAL_ACCESS_TOKEN=pat_xxxxx
+# AIRTABLE_BASE_ID=appxxxxx
+# N8N_BASE_URL=https://n8n.yourdomain.com
+# VAULT_ADDR=http://shared-vault:8200
+# VAULT_TOKEN=your_linguistnow_vault_token
+#
 # =============================================================================
 # Building Frontend with Custom URLs
 # =============================================================================
@@ -99,11 +149,7 @@ networks:
 #         - VITE_BASE_URL=https://app.yourdomain.com
 #         - VITE_GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
 #     container_name: linguistnow-frontend
-#     restart: unless-stopped
-#     ports:
-#       - "${FRONTEND_PORT:-3030}:80"
 #     ...
 #
 # Or use the full docker-compose.yml which builds from source.
 # =============================================================================
-

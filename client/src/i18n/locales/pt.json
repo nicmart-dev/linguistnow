@@ -1,7 +1,10 @@
 {
     "calendarSelector": {
         "chooseCalendars": "Escolher calendários:",
-        "noCalendarsAvailable": "Nenhum calendário disponível."
+        "noCalendarsAvailable": "Nenhum calendário disponível.",
+        "tokenNotFound": "Por favor, faça login novamente para autorizar o acesso ao calendário.",
+        "tokenExpired": "Sua sessão expirou. Por favor, faça login novamente.",
+        "fetchError": "Não foi possível buscar os calendários. Por favor, tente novamente."
     },
     "accountSettings": {
         "accountSettings": "Configurações da conta",
@@ -108,8 +111,8 @@
             "unknownError": "Ocorreu um erro ao verificar a disponibilidade.",
             "invalidRefreshToken_one": "O token de atualização foi revogado ou não é mais válido para {{count}} linguista ({{emails}}). Eles precisam se reautenticar fazendo login novamente com sua conta do Google e re-selecionando seus calendários na página de configurações.",
             "invalidRefreshToken_other": "O token de atualização foi revogado ou não é mais válido para {{count}} linguistas ({{emails}}). Eles precisam se reautenticar fazendo login novamente com sua conta do Google e re-selecionando seus calendários na página de configurações.",
-            "missingCredentials_one": "IDs de calendário, token de acesso ou token de atualização não disponíveis para {{count}} linguista ({{emails}}). Por favor, peça-lhes para fazer login novamente com sua conta do Google, selecionar seus calendários e clicar no botão \"Salvar calendários\" na página de configurações.",
-            "missingCredentials_other": "IDs de calendário, token de acesso ou token de atualização não disponíveis para {{count}} linguistas ({{emails}}). Por favor, peça-lhes para fazer login novamente com sua conta do Google, selecionar seus calendários e clicar no botão \"Salvar calendários\" na página de configurações.",
+            "missingCredentials_one": "IDs de calendário ou autenticação não disponíveis para {{count}} linguista ({{emails}}). Por favor, peça-lhes para fazer login novamente com sua conta do Google, selecionar seus calendários e clicar no botão \"Salvar calendários\" na página de configurações.",
+            "missingCredentials_other": "IDs de calendário ou autenticação não disponíveis para {{count}} linguistas ({{emails}}). Por favor, peça-lhes para fazer login novamente com sua conta do Google, selecionar seus calendários e clicar no botão \"Salvar calendários\" na página de configurações.",
             "genericMultiple_one": "{{message}} ({{count}} usuário afetado: {{emails}})",
             "genericMultiple_other": "{{message}} ({{count}} usuários afetados: {{emails}})"
         },

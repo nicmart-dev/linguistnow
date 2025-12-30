@@ -8,20 +8,32 @@ const app = express();
 
 // Load and expand environment variables FIRST, before importing ANY modules that use env
 // This must happen before routes are imported, as they may import controllers that use env
+// In Docker/production, env vars come from container environment, so .env file is optional
 const envConfig = dotenv.config();
 if (envConfig.error) {
-  console.error("Error loading .env file:", envConfig.error);
+  // Check if it's a "file not found" error (expected in Docker containers)
+  const errorCode = (envConfig.error as NodeJS.ErrnoException).code;
+  if (errorCode === "ENOENT") {
+    // .env file not found - this is normal in Docker containers where env vars come from container
+    console.log(
+      "No .env file found - using environment variables from container",
+    );
+  } else {
+    // Only log error if it's not a "file not found" error
+    console.error("Error loading .env file:", envConfig.error);
+  }
 }
 dotenvExpand.expand(envConfig);
 console.log(
   "After expand - GOOGLE_CLIENT_ID:",
-  process.env.GOOGLE_CLIENT_ID ? "SET" : "NOT_SET"
+  process.env.GOOGLE_CLIENT_ID ? "SET" : "NOT_SET",
 );
 
 // Import modules that use env AFTER dotenv is loaded and expanded
 import calendarRoutes from "./routes/calendarRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import usersRoutes from "./routes/usersRoutes.js";
+import tokenRoutes from "./routes/tokenRoutes.js";
 import swaggerSpec from "./swagger.js";
 import { env } from "./env.js";
 
@@ -62,8 +74,8 @@ const corsOptions: cors.CorsOptions = {
       }
       callback(
         new Error(
-          "CORS: No allowed origins configured. Set FRONTEND_URL environment variable."
-        )
+          "CORS: No allowed origins configured. Set FRONTEND_URL environment variable.",
+        ),
       );
       return;
     }
@@ -95,7 +107,7 @@ app.get(
   swaggerUi.setup(swaggerSpec(), {
     customCss: ".swagger-ui .topbar { display: none }",
     customSiteTitle: "LinguistNow API Documentation",
-  })
+  }),
 );
 
 // Raw OpenAPI spec endpoint
@@ -136,6 +148,9 @@ app.use("/api/users", usersRoutes);
 
 // Route to manage Google calendar user data handling
 app.use("/api/calendars", calendarRoutes);
+
+// Route for token refresh (internal endpoint called by n8n)
+app.use("/api/tokens", tokenRoutes);
 
 // Start the server
 app.listen(PORT, () => {

@@ -1,7 +1,10 @@
 {
     "calendarSelector": {
         "chooseCalendars": "Elige calendarios:",
-        "noCalendarsAvailable": "No hay calendarios disponibles."
+        "noCalendarsAvailable": "No hay calendarios disponibles.",
+        "tokenNotFound": "Por favor, inicia sesión nuevamente para autorizar el acceso al calendario.",
+        "tokenExpired": "Tu sesión ha expirado. Por favor, inicia sesión nuevamente.",
+        "fetchError": "No se pudieron obtener los calendarios. Por favor, inténtalo de nuevo."
     },
     "accountSettings": {
         "accountSettings": "Configuración de cuenta",
@@ -34,8 +37,8 @@
             "unknownError": "Ocurrió un error al verificar la disponibilidad.",
             "invalidRefreshToken_one": "El token de actualización ha sido revocado o ya no es válido para {{count}} lingüista ({{emails}}). Necesitan volver a autenticarse iniciando sesión nuevamente con su cuenta de Google y volviendo a seleccionar sus calendarios en la página de configuración.",
             "invalidRefreshToken_other": "El token de actualización ha sido revocado o ya no es válido para {{count}} lingüistas ({{emails}}). Necesitan volver a autenticarse iniciando sesión nuevamente con su cuenta de Google y volviendo a seleccionar sus calendarios en la página de configuración.",
-            "missingCredentials_one": "Los ID de calendario, el token de acceso o el token de actualización no están disponibles para {{count}} lingüista ({{emails}}). Por favor, pídeles que inicien sesión nuevamente con su cuenta de Google, seleccionen sus calendarios y hagan clic en el botón \"Guardar calendarios\" en la página de configuración.",
-            "missingCredentials_other": "Los ID de calendario, el token de acceso o el token de actualización no están disponibles para {{count}} lingüistas ({{emails}}). Por favor, pídeles que inicien sesión nuevamente con su cuenta de Google, seleccionen sus calendarios y hagan clic en el botón \"Guardar calendarios\" en la página de configuración.",
+            "missingCredentials_one": "Los ID de calendario o la autenticación no están disponibles para {{count}} lingüista ({{emails}}). Por favor, pídeles que inicien sesión nuevamente con su cuenta de Google, seleccionen sus calendarios y hagan clic en el botón \"Guardar calendarios\" en la página de configuración.",
+            "missingCredentials_other": "Los ID de calendario o la autenticación no están disponibles para {{count}} lingüistas ({{emails}}). Por favor, pídeles que inicien sesión nuevamente con su cuenta de Google, seleccionen sus calendarios y hagan clic en el botón \"Guardar calendarios\" en la página de configuración.",
             "genericMultiple_one": "{{message}} ({{count}} usuario afectado: {{emails}})",
             "genericMultiple_other": "{{message}} ({{count}} usuarios afectados: {{emails}})"
         },

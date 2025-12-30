@@ -1,0 +1,116 @@
+# =============================================================================
+# HashiCorp Vault - Shared Infrastructure Stack
+# =============================================================================
+# PURPOSE: Centralized secrets management for all applications
+#          Deploy this ONCE, then connect all apps to it
+#
+# DEPLOYMENT:
+#   1. Deploy this stack first (before apps that need Vault)
+#   2. Initialize Vault (see instructions below)
+#   3. Configure n8n external secrets to connect to Vault
+#   4. Deploy apps (LinguistNow, etc.) that use Vault
+#
+# WHY SEPARATE STACK?
+#   - Vault is critical infrastructure - should have independent lifecycle
+#   - n8n can only connect to ONE external secrets store
+#   - Multiple apps can share the same Vault instance
+#   - Update apps without affecting Vault availability
+#
+# See: docs/deploy-app-to-production.md for detailed instructions.
+# =============================================================================
+
+services:
+  vault:
+    image: hashicorp/vault:latest
+    container_name: shared-vault
+    restart: unless-stopped
+    ports:
+      - "${VAULT_PORT:-8200}:8200"
+    environment:
+      # =======================================================================
+      # Development Mode (for testing) - uses in-memory storage
+      # =======================================================================
+      - VAULT_DEV_ROOT_TOKEN_ID=${VAULT_DEV_TOKEN:-dev-token}
+      - VAULT_DEV_LISTEN_ADDRESS=0.0.0.0:8200
+      # =======================================================================
+      # Production Mode - uncomment these and comment out DEV vars above
+      # =======================================================================
+      # - VAULT_ADDR=http://0.0.0.0:8200
+      # - VAULT_API_ADDR=http://vault:8200
+    cap_add:
+      - IPC_LOCK
+    volumes:
+      - vault-data:/vault/data
+      - vault-logs:/vault/logs
+    # For dev mode use: server -dev
+    # For production use: server -config=/vault/config
+    command: server -dev
+    healthcheck:
+      test: ["CMD", "vault", "status"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    networks:
+      - shared_net
+
+# =============================================================================
+# Volumes - Persistent storage for Vault
+# =============================================================================
+volumes:
+  vault-data:
+  vault-logs:
+
+# =============================================================================
+# Networks - Connect to shared network for cross-stack communication
+# =============================================================================
+networks:
+  shared_net:
+    external: true
+    name: shared_net
+
+# =============================================================================
+# Initialization After Deployment
+# =============================================================================
+# 1. FOR DEV MODE (VAULT_DEV_TOKEN set):
+#    - Vault is ready immediately
+#    - Root token is VAULT_DEV_TOKEN (default: dev-token)
+#    - Enable KV secrets engine:
+#      docker exec -it shared-vault vault secrets enable -version=2 -path=secret kv
+#
+# 2. FOR PRODUCTION MODE:
+#    docker exec -it shared-vault sh
+#    vault operator init -key-shares=1 -key-threshold=1
+#    # Save the unseal key and root token securely!
+#    vault operator unseal <unseal-key>
+#    vault secrets enable -version=2 -path=secret kv
+#
+# 3. CREATE APP-SPECIFIC POLICIES:
+#    # LinguistNow backend (read-write)
+#    vault policy write linguistnow-backend - <<EOF
+#    path "secret/data/linguistnow/*" {
+#      capabilities = ["create", "read", "update", "delete", "list"]
+#    }
+#    path "secret/metadata/linguistnow/*" {
+#      capabilities = ["list", "read", "delete"]
+#    }
+#    EOF
+#
+#    # Generate token for LinguistNow backend
+#    vault token create -policy=linguistnow-backend -ttl=0
+#
+# 4. CONFIGURE N8N EXTERNAL SECRETS:
+#    - Go to n8n Settings > External Secrets
+#    - Select HashiCorp Vault
+#    - Vault URL: http://shared-vault:8200
+#    - Auth Method: Token
+#    - Token: <root-token or dedicated n8n token>
+#    - Enable the connection
+#
+# =============================================================================
+# Environment Variables for Portainer
+# =============================================================================
+# VAULT_DEV_TOKEN=dev-token    (for dev mode)
+# VAULT_PORT=8200              (optional, default 8200)
+# =============================================================================
+

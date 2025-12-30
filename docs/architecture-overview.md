@@ -39,7 +39,8 @@ This document provides a comprehensive overview of the LinguistNow application a
 
 ### Database & Services
 
-- **Airtable** - Cloud-based database
+- **Airtable** - Cloud-based database (user profiles only, no sensitive data)
+- **HashiCorp Vault** - Secure token storage (self-hosted)
 - **n8n** - Workflow automation for calendar availability checks
 - **Google Calendar API** - Calendar integration
 
@@ -98,6 +99,7 @@ graph TB
         H[Express Server] --> I[Auth Controller]
         H --> J[Users Controller]
         H --> K[Calendar Controller]
+        H --> T[Token Refresh Controller]
     end
 
     subgraph "External Services"
@@ -105,14 +107,19 @@ graph TB
         M[Google Calendar API]
         N[Airtable]
         O[n8n Workflow]
+        V[HashiCorp Vault]
     end
 
     A -->|API Calls| H
     I -->|OAuth| L
+    I -->|Write Tokens| V
     J -->|CRUD| N
     K -->|Calendar Data| M
     H -->|Availability Check| O
+    O -->|Read Tokens| V
     O -->|Calendar Query| M
+    T -->|Refresh Tokens| V
+    T -->|OAuth| L
 
     style A fill:#61dafb
     style H fill:#90ee90

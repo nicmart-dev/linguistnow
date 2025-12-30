@@ -1,5 +1,5 @@
-import express, { type Router } from 'express';
-import usersController from '../controllers/usersController.js';
+import express, { type Router } from "express";
+import usersController from "../controllers/usersController.js";
 
 const router: Router = express.Router();
 
@@ -27,7 +27,7 @@ const router: Router = express.Router();
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.get('/', usersController.getAll);
+router.get("/", usersController.getAll);
 
 /**
  * @openapi
@@ -66,7 +66,7 @@ router.get('/', usersController.getAll);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.get('/:id', usersController.getOne);
+router.get("/:id", usersController.getOne);
 
 /**
  * @openapi
@@ -116,7 +116,7 @@ router.get('/:id', usersController.getOne);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.post('/', usersController.create);
+router.post("/", usersController.create);
 
 /**
  * @openapi
@@ -125,7 +125,7 @@ router.post('/', usersController.create);
  *     tags:
  *       - Users
  *     summary: Update user
- *     description: Updates user's calendar IDs and/or Google OAuth tokens
+ *     description: Updates user's calendar IDs. Note - OAuth tokens are stored in Vault, not Airtable.
  *     parameters:
  *       - in: path
  *         name: id
@@ -148,14 +148,6 @@ router.post('/', usersController.create);
  *                   type: string
  *                 description: List of Google Calendar IDs
  *                 example: ['calendar1@group.calendar.google.com', 'calendar2@group.calendar.google.com']
- *               googleAccessToken:
- *                 type: string
- *                 description: Google OAuth access token
- *                 example: 'ya29.a0...'
- *               googleRefreshToken:
- *                 type: string
- *                 description: Google OAuth refresh token
- *                 example: '1//0...'
  *     responses:
  *       200:
  *         description: User updated successfully
@@ -182,7 +174,7 @@ router.post('/', usersController.create);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.put('/:id', usersController.update);
+router.put("/:id", usersController.update);
 
 /**
  * @openapi
@@ -221,6 +213,6 @@ router.put('/:id', usersController.update);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.delete('/:id', usersController.remove);
+router.delete("/:id", usersController.remove);
 
 export default router;

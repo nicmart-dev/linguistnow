@@ -1,52 +1,69 @@
 import React, { useEffect, useState, useCallback } from 'react'
-import { refreshAccessToken, isAccessTokenValid } from '../auth-users/utils'
+import axios from 'axios'
 import { useTranslation } from 'react-i18next' // to localize text strings
 import Skeleton from './Skeleton'
 import { logger } from '../utils/logger'
 
 /* The CalendarSelector component fetches the user's Google Calendars 
-using their access token, handles token expiration by refreshing the access token, 
+via the backend API (which reads the access token from Vault),
 and allows the user to select and save their calendars.
  */
 const CalendarSelector = ({ userDetails, onSave }) => {
     const [fetchedCalendars, setFetchedCalendars] = useState([]) // all calendars user has access to in Google Calendar
     const [loading, setLoading] = useState(true) // state to track loading status
+    const [error, setError] = useState(null) // state to track error
     const { t } = useTranslation()
 
-    const fetchCalendars = useCallback(
-        async (accessToken) => {
-            try {
-                const isValidToken = await isAccessTokenValid(accessToken)
-                if (!isValidToken) {
-                    logger.log('Token expired, refreshing access token...')
-                    accessToken = await refreshAccessToken(
-                        userDetails['Refresh Token']
+    const fetchCalendars = useCallback(async () => {
+        if (!userDetails?.Email && !userDetails?.email) {
+            setLoading(false)
+            return
+        }
+
+        const userEmail = userDetails.Email || userDetails.email
+
+        try {
+            // Fetch calendars via backend API (token is read from Vault)
+            const response = await axios.get(
+                `${import.meta.env.VITE_API_URL}/api/calendars/list/${encodeURIComponent(userEmail)}`
+            )
+
+            setFetchedCalendars(response.data.calendars || [])
+            setError(null)
+        } catch (err) {
+            console.error('Error fetching calendars:', err)
+
+            // Handle specific error codes
+            if (err.response?.data?.code === 'TOKEN_NOT_FOUND') {
+                setError(
+                    t(
+                        'calendarSelector.tokenNotFound',
+                        'Please login again to authorize calendar access.'
                     )
-                }
-
-                const response = await fetch(
-                    'https://www.googleapis.com/calendar/v3/users/me/calendarList',
-                    {
-                        headers: new Headers({
-                            Authorization: `Bearer ${accessToken}`,
-                        }),
-                    }
                 )
-
-                const data = await response.json()
-                setFetchedCalendars(data.items)
-            } catch (error) {
-                console.error('Error fetching calendars:', error)
-            } finally {
-                setLoading(false) // set loading to false after fetch is complete
+            } else if (err.response?.data?.code === 'TOKEN_EXPIRED') {
+                setError(
+                    t(
+                        'calendarSelector.tokenExpired',
+                        'Your session has expired. Please login again.'
+                    )
+                )
+            } else {
+                setError(
+                    t(
+                        'calendarSelector.fetchError',
+                        'Unable to fetch calendars. Please try again.'
+                    )
+                )
             }
-        },
-        [userDetails]
-    )
+        } finally {
+            setLoading(false)
+        }
+    }, [userDetails, t])
 
     useEffect(() => {
-        if (userDetails && userDetails['Access Token']) {
-            fetchCalendars(userDetails['Access Token'])
+        if (userDetails) {
+            fetchCalendars()
         }
     }, [userDetails, fetchCalendars])
 
@@ -72,14 +89,15 @@ const CalendarSelector = ({ userDetails, onSave }) => {
                     {t('calendarSelector.chooseCalendars')}
                 </legend>
                 <p className="max-w-3xl text-lg mb-4">
-                    *{' '}
-                    {t('accountSettings.automaticSave')}
+                    * {t('accountSettings.automaticSave')}
                 </p>
 
                 <div className="space-y-2">
                     {/* Show skeleton loader while loading list of calendars */}
                     {loading ? (
                         <Skeleton />
+                    ) : error ? (
+                        <p className="text-red-600">{error}</p>
                     ) : fetchedCalendars && fetchedCalendars.length > 0 ? (
                         <>
                             {fetchedCalendars.map((calendar) => (
@@ -114,9 +132,7 @@ const CalendarSelector = ({ userDetails, onSave }) => {
                             ))}
                         </>
                     ) : (
-                        <p>
-                            {t('calendarSelector.noCalendarsAvailable')}
-                        </p>
+                        <p>{t('calendarSelector.noCalendarsAvailable')}</p>
                     )}
                 </div>
             </fieldset>

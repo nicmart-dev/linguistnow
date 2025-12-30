@@ -1,12 +1,117 @@
 import axios from "axios";
 import type { Request, Response } from "express";
 import { env } from "../env.js";
+import { readToken } from "../utils/vaultClient.js";
 
 interface CalendarCheckRequest {
   calendarIds: string[];
-  accessToken: string;
-  userEmail?: string;
+  userEmail: string;
 }
+
+interface GoogleCalendar {
+  id: string;
+  summary: string;
+  primary?: boolean;
+  accessRole?: string;
+}
+
+interface GoogleCalendarListResponse {
+  items?: GoogleCalendar[];
+  nextPageToken?: string;
+}
+
+/* List all calendars for a user by reading their access token from Vault */
+// GET /api/calendars/list/:userEmail
+export const listCalendars = async (
+  req: Request<{ userEmail: string }>,
+  res: Response,
+) => {
+  const { userEmail } = req.params;
+
+  if (!userEmail) {
+    return res.status(400).json({ error: "userEmail parameter is required" });
+  }
+
+  try {
+    // Read access token from Vault
+    const tokens = await readToken(userEmail);
+
+    if (!tokens.accessToken) {
+      return res.status(404).json({
+        error: "No access token found for user",
+        details: "User needs to login again to authorize calendar access.",
+        code: "TOKEN_NOT_FOUND",
+      });
+    }
+
+    // Fetch calendar list from Google
+    const response = await axios.get<GoogleCalendarListResponse>(
+      "https://www.googleapis.com/calendar/v3/users/me/calendarList",
+      {
+        headers: {
+          Authorization: `Bearer ${tokens.accessToken}`,
+        },
+        timeout: 10000,
+      },
+    );
+
+    res.status(200).json({
+      calendars: response.data.items || [],
+    });
+  } catch (error: unknown) {
+    console.error("Error fetching calendar list:", error);
+
+    // Handle Vault errors
+    if (
+      error &&
+      typeof error === "object" &&
+      "message" in error &&
+      typeof error.message === "string" &&
+      error.message.includes("Vault")
+    ) {
+      return res.status(503).json({
+        error: "Cannot read token from Vault",
+        details: "Vault service may be unavailable.",
+        code: "VAULT_ERROR",
+      });
+    }
+
+    // Handle Google API errors
+    if (error && typeof error === "object" && "response" in error) {
+      const axiosError = error as {
+        response?: {
+          status?: number;
+          data?: { error?: { message?: string; code?: number } };
+        };
+      };
+      const status = axiosError.response?.status;
+      const googleError = axiosError.response?.data?.error;
+
+      if (status === 401) {
+        return res.status(401).json({
+          error: "Access token expired or invalid",
+          details:
+            googleError?.message ||
+            "User needs to login again to refresh their token.",
+          code: "TOKEN_EXPIRED",
+        });
+      }
+
+      return res.status(status || 500).json({
+        error: "Google Calendar API error",
+        details: googleError?.message || "Unknown error from Google API",
+        code: "GOOGLE_API_ERROR",
+      });
+    }
+
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    res.status(500).json({
+      error: "Error fetching calendar list",
+      details: errorMessage,
+      code: "UNKNOWN_ERROR",
+    });
+  }
+};
 
 /* Check if given user is available against calendars they specified */
 // POST /api/calendars/free
@@ -18,7 +123,16 @@ export const isUserFree = async (
   >,
   res: Response,
 ) => {
-  const { calendarIds, accessToken, userEmail } = req.body; // Receive calendar ids list, access token, and optionally user email from the front-end
+  const { calendarIds, userEmail } = req.body; // Receive calendar ids list and user email from the front-end
+
+  // Validate required fields
+  if (!userEmail) {
+    return res.status(400).json({ error: "userEmail is required" });
+  }
+
+  if (calendarIds.length === 0) {
+    return res.status(400).json({ error: "calendarIds array is required" });
+  }
 
   try {
     // URL of N8n webhook per https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.webhook/?utm_source=n8n_app&utm_medium=node_settings_modal-credential_link&utm_campaign=n8n-nodes-base.webhook
@@ -49,13 +163,11 @@ export const isUserFree = async (
     console.log(`Calling n8n webhook: ${webhookUrl}`);
 
     // Set timeout to 90 seconds (n8n default is 60s, but we want to catch timeouts gracefully)
+    // n8n will read the access token from Vault using userEmail
     const response = await axios.post(
       webhookUrl,
-      { calendarIds },
+      { calendarIds, userEmail },
       {
-        headers: {
-          Authorization: `Bearer ${accessToken}`, // Pass access token in the header
-        },
         timeout: 90000, // 90 seconds timeout
       },
     );

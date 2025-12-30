@@ -1,7 +1,10 @@
 {
     "calendarSelector": {
         "chooseCalendars": "カレンダーを選択:",
-        "noCalendarsAvailable": "利用可能なカレンダーがありません。"
+        "noCalendarsAvailable": "利用可能なカレンダーがありません。",
+        "tokenNotFound": "カレンダーへのアクセスを許可するには、再度ログインしてください。",
+        "tokenExpired": "セッションの有効期限が切れました。再度ログインしてください。",
+        "fetchError": "カレンダーを取得できませんでした。もう一度お試しください。"
     },
     "accountSettings": {
         "accountSettings": "アカウント設定",
@@ -108,8 +111,8 @@
             "unknownError": "利用可能性を確認中にエラーが発生しました。",
             "invalidRefreshToken_one": "更新トークンが取り消されたか、{{count}}人の言語学者（{{emails}}）に対して無効になりました。Googleアカウントで再度ログインし、設定ページでカレンダーを再選択して再認証する必要があります。",
             "invalidRefreshToken_other": "更新トークンが取り消されたか、{{count}}人の言語学者（{{emails}}）に対して無効になりました。Googleアカウントで再度ログインし、設定ページでカレンダーを再選択して再認証する必要があります。",
-            "missingCredentials_one": "カレンダーID、アクセストークン、または更新トークンが{{count}}人の言語学者（{{emails}}）に対して利用できません。Googleアカウントで再度ログインし、カレンダーを選択して、設定ページで「カレンダーを保存」ボタンをクリックするよう依頼してください。",
-            "missingCredentials_other": "カレンダーID、アクセストークン、または更新トークンが{{count}}人の言語学者（{{emails}}）に対して利用できません。Googleアカウントで再度ログインし、カレンダーを選択して、設定ページで「カレンダーを保存」ボタンをクリックするよう依頼してください。",
+            "missingCredentials_one": "カレンダーIDまたは認証が{{count}}人の言語学者（{{emails}}）に対して利用できません。Googleアカウントで再度ログインし、カレンダーを選択して、設定ページで「カレンダーを保存」ボタンをクリックするよう依頼してください。",
+            "missingCredentials_other": "カレンダーIDまたは認証が{{count}}人の言語学者（{{emails}}）に対して利用できません。Googleアカウントで再度ログインし、カレンダーを選択して、設定ページで「カレンダーを保存」ボタンをクリックするよう依頼してください。",
             "genericMultiple_one": "{{message}}（{{count}}人のユーザーが影響を受けました：{{emails}}）",
             "genericMultiple_other": "{{message}}（{{count}}人のユーザーが影響を受けました：{{emails}}）"
         },

@@ -25,7 +25,10 @@
     },
     "calendarSelector": {
         "chooseCalendars": "Choose Calendars:",
-        "noCalendarsAvailable": "No calendars available."
+        "noCalendarsAvailable": "No calendars available.",
+        "tokenNotFound": "Please login again to authorize calendar access.",
+        "tokenExpired": "Your session has expired. Please login again.",
+        "fetchError": "Unable to fetch calendars. Please try again."
     },
     "accountSettings": {
         "accountSettings": "Account Settings",
@@ -61,8 +64,8 @@
             "unknownError": "An error occurred while checking availability.",
             "invalidRefreshToken_one": "The refresh token has been revoked or is no longer valid for {{count}} linguist ({{emails}}). They need to re-authenticate by logging in again with their Google account and re-selecting their calendars in the settings page.",
             "invalidRefreshToken_other": "The refresh token has been revoked or is no longer valid for {{count}} linguists ({{emails}}). They need to re-authenticate by logging in again with their Google account and re-selecting their calendars in the settings page.",
-            "missingCredentials_one": "Calendar IDs, Access Token, or Refresh Token not available for {{count}} linguist ({{emails}}). Please ask them to login again with their Google account, select their calendars and click \"Save calendars\" button in the settings page.",
-            "missingCredentials_other": "Calendar IDs, Access Token, or Refresh Token not available for {{count}} linguists ({{emails}}). Please ask them to login again with their Google account, select their calendars and click \"Save calendars\" button in the settings page.",
+            "missingCredentials_one": "Calendar IDs or authentication not available for {{count}} linguist ({{emails}}). Please ask them to login again with their Google account, select their calendars and click \"Save calendars\" button in the settings page.",
+            "missingCredentials_other": "Calendar IDs or authentication not available for {{count}} linguists ({{emails}}). Please ask them to login again with their Google account, select their calendars and click \"Save calendars\" button in the settings page.",
             "genericMultiple_one": "{{message}} ({{count}} user affected: {{emails}})",
             "genericMultiple_other": "{{message}} ({{count}} users affected: {{emails}})"
         }

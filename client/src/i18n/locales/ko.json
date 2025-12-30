@@ -1,7 +1,10 @@
 {
     "calendarSelector": {
         "chooseCalendars": "캘린더 선택:",
-        "noCalendarsAvailable": "사용 가능한 캘린더가 없습니다."
+        "noCalendarsAvailable": "사용 가능한 캘린더가 없습니다.",
+        "tokenNotFound": "캘린더 접근을 승인하려면 다시 로그인하세요.",
+        "tokenExpired": "세션이 만료되었습니다. 다시 로그인하세요.",
+        "fetchError": "캘린더를 가져올 수 없습니다. 다시 시도하세요."
     },
     "accountSettings": {
         "accountSettings": "계정 설정",
@@ -108,8 +111,8 @@
             "unknownError": "가용성을 확인하는 중 오류가 발생했습니다.",
             "invalidRefreshToken_one": "새로고침 토큰이 취소되었거나 {{count}}명의 언어학자({{emails}})에게 더 이상 유효하지 않습니다. Google 계정으로 다시 로그인하고 설정 페이지에서 캘린더를 다시 선택하여 재인증해야 합니다.",
             "invalidRefreshToken_other": "새로고침 토큰이 취소되었거나 {{count}}명의 언어학자({{emails}})에게 더 이상 유효하지 않습니다. Google 계정으로 다시 로그인하고 설정 페이지에서 캘린더를 다시 선택하여 재인증해야 합니다.",
-            "missingCredentials_one": "캘린더 ID, 액세스 토큰 또는 새로고침 토큰이 {{count}}명의 언어학자({{emails}})에게 사용할 수 없습니다. Google 계정으로 다시 로그인하고, 캘린더를 선택한 다음 설정 페이지에서 \"캘린더 저장\" 버튼을 클릭하도록 요청하세요.",
-            "missingCredentials_other": "캘린더 ID, 액세스 토큰 또는 새로고침 토큰이 {{count}}명의 언어학자({{emails}})에게 사용할 수 없습니다. Google 계정으로 다시 로그인하고, 캘린더를 선택한 다음 설정 페이지에서 \"캘린더 저장\" 버튼을 클릭하도록 요청하세요.",
+            "missingCredentials_one": "캘린더 ID 또는 인증이 {{count}}명의 언어학자({{emails}})에게 사용할 수 없습니다. Google 계정으로 다시 로그인하고, 캘린더를 선택한 다음 설정 페이지에서 \"캘린더 저장\" 버튼을 클릭하도록 요청하세요.",
+            "missingCredentials_other": "캘린더 ID 또는 인증이 {{count}}명의 언어학자({{emails}})에게 사용할 수 없습니다. Google 계정으로 다시 로그인하고, 캘린더를 선택한 다음 설정 페이지에서 \"캘린더 저장\" 버튼을 클릭하도록 요청하세요.",
             "genericMultiple_one": "{{message}} ({{count}}명의 사용자 영향: {{emails}})",
             "genericMultiple_other": "{{message}} ({{count}}명의 사용자 영향: {{emails}})"
         },

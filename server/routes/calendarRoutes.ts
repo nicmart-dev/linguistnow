@@ -1,5 +1,8 @@
-import express, { type Router } from 'express';
-import { isUserFree } from '../controllers/calendarController.js';
+import express, { type Router } from "express";
+import {
+  isUserFree,
+  listCalendars,
+} from "../controllers/calendarController.js";
 
 const router: Router = express.Router();
 
@@ -10,7 +13,7 @@ const router: Router = express.Router();
  *     tags:
  *       - Calendars
  *     summary: Check user availability
- *     description: Checks if a user is available by querying their Google Calendars through an n8n workflow
+ *     description: Checks if a user is available by querying their Google Calendars through an n8n workflow. The access token is read from Vault using the userEmail.
  *     requestBody:
  *       required: true
  *       content:
@@ -19,7 +22,7 @@ const router: Router = express.Router();
  *             type: object
  *             required:
  *               - calendarIds
- *               - accessToken
+ *               - userEmail
  *             properties:
  *               calendarIds:
  *                 type: array
@@ -27,14 +30,10 @@ const router: Router = express.Router();
  *                   type: string
  *                 description: List of Google Calendar IDs to check
  *                 example: ['primary', 'work@group.calendar.google.com']
- *               accessToken:
- *                 type: string
- *                 description: Google OAuth access token for calendar access
- *                 example: 'ya29.a0...'
  *               userEmail:
  *                 type: string
  *                 format: email
- *                 description: Optional user email for error tracking
+ *                 description: User's email address (used to fetch token from Vault)
  *                 example: user@example.com
  *     responses:
  *       200:
@@ -114,8 +113,62 @@ const router: Router = express.Router();
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.post('/free', (req, res, next) => {
+router.post("/free", (req, res, next) => {
   void isUserFree(req, res, next);
+});
+
+/**
+ * @openapi
+ * /api/calendars/list/{userEmail}:
+ *   get:
+ *     tags:
+ *       - Calendars
+ *     summary: List user's Google Calendars
+ *     description: Fetches the list of Google Calendars for a user by reading their access token from Vault
+ *     parameters:
+ *       - in: path
+ *         name: userEmail
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: email
+ *         description: The user's email address
+ *         example: user@example.com
+ *     responses:
+ *       200:
+ *         description: List of user's Google Calendars
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 calendars:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: string
+ *                         example: 'primary'
+ *                       summary:
+ *                         type: string
+ *                         example: 'My Calendar'
+ *                       primary:
+ *                         type: boolean
+ *                       accessRole:
+ *                         type: string
+ *                         example: 'owner'
+ *       400:
+ *         description: Missing userEmail parameter
+ *       401:
+ *         description: Access token expired or invalid
+ *       404:
+ *         description: No access token found for user in Vault
+ *       503:
+ *         description: Cannot reach Vault service
+ */
+router.get("/list/:userEmail", (req, res, next) => {
+  void listCalendars(req, res, next);
 });
 
 export default router;

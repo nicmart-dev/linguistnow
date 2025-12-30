@@ -1,51 +1,69 @@
-## Overview:
+# Store User Data in Airtable
 
-Airtable is used is the app to store and manage user data efficiently and effortlessly.
+## Table of Contents
+
+- [Overview](#overview)
+  - [Frontend](#frontend)
+  - [Backend](#backend)
+- [Airtable Configuration](#airtable-configuration)
+  - [Airtable Data Structure](#airtable-data-structure)
+  - [Airtable Environment](#airtable-environment)
+- [Why Airtable?](#why-airtable)
+
+---
+
+## Overview
+
+Airtable is used in the app to store and manage user data efficiently and effortlessly.
 
 Access the base at https://airtable.com/ after [creating it](./install-instructions.md#airtable-database).
 
+> **Note**: OAuth tokens (Access Token and Refresh Token) are stored in **HashiCorp Vault**, not Airtable. See [Vault Integration Guide](./n8n-vault-integration-guide.md) for details.
+
 Below are the key steps and components involved in this implementation:
 
-### Frontend:
+### Frontend
 
 - **Login Component:**
-
   - Upon successful login, fetches user data from Google.
   - Checks if the user exists in Airtable and creates a new user if not found.
-  - Updates user details and tokens in Airtable.
+  - Tokens are stored in Vault by the backend (not in Airtable).
 
 - **Account Settings Component:**
   - Utilizes the CalendarSelector component to manage user's calendar selections.
-  - Saves selected calendars and Google tokens in Airtable.
-  - Validates user existence before updating their information.
+  - Saves selected calendar IDs in Airtable.
+  - Fetches calendar list via backend API (which reads tokens from Vault).
 
-### Backend:
+### Backend
 
 - **Express Routes:**
-
   - Defined routes to handle CRUD operations on user records.
   - Implemented routes for fetching all users, fetching a single user, creating a new user, updating user information, and deleting a user.
+  - Calendar routes fetch tokens from Vault for Google API calls.
 
 - **Users Controller:**
   - Utilized official [Airtable API](https://airtable.com/developers/web/api/introduction) Node.js client to interact with the Airtable database.
   - Implemented functions for fetching, creating, updating, and deleting user records.
   - Securely handled API key and implemented error handling for robustness.
+  - **Note**: Token fields have been removed from Airtable - tokens are stored in Vault.
 
-## Airtable configuration
+## Airtable Configuration
 
-### Airtable data structure
+### Airtable Data Structure
 
-A simple structure was retained to store the data with appropriate [field types](https://support.airtable.com/docs/supported-field-types-in-airtable-overview), with:
+A simple structure was retained to store the data with appropriate [field types](https://support.airtable.com/docs/supported-field-types-in-airtable-overview):
 
-- Email an `Email` field type,
-- Picture a `URL`,
-- Name a `single line text`,
-- Role a `Single select`, and
-- all 3 others `Long text`.
+| Field        | Type             | Description                         |
+| ------------ | ---------------- | ----------------------------------- |
+| Email        | Email            | User's email address (primary key)  |
+| Name         | Single line text | User's display name                 |
+| Picture      | URL              | Profile picture URL from Google     |
+| Role         | Single select    | `Linguist` or `Project Manager`     |
+| Calendar IDs | Long text        | Comma-separated Google Calendar IDs |
 
-<img alt="image" src="https://github.com/nicmart-dev/linguistnow/assets/10499747/3fc40dd9-b868-45bb-89c9-30998d2282fb">
+> **Note**: The `Access Token` and `Refresh Token` columns have been **deprecated** and removed. OAuth tokens are now stored securely in [HashiCorp Vault](./n8n-vault-integration-guide.md).
 
-### Airtable environment
+### Airtable Environment
 
 - Created personal access token https://airtable.com/developers/web/guides/personal-access-tokens
 - Stored that token and base ID securely as environment variables:

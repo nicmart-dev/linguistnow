@@ -1,7 +1,10 @@
 {
     "calendarSelector": {
         "chooseCalendars": "选择日历：",
-        "noCalendarsAvailable": "没有可用的日历。"
+        "noCalendarsAvailable": "没有可用的日历。",
+        "tokenNotFound": "请重新登录以授权日历访问。",
+        "tokenExpired": "您的会话已过期。请重新登录。",
+        "fetchError": "无法获取日历。请重试。"
     },
     "accountSettings": {
         "accountSettings": "帐户设置",
@@ -34,8 +37,8 @@
             "unknownError": "检查可用性时发生错误。",
             "invalidRefreshToken_one": "刷新令牌已被撤销或不再有效，涉及 {{count}} 位语言学家（{{emails}}）。他们需要重新登录其 Google 账户，并在设置页面重新选择其日历。",
             "invalidRefreshToken_other": "刷新令牌已被撤销或不再有效，涉及 {{count}} 位语言学家（{{emails}}）。他们需要重新登录其 Google 账户，并在设置页面重新选择其日历。",
-            "missingCredentials_one": "日历 ID、访问令牌或刷新令牌不可用，涉及 {{count}} 位语言学家（{{emails}}）。请要求他们使用其 Google 账户重新登录，选择其日历，并在设置页面点击\"保存日历\"按钮。",
-            "missingCredentials_other": "日历 ID、访问令牌或刷新令牌不可用，涉及 {{count}} 位语言学家（{{emails}}）。请要求他们使用其 Google 账户重新登录，选择其日历，并在设置页面点击\"保存日历\"按钮。",
+            "missingCredentials_one": "日历 ID 或身份验证不可用，涉及 {{count}} 位语言学家（{{emails}}）。请要求他们使用其 Google 账户重新登录，选择其日历，并在设置页面点击\"保存日历\"按钮。",
+            "missingCredentials_other": "日历 ID 或身份验证不可用，涉及 {{count}} 位语言学家（{{emails}}）。请要求他们使用其 Google 账户重新登录，选择其日历，并在设置页面点击\"保存日历\"按钮。",
             "genericMultiple_one": "{{message}}（{{count}} 位用户受影响：{{emails}}）",
             "genericMultiple_other": "{{message}}（{{count}} 位用户受影响：{{emails}}）"
         },

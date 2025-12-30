@@ -1,7 +1,21 @@
 # =============================================================================
-# LinguistNow Docker Compose Configuration
+# LinguistNow Docker Compose - Full Stack (Build from Source)
 # =============================================================================
-# Deployment target: Synology DS425+ with Portainer
+# PURPOSE: Local development or self-contained deployments
+#          Builds all images from source and includes ALL services
+#
+# INCLUDES: Frontend, Backend, n8n, Vault (everything in one stack)
+#
+# USE THIS FILE WHEN:
+#   - Developing locally
+#   - Deploying a fresh, self-contained instance
+#   - You want everything running together for simplicity
+#
+# FOR PRODUCTION WITH SHARED INFRASTRUCTURE:
+#   Use these files instead:
+#   - docker-compose.vault.yml  → Deploy Vault separately (shared by all apps)
+#   - docker-compose.prod.yml   → Deploy LinguistNow (connects to external Vault)
+#   - n8n in its own stack      → Configure external secrets to shared Vault
 #
 # USAGE:
 # 1. Copy example.env files and configure your environment:
@@ -9,14 +23,10 @@
 #    - server/example.env -> server/.env for local development
 #    - client/example.env -> client/.env for local development
 #
-# 2. For production on Synology/Portainer:
-#    - Set environment variables in Portainer stack configuration
-#    - Or create a .env file in the same directory as docker-compose.yml
-#
-# 3. Build and run:
+# 2. Build and run:
 #    docker-compose up -d --build
 #
-# 4. View logs:
+# 3. View logs:
 #    docker-compose logs -f
 # =============================================================================
 
@@ -37,29 +47,46 @@ services:
       # Server Configuration
       - PORT=5000
       - NODE_ENV=${NODE_ENV:-production}
-      
+
       # Frontend URL (for CORS and OAuth redirect)
       - FRONTEND_URL=${FRONTEND_URL:-http://localhost:3000}
-      
+
       # Google OAuth Configuration
       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
       - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
       - GOOGLE_REDIRECT_URI=${GOOGLE_REDIRECT_URI:-${FRONTEND_URL:-http://localhost:3000}}
-      
+
       # Airtable Database Configuration
       - AIRTABLE_PERSONAL_ACCESS_TOKEN=${AIRTABLE_PERSONAL_ACCESS_TOKEN}
       - AIRTABLE_BASE_ID=${AIRTABLE_BASE_ID}
-      
+
       # n8n Workflow Configuration
       # Note: Use Docker service name 'n8n' for internal network communication
       - N8N_BASE_URL=${N8N_BASE_URL:-http://n8n:5678}
       - N8N_WEBHOOK_PATH=${N8N_WEBHOOK_PATH:-/webhook/calendar-check}
+
+      # HashiCorp Vault Configuration
+      # Note: Use Docker service name 'vault' for internal network communication
+      - VAULT_ADDR=${VAULT_ADDR:-http://vault:8200}
+      - VAULT_TOKEN=${VAULT_TOKEN}
+      - VAULT_SECRET_PATH=${VAULT_SECRET_PATH:-secret/data/linguistnow/tokens}
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:5000/api/health"]
+      test:
+        [
+          "CMD",
+          "wget",
+          "--no-verbose",
+          "--tries=1",
+          "--spider",
+          "http://localhost:5000/api/health",
+        ]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 10s
+    depends_on:
+      vault:
+        condition: service_healthy
     networks:
       - linguistnow-net
     logging:
@@ -90,7 +117,15 @@ services:
       backend:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/health"]
+      test:
+        [
+          "CMD",
+          "wget",
+          "--no-verbose",
+          "--tries=1",
+          "--spider",
+          "http://localhost/health",
+        ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -118,22 +153,68 @@ services:
       # For Synology with reverse proxy: https://n8n.yourdomain.com/
       - WEBHOOK_URL=${N8N_EXTERNAL_URL:-http://localhost:5678}/
       - GENERIC_TIMEZONE=${GENERIC_TIMEZONE:-America/Vancouver}
-      
+
       # Optional: Basic auth for n8n UI (recommended for production)
       - N8N_BASIC_AUTH_ACTIVE=${N8N_BASIC_AUTH_ACTIVE:-false}
       - N8N_BASIC_AUTH_USER=${N8N_BASIC_AUTH_USER:-}
       - N8N_BASIC_AUTH_PASSWORD=${N8N_BASIC_AUTH_PASSWORD:-}
-      
+
       # Optional: Disable public API
       - N8N_PUBLIC_API_DISABLED=${N8N_PUBLIC_API_DISABLED:-false}
     volumes:
       - n8n_data:/home/node/.n8n
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:5678/healthz"]
+      test:
+        [
+          "CMD",
+          "wget",
+          "--no-verbose",
+          "--tries=1",
+          "--spider",
+          "http://localhost:5678/healthz",
+        ]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 30s
+    networks:
+      - linguistnow-net
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ---------------------------------------------------------------------------
+  # HashiCorp Vault (Secrets Management)
+  # ---------------------------------------------------------------------------
+  vault:
+    image: hashicorp/vault:latest
+    container_name: linguistnow-vault
+    restart: unless-stopped
+    ports:
+      - "${VAULT_PORT:-8200}:8200"
+    environment:
+      # Development mode (for initial setup/testing)
+      # Change to production mode for persistent data
+      VAULT_DEV_ROOT_TOKEN_ID: ${VAULT_DEV_TOKEN:-dev-token}
+      VAULT_DEV_LISTEN_ADDRESS: "0.0.0.0:8200"
+      # Production mode settings (uncomment when ready)
+      # VAULT_ADDR: "http://0.0.0.0:8200"
+      # VAULT_API_ADDR: "http://vault:8200"
+    cap_add:
+      - IPC_LOCK
+    volumes:
+      - vault-data:/vault/data
+      - vault-logs:/vault/logs
+      - ./vault/config:/vault/config:ro
+    command: server -dev # Change to: server -config=/vault/config for production
+    healthcheck:
+      test: ["CMD", "vault", "status"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
     networks:
       - linguistnow-net
     logging:
@@ -156,3 +237,7 @@ networks:
 volumes:
   n8n_data:
     name: linguistnow-n8n-data
+  vault-data:
+    name: linguistnow-vault-data
+  vault-logs:
+    name: linguistnow-vault-logs

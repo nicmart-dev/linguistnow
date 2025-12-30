@@ -33,6 +33,7 @@ sequenceDiagram
     participant Login as Login Page
     participant Google as Google OAuth
     participant Server as Express Server
+    participant Vault as HashiCorp Vault
     participant Airtable as Airtable DB
 
     User->>Login: Click "Sign in with Google"
@@ -41,6 +42,8 @@ sequenceDiagram
     Login->>Server: POST /api/auth/google/code<br/>{ code }
     Server->>Google: Exchange code for tokens
     Google->>Server: { accessToken, refreshToken }
+    Server->>Vault: Write tokens to secret path
+    Vault->>Server: Success
     Server->>Login: { accessToken, refreshToken }
     Login->>Google: GET user info (with accessToken)
     Google->>Login: User profile data
@@ -48,7 +51,7 @@ sequenceDiagram
     alt User not found
         Login->>Airtable: Create new user
     else User exists
-        Login->>Airtable: Update tokens
+        Login->>Airtable: Update user profile
     end
     Airtable->>Login: User data
     Login->>User: Navigate to Dashboard/Settings
@@ -108,37 +111,42 @@ Ultimately, the best choice depends on your project's specific needs, your team'
 - Renders Google sign-in button and on click invoke `useGoogleLogin` of `@react-oauth/google` library.
 - Handles successful and failed sign-in attempts.
 - Get user info from Google
-- Create/get matching user in Airtable and store user and access and refresh tokens there
-- Stores tokens in `userDetails` parent state.
+- Create/get matching user in Airtable (profile data only - tokens stored in Vault)
+- Sends authorization code to backend which stores tokens securely in HashiCorp Vault
 - **Persistence**: After successful login, stores the user's email in `localStorage` to enable authentication persistence across page refreshes.
 
 ### Dashboard page
 
 - Get list of linguists at page load from Airtable
-- Check validity of access token for each user against Google API and use refresh token to get new one if needed
-- For each linguist, check their availability using n8n workflow, sending `Calendar IDs` and `access token` stored in Airtable
-- n8n workflow runs once for each linguist and uses access token given in [Check when busy](./n8n-workflow-integration.md#check-when-busy) action node
+- For each linguist, check their availability using n8n workflow, sending `Calendar IDs` and `userEmail`
+- n8n workflow reads access token from Vault using `userEmail` and uses it in [Check when busy](./n8n-workflow-integration.md#check-when-busy) action node
+- Token refresh is handled automatically by background service (no client-side refresh needed)
 
 ## Token Refresh Flow
+
+### On-Demand Refresh (when needed)
 
 ```mermaid
 sequenceDiagram
     participant Component
-    participant Utils as auth-users/utils.js
     participant Server as Express Server
+    participant Vault as HashiCorp Vault
     participant Google as Google OAuth API
 
-    Note over Component,Google: Token expires or becomes invalid
+    Note over Component,Google: Token refresh needed
 
-    Component->>Utils: refreshAccessToken(refreshToken)
-    Utils->>Server: POST /api/auth/google/refresh<br/>{ refreshToken }
+    Component->>Server: POST /api/auth/google/refresh<br/>{ userEmail }
+    Server->>Vault: Read tokens
+    Vault->>Server: { accessToken, refreshToken }
     Server->>Google: Refresh access token<br/>(with client secret)
     Google->>Server: New accessToken
-    Server->>Utils: { accessToken }
-    Utils->>Component: accessToken
-
-    Note over Component: Component updates state<br/>with new token
+    Server->>Vault: Write updated tokens
+    Server->>Component: { accessToken }
 ```
+
+### Background Refresh (preventive)
+
+A scheduled n8n workflow calls `POST /api/tokens/refresh-all` monthly to refresh all tokens proactively, preventing 6-month inactivity expiration.
 
 ## Security Improvements
 
@@ -204,17 +212,7 @@ const refreshAccessToken = async (req, res) => {
 };
 ```
 
-**Client Utility** (`client/src/auth-users/utils.js`):
-
-```javascript
-export const refreshAccessToken = async (refreshToken) => {
-  const response = await axios.post(
-    `${import.meta.env.VITE_API_URL}/api/auth/google/refresh`,
-    { refreshToken }
-  );
-  return response.data.accessToken;
-};
-```
+**Note**: Token refresh is now handled entirely server-side. The client no longer manages tokens directly - they are stored in HashiCorp Vault and accessed by the backend and n8n workflow.
 
 ### Environment Variables
 
@@ -299,11 +297,11 @@ All authentication logic is centralized in `client/src/auth-users/utils.ts`:
 
 ### Utility Functions
 
-1. `isAccessTokenValid(accessToken)` - Validates tokens
-2. `refreshAccessToken(refreshToken)` - Refreshes expired tokens
-3. `fetchUserDetails(email, setUserDetails)` - Gets user from Airtable
-4. `fetchUserList()` - Retrieves all users
-5. `createUserIfNotFound(userInfo, setUserDetails)` - Creates new users
+1. `fetchUserDetails(email, setUserDetails)` - Gets user from Airtable
+2. `fetchUserList()` - Retrieves all users
+3. `createUserIfNotFound(userInfo, setUserDetails)` - Creates new users
+
+**Note:** Token validation and refresh utilities have been removed from the client. Token management is now handled server-side with Vault storage.
 
 ## Related Documentation
 
