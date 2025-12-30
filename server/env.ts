@@ -13,13 +13,16 @@ const envSchema = z
     N8N_WEBHOOK_PATH: z.string().optional(),
     GOOGLE_REDIRECT_URI: z.url().optional(),
     BACKEND_URL: z.url().optional(),
+    VAULT_ADDR: z.url().optional(),
+    VAULT_TOKEN: z.string().optional(),
+    VAULT_SECRET_PATH: z.string().optional(),
   })
   .refine(
     (data) => data.AIRTABLE_PERSONAL_ACCESS_TOKEN || data.AIRTABLE_API_KEY,
     {
       message:
         "Either AIRTABLE_PERSONAL_ACCESS_TOKEN or AIRTABLE_API_KEY must be set",
-    }
+    },
   );
 
 let _env: z.infer<typeof envSchema> | null = null;

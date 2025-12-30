@@ -274,35 +274,8 @@ describe("usersController", () => {
       expect(jsonSpy).toHaveBeenCalledWith(updatedRecord.fields);
     });
 
-    it("should update user with tokens", async () => {
-      mockRequest = {
-        params: { id: "user@example.com" },
-        body: {
-          googleAccessToken: "access-token",
-          googleRefreshToken: "refresh-token",
-        },
-      };
-      const mockRecord = {
-        id: "rec123",
-        fields: { Email: "user@example.com" },
-      };
-      const updatedRecord = {
-        fields: {
-          Email: "user@example.com",
-          "Access Token": "access-token",
-          "Refresh Token": "refresh-token",
-        },
-      };
-      mockFirstPage.mockResolvedValue([mockRecord]);
-      mockUpdate.mockResolvedValue(updatedRecord);
-
-      await update(mockRequest as Request, mockResponse as Response);
-
-      expect(mockUpdate).toHaveBeenCalledWith("rec123", {
-        "Access Token": "access-token",
-        "Refresh Token": "refresh-token",
-      });
-    });
+    // Note: Token fields have been removed from usersController
+    // Tokens are now stored in Vault, not Airtable
 
     it("should return 400 when no fields provided", async () => {
       mockRequest = {

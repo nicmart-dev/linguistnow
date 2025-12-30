@@ -22,7 +22,8 @@ const Login = ({ setUserDetails }) => {
         const { code } = response // Extract the authorization code
 
         try {
-            // Send the authorization code to the backend to exchange for tokens
+            // Fetch user info from Google first (we need email for token exchange)
+            // We'll use a temporary token from the code exchange
             const tokenResponse = await axios.post(
                 `${import.meta.env.VITE_API_URL}/api/auth/google/code`,
                 { code }
@@ -31,7 +32,7 @@ const Login = ({ setUserDetails }) => {
                 'Google access and refresh tokens from server:',
                 tokenResponse.data
             )
-            const { accessToken, refreshToken } = tokenResponse.data
+            const { accessToken } = tokenResponse.data
 
             // Fetch user info from Google
             const userInfoResponse = await axios.get(
@@ -46,43 +47,38 @@ const Login = ({ setUserDetails }) => {
             const userInfo = userInfoResponse.data
             logger.log('User Info from Google:', userInfo)
 
+            // Tokens are already stored in Vault by backend (backend fetches email if not provided)
+
             /* Get user info from Google email, creating new user if it doesn't exist, 
       and save user info in parent state */
-            let fetchedUserDetails: any = null;
+            let fetchedUserDetails: any = null
             try {
                 // Get latest user details from Airtable, save in parent state
                 await fetchUserDetails(userInfo.email, (user) => {
-                    fetchedUserDetails = user;
-                    setUserDetails(user);
+                    fetchedUserDetails = user
+                    setUserDetails(user)
                 })
             } catch (error) {
                 // Create the user if not found and save to state
                 if (error.response && error.response.status === 404) {
                     await createUserIfNotFound(userInfo, (user) => {
-                        fetchedUserDetails = user;
-                        setUserDetails(user);
+                        fetchedUserDetails = user
+                        setUserDetails(user)
                     })
                 } else {
                     console.error('An error occurred:', error)
                 }
             }
-            
-            // Update the user's access and refresh tokens in DB
-            logger.log('Updating user tokens in Airtable...')
-            await axios.put(
-                `${import.meta.env.VITE_API_URL}/api/users/${userInfo.email}`,
-                {
-                    googleAccessToken: accessToken,
-                    googleRefreshToken: refreshToken,
-                }
-            )
-            
-            // Update user access tokens in the parent state, preserving Calendar IDs
+
+            // Tokens are now stored in Vault, not Airtable
+            logger.log('Tokens stored in Vault via backend')
+
+            // Update user details in state (no token fields needed)
             logger.log('Updating user details in state...')
             setUserDetails((prevDetails) => {
                 // Use fetchedUserDetails if available, otherwise fall back to prevDetails
-                const baseDetails = fetchedUserDetails || prevDetails;
-                
+                const baseDetails = fetchedUserDetails || prevDetails
+
                 if (!baseDetails) {
                     // If no previous details, create a minimal user object
                     return {
@@ -93,16 +89,12 @@ const Login = ({ setUserDetails }) => {
                         Email: userInfo.email,
                         Name: userInfo.name,
                         Role: 'Linguist',
-                        'Access Token': accessToken,
-                        'Refresh Token': refreshToken,
-                    } as any;
+                    } as any
                 }
-                // Preserve all existing fields (including Calendar IDs) and update tokens
-                return {
-                    ...baseDetails,
-                    'Access Token': accessToken,
-                    'Refresh Token': refreshToken,
-                } as any;
+                // Preserve all existing fields (including Calendar IDs)
+                // Preserve all existing fields (including Calendar IDs)
+                // Tokens are stored in Vault, not in state
+                return baseDetails
             })
 
             // Store user email in localStorage for persistence across page refreshes

@@ -11,6 +11,8 @@ let mockGetToken: ReturnType<typeof vi.fn>;
 let mockSetCredentials: ReturnType<typeof vi.fn>;
 let mockOAuthRequest: ReturnType<typeof vi.fn>;
 let mockRefreshAccessToken: ReturnType<typeof vi.fn>;
+let mockWriteToken: ReturnType<typeof vi.fn>;
+let mockReadToken: ReturnType<typeof vi.fn>;
 let exchangeCodeForToken: typeof ExchangeCodeForTokenType;
 let getUserInfo: typeof GetUserInfoType;
 let refreshAccessToken: typeof RefreshAccessTokenType;
@@ -46,6 +48,18 @@ describe("authController", () => {
       },
     }));
 
+    // Mock vaultClient
+    mockWriteToken = vi.fn().mockResolvedValue(undefined);
+    mockReadToken = vi.fn().mockResolvedValue({
+      accessToken: "existing-access-token",
+      refreshToken: "existing-refresh-token",
+    });
+
+    vi.doMock("../utils/vaultClient.js", () => ({
+      writeToken: mockWriteToken,
+      readToken: mockReadToken,
+    }));
+
     // Dynamic import after mocks are set up
     const authController = await import("./authController");
     exchangeCodeForToken = authController.exchangeCodeForToken;
@@ -64,9 +78,9 @@ describe("authController", () => {
   });
 
   describe("exchangeCodeForToken", () => {
-    it("should exchange code for tokens successfully", async () => {
+    it("should exchange code for tokens successfully and write to Vault", async () => {
       mockRequest = {
-        body: { code: "auth-code" },
+        body: { code: "auth-code", userEmail: "user@example.com" },
       };
       mockGetToken.mockResolvedValue({
         tokens: {
@@ -87,10 +101,43 @@ describe("authController", () => {
       expect(mockSetCredentials).toHaveBeenCalledWith({
         refresh_token: "refresh-token",
       });
+      // Verify tokens are written to Vault
+      expect(mockWriteToken).toHaveBeenCalledWith("user@example.com", {
+        accessToken: "access-token",
+        refreshToken: "refresh-token",
+      });
       expect(jsonSpy).toHaveBeenCalledWith({
         accessToken: "access-token",
         refreshToken: "refresh-token",
       });
+    });
+
+    it("should handle Vault write errors gracefully", async () => {
+      const consoleErrorSpy = vi
+        .spyOn(console, "error")
+        .mockImplementation(() => {});
+      mockRequest = {
+        body: { code: "auth-code", userEmail: "user@example.com" },
+      };
+      mockGetToken.mockResolvedValue({
+        tokens: {
+          access_token: "access-token",
+          refresh_token: "refresh-token",
+        },
+      });
+      mockWriteToken.mockRejectedValue(new Error("Vault error"));
+
+      await exchangeCodeForToken(
+        mockRequest as Request,
+        mockResponse as Response,
+      );
+
+      // Should still return tokens even if Vault write fails
+      expect(jsonSpy).toHaveBeenCalledWith({
+        accessToken: "access-token",
+        refreshToken: "refresh-token",
+      });
+      consoleErrorSpy.mockRestore();
     });
 
     it("should handle errors during token exchange", async () => {
@@ -184,9 +231,9 @@ describe("authController", () => {
   });
 
   describe("refreshAccessToken", () => {
-    it("should refresh access token successfully", async () => {
+    it("should refresh access token successfully and write to Vault", async () => {
       mockRequest = {
-        body: { refreshToken: "refresh-token" },
+        body: { refreshToken: "refresh-token", userEmail: "user@example.com" },
       };
       mockRefreshAccessToken.mockResolvedValue({
         credentials: {
@@ -203,8 +250,39 @@ describe("authController", () => {
         refresh_token: "refresh-token",
       });
       expect(mockRefreshAccessToken).toHaveBeenCalled();
+      // Verify new token is written to Vault
+      expect(mockWriteToken).toHaveBeenCalledWith("user@example.com", {
+        accessToken: "new-access-token",
+        refreshToken: "refresh-token",
+      });
       expect(jsonSpy).toHaveBeenCalledWith({
         accessToken: "new-access-token",
+      });
+    });
+
+    it("should read existing refresh token from Vault if userEmail provided", async () => {
+      mockRequest = {
+        body: { userEmail: "user@example.com" },
+      };
+      mockRefreshAccessToken.mockResolvedValue({
+        credentials: {
+          access_token: "new-access-token",
+        },
+      });
+
+      await refreshAccessToken(
+        mockRequest as Request,
+        mockResponse as Response,
+      );
+
+      // Should read token from Vault
+      expect(mockReadToken).toHaveBeenCalledWith("user@example.com");
+      expect(mockSetCredentials).toHaveBeenCalledWith({
+        refresh_token: "existing-refresh-token",
+      });
+      expect(mockWriteToken).toHaveBeenCalledWith("user@example.com", {
+        accessToken: "new-access-token",
+        refreshToken: "existing-refresh-token",
       });
     });
 

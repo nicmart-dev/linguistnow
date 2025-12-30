@@ -29,8 +29,7 @@ interface AirtableUserFields {
   Picture?: string;
   Role?: string;
   "Calendar IDs"?: string;
-  "Access Token"?: string;
-  "Refresh Token"?: string;
+  // Tokens are now stored in Vault, not Airtable
 }
 
 interface CreateUserRequest {
@@ -42,8 +41,7 @@ interface CreateUserRequest {
 
 interface UpdateUserRequest {
   calendarIds?: string[];
-  googleAccessToken?: string;
-  googleRefreshToken?: string;
+  // Tokens are now stored in Vault, not Airtable
 }
 
 /* GET /users
@@ -116,15 +114,15 @@ export const create = async (
 };
 
 /* PUT /users/:id
-Update lists of calendars, and Google oAuth2 tokens for a user.
-Used when user selects calendars and saves them in the account settings, 
-or when the access token is refreshed. */
+Update lists of calendars for a user.
+Used when user selects calendars and saves them in the account settings.
+Tokens are now stored in Vault, not Airtable. */
 export const update = async (
   req: Request<{ id: string }, Record<string, never>, UpdateUserRequest>,
   res: Response,
 ) => {
   const userEmail = req.params.id;
-  const { calendarIds, googleAccessToken, googleRefreshToken } = req.body;
+  const { calendarIds } = req.body;
   // Escape single quotes in email to prevent formula injection
   const escapedEmail = escapeAirtableFormulaString(userEmail);
   try {
@@ -143,9 +141,6 @@ export const update = async (
 
       // Update the fields if provided
       if (calendarIds) fieldsToUpdate["Calendar IDs"] = calendarIds.join(",");
-      if (googleAccessToken) fieldsToUpdate["Access Token"] = googleAccessToken;
-      if (googleRefreshToken)
-        fieldsToUpdate["Refresh Token"] = googleRefreshToken;
 
       // Check if any fields to update
       if (Object.keys(fieldsToUpdate).length > 0) {

@@ -32,7 +32,9 @@ function getSwaggerOptions() {
           "API for LinguistNow - A platform connecting linguists with clients through Google Calendar integration",
         contact: {
           name: "LinguistNow Support",
-          url: process.env.FRONTEND_URL || "https://github.com/nicmart-dev/linguistnow",
+          url:
+            process.env.FRONTEND_URL ||
+            "https://github.com/nicmart-dev/linguistnow",
         },
         license: {
           name: "ISC",
@@ -52,6 +54,8 @@ function getSwaggerOptions() {
         schemas: {
           User: {
             type: "object",
+            description:
+              "User data stored in Airtable. Note: OAuth tokens are stored in Vault, not Airtable.",
             properties: {
               Email: {
                 type: "string",
@@ -70,8 +74,6 @@ function getSwaggerOptions() {
                 example:
                   "calendar1@group.calendar.google.com,calendar2@group.calendar.google.com",
               },
-              "Access Token": { type: "string", example: "ya29.a0..." },
-              "Refresh Token": { type: "string", example: "1//0..." },
             },
           },
           UserInfo: {
@@ -120,6 +122,10 @@ function getSwaggerOptions() {
       {
         name: "Calendars",
         description: "Google Calendar availability endpoints",
+      },
+      {
+        name: "Tokens",
+        description: "Token management endpoints (internal)",
       },
     ],
     apis: ["./server.ts", "./routes/*.ts"],

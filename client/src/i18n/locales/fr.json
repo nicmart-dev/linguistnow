@@ -1,7 +1,10 @@
 {
     "calendarSelector": {
         "chooseCalendars": "Choisissez des calendriers:",
-        "noCalendarsAvailable": "Aucun calendrier disponible."
+        "noCalendarsAvailable": "Aucun calendrier disponible.",
+        "tokenNotFound": "Veuillez vous reconnecter pour autoriser l'accès au calendrier.",
+        "tokenExpired": "Votre session a expiré. Veuillez vous reconnecter.",
+        "fetchError": "Impossible de récupérer les calendriers. Veuillez réessayer."
     },
     "accountSettings": {
         "accountSettings": "Paramètres du compte",
@@ -34,8 +37,8 @@
             "unknownError": "Une erreur s'est produite lors de la vérification de la disponibilité.",
             "invalidRefreshToken_one": "Le jeton d'actualisation a été révoqué ou n'est plus valide pour {{count}} linguiste ({{emails}}). Ils doivent se ré-authentifier en se connectant à nouveau avec leur compte Google et en re-sélectionnant leurs calendriers dans la page des paramètres.",
             "invalidRefreshToken_other": "Le jeton d'actualisation a été révoqué ou n'est plus valide pour {{count}} linguistes ({{emails}}). Ils doivent se ré-authentifier en se connectant à nouveau avec leur compte Google et en re-sélectionnant leurs calendriers dans la page des paramètres.",
-            "missingCredentials_one": "Les identifiants de calendrier, le jeton d'accès ou le jeton d'actualisation ne sont pas disponibles pour {{count}} linguiste ({{emails}}). Veuillez leur demander de se connecter à nouveau avec leur compte Google, de sélectionner leurs calendriers et de cliquer sur le bouton \"Enregistrer les calendriers\" dans la page des paramètres.",
-            "missingCredentials_other": "Les identifiants de calendrier, le jeton d'accès ou le jeton d'actualisation ne sont pas disponibles pour {{count}} linguistes ({{emails}}). Veuillez leur demander de se connecter à nouveau avec leur compte Google, de sélectionner leurs calendriers et de cliquer sur le bouton \"Enregistrer les calendriers\" dans la page des paramètres.",
+            "missingCredentials_one": "Les identifiants de calendrier ou l'authentification ne sont pas disponibles pour {{count}} linguiste ({{emails}}). Veuillez leur demander de se connecter à nouveau avec leur compte Google, de sélectionner leurs calendriers et de cliquer sur le bouton \"Enregistrer les calendriers\" dans la page des paramètres.",
+            "missingCredentials_other": "Les identifiants de calendrier ou l'authentification ne sont pas disponibles pour {{count}} linguistes ({{emails}}). Veuillez leur demander de se connecter à nouveau avec leur compte Google, de sélectionner leurs calendriers et de cliquer sur le bouton \"Enregistrer les calendriers\" dans la page des paramètres.",
             "genericMultiple_one": "{{message}} ({{count}} utilisateur affecté : {{emails}})",
             "genericMultiple_other": "{{message}} ({{count}} utilisateurs affectés : {{emails}})"
         },

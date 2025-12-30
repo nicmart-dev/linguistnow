@@ -13,8 +13,8 @@ To install and run the LinguistNow application, you have two options:
   - [Server](#server)
   - [React app (Vite)](#react-app-vite)
   - [Airtable Database](#airtable-database)
+  - [HashiCorp Vault](#hashicorp-vault)
   - [n8n](#n8n)
-    - [Install through npm (global)](#install-through-npm-global)
     - [Configure workflow](#configure-workflow)
 - [Google OAuth setup](#google-oauth-setup)
 - [Start our app](#start-our-app)
@@ -83,9 +83,45 @@ Note: It will say "No visible records" which is fine.
 
 5. In that same `.env` variable, update `AIRTABLE_PERSONAL_ACCESS_TOKEN` with your token id (begins with `pat`)
 
+### HashiCorp Vault
+
+LinguistNow uses HashiCorp Vault to securely store OAuth tokens. You have two options:
+
+#### Option A: Use Local Vault (via Docker Compose)
+
+If you're using `docker-compose.yml`, Vault is included and starts automatically. Just set these in your `server/.env`:
+
+```env
+VAULT_ADDR=http://localhost:8200
+VAULT_TOKEN=dev-token
+```
+
+No additional setup required - dev mode is preconfigured.
+
+#### Option B: Use External Vault
+
+If you have Vault running elsewhere (e.g., on a Synology NAS or cloud), point to it:
+
+```env
+VAULT_ADDR=http://your-vault-host:8200
+VAULT_TOKEN=your-vault-token
+```
+
+For dev/testing, you can use `dev-token` (the root token). For production, create a scoped token with minimal permissions.
+
+> **For detailed Vault setup and production configuration**, see [Vault Integration Guide](./n8n-vault-integration-guide.md).
+
 ### n8n
 
-#### Install through npm (global)
+n8n handles the calendar availability workflow. Choose one deployment method:
+
+#### Option A: Use Docker Compose (Recommended)
+
+If using `docker-compose.yml`, n8n is included automatically. Skip to [Configure workflow](#configure-workflow).
+
+#### Option B: Install via npm (Standalone)
+
+For development without Docker:
 
 1. Ensure you have Node.js installed on your system.
 
@@ -101,22 +137,45 @@ Note: It will say "No visible records" which is fine.
    n8n start
    ```
 
+4. Set in your `server/.env`:
+
+   ```env
+   N8N_BASE_URL=http://localhost:5678
+   ```
+
+> **For production deployment**, see [n8n Workflow Integration - Deploy n8n](./n8n-workflow-integration.md#3-deploy-n8n).
+
 #### Configure workflow
 
-1. In the app that opened in your browser, in the first workflow that displays, remove the initial "Trigger node" in an otherwise empty canvas.
+1. Access n8n at `http://localhost:5678`
 
-2. import n8n workflow configuration from `n8n\Determine_Google_Calendar_availability.json` by clicking the Workflow menu icon > [Import from file](https://docs.n8n.io/courses/level-one/chapter-6).
+2. **Install the HashiCorp Vault community node:**
+   - Go to **Settings** → **Community Nodes**
+   - Click **Install a community node**
+   - Enter: `n8n-nodes-hashi-vault`
+   - Click **Install** and restart n8n if prompted
 
-3. Notice `Check if busy` node has a warning icon. Double click on it and select _Create new credential_ in _Header Auth_ field:
-   <img width="200" alt="image" src="https://github.com/nicmart-dev/linguistnow/assets/10499747/b9582144-2692-4f90-9b08-a42337af5152">
+3. **Create HashiCorp Vault credential:**
+   - Go to **Credentials** → **Add Credential**
+   - Search for **HashiCorp Vault API**
+   - Configure:
+     - **Vault URL**: `http://vault:8200` (for local Docker) or `http://shared-vault:8200` (for production)
+     - **Token**: `dev-token` (development) or your scoped token (production)
+   - Click **Save**
 
-4. Enter any name such as "Authorization", and as value click _Expression_ (in toggle that appears on field mouse over) paste in below code, and click _Save_:
-   `{{ $('Webhook').item.json["headers"]["authorization"] }}`
+4. **Import the workflow:**
+   - In the first workflow that displays, remove the initial "Trigger node"
+   - Click Workflow menu icon → [Import from file](https://docs.n8n.io/courses/level-one/chapter-6)
+   - Select `n8n/Determine_Google_Calendar_availability.json`
 
-  <img alt="image" src="https://github.com/nicmart-dev/linguistnow/assets/10499747/dd4abf2e-dd9e-47ff-bc6b-4328d772eb53">
+5. **Connect the credential:**
+   - Open the **"Fetch Token from Vault"** node
+   - Select the HashiCorp Vault credential you created in step 3
+   - Click **Save**
 
-5. Toggle to activate workflow:
-   <img alt="image" src="https://github.com/nicmart-dev/linguistnow/assets/10499747/56daf938-f827-4d81-91c4-9b1f7195ba84">
+6. **Activate the workflow** using the toggle in the top right
+
+> **For detailed Vault setup and production configuration**, see [Vault Integration Guide](./n8n-vault-integration-guide.md#set-up-n8n-workflow).
 
 ## Google OAuth setup
 
@@ -206,6 +265,9 @@ For a containerized setup using Docker Compose:
    # URLs (defaults work for local development)
    FRONTEND_URL=http://localhost:3000
    VITE_API_URL=http://localhost:5000
+
+   # Vault (use dev-token for local development)
+   VAULT_TOKEN=dev-token
    ```
 
 3. **Build and start all services**
@@ -223,6 +285,7 @@ For a containerized setup using Docker Compose:
    - Frontend: `http://localhost:3000`
    - Backend API: `http://localhost:5000`
    - n8n: `http://localhost:5678`
+   - Vault: `http://localhost:8200` (login with `dev-token`)
 
 ### Useful Commands
 

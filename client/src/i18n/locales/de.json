@@ -1,7 +1,10 @@
 {
     "calendarSelector": {
         "chooseCalendars": "Kalender auswählen:",
-        "noCalendarsAvailable": "Keine Kalender verfügbar."
+        "noCalendarsAvailable": "Keine Kalender verfügbar.",
+        "tokenNotFound": "Bitte melden Sie sich erneut an, um den Kalenderzugriff zu autorisieren.",
+        "tokenExpired": "Ihre Sitzung ist abgelaufen. Bitte melden Sie sich erneut an.",
+        "fetchError": "Kalender konnten nicht abgerufen werden. Bitte versuchen Sie es erneut."
     },
     "accountSettings": {
         "accountSettings": "Kontoeinstellungen",
@@ -108,8 +111,8 @@
             "unknownError": "Beim Überprüfen der Verfügbarkeit ist ein Fehler aufgetreten.",
             "invalidRefreshToken_one": "Das Aktualisierungstoken wurde widerrufen oder ist für {{count}} Linguisten ({{emails}}) nicht mehr gültig. Sie müssen sich erneut authentifizieren, indem sie sich erneut mit ihrem Google-Konto anmelden und ihre Kalender auf der Einstellungsseite erneut auswählen.",
             "invalidRefreshToken_other": "Das Aktualisierungstoken wurde widerrufen oder ist für {{count}} Linguisten ({{emails}}) nicht mehr gültig. Sie müssen sich erneut authentifizieren, indem sie sich erneut mit ihrem Google-Konto anmelden und ihre Kalender auf der Einstellungsseite erneut auswählen.",
-            "missingCredentials_one": "Kalender-IDs, Zugriffstoken oder Aktualisierungstoken sind für {{count}} Linguisten ({{emails}}) nicht verfügbar. Bitten Sie sie, sich erneut mit ihrem Google-Konto anzumelden, ihre Kalender auszuwählen und auf der Einstellungsseite auf die Schaltfläche \"Kalender speichern\" zu klicken.",
-            "missingCredentials_other": "Kalender-IDs, Zugriffstoken oder Aktualisierungstoken sind für {{count}} Linguisten ({{emails}}) nicht verfügbar. Bitten Sie sie, sich erneut mit ihrem Google-Konto anzumelden, ihre Kalender auszuwählen und auf der Einstellungsseite auf die Schaltfläche \"Kalender speichern\" zu klicken.",
+            "missingCredentials_one": "Kalender-IDs oder Authentifizierung sind für {{count}} Linguisten ({{emails}}) nicht verfügbar. Bitten Sie sie, sich erneut mit ihrem Google-Konto anzumelden, ihre Kalender auszuwählen und auf der Einstellungsseite auf die Schaltfläche \"Kalender speichern\" zu klicken.",
+            "missingCredentials_other": "Kalender-IDs oder Authentifizierung sind für {{count}} Linguisten ({{emails}}) nicht verfügbar. Bitten Sie sie, sich erneut mit ihrem Google-Konto anzumelden, ihre Kalender auszuwählen und auf der Einstellungsseite auf die Schaltfläche \"Kalender speichern\" zu klicken.",
             "genericMultiple_one": "{{message}} ({{count}} Benutzer betroffen: {{emails}})",
             "genericMultiple_other": "{{message}} ({{count}} Benutzer betroffen: {{emails}})"
         },

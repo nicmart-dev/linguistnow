@@ -1,0 +1,122 @@
+# =============================================================================
+# HashiCorp Vault - Shared Infrastructure Stack
+# =============================================================================
+# PURPOSE: Centralized secrets management for all applications
+#          Deploy this ONCE, then connect all apps to it
+#
+# DEPLOYMENT:
+#   1. Deploy this stack first (before apps that need Vault)
+#   2. Initialize Vault (see instructions below)
+#   3. Configure n8n external secrets to connect to Vault
+#   4. Deploy apps (LinguistNow, etc.) that use Vault
+#
+# WHY SEPARATE STACK?
+#   - Vault is critical infrastructure - should have independent lifecycle
+#   - n8n can only connect to ONE external secrets store
+#   - Multiple apps can share the same Vault instance
+#   - Update apps without affecting Vault availability
+#
+# See: docs/deploy-app-to-production.md for detailed instructions.
+# =============================================================================
+
+services:
+  vault:
+    image: hashicorp/vault:latest
+    container_name: shared-vault
+    restart: unless-stopped
+    ports:
+      - "${VAULT_PORT:-8200}:8200"
+    environment:
+      # =======================================================================
+      # Development Mode (default) - uses in-memory storage
+      # Data is LOST when container restarts!
+      # =======================================================================
+      - VAULT_DEV_ROOT_TOKEN_ID=${VAULT_DEV_TOKEN:-dev-token}
+      - VAULT_DEV_LISTEN_ADDRESS=0.0.0.0:8200
+      # =======================================================================
+      # Production Mode - UNCOMMENT these and COMMENT OUT dev vars above
+      # Data persists across restarts, but requires manual unseal after restart
+      # =======================================================================
+      # - VAULT_ADDR=http://0.0.0.0:8200
+      # - VAULT_API_ADDR=http://shared-vault:8200
+    cap_add:
+      - IPC_LOCK
+    volumes:
+      - vault-data:/vault/data
+      - vault-logs:/vault/logs
+      # =======================================================================
+      # Production Mode - UNCOMMENT to mount config file from host
+      # Create the config file first: /volume1/docker/vault/config/vault.hcl
+      # =======================================================================
+      # - /volume1/docker/vault/config:/vault/config:ro
+    # =======================================================================
+    # Development Mode: server -dev
+    # Production Mode:  server -config=/vault/config/vault.hcl
+    # =======================================================================
+    command: server -dev
+    healthcheck:
+      test: ["CMD", "vault", "status"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    networks:
+      - shared_net
+
+# =============================================================================
+# Volumes - Persistent storage for Vault
+# =============================================================================
+volumes:
+  vault-data:
+  vault-logs:
+
+# =============================================================================
+# Networks - Connect to shared network for cross-stack communication
+# =============================================================================
+networks:
+  shared_net:
+    external: true
+    name: shared_net
+
+# =============================================================================
+# Initialization After Deployment
+# =============================================================================
+#
+# DEVELOPMENT MODE (default):
+#   - Vault is ready immediately, no setup required
+#   - Root token: dev-token (or VAULT_DEV_TOKEN value)
+#   - KV v2 secrets engine is auto-enabled at secret/
+#   - ⚠️ Data is lost when container restarts
+#
+# PRODUCTION MODE:
+#   1. Switch to production mode (see comments above for what to change)
+#   2. Redeploy the stack
+#   3. Initialize Vault:
+#      sudo docker exec -it shared-vault sh
+#      export VAULT_ADDR=http://127.0.0.1:8200
+#      vault operator init -key-shares=1 -key-threshold=1
+#      # ⚠️ SAVE the unseal key and root token securely - cannot be recovered!
+#   4. Unseal Vault:
+#      vault operator unseal <YOUR_UNSEAL_KEY>
+#   5. Login and enable KV secrets:
+#      vault login <YOUR_ROOT_TOKEN>
+#      vault secrets enable -version=2 -path=secret kv
+#   6. (Optional) Create scoped policy and token for LinguistNow:
+#      See docs/n8n-vault-integration-guide.md for detailed steps
+#
+#   ⚠️ After every container restart, you must unseal Vault:
+#      sudo docker exec -it shared-vault sh -c \
+#        "VAULT_ADDR=http://127.0.0.1:8200 vault operator unseal <YOUR_UNSEAL_KEY>"
+#
+# =============================================================================
+# Environment Variables for Portainer
+# =============================================================================
+# Development Mode:
+#   VAULT_DEV_TOKEN=dev-token
+#   VAULT_PORT=8200 (optional)
+#
+# Production Mode:
+#   VAULT_PORT=8200 (optional)
+#   # No VAULT_DEV_TOKEN - tokens come from init process
+# =============================================================================
+

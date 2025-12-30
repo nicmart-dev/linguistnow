@@ -1,7 +1,10 @@
 {
     "calendarSelector": {
         "chooseCalendars": "اختر التقويمات:",
-        "noCalendarsAvailable": "لا توجد تقويمات متاحة."
+        "noCalendarsAvailable": "لا توجد تقويمات متاحة.",
+        "tokenNotFound": "يرجى تسجيل الدخول مرة أخرى للسماح بالوصول إلى التقويم.",
+        "tokenExpired": "انتهت صلاحية جلستك. يرجى تسجيل الدخول مرة أخرى.",
+        "fetchError": "تعذر جلب التقويمات. يرجى المحاولة مرة أخرى."
     },
     "accountSettings": {
         "accountSettings": "إعدادات الحساب",
@@ -108,8 +111,8 @@
             "unknownError": "حدث خطأ أثناء التحقق من التوفر.",
             "invalidRefreshToken_one": "تم إلغاء رمز التحديث أو لم يعد صالحاً لـ {{count}} من اللغويين ({{emails}}). يحتاجون إلى إعادة المصادقة عن طريق تسجيل الدخول مرة أخرى باستخدام حساب Google الخاص بهم وإعادة اختيار تقويماتهم في صفحة الإعدادات.",
             "invalidRefreshToken_other": "تم إلغاء رمز التحديث أو لم يعد صالحاً لـ {{count}} من اللغويين ({{emails}}). يحتاجون إلى إعادة المصادقة عن طريق تسجيل الدخول مرة أخرى باستخدام حساب Google الخاص بهم وإعادة اختيار تقويماتهم في صفحة الإعدادات.",
-            "missingCredentials_one": "معرفات التقويم أو رمز الوصول أو رمز التحديث غير متاحة لـ {{count}} من اللغويين ({{emails}}). يرجى طلب تسجيل الدخول مرة أخرى باستخدام حساب Google الخاص بهم واختيار تقويماتهم والنقر على زر \"حفظ التقويمات\" في صفحة الإعدادات.",
-            "missingCredentials_other": "معرفات التقويم أو رمز الوصول أو رمز التحديث غير متاحة لـ {{count}} من اللغويين ({{emails}}). يرجى طلب تسجيل الدخول مرة أخرى باستخدام حساب Google الخاص بهم واختيار تقويماتهم والنقر على زر \"حفظ التقويمات\" في صفحة الإعدادات.",
+            "missingCredentials_one": "معرفات التقويم أو المصادقة غير متاحة لـ {{count}} من اللغويين ({{emails}}). يرجى طلب تسجيل الدخول مرة أخرى باستخدام حساب Google الخاص بهم واختيار تقويماتهم والنقر على زر \"حفظ التقويمات\" في صفحة الإعدادات.",
+            "missingCredentials_other": "معرفات التقويم أو المصادقة غير متاحة لـ {{count}} من اللغويين ({{emails}}). يرجى طلب تسجيل الدخول مرة أخرى باستخدام حساب Google الخاص بهم واختيار تقويماتهم والنقر على زر \"حفظ التقويمات\" في صفحة الإعدادات.",
             "genericMultiple_one": "{{message}} ({{count}} مستخدم متأثر: {{emails}})",
             "genericMultiple_other": "{{message}} ({{count}} مستخدمين متأثرين: {{emails}})"
         },
@@ -121,16 +124,16 @@
         "loading": "جاري التحميل..."
     },
     "languageSelection": {
-    "english": "English",
-    "french": "Français",
-    "simplifiedChinese": "简体中文",
-    "spanish": "Español",
-    "german": "Deutsch",
-    "italian": "Italiano",
-    "portuguese": "Português",
-    "japanese": "日本語",
-    "korean": "한국어",
-    "arabic": "العربية",
+        "english": "English",
+        "french": "Français",
+        "simplifiedChinese": "简体中文",
+        "spanish": "Español",
+        "german": "Deutsch",
+        "italian": "Italiano",
+        "portuguese": "Português",
+        "japanese": "日本語",
+        "korean": "한국어",
+        "arabic": "العربية",
         "russian": "Русский"
     },
     "auth": {
