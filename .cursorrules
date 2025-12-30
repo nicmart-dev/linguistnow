@@ -1,3 +1,32 @@
+# Development Principles
+
+## Core Principles
+
+1. **API First**: Define types, interfaces, and API contracts before implementation
+2. **TDD (Test Driven Development)**: Write failing tests first, then implement to make them pass
+3. **DRY (Don't Repeat Yourself)**: Extract reusable code into shared modules
+4. **Modular**: Keep services, controllers, and utilities in separate files
+5. **Docs as Code**: Update documentation alongside implementation, not as an afterthought
+
+## Development Workflow
+
+1. Define types in `shared/` package (API contract)
+2. Write failing tests (TDD red phase)
+3. Implement to make tests pass (TDD green phase)
+4. Refactor if needed (TDD refactor phase)
+5. Update docs and Swagger alongside code changes
+
+## Code Organization
+
+- `shared/src/` - Types shared between client and server
+- `server/services/` - Business logic (testable, reusable)
+- `server/controllers/` - HTTP request/response handling
+- `server/routes/` - Route definitions with Swagger docs
+- `client/src/components/` - React components
+- `docs/` - Architecture and integration documentation
+
+---
+
 # Commit Message Guidelines
 
 Follow Conventional Commits specification: https://www.conventionalcommits.org/
