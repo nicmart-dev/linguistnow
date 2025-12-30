@@ -187,7 +187,14 @@ By default, `docker-compose.vault.yml` runs in dev mode (in-memory storage). For
 
 1. Go to **Stacks** → **shared-vault** → **Editor**
 
-2. **Update environment variables** - remove dev mode vars, add production vars:
+2. **Add Watchtower exclusion label** (prevents auto-updates that would require manual unseal):
+
+   ```yaml
+   labels:
+     - "com.centurylinklabs.watchtower.enable=false"
+   ```
+
+3. **Update environment variables** - remove dev mode vars, add production vars:
 
    ```yaml
    environment:
@@ -196,31 +203,35 @@ By default, `docker-compose.vault.yml` runs in dev mode (in-memory storage). For
      # - VAULT_DEV_LISTEN_ADDRESS=0.0.0.0:8200
 
      # Add these production variables:
-     - VAULT_ADDR=http://0.0.0.0:8200
+     - VAULT_ADDR=http://127.0.0.1:8200
      - VAULT_API_ADDR=http://shared-vault:8200
+     - SKIP_SETCAP=true
    ```
 
-3. **Update the command** from dev to production:
+4. **Update entrypoint and command** from dev to production:
 
    ```yaml
-   # Change from:
-   command: server -dev
+   # Remove or comment out (dev mode):
+   # command: server -dev
 
-   # To:
+   # Add these (production mode):
+   entrypoint: ["vault"]
    command: server -config=/vault/config/vault.hcl
    ```
 
-4. **Mount the config file** - add a volume bind mount:
+   > **Important**: The `entrypoint: ["vault"]` line bypasses `docker-entrypoint.sh`, which can cause port conflicts in production mode.
+
+5. **Mount the config file** - add a volume bind mount:
 
    ```yaml
    volumes:
      - vault-data:/vault/data
      - vault-logs:/vault/logs
      # Add this line - create the config file on your NAS first (see below)
-     - /volume1/docker/vault/config:/vault/config:ro
+     - /volume1/docker/vault/config:/vault/config
    ```
 
-5. **Create the config file on your NAS:**
+6. **Create the config file on your NAS:**
 
    ```bash
    # SSH into your NAS
@@ -242,7 +253,7 @@ By default, `docker-compose.vault.yml` runs in dev mode (in-memory storage). For
    EOF
    ```
 
-6. **Redeploy the stack** in Portainer
+7. **Redeploy the stack** in Portainer
 
 #### Step 4: Initialize Vault
 
@@ -275,6 +286,8 @@ Initial Root Token: <YOUR_ROOT_TOKEN>
 ```
 
 **⚠️ SAVE THESE SECURELY** - You cannot recover them if lost!
+
+**⚠️ Important**: Use THIS root token in your LinguistNow and n8n configurations. Any tokens from previous dev mode or other Vault instances will NOT work with this newly initialized Vault.
 
 #### Step 5: Unseal and Configure
 

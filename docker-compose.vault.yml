@@ -7,7 +7,7 @@
 # DEPLOYMENT:
 #   1. Deploy this stack first (before apps that need Vault)
 #   2. Initialize Vault (see instructions below)
-#   3. Configure n8n external secrets to connect to Vault
+#   3. Configure n8n to connect to Vault (see docs/n8n-vault-integration-guide.md)
 #   4. Deploy apps (LinguistNow, etc.) that use Vault
 #
 # WHY SEPARATE STACK?
@@ -16,44 +16,61 @@
 #   - Multiple apps can share the same Vault instance
 #   - Update apps without affecting Vault availability
 #
-# See: docs/deploy-app-to-production.md for detailed instructions.
+# ⚠️ PRODUCTION MODE REQUIRES MANUAL UNSEAL AFTER EVERY RESTART
+#   See "Unsealing After Restart" section below.
+#
+# See: docs/n8n-vault-integration-guide.md for detailed instructions.
 # =============================================================================
 
 services:
   vault:
     image: hashicorp/vault:latest
     container_name: shared-vault
+    labels:
+      # =========================================================================
+      # Exclude from Watchtower auto-updates
+      # Vault requires manual unseal after restart, so auto-updates would cause
+      # downtime until manually unsealed. Update Vault manually when convenient.
+      # =========================================================================
+      - "com.centurylinklabs.watchtower.enable=false"
     restart: unless-stopped
     ports:
       - "${VAULT_PORT:-8200}:8200"
     environment:
       # =======================================================================
-      # Development Mode (default) - uses in-memory storage
-      # Data is LOST when container restarts!
+      # Development Mode - uses in-memory storage (DATA LOST ON RESTART!)
+      # Uncomment these and comment out Production Mode vars below
       # =======================================================================
-      - VAULT_DEV_ROOT_TOKEN_ID=${VAULT_DEV_TOKEN:-dev-token}
-      - VAULT_DEV_LISTEN_ADDRESS=0.0.0.0:8200
+      # - VAULT_DEV_ROOT_TOKEN_ID=${VAULT_DEV_TOKEN:-dev-token}
+      # - VAULT_DEV_LISTEN_ADDRESS=0.0.0.0:8200
       # =======================================================================
-      # Production Mode - UNCOMMENT these and COMMENT OUT dev vars above
-      # Data persists across restarts, but requires manual unseal after restart
+      # Production Mode - data persists, but requires manual unseal after restart
       # =======================================================================
-      # - VAULT_ADDR=http://0.0.0.0:8200
-      # - VAULT_API_ADDR=http://shared-vault:8200
+      - VAULT_ADDR=http://127.0.0.1:8200
+      - VAULT_API_ADDR=http://shared-vault:8200
+      - SKIP_SETCAP=true
     cap_add:
       - IPC_LOCK
     volumes:
       - vault-data:/vault/data
       - vault-logs:/vault/logs
       # =======================================================================
-      # Production Mode - UNCOMMENT to mount config file from host
+      # Production Mode - mount config file from host
       # Create the config file first: /volume1/docker/vault/config/vault.hcl
+      # For dev mode, comment out this line
       # =======================================================================
-      # - /volume1/docker/vault/config:/vault/config:ro
+      - /volume1/docker/vault/config:/vault/config
     # =======================================================================
-    # Development Mode: server -dev
-    # Production Mode:  server -config=/vault/config/vault.hcl
+    # Development Mode:
+    #   command: server -dev
+    #   (remove entrypoint line)
+    #
+    # Production Mode:
+    #   entrypoint: ["vault"]  <- bypasses docker-entrypoint.sh (required!)
+    #   command: server -config=/vault/config/vault.hcl
     # =======================================================================
-    command: server -dev
+    entrypoint: ["vault"]
+    command: server -config=/vault/config/vault.hcl
     healthcheck:
       test: ["CMD", "vault", "status"]
       interval: 30s
@@ -79,44 +96,81 @@ networks:
     name: shared_net
 
 # =============================================================================
-# Initialization After Deployment
+# FIRST-TIME INITIALIZATION (Production Mode)
 # =============================================================================
+# After first deployment, initialize Vault (one-time only):
 #
-# DEVELOPMENT MODE (default):
-#   - Vault is ready immediately, no setup required
-#   - Root token: dev-token (or VAULT_DEV_TOKEN value)
-#   - KV v2 secrets engine is auto-enabled at secret/
-#   - ⚠️ Data is lost when container restarts
+#   sudo docker exec -it shared-vault vault operator init -key-shares=1 -key-threshold=1
 #
-# PRODUCTION MODE:
-#   1. Switch to production mode (see comments above for what to change)
-#   2. Redeploy the stack
-#   3. Initialize Vault:
-#      sudo docker exec -it shared-vault sh
-#      export VAULT_ADDR=http://127.0.0.1:8200
-#      vault operator init -key-shares=1 -key-threshold=1
-#      # ⚠️ SAVE the unseal key and root token securely - cannot be recovered!
-#   4. Unseal Vault:
-#      vault operator unseal <YOUR_UNSEAL_KEY>
-#   5. Login and enable KV secrets:
-#      vault login <YOUR_ROOT_TOKEN>
-#      vault secrets enable -version=2 -path=secret kv
-#   6. (Optional) Create scoped policy and token for LinguistNow:
-#      See docs/n8n-vault-integration-guide.md for detailed steps
+# ⚠️ SAVE THE OUTPUT SECURELY - YOU CANNOT RECOVER THESE!
+#   Unseal Key 1: <YOUR_UNSEAL_KEY>
+#   Initial Root Token: <YOUR_ROOT_TOKEN>
 #
-#   ⚠️ After every container restart, you must unseal Vault:
-#      sudo docker exec -it shared-vault sh -c \
-#        "VAULT_ADDR=http://127.0.0.1:8200 vault operator unseal <YOUR_UNSEAL_KEY>"
+# ⚠️ Use THIS root token in LinguistNow and n8n configurations.
+#   Tokens from dev mode or previous Vault instances will NOT work!
+#
+# Then unseal and configure:
+#
+#   sudo docker exec -it shared-vault vault operator unseal <YOUR_UNSEAL_KEY>
+#   sudo docker exec -it shared-vault vault login <YOUR_ROOT_TOKEN>
+#   sudo docker exec -it shared-vault vault secrets enable -version=2 -path=secret kv
+#
+# =============================================================================
+# ⚠️ UNSEALING AFTER RESTART (Production Mode)
+# =============================================================================
+# In production mode, Vault starts SEALED after every container restart.
+# Until unsealed, all apps (LinguistNow, n8n) will fail to access tokens!
+#
+# After any restart (manual, Docker restart, host reboot), run:
+#
+#   sudo docker exec -it shared-vault vault operator unseal <YOUR_UNSEAL_KEY>
+#
+# Verify Vault is unsealed:
+#
+#   sudo docker exec -it shared-vault vault status
+#
+# You should see: Sealed = false
+#
+# =============================================================================
+# CREATE APP-SPECIFIC POLICIES (Optional but recommended)
+# =============================================================================
+# For better security, create scoped tokens instead of using root token:
+#
+#   # Create policy for LinguistNow backend (read-write)
+#   sudo docker exec -it shared-vault vault policy write linguistnow-backend - <<EOF
+#   path "secret/data/linguistnow/*" {
+#     capabilities = ["create", "read", "update", "delete", "list"]
+#   }
+#   path "secret/metadata/linguistnow/*" {
+#     capabilities = ["list", "read", "delete"]
+#   }
+#   EOF
+#
+#   # Generate token for LinguistNow backend
+#   sudo docker exec -it shared-vault vault token create -policy=linguistnow-backend -period=768h
+#
+# Use the generated token as VAULT_TOKEN in LinguistNow stack.
+#
+# =============================================================================
+# DEVELOPMENT MODE (Alternative - no unseal required, but no persistence)
+# =============================================================================
+# For local development/testing where data loss on restart is acceptable:
+#
+# 1. Comment out Production Mode environment vars
+# 2. Uncomment Development Mode environment vars
+# 3. Comment out the volumes line for /vault/config
+# 4. Remove the entrypoint line
+# 5. Change command to: server -dev
+#
+# Dev mode is ready immediately with token: dev-token
 #
 # =============================================================================
 # Environment Variables for Portainer
 # =============================================================================
-# Development Mode:
+# Production Mode:
+#   VAULT_PORT=8200 (optional, default 8200)
+#
+# Development Mode (if switching to dev):
 #   VAULT_DEV_TOKEN=dev-token
 #   VAULT_PORT=8200 (optional)
-#
-# Production Mode:
-#   VAULT_PORT=8200 (optional)
-#   # No VAULT_DEV_TOKEN - tokens come from init process
 # =============================================================================
-
