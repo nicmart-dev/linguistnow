@@ -8,6 +8,18 @@ import Skeleton from '../components/Skeleton' // to sisplay while data is loadin
 import { logger } from '../utils/logger'
 import i18n from '../i18n'
 
+// Map error codes to i18n keys
+const ERROR_CODE_TO_I18N: Record<string, string> = {
+    VAULT_PERMISSION_DENIED: 'dashboard.errors.vaultPermissionDenied',
+    VAULT_ERROR: 'dashboard.errors.vaultError',
+    TOKEN_NOT_FOUND: 'dashboard.errors.tokenNotFound',
+    TOKEN_EXPIRED: 'dashboard.errors.tokenExpired',
+    GOOGLE_API_ERROR: 'dashboard.errors.googleApiError',
+    MISSING_CREDENTIALS: 'dashboard.errors.missingCredentials',
+    INVALID_REFRESH_TOKEN: 'dashboard.errors.invalidRefreshToken',
+    NETWORK_ERROR: 'dashboard.errors.networkError',
+}
+
 // Consolidate similar errors to avoid showing duplicate messages
 function consolidateErrors(
     errors: Array<{
@@ -56,43 +68,14 @@ function consolidateErrors(
                 : group.userEmails.slice(0, 5).join(', ') +
                   ` and ${count - 5} more`
 
-        // If multiple users have the same error, use i18n keys
-        if (count > 1) {
-            // Check for specific error types to provide better messages
-            if (
-                group.code === 'MISSING_CREDENTIALS' ||
-                group.message.includes('Calendar IDs')
-            ) {
-                return {
-                    i18nKey: 'dashboard.errors.missingCredentials',
-                    i18nValues: { count, emails: emailList },
-                    message: group.message, // Fallback for non-i18n contexts
-                    userEmails: group.userEmails,
-                    code: group.code,
-                    severity: group.severity,
-                }
-            } else {
-                // Extract the base message without user-specific details
-                const baseMessage = group.message
-                    .replace(/for user [^.]*\./gi, '')
-                    .replace(/User needs to re-authenticate\./gi, '')
-                    .trim()
-                return {
-                    i18nKey: 'dashboard.errors.genericMultiple',
-                    i18nValues: {
-                        message: baseMessage,
-                        count,
-                        emails: emailList,
-                    },
-                    message: group.message, // Fallback for non-i18n contexts
-                    userEmails: group.userEmails,
-                    code: group.code,
-                    severity: group.severity,
-                }
-            }
-        } else if (count === 1 && group.userEmails[0]) {
-            // Single user - keep the original message with user email
+        // Check if there's a known i18n key for this error code
+        const i18nKey = group.code ? ERROR_CODE_TO_I18N[group.code] : null
+
+        // Handle system-wide errors (no user emails) with i18n
+        if (i18nKey && count === 0) {
             return {
+                i18nKey,
+                i18nValues: {},
                 message: group.message,
                 userEmails: group.userEmails,
                 code: group.code,
@@ -100,7 +83,50 @@ function consolidateErrors(
             }
         }
 
-        // Fallback for errors without user emails
+        // If multiple users have the same error, use i18n keys
+        if (count >= 1 && i18nKey) {
+            return {
+                i18nKey,
+                i18nValues: { count, emails: emailList },
+                message: group.message,
+                userEmails: group.userEmails,
+                code: group.code,
+                severity: group.severity,
+            }
+        }
+
+        // Legacy handling for errors without a mapped code
+        if (count > 1) {
+            if (group.message.includes('Calendar IDs')) {
+                return {
+                    i18nKey: 'dashboard.errors.missingCredentials',
+                    i18nValues: { count, emails: emailList },
+                    message: group.message,
+                    userEmails: group.userEmails,
+                    code: group.code,
+                    severity: group.severity,
+                }
+            }
+            // Extract the base message without user-specific details
+            const baseMessage = group.message
+                .replace(/for user [^.]*\./gi, '')
+                .replace(/User needs to re-authenticate\./gi, '')
+                .trim()
+            return {
+                i18nKey: 'dashboard.errors.genericMultiple',
+                i18nValues: {
+                    message: baseMessage,
+                    count,
+                    emails: emailList,
+                },
+                message: group.message,
+                userEmails: group.userEmails,
+                code: group.code,
+                severity: group.severity,
+            }
+        }
+
+        // Fallback for errors without user emails or unknown codes
         return {
             message: group.message,
             userEmails: group.userEmails,
@@ -139,7 +165,60 @@ const Dashboard = ({ userName }) => {
                 )
                 logger.log('Filtered Linguists:', linguists)
 
-                for (const user of linguists) {
+                // Get list of users who have tokens in Vault (avoids unnecessary API calls)
+                let usersWithTokens: string[] = []
+                try {
+                    const tokensResponse = await axios.get(
+                        `${import.meta.env.VITE_API_URL}/api/tokens/list`
+                    )
+                    usersWithTokens = tokensResponse.data.emails || []
+                    logger.log('Users with tokens:', usersWithTokens)
+                } catch (tokenError) {
+                    // If we can't get the token list, we'll check all users and handle errors individually
+                    console.warn(
+                        'Could not fetch token list, will check all users:',
+                        tokenError
+                    )
+                }
+
+                // Filter linguists to only those with tokens (if we have the list)
+                const linguistsToCheck =
+                    usersWithTokens.length > 0
+                        ? linguists.filter((user) =>
+                              usersWithTokens.includes(user.Email)
+                          )
+                        : linguists
+
+                // Track linguists without tokens for a consolidated warning
+                const linguistsWithoutTokens =
+                    usersWithTokens.length > 0
+                        ? linguists.filter(
+                              (user) => !usersWithTokens.includes(user.Email)
+                          )
+                        : []
+
+                if (linguistsWithoutTokens.length > 0) {
+                    // Push separate errors for each linguist so consolidateErrors can properly count them
+                    for (const user of linguistsWithoutTokens) {
+                        newErrors.push({
+                            message: `No access token found for ${user.Email}. They need to login.`,
+                            userEmail: user.Email,
+                            code: 'TOKEN_NOT_FOUND',
+                            severity: 'warning',
+                        })
+                    }
+                    logger.log(
+                        'Linguists without tokens (skipped):',
+                        linguistsWithoutTokens.map((u) => u.Email)
+                    )
+                }
+
+                logger.log(
+                    'Linguists to check availability:',
+                    linguistsToCheck.map((u) => u.Email)
+                )
+
+                for (const user of linguistsToCheck) {
                     try {
                         // Check if the calendar list is present
                         if (!user['Calendar IDs']) {
@@ -151,80 +230,51 @@ const Dashboard = ({ userName }) => {
                         let availabilityResponse
 
                         try {
-                            // Trigger N8n workflow to get availability for each user
-                            // n8n will read the access token from Vault using userEmail
+                            // Check availability via Express server (which calls Google Calendar directly)
                             availabilityResponse = await axios.post(
-                                `${import.meta.env.VITE_API_URL}/api/calendars/free`,
+                                `${import.meta.env.VITE_API_URL}/api/calendars/availability`,
                                 {
                                     calendarIds: calendarIds,
                                     userEmail: user.Email,
                                 },
                                 {
-                                    // Ensure we get JSON, not HTML error pages
                                     headers: {
                                         Accept: 'application/json',
                                     },
-                                    // Timeout to prevent hanging
-                                    timeout: 120000, // 2 minutes
+                                    timeout: 30000, // 30 seconds
                                 }
                             )
                         } catch (error) {
-                            // Handle n8n workflow errors gracefully
+                            // Handle availability API errors gracefully
                             if (error.response) {
                                 const errorData = error.response.data || {}
                                 const status = error.response.status
+                                const errorCode =
+                                    errorData.code || 'UNKNOWN_ERROR'
 
                                 // Build user-friendly error message
                                 let errorMessage = `Unable to check availability for ${user.Email || user.Name || 'user'}. `
-
-                                if (status === 404) {
-                                    errorMessage +=
-                                        errorData.details ||
-                                        'The n8n workflow is not active. Please activate the workflow in n8n.'
-                                    if (errorData.hint) {
-                                        errorMessage += ` ${errorData.hint}`
-                                    }
-                                } else if (status === 503) {
-                                    errorMessage +=
-                                        errorData.details ||
-                                        'The n8n service is currently unavailable.'
-                                } else if (status === 504) {
-                                    errorMessage +=
-                                        errorData.details ||
-                                        'The n8n workflow timed out. The workflow may be stuck or processing too much data.'
-                                    if (errorData.hint) {
-                                        errorMessage += ` ${errorData.hint}`
-                                    }
-                                } else if (status === 401) {
-                                    errorMessage +=
-                                        'Authentication failed. Please check your API configuration.'
-                                    logger.log(
-                                        'Could not connect to n8n workflow. Check your API key environment variable.'
-                                    )
-                                    continue // Skip to the next user
-                                } else {
-                                    errorMessage +=
-                                        errorData.details ||
-                                        errorData.error ||
-                                        'An error occurred while checking availability.'
-                                }
+                                errorMessage +=
+                                    errorData.details ||
+                                    errorData.error ||
+                                    'An error occurred while checking availability.'
 
                                 newErrors.push({
                                     message: errorMessage,
                                     userEmail: user.Email,
-                                    code: errorData.code || 'N8N_ERROR',
+                                    code: errorCode,
                                     severity:
                                         status >= 500 ? 'error' : 'warning',
                                 })
                                 console.warn(
-                                    `n8n workflow error for ${user.Email}:`,
+                                    `Availability error for ${user.Email}:`,
                                     errorData
                                 )
                                 continue // Skip to the next user
                             } else if (error.request) {
                                 // Network error
                                 newErrors.push({
-                                    message: `Unable to reach n8n service for ${user.Email || user.Name || 'user'}. The service may be down.`,
+                                    message: `Unable to reach availability service for ${user.Email || user.Name || 'user'}. The service may be down.`,
                                     userEmail: user.Email,
                                     code: 'NETWORK_ERROR',
                                     severity: 'error',
@@ -236,21 +286,21 @@ const Dashboard = ({ userName }) => {
                             ) {
                                 // Timeout error
                                 newErrors.push({
-                                    message: `Request timed out for ${user.Email || user.Name || 'user'}. The workflow may be taking too long.`,
+                                    message: `Request timed out for ${user.Email || user.Name || 'user'}.`,
                                     userEmail: user.Email,
                                     code: 'TIMEOUT_ERROR',
                                     severity: 'warning',
                                 })
                                 continue // Skip to the next user
                             } else {
-                                // Other errors (including JSON parse errors)
+                                // Other errors
                                 newErrors.push({
                                     message: `Unexpected error for ${user.Email || user.Name || 'user'}: ${error.message || 'Unknown error'}`,
                                     userEmail: user.Email,
                                     code: 'UNEXPECTED_ERROR',
                                     severity: 'error',
                                 })
-                                continue // Skip to the next user instead of throwing
+                                continue // Skip to the next user
                             }
                         }
 
@@ -321,10 +371,27 @@ const Dashboard = ({ userName }) => {
                         })
                     }
                 }
+
+                // Add linguists without tokens to the list with a "needs login" status
+                for (const user of linguistsWithoutTokens) {
+                    processedLinguists.push({
+                        ...user,
+                        availability: {
+                            isAvailable: false,
+                            needsLogin: true,
+                            freeSlots: [],
+                            totalFreeHours: 0,
+                            workingDays: 0,
+                            hoursPerDay: {},
+                        },
+                    })
+                }
             } catch (error) {
                 console.error('Error fetching linguists:', error)
+                const errorMessage =
+                    error instanceof Error ? error.message : 'Unknown error'
                 newErrors.push({
-                    message: 'Error fetching linguists: ' + error.message,
+                    message: 'Error fetching linguists: ' + errorMessage,
                     code: 'FETCH_ERROR',
                     severity: 'error',
                 })

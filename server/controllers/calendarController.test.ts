@@ -1,7 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import type { Request, Response } from "express";
 import axios from "axios";
-import { isUserFree, listCalendars } from "./calendarController";
+import {
+  checkAvailability,
+  isUserFree,
+  listCalendars,
+} from "./calendarController";
 
 vi.mock("axios");
 const mockedAxios = vi.mocked(axios);
@@ -18,11 +22,25 @@ vi.mock("../utils/vaultClient.js", () => ({
     mockReadToken(email),
 }));
 
-// Mock env
-vi.mock("../env.js", () => ({
-  env: {
-    N8N_BASE_URL: "https://n8n.example.com",
-    N8N_WEBHOOK_PATH: "/webhook/calendar-check",
+// Mock googleCalendarClient
+const mockGetFreeBusy = vi.fn<
+  Parameters<typeof import("../services/googleCalendarClient.js").getFreeBusy>,
+  ReturnType<typeof import("../services/googleCalendarClient.js").getFreeBusy>
+>();
+vi.mock("../services/googleCalendarClient.js", () => ({
+  getFreeBusy: (
+    ...args: Parameters<
+      typeof import("../services/googleCalendarClient.js").getFreeBusy
+    >
+  ) => mockGetFreeBusy(...args),
+  GoogleCalendarError: class GoogleCalendarError extends Error {
+    code: string;
+    statusCode?: number;
+    constructor(message: string, code: string, statusCode?: number) {
+      super(message);
+      this.code = code;
+      this.statusCode = statusCode;
+    }
   },
 }));
 
@@ -42,32 +60,44 @@ describe("calendarController", () => {
     };
   });
 
-  describe("isUserFree", () => {
-    it("should call n8n webhook with userEmail and calendarIds (no accessToken)", async () => {
+  describe("checkAvailability", () => {
+    it("should check availability using Vault token and Google Calendar API", async () => {
       mockRequest = {
         body: {
           calendarIds: ["cal1@group.calendar.google.com"],
           userEmail: "user@example.com",
+          startDate: "2024-01-15T00:00:00Z",
+          endDate: "2024-01-19T23:59:59Z",
+          timezone: "UTC",
+          workingHoursStart: 8,
+          workingHoursEnd: 18,
+          minHoursPerDay: 8,
+          excludeWeekends: true,
         },
       };
-      const mockResponseData = { available: true };
-      mockedAxios.post.mockResolvedValue({ data: mockResponseData });
+      const mockTokens = {
+        accessToken: "mock-access-token",
+        refreshToken: "mock-refresh-token",
+      };
+      mockReadToken.mockResolvedValue(mockTokens);
+      mockGetFreeBusy.mockResolvedValue([]); // No busy slots
 
-      await isUserFree(mockRequest as Request, mockResponse as Response);
+      await checkAvailability(mockRequest as Request, mockResponse as Response);
 
-      // Verify no Authorization header is sent - n8n reads token from Vault
-      expect(mockedAxios.post).toHaveBeenCalledWith(
-        "https://n8n.example.com/webhook/calendar-check",
-        {
-          calendarIds: ["cal1@group.calendar.google.com"],
-          userEmail: "user@example.com",
-        },
-        {
-          timeout: 90000,
-        },
+      expect(mockReadToken).toHaveBeenCalledWith("user@example.com");
+      expect(mockGetFreeBusy).toHaveBeenCalledWith(
+        "mock-access-token",
+        ["cal1@group.calendar.google.com"],
+        "2024-01-15T00:00:00Z",
+        "2024-01-19T23:59:59Z",
       );
       expect(statusSpy).toHaveBeenCalledWith(200);
-      expect(jsonSpy).toHaveBeenCalledWith(mockResponseData);
+      expect(jsonSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          isAvailable: true,
+          workingDays: 5,
+        }),
+      );
     });
 
     it("should require userEmail", async () => {
@@ -77,106 +107,55 @@ describe("calendarController", () => {
         },
       };
 
-      await isUserFree(mockRequest as Request, mockResponse as Response);
+      await checkAvailability(mockRequest as Request, mockResponse as Response);
 
       expect(statusSpy).toHaveBeenCalledWith(400);
       expect(jsonSpy).toHaveBeenCalledWith({
         error: "userEmail is required",
+        code: "VALIDATION_ERROR",
       });
     });
 
-    it("should handle webhook path without leading slash", async () => {
-      vi.doMock("../env.js", () => ({
-        env: {
-          N8N_BASE_URL: "https://n8n.example.com",
-          N8N_WEBHOOK_PATH: "webhook/calendar-check",
-        },
-      }));
+    it("should require calendarIds", async () => {
       mockRequest = {
         body: {
-          calendarIds: ["cal1"],
           userEmail: "user@example.com",
+          calendarIds: [],
         },
       };
-      mockedAxios.post.mockResolvedValue({ data: {} });
 
-      await isUserFree(mockRequest as Request, mockResponse as Response);
+      await checkAvailability(mockRequest as Request, mockResponse as Response);
 
-      expect(mockedAxios.post).toHaveBeenCalledWith(
-        "https://n8n.example.com/webhook/calendar-check",
-        expect.objectContaining({
-          calendarIds: ["cal1"],
-          userEmail: "user@example.com",
-        }),
-        expect.objectContaining({
-          timeout: 90000,
-        }),
-      );
+      expect(statusSpy).toHaveBeenCalledWith(400);
+      expect(jsonSpy).toHaveBeenCalledWith({
+        error: "calendarIds array is required",
+        code: "VALIDATION_ERROR",
+      });
     });
 
-    it("should handle base URL with trailing slash", async () => {
-      vi.doMock("../env.js", () => ({
-        env: {
-          N8N_BASE_URL: "https://n8n.example.com/",
-          N8N_WEBHOOK_PATH: "/webhook/calendar-check",
-        },
-      }));
+    it("should return 404 when token is not found in Vault", async () => {
       mockRequest = {
         body: {
           calendarIds: ["cal1"],
           userEmail: "user@example.com",
         },
       };
-      mockedAxios.post.mockResolvedValue({ data: {} });
-
-      await isUserFree(mockRequest as Request, mockResponse as Response);
-
-      expect(mockedAxios.post).toHaveBeenCalledWith(
-        "https://n8n.example.com/webhook/calendar-check",
-        expect.objectContaining({
-          calendarIds: ["cal1"],
-          userEmail: "user@example.com",
-        }),
-        expect.objectContaining({
-          timeout: 90000,
-        }),
-      );
-    });
-
-    it("should handle 404 error from n8n", async () => {
-      const consoleErrorSpy = vi
-        .spyOn(console, "error")
-        .mockImplementation(() => {});
-      mockRequest = {
-        body: {
-          calendarIds: ["cal1"],
-          userEmail: "user@example.com",
-        },
-      };
-      mockedAxios.post.mockRejectedValue({
-        response: {
-          status: 404,
-          data: {
-            message: "Workflow not found",
-            hint: "Activate the workflow",
-          },
-        },
+      mockReadToken.mockResolvedValue({
+        accessToken: null as unknown as string,
+        refreshToken: null as unknown as string,
       });
 
-      await isUserFree(mockRequest as Request, mockResponse as Response);
+      await checkAvailability(mockRequest as Request, mockResponse as Response);
 
       expect(statusSpy).toHaveBeenCalledWith(404);
       expect(jsonSpy).toHaveBeenCalledWith({
-        error: "n8n webhook not found",
-        details: "Workflow not found",
-        hint: "Activate the workflow",
-        userEmail: "user@example.com",
-        code: "N8N_WEBHOOK_NOT_FOUND",
+        error: "No access token found for user",
+        details: "User needs to login again to authorize calendar access.",
+        code: "TOKEN_NOT_FOUND",
       });
-      consoleErrorSpy.mockRestore();
     });
 
-    it("should handle timeout errors", async () => {
+    it("should return 404 when Vault returns 404 (path not found)", async () => {
       const consoleErrorSpy = vi
         .spyOn(console, "error")
         .mockImplementation(() => {});
@@ -186,25 +165,24 @@ describe("calendarController", () => {
           userEmail: "user@example.com",
         },
       };
-      const timeoutError = new Error("timeout");
-      (timeoutError as { code?: string }).code = "ECONNABORTED";
-      mockedAxios.post.mockRejectedValue(timeoutError);
+      // Simulate Vault 404 error (path not found)
+      const vault404Error = Object.assign(new Error("Status 404"), {
+        response: { statusCode: 404, body: { errors: [] } },
+      });
+      mockReadToken.mockRejectedValue(vault404Error);
 
-      await isUserFree(mockRequest as Request, mockResponse as Response);
+      await checkAvailability(mockRequest as Request, mockResponse as Response);
 
-      expect(statusSpy).toHaveBeenCalledWith(504);
+      expect(statusSpy).toHaveBeenCalledWith(404);
       expect(jsonSpy).toHaveBeenCalledWith({
-        error: "n8n workflow timeout",
-        details:
-          "The n8n workflow took too long to execute (exceeded 90 seconds). The workflow may be stuck or processing too much data.",
-        hint: 'Check the n8n workflow execution logs. The "Stringify calendar list" node may be timing out.',
-        userEmail: "user@example.com",
-        code: "N8N_WORKFLOW_TIMEOUT",
+        error: "No access token found for user",
+        details: "User needs to login again to authorize calendar access.",
+        code: "TOKEN_NOT_FOUND",
       });
       consoleErrorSpy.mockRestore();
     });
 
-    it("should handle network errors", async () => {
+    it("should return 503 when Vault returns 403 (permission denied)", async () => {
       const consoleErrorSpy = vi
         .spyOn(console, "error")
         .mockImplementation(() => {});
@@ -214,25 +192,87 @@ describe("calendarController", () => {
           userEmail: "user@example.com",
         },
       };
-      mockedAxios.post.mockRejectedValue({
-        request: {},
-        message: "Network error",
+      // Simulate Vault 403 error (permission denied/invalid token)
+      const vault403Error = Object.assign(new Error("permission denied"), {
+        response: { statusCode: 403, body: { errors: ["permission denied"] } },
       });
+      mockReadToken.mockRejectedValue(vault403Error);
 
-      await isUserFree(mockRequest as Request, mockResponse as Response);
+      await checkAvailability(mockRequest as Request, mockResponse as Response);
 
       expect(statusSpy).toHaveBeenCalledWith(503);
       expect(jsonSpy).toHaveBeenCalledWith({
-        error: "Cannot reach n8n workflow",
+        error: "Cannot read token from Vault",
         details:
-          "The n8n service may be down or unreachable. Check N8N_BASE_URL configuration.",
-        userEmail: "user@example.com",
-        code: "N8N_SERVICE_UNAVAILABLE",
+          "Vault token may be expired or invalid. Check VAULT_TOKEN environment variable.",
+        code: "VAULT_PERMISSION_DENIED",
       });
       consoleErrorSpy.mockRestore();
     });
 
-    it("should handle other errors", async () => {
+    it("should handle calendarIds as comma-separated string", async () => {
+      mockRequest = {
+        body: {
+          calendarIds:
+            "cal1@group.calendar.google.com, cal2@group.calendar.google.com",
+          userEmail: "user@example.com",
+          startDate: "2024-01-15T00:00:00Z",
+          endDate: "2024-01-15T23:59:59Z",
+          timezone: "UTC",
+        },
+      };
+      mockReadToken.mockResolvedValue({
+        accessToken: "mock-access-token",
+        refreshToken: "mock-refresh-token",
+      });
+      mockGetFreeBusy.mockResolvedValue([]);
+
+      await checkAvailability(mockRequest as Request, mockResponse as Response);
+
+      expect(statusSpy).toHaveBeenCalledWith(200);
+      // Verify getFreeBusy was called with array parsed from string
+      expect(mockGetFreeBusy).toHaveBeenCalledWith(
+        "mock-access-token",
+        ["cal1@group.calendar.google.com", "cal2@group.calendar.google.com"],
+        "2024-01-15T00:00:00Z",
+        "2024-01-15T23:59:59Z",
+      );
+    });
+
+    it("should return isAvailable=false when user has busy slots", async () => {
+      mockRequest = {
+        body: {
+          calendarIds: ["cal1"],
+          userEmail: "user@example.com",
+          startDate: "2024-01-15T00:00:00Z",
+          endDate: "2024-01-15T23:59:59Z",
+          timezone: "UTC",
+          workingHoursStart: 8,
+          workingHoursEnd: 18,
+          minHoursPerDay: 8,
+          excludeWeekends: true,
+        },
+      };
+      mockReadToken.mockResolvedValue({
+        accessToken: "mock-access-token",
+        refreshToken: "mock-refresh-token",
+      });
+      // 6 hours of busy slots (only 4 hours free)
+      mockGetFreeBusy.mockResolvedValue([
+        { start: "2024-01-15T08:00:00Z", end: "2024-01-15T14:00:00Z" },
+      ]);
+
+      await checkAvailability(mockRequest as Request, mockResponse as Response);
+
+      expect(statusSpy).toHaveBeenCalledWith(200);
+      expect(jsonSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          isAvailable: false,
+        }),
+      );
+    });
+
+    it("should handle Vault errors", async () => {
       const consoleErrorSpy = vi
         .spyOn(console, "error")
         .mockImplementation(() => {});
@@ -242,39 +282,71 @@ describe("calendarController", () => {
           userEmail: "user@example.com",
         },
       };
-      mockedAxios.post.mockRejectedValue(new Error("Unknown error"));
+      mockReadToken.mockRejectedValue(new Error("Vault connection failed"));
 
-      await isUserFree(mockRequest as Request, mockResponse as Response);
+      await checkAvailability(mockRequest as Request, mockResponse as Response);
 
-      expect(statusSpy).toHaveBeenCalledWith(500);
+      expect(statusSpy).toHaveBeenCalledWith(503);
       expect(jsonSpy).toHaveBeenCalledWith({
-        error: "Error triggering n8n workflow",
-        details: "Unknown error",
-        userEmail: "user@example.com",
-        code: "N8N_UNKNOWN_ERROR",
+        error: "Cannot read token from Vault",
+        details: "Vault service may be unavailable.",
+        code: "VAULT_ERROR",
       });
       consoleErrorSpy.mockRestore();
     });
 
-    it("should handle missing N8N_BASE_URL", async () => {
-      vi.doMock("../env.js", () => ({
-        env: {
-          N8N_BASE_URL: undefined,
-        },
-      }));
+    it("should use default values when options not provided", async () => {
       mockRequest = {
         body: {
           calendarIds: ["cal1"],
           userEmail: "user@example.com",
+          // No other options - should use defaults
         },
       };
+      mockReadToken.mockResolvedValue({
+        accessToken: "mock-access-token",
+        refreshToken: "mock-refresh-token",
+      });
+      mockGetFreeBusy.mockResolvedValue([]);
 
-      // This test would need to reload the module to test the missing URL case
-      // For now, we'll test the error handling path
+      await checkAvailability(mockRequest as Request, mockResponse as Response);
+
+      expect(statusSpy).toHaveBeenCalledWith(200);
+      expect(jsonSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          isAvailable: expect.any(Boolean),
+          freeSlots: expect.any(Array),
+          totalFreeHours: expect.any(Number),
+          workingDays: expect.any(Number),
+          hoursPerDay: expect.any(Object),
+        }),
+      );
+    });
+  });
+
+  describe("isUserFree (deprecated)", () => {
+    it("should forward to checkAvailability", async () => {
+      mockRequest = {
+        body: {
+          calendarIds: ["cal1"],
+          userEmail: "user@example.com",
+          startDate: "2024-01-15T00:00:00Z",
+          endDate: "2024-01-15T23:59:59Z",
+          timezone: "UTC",
+        },
+      };
+      mockReadToken.mockResolvedValue({
+        accessToken: "mock-access-token",
+        refreshToken: "mock-refresh-token",
+      });
+      mockGetFreeBusy.mockResolvedValue([]);
+
       await isUserFree(mockRequest as Request, mockResponse as Response);
 
-      // The function should handle the error gracefully
-      expect(statusSpy).toHaveBeenCalled();
+      // Should use the same flow as checkAvailability
+      expect(mockReadToken).toHaveBeenCalled();
+      expect(mockGetFreeBusy).toHaveBeenCalled();
+      expect(statusSpy).toHaveBeenCalledWith(200);
     });
   });
 
@@ -334,8 +406,8 @@ describe("calendarController", () => {
         params: { userEmail: "user@example.com" },
       };
       mockReadToken.mockResolvedValue({
-        accessToken: null,
-        refreshToken: null,
+        accessToken: null as unknown as string,
+        refreshToken: null as unknown as string,
       });
 
       await listCalendars(mockRequest as Request, mockResponse as Response);

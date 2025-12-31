@@ -90,7 +90,7 @@ Uses **pre-built images** and connects to external shared infrastructure:
 
 **Prerequisites for production:**
 
-- Vault deployed via `docker-compose.vault.yml` - see [Vault Integration Guide](./n8n-vault-integration-guide.md#deploy-vault)
+- Vault deployed via `docker-compose.vault.yml` - see [Vault Integration Guide](./vault-integration-guide.md#deploy-vault)
 - n8n deployed separately - see [n8n Workflow Integration](./n8n-workflow-integration.md#3-deploy-n8n)
 
 ```bash
@@ -107,7 +107,7 @@ Deploys **Vault only** as shared infrastructure for production:
 docker-compose -f docker-compose.vault.yml up -d
 ```
 
-See [Vault Integration Guide](./n8n-vault-integration-guide.md) for initialization and configuration.
+See [Vault Integration Guide](./vault-integration-guide.md) for initialization and configuration.
 
 ---
 
@@ -206,4 +206,4 @@ For local development, Vault runs in dev mode with an in-memory backend:
 curl http://localhost:8200/v1/sys/health
 ```
 
-For production Vault setup (separate deployment), see [Vault Integration Guide](./n8n-vault-integration-guide.md).
+For production Vault setup (separate deployment), see [Vault Integration Guide](./vault-integration-guide.md).

@@ -109,7 +109,7 @@ VAULT_TOKEN=your-vault-token
 
 For dev/testing, you can use `dev-token` (the root token). For production, create a scoped token with minimal permissions.
 
-> **For detailed Vault setup and production configuration**, see [Vault Integration Guide](./n8n-vault-integration-guide.md).
+> **For detailed Vault setup and production configuration**, see [Vault Integration Guide](./vault-integration-guide.md).
 
 ### n8n
 
@@ -175,7 +175,7 @@ For development without Docker:
 
 6. **Activate the workflow** using the toggle in the top right
 
-> **For detailed Vault setup and production configuration**, see [Vault Integration Guide](./n8n-vault-integration-guide.md#set-up-n8n-workflow).
+> **For detailed Vault setup and production configuration**, see [Vault Integration Guide](./vault-integration-guide.md).
 
 ## Google OAuth setup
 

@@ -1,14 +1,14 @@
-# HashiCorp Vault Integration Guide
+# Vault Integration Guide
 
-This guide covers deploying HashiCorp Vault as shared infrastructure and integrating it with n8n and LinguistNow.
+This guide covers deploying HashiCorp Vault as shared infrastructure for secure OAuth token storage.
 
 ## Table of Contents
 
 - [Architecture Overview](#architecture-overview)
 - [Deploy Vault](#deploy-vault)
 - [Initialize Vault](#initialize-vault)
-- [Configure n8n External Secrets](#configure-n8n-external-secrets-optional) _(optional, Enterprise only)_
-- [Set Up n8n Workflow](#set-up-n8n-workflow) ← **Start here for token integration**
+- [Express Server Integration](#express-server-integration)
+- [Testing](#testing)
 - [Troubleshooting](#troubleshooting)
 
 ---
@@ -24,20 +24,23 @@ flowchart TB
     end
 
     subgraph Apps["Application Stacks"]
-        N8N["🔄 n8n"]
-        LinguistNow["📱 LinguistNow"]
+        Express["📱 LinguistNow Express"]
         FutureApp["📱 Future Apps"]
     end
 
-    N8N -->|Community Node| Vault
-    LinguistNow -->|Read/Write Tokens| Vault
+    Express -->|Read/Write Tokens| Vault
     FutureApp -.->|Future| Vault
 ```
 
-**Why separate?**
+**Key Points:**
+
+- **Express server handles all Vault operations** (read/write tokens)
+- OAuth tokens are stored at `secret/linguistnow/tokens/{userEmail}`
+- Vault is accessed via the `node-vault` library in `server/utils/vaultClient.ts`
+
+**Why separate deployment?**
 
 - Vault is critical infrastructure - should have independent lifecycle
-- n8n can only connect to ONE external secrets store
 - Multiple apps can share the same Vault instance
 - Update apps without affecting Vault availability
 
@@ -82,7 +85,7 @@ In dev mode, Vault is ready immediately - **no additional setup required**:
 - Use `dev-token` as your `VAULT_TOKEN` (the root token)
 - No policies or separate tokens needed
 
-**Environment variables for local dev:**
+**Environment variables for local dev (in `server/.env`):**
 
 ```env
 VAULT_ADDR=http://localhost:8200   # or http://vault:8200 in Docker
@@ -287,8 +290,6 @@ Initial Root Token: <YOUR_ROOT_TOKEN>
 
 **⚠️ SAVE THESE SECURELY** - You cannot recover them if lost!
 
-**⚠️ Important**: Use THIS root token in your LinguistNow and n8n configurations. Any tokens from previous dev mode or other Vault instances will NOT work with this newly initialized Vault.
-
 #### Step 5: Unseal and Configure
 
 Run these commands inside the container (or use `docker exec` one-liners):
@@ -330,154 +331,90 @@ exit
 
 ---
 
-## Configure n8n External Secrets (Optional)
+## Express Server Integration
 
-> **⚠️ Not Required for LinguistNow**: External Secrets is **not needed** for the LinguistNow integration. Skip this section and go directly to [Set Up n8n Workflow](#set-up-n8n-workflow).
+The Express server uses `server/utils/vaultClient.ts` to interact with Vault:
 
-n8n's [External Secrets](https://docs.n8n.io/external-secrets/) feature allows n8n to read secrets from Vault.
+### Environment Variables
 
-### Why External Secrets Doesn't Work for User Tokens
+Add these to `server/.env`:
 
-| Limitation                  | Impact                                                                                          |
-| --------------------------- | ----------------------------------------------------------------------------------------------- |
-| **Enterprise/Paid Feature** | External Secrets requires n8n Cloud or Enterprise license                                       |
-| **Static Paths Only**       | Only discovers top-level secrets, not nested paths like `secret/linguistnow/tokens/{userEmail}` |
-| **No Dynamic Lookup**       | Cannot use expressions to build secret paths at runtime                                         |
-
-Since LinguistNow stores per-user tokens at dynamic paths, **you must use the workflow approach** described in [Set Up n8n Workflow](#set-up-n8n-workflow). The community node works with **n8n Community Edition** (free).
-
-### Setup (Only If You Have Enterprise)
-
-If you have n8n Enterprise and want to use External Secrets for other static secrets:
-
-1. In n8n, go to **Settings** → **External Secrets**
-
-2. Select **HashiCorp Vault**
-
-3. Configure:
-   - **Vault URL**: `http://shared-vault:8200/v1` (include `/v1` path)
-   - **Authentication Method**: Token
-   - **Token**: `dev-token` (or your production token)
-   - **Vault Namespace**: (leave blank)
-
-4. Click **Save** and **Enable**
-
-5. Static secrets are accessible as:
-
-   ```
-   {{ $secrets.vault.secret_name }}
-   ```
-
-> **Note**: Secrets must be at the root level of the `secret/` path to be discovered. Nested paths won't appear.
-
----
-
-## Set Up n8n Workflow
-
-The workflow is pre-configured in `n8n/Determine_Google_Calendar_availability.json`. You just need to:
-
-1. Install the community node
-2. Create the Vault credential
-3. Import the workflow
-
-### Step 1: Install Community Node
-
-The workflow uses [`n8n-nodes-hashi-vault`](https://www.npmjs.com/package/n8n-nodes-hashi-vault) to fetch tokens from Vault.
-
-1. In n8n, go to **Settings** → **Community Nodes**
-2. Click **Install a community node**
-3. Enter: `n8n-nodes-hashi-vault`
-4. Click **Install**
-5. Restart n8n if prompted
-
-### Step 2: Create HashiCorp Vault Credential
-
-1. In n8n, go to **Credentials** → **Add Credential**
-2. Search for **HashiCorp Vault API**
-3. Configure:
-
-| Field         | Value                                                                |
-| ------------- | -------------------------------------------------------------------- |
-| **Vault URL** | `http://shared-vault:8200` (or `http://vault:8200` for local Docker) |
-| **Token**     | `dev-token` (development) or your scoped token (production)          |
-
-4. Click **Save**
-
-> **Note**: The token is stored securely in n8n's encrypted credential store. No environment variable needed in your n8n compose file.
-
-### Step 3: Import Workflow
-
-1. In n8n, go to **Workflows** → **Import from File**
-2. Select `n8n/Determine_Google_Calendar_availability.json`
-3. Open the **"Fetch Token from Vault"** node
-4. Select the credential you created in Step 2
-5. Click **Save**
-6. **Activate** the workflow
-
-### Workflow Overview
-
-```
-Webhook → Stringify calendar list → Fetch Token from Vault → Define time window → Check when busy → ...
+```env
+VAULT_ADDR=http://localhost:8200   # or http://vault:8200 in Docker
+VAULT_TOKEN=dev-token              # or your production scoped token
 ```
 
-The workflow:
+### How It Works
 
-- Receives `calendarIds` and `userEmail` from the Express backend
-- Fetches the user's OAuth token from Vault at `secret/linguistnow/tokens/{userEmail}`
-- Calls Google Calendar FreeBusy API with the token
-- Returns availability data
+1. **On user login**: Tokens are written to Vault at `secret/linguistnow/tokens/{userEmail}`
+2. **On availability check**: Tokens are read from Vault to call Google Calendar API
+3. **On token refresh**: Tokens are updated in Vault with new access token
+
+### Key Functions
+
+| Function                    | Description                               |
+| --------------------------- | ----------------------------------------- |
+| `writeToken(email, tokens)` | Store access/refresh tokens for a user    |
+| `readToken(email)`          | Retrieve tokens for a user                |
+| `listTokens()`              | List all stored user emails (for refresh) |
 
 ---
 
 ## Testing
 
-1. Ensure a user has logged in (tokens stored in Vault)
-
-2. Test with a webhook call:
+1. **Verify Vault is running:**
 
    ```bash
-   curl -X POST http://your-n8n-url/webhook/calendar-check \
-     -H "Content-Type: application/json" \
-     -d '{
-       "calendarIds": "your-calendar@group.calendar.google.com",
-       "userEmail": "user@example.com"
-     }'
+   curl http://localhost:8200/v1/sys/health
    ```
 
-3. Verify the response contains availability data
+2. **Test Express connectivity:**
+
+   ```bash
+   curl http://localhost:4000/api/health
+   ```
+
+3. **Test token storage** by logging in as a user (tokens will be stored in Vault)
+
+4. **Verify tokens are in Vault:**
+
+   ```bash
+   # From host (replace with actual user email)
+   sudo docker exec -it shared-vault sh -c "VAULT_ADDR=http://127.0.0.1:8200 vault kv get secret/linguistnow/tokens/user@example.com"
+   ```
 
 ---
 
 ## Troubleshooting
 
-### Vault not accessible from n8n
+### Vault not accessible from Express
 
 - Verify both containers are on `shared_net` network
-- Check Vault URL uses Docker DNS: `http://shared-vault:8200`
-- Test connectivity: `sudo docker exec n8n wget -qO- http://shared-vault:8200/v1/sys/health`
+- Check Vault URL uses Docker DNS: `http://shared-vault:8200` (production) or `http://vault:8200` (local Docker)
+- Test connectivity: `curl http://localhost:8200/v1/sys/health`
 
-### "permission denied" errors
+### "permission denied" errors (VAULT_PERMISSION_DENIED)
 
-- Check token has correct policy attached
-- Verify path in policy matches request path
+- Check `VAULT_TOKEN` in `server/.env` is correct
+- Verify token has correct policy attached
+- Token may have expired - generate a new one
 - Ensure KV v2 engine is enabled at `secret/`
 
-### "No token found for user"
+### "No token found for user" (TOKEN_NOT_FOUND)
 
-- Verify tokens were written to Vault during login
+- Verify user has logged in (tokens are stored on login)
 - Check the path matches: `secret/data/linguistnow/tokens/{userEmail}`
 - Check for special characters in email (may need URL encoding)
 
-### "Invalid token" in Google Calendar API
+### "Invalid token" in Google Calendar API (TOKEN_EXPIRED)
 
-- Token may have expired - check Vault for latest token
-- Verify background refresh service is running
-- Check token refresh workflow is scheduled
+- Access token has expired - user needs to log in again
+- Or set up automatic token refresh (see [n8n Workflow Integration](./n8n-workflow-integration.md))
 
 ---
 
 ## Related Documentation
 
 - [Deploy to Production](./deploy-app-to-production.md)
-- [n8n Workflow Integration](./n8n-workflow-integration.md)
-- [Google Authentication](./google-authentication.md)
+- [n8n Workflow Integration](./n8n-workflow-integration.md) - For optional token refresh scheduling
+- [Integration of Google Calendar API](./integration-of-google-calendar-api.md)

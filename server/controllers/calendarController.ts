@@ -1,12 +1,17 @@
 import axios from "axios";
 import type { Request, Response } from "express";
-import { env } from "../env.js";
 import { readToken } from "../utils/vaultClient.js";
-
-interface CalendarCheckRequest {
-  calendarIds: string[];
-  userEmail: string;
-}
+import {
+  getFreeBusy,
+  GoogleCalendarError,
+} from "../services/googleCalendarClient.js";
+import {
+  calculateAvailability,
+  getDefaultStartDate,
+  getDefaultEndDate,
+} from "../services/availabilityService.js";
+import type { AvailabilityRequest } from "@linguistnow/shared";
+import { AVAILABILITY_DEFAULTS } from "@linguistnow/shared";
 
 interface GoogleCalendar {
   id: string;
@@ -113,141 +118,200 @@ export const listCalendars = async (
   }
 };
 
-/* Check if given user is available against calendars they specified */
-// POST /api/calendars/free
-export const isUserFree = async (
+/**
+ * Check user availability against their calendars
+ * POST /api/calendars/availability
+ *
+ * This endpoint directly calls Google Calendar API (no n8n dependency).
+ * Reads access token from Vault and calculates availability in Express.
+ */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-assignment */
+export const checkAvailability = async (
   req: Request<
     Record<string, never>,
     Record<string, never>,
-    CalendarCheckRequest
+    AvailabilityRequest
   >,
   res: Response,
 ) => {
-  const { calendarIds, userEmail } = req.body; // Receive calendar ids list and user email from the front-end
+  // Extract and validate request body with explicit types
+  const body = req.body;
+  // Handle calendarIds as either string (comma-separated from Airtable) or array
+  const rawCalendarIds = body.calendarIds;
+  const calendarIds: string[] = Array.isArray(rawCalendarIds)
+    ? rawCalendarIds
+    : typeof rawCalendarIds === "string"
+      ? rawCalendarIds
+          .split(",")
+          .map((id: string) => id.trim())
+          .filter(Boolean)
+      : [];
+  const userEmail = body.userEmail;
+  const startDate = body.startDate;
+  const endDate = body.endDate;
+  const timezone = body.timezone ?? AVAILABILITY_DEFAULTS.timezone;
+  const workingHoursStart =
+    body.workingHoursStart ?? AVAILABILITY_DEFAULTS.workingHoursStart;
+  const workingHoursEnd =
+    body.workingHoursEnd ?? AVAILABILITY_DEFAULTS.workingHoursEnd;
+  const minHoursPerDay =
+    body.minHoursPerDay ?? AVAILABILITY_DEFAULTS.minHoursPerDay;
+  const excludeWeekends =
+    body.excludeWeekends ?? AVAILABILITY_DEFAULTS.excludeWeekends;
 
   // Validate required fields
   if (!userEmail) {
-    return res.status(400).json({ error: "userEmail is required" });
+    return res.status(400).json({
+      error: "userEmail is required",
+      code: "VALIDATION_ERROR",
+    });
   }
 
   if (calendarIds.length === 0) {
-    return res.status(400).json({ error: "calendarIds array is required" });
+    return res.status(400).json({
+      error: "calendarIds array is required",
+      code: "VALIDATION_ERROR",
+    });
   }
 
   try {
-    // URL of N8n webhook per https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.webhook/?utm_source=n8n_app&utm_medium=node_settings_modal-credential_link&utm_campaign=n8n-nodes-base.webhook
-    // Construct webhook URL from base URL and path
-    // Note: n8n automatically prefixes webhook paths with /webhook/
-    // If workflow path is "calendar-check", the full path becomes /webhook/calendar-check
-    const n8nBaseUrl = env.N8N_BASE_URL || process.env.N8N_BASE_URL;
-    const webhookPath =
-      process.env.N8N_WEBHOOK_PATH || "/webhook/calendar-check";
+    // Step 1: Read token from Vault (single Vault client - DRY)
+    const tokens = await readToken(userEmail);
 
-    if (!n8nBaseUrl) {
-      return res
-        .status(500)
-        .json({ error: "N8N_BASE_URL environment variable is not set" });
+    if (!tokens.accessToken) {
+      return res.status(404).json({
+        error: "No access token found for user",
+        details: "User needs to login again to authorize calendar access.",
+        code: "TOKEN_NOT_FOUND",
+      });
     }
 
-    // Clean base URL: remove trailing slash and any existing /webhook/ path
-    let baseUrl = n8nBaseUrl.replace(/\/$/, "");
-    // Remove /webhook/calendar-check if it's already in the base URL to prevent duplication
-    baseUrl = baseUrl.replace(/\/webhook\/calendar-check\/?$/, "");
+    // Step 2: Calculate time window
+    const timeMin = startDate ?? getDefaultStartDate(timezone);
+    const timeMax = endDate ?? getDefaultEndDate(timezone);
 
-    // Ensure webhook path starts with slash
-    const cleanWebhookPath = webhookPath.startsWith("/")
-      ? webhookPath
-      : `/${webhookPath}`;
-    const webhookUrl = `${baseUrl}${cleanWebhookPath}`;
-
-    console.log(`Calling n8n webhook: ${webhookUrl}`);
-
-    // Set timeout to 90 seconds (n8n default is 60s, but we want to catch timeouts gracefully)
-    // n8n will read the access token from Vault using userEmail
-    const response = await axios.post(
-      webhookUrl,
-      { calendarIds, userEmail },
-      {
-        timeout: 90000, // 90 seconds timeout
-      },
+    // Step 3: Call Google freeBusy API directly (no n8n)
+    const busySlots = await getFreeBusy(
+      tokens.accessToken,
+      calendarIds,
+      timeMin,
+      timeMax,
     );
 
-    // Send the response back to the client
-    res.status(200).json(response.data);
+    // Step 4: Calculate availability
+    const availability = calculateAvailability(busySlots, {
+      calendarIds,
+      userEmail,
+      startDate: timeMin,
+      endDate: timeMax,
+      timezone,
+      workingHoursStart,
+      workingHoursEnd,
+      minHoursPerDay,
+      excludeWeekends,
+    });
+
+    // Step 5: Return detailed response
+    res.status(200).json(availability);
   } catch (error: unknown) {
-    // Send error response back to the client with more details
-    console.error("Error triggering n8n workflow:", error);
+    console.error("Error checking availability:", error);
 
-    // Provide more specific error messages
-    if (error && typeof error === "object" && "response" in error) {
-      const axiosError = error as {
-        response?: {
-          status?: number;
-          data?: { message?: string; error?: string; hint?: string };
-        };
+    // Handle Vault errors - check for both:
+    // 1. ApiResponseError from node-vault (has response.statusCode)
+    // 2. Plain errors with "Vault" in message
+    const isVaultApiError =
+      error &&
+      typeof error === "object" &&
+      "response" in error &&
+      typeof (error as { response?: { statusCode?: number } }).response
+        ?.statusCode === "number";
+
+    const isVaultMessageError =
+      error &&
+      typeof error === "object" &&
+      "message" in error &&
+      typeof error.message === "string" &&
+      (error.message.includes("Vault") || error.message.includes("vault"));
+
+    if (isVaultApiError) {
+      const vaultError = error as {
+        response: { statusCode: number };
+        message?: string;
       };
-      // n8n returned an error response
-      const status = axiosError.response?.status;
-      const data = axiosError.response?.data;
+      const statusCode = vaultError.response.statusCode;
 
-      if (status === 404) {
+      if (statusCode === 404) {
         return res.status(404).json({
-          error: "n8n webhook not found",
-          details:
-            data?.message ||
-            "The workflow may not be active. Please activate the workflow in n8n.",
-          hint:
-            data?.hint ||
-            "Make sure the workflow is active in n8n for production URLs to work.",
-          userEmail: userEmail || null,
-          code: "N8N_WEBHOOK_NOT_FOUND",
+          error: "No access token found for user",
+          details: "User needs to login again to authorize calendar access.",
+          code: "TOKEN_NOT_FOUND",
         });
       }
 
-      return res.status(status || 500).json({
-        error: "n8n workflow error",
-        details:
-          data?.message || data?.error || "Unknown error from n8n workflow",
-        userEmail: userEmail || null,
-        code: "N8N_WORKFLOW_ERROR",
-      });
-    }
+      if (statusCode === 403) {
+        return res.status(503).json({
+          error: "Cannot read token from Vault",
+          details:
+            "Vault token may be expired or invalid. Check VAULT_TOKEN environment variable.",
+          code: "VAULT_PERMISSION_DENIED",
+        });
+      }
 
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    const errorCode =
-      error && typeof error === "object" && "code" in error
-        ? String(error.code)
-        : undefined;
-
-    if (errorCode === "ECONNABORTED" || errorMessage.includes("timeout")) {
-      // Request timed out
-      return res.status(504).json({
-        error: "n8n workflow timeout",
-        details:
-          "The n8n workflow took too long to execute (exceeded 90 seconds). The workflow may be stuck or processing too much data.",
-        hint: 'Check the n8n workflow execution logs. The "Stringify calendar list" node may be timing out.',
-        userEmail: userEmail || null,
-        code: "N8N_WORKFLOW_TIMEOUT",
-      });
-    }
-
-    if (error && typeof error === "object" && "request" in error) {
-      // Request was made but no response received
       return res.status(503).json({
-        error: "Cannot reach n8n workflow",
-        details:
-          "The n8n service may be down or unreachable. Check N8N_BASE_URL configuration.",
-        userEmail: userEmail || null,
-        code: "N8N_SERVICE_UNAVAILABLE",
+        error: "Cannot read token from Vault",
+        details: vaultError.message ?? "Vault service may be unavailable.",
+        code: "VAULT_ERROR",
+      });
+    }
+
+    if (isVaultMessageError) {
+      return res.status(503).json({
+        error: "Cannot read token from Vault",
+        details: "Vault service may be unavailable.",
+        code: "VAULT_ERROR",
+      });
+    }
+
+    // Handle Google Calendar API errors
+    if (error instanceof GoogleCalendarError) {
+      if (error.code === "TOKEN_EXPIRED") {
+        return res.status(401).json({
+          error: "Access token expired or invalid",
+          details: error.message,
+          code: "TOKEN_EXPIRED",
+        });
+      }
+
+      return res.status(error.statusCode || 500).json({
+        error: "Google Calendar API error",
+        details: error.message,
+        code: error.code,
       });
     }
 
     // Other errors
+    const errorMessage = error instanceof Error ? error.message : String(error);
     res.status(500).json({
-      error: "Error triggering n8n workflow",
+      error: "Error checking availability",
       details: errorMessage,
-      userEmail: userEmail || null,
-      code: "N8N_UNKNOWN_ERROR",
+      code: "UNKNOWN_ERROR",
     });
   }
+};
+
+/**
+ * @deprecated Use checkAvailability instead. This endpoint will be removed in a future version.
+ * Check if given user is available (legacy endpoint, calls checkAvailability internally)
+ * POST /api/calendars/free
+ */
+export const isUserFree = async (
+  req: Request<
+    Record<string, never>,
+    Record<string, never>,
+    AvailabilityRequest
+  >,
+  res: Response,
+) => {
+  // Forward to new implementation
+  return checkAvailability(req, res);
 };
