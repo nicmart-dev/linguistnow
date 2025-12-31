@@ -13,7 +13,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const packageJson: PackageJson = JSON.parse(
   readFileSync(join(__dirname, "package.json"), "utf-8"),
 ) as PackageJson;
-const apiVersion: string = packageJson.version;
+export const apiVersion: string = packageJson.version;
 
 // Lazy function to get swagger options - only called after dotenv is loaded
 // Use process.env directly since dotenv will be loaded by the time this is called

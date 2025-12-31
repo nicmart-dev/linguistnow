@@ -34,7 +34,7 @@ import calendarRoutes from "./routes/calendarRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import usersRoutes from "./routes/usersRoutes.js";
 import tokenRoutes from "./routes/tokenRoutes.js";
-import swaggerSpec from "./swagger.js";
+import swaggerSpec, { apiVersion } from "./swagger.js";
 import { env } from "./env.js";
 
 const PORT = env.PORT;
@@ -137,7 +137,7 @@ app.get("/api/health", (_req: Request, res: Response) => {
     status: "healthy",
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
-    version: process.env.BUILD_VERSION || "dev",
+    version: apiVersion,
     buildDate: process.env.BUILD_DATE || null,
     buildSha: process.env.BUILD_SHA || null,
   });
