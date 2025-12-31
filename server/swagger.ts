@@ -1,4 +1,19 @@
 import swaggerJsdoc from "swagger-jsdoc";
+import { readFileSync } from "fs";
+import { dirname, join } from "path";
+import { fileURLToPath } from "url";
+
+// Type for the minimal package.json fields we need
+interface PackageJson {
+  version: string;
+}
+
+// Read version from package.json
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const packageJson: PackageJson = JSON.parse(
+  readFileSync(join(__dirname, "package.json"), "utf-8"),
+) as PackageJson;
+const apiVersion: string = packageJson.version;
 
 // Lazy function to get swagger options - only called after dotenv is loaded
 // Use process.env directly since dotenv will be loaded by the time this is called
@@ -27,7 +42,7 @@ function getSwaggerOptions() {
       openapi: "3.0.0",
       info: {
         title: "LinguistNow API",
-        version: "1.0.0",
+        version: apiVersion,
         description:
           "API for LinguistNow - A platform connecting linguists with clients through Google Calendar integration",
         contact: {

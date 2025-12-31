@@ -1,6 +1,6 @@
 {
   "name": "linguistnow",
-  "version": "0.1.0",
+  "version": "0.0.0",
   "private": true,
   "packageManager": "pnpm@9.15.2",
   "scripts": {
@@ -13,7 +13,9 @@
     "clean": "pnpm -r exec rm -rf node_modules && rm -rf node_modules",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "prepare": "husky"
+    "prepare": "husky",
+    "release": "semantic-release",
+    "release:dry-run": "semantic-release --dry-run"
   },
   "repository": {
     "type": "git",
@@ -27,12 +29,16 @@
   "homepage": "https://github.com/nicmart-dev/linguistnow",
   "devDependencies": {
     "@eslint/js": "^9.39.2",
+    "@semantic-release/changelog": "^6.0.3",
+    "@semantic-release/exec": "^7.1.0",
+    "@semantic-release/git": "^10.0.1",
     "concurrently": "^9.1.2",
     "eslint": "^9.39.2",
     "globals": "^16.5.0",
     "husky": "^9.1.7",
     "lint-staged": "^16.2.7",
     "prettier": "^3.3.1",
+    "semantic-release": "^25.0.2",
     "typescript-eslint": "^8.50.1"
   }
 }

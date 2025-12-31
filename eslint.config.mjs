@@ -40,6 +40,7 @@ export default tseslint.config(
       '.lintstagedrc.js',
       'commitlint.config.js',
       '**/coverage/**',
+      'scripts/**', // Build/release scripts
       'client/src/pages/**', // Pages have complex Airtable types
       '**/pages/**', // All pages directories
       'client/src/components/CalendarSelector.tsx', // Complex Airtable types
