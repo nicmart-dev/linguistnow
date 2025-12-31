@@ -24,7 +24,57 @@ env:
   DEFAULT_BASE_URL: "http://localhost:3000"
 
 jobs:
+  # First job: Check if Docker-relevant files changed
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      should_build: ${{ steps.filter.outputs.docker || github.ref_type == 'tag' || github.event_name == 'workflow_dispatch' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check for Docker-relevant changes
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            docker:
+              - 'server/**'
+              - '!server/**/*.test.ts'
+              - '!server/**/*.spec.ts'
+              - '!server/coverage/**'
+              - 'client/**'
+              - '!client/**/*.test.ts'
+              - '!client/**/*.test.tsx'
+              - '!client/**/*.spec.ts'
+              - '!client/**/*.spec.tsx'
+              - '!client/coverage/**'
+              - 'shared/**'
+              - 'package.json'
+              - 'pnpm-lock.yaml'
+              - 'pnpm-workspace.yaml'
+              - '**/Dockerfile'
+              - 'docker-compose*.yml'
+              - '.github/workflows/docker-publish.yml'
+
+      - name: Log decision
+        run: |
+          echo "## 🔍 Docker Build Decision" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [[ "${{ github.ref_type }}" == "tag" ]]; then
+            echo "✅ **Building**: Version tag detected (${{ github.ref_name }})" >> $GITHUB_STEP_SUMMARY
+          elif [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "✅ **Building**: Manual trigger" >> $GITHUB_STEP_SUMMARY
+          elif [[ "${{ steps.filter.outputs.docker }}" == "true" ]]; then
+            echo "✅ **Building**: Docker-relevant files changed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⏭️ **Skipping**: No Docker-relevant files changed" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Changed files don't affect Docker images (docs, tests, configs only)." >> $GITHUB_STEP_SUMMARY
+          fi
+
   build-and-push:
+    needs: changes
+    if: needs.changes.outputs.should_build == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read
