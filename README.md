@@ -1,165 +1,143 @@
-# Table of content
-
-[Overview](#overview)<br>
-[Install](#install)<br>
-[Implementation](#implementation)<br>
-[Roadmap](#roadmap)<br>
-[Nice-to-haves](#nice-to-haves)<br>
-[Behind the scene](#behind-the-scene)
-
 # LinguistNow
+
+> Simplifying the hassle of finding available linguists for translation projects.
+
+## Table of Contents
+
+- [Overview](#overview)
+- [Features](#features)
+- [Installation](#installation)
+- [Tech Stack](#tech-stack)
+- [Architecture](#architecture)
+- [Documentation](#documentation)
+- [Roadmap](#roadmap)
+- [About](#about)
 
 ## Overview
 
-LinguistNow simplifies the hassle of finding available linguists for translation projects.
+### The Problem
 
-### Problem
+Linguists (freelance translators) often work with multiple translation agencies or language service providers (LSPs). Managing availability across all clients is challenging:
 
-Linguists, often freelancers, work for many translation agencies or language service providers (LSPs). Managing tasks based on their schedule is a nightmare both for them and the project managers assigning them work (ie. the "client").
+- They manually enter availability in multiple systems
+- They must remember to notify each client about holidays
+- Availability quickly becomes outdated without a single source of truth
+- Some linguists accept work before checking their calendar, causing delays when conflicts arise
 
-Why?
+📽️ See the 3-minute pitch [slides](https://www.canva.com/design/DAGH8QYv9D0/ErSLJJqaQy9WQG6f6aKHWQ/view)
 
-- They have enter their availability manually in many apps for some, send it by email to others,
-- They have to remember to notify them when going on holiday
-- Invariably that availability is bound to be out of date as not relying on a single source of truth like their Google Calendar.
-- Some linguists may hoard work, and accept tasks even before checking their calendar, to avoid someone else accepting it, and then have to contact the client, who then have to source someone else, incurring delays.
+### The Solution
 
-\+ see more in the 3min pitch [slides](https://www.canva.com/design/DAGH8QYv9D0/ErSLJJqaQy9WQG6f6aKHWQ/view) I presented.
+LinguistNow connects to linguists' Google Calendars to provide real-time availability information to project managers, eliminating manual availability tracking.
 
-### User Profile
+### User Profiles
 
-- Project managers in translation agencies or LSPs, who need to add linguists and then find those available to assign to translation projects.
-- Linguists, also more commonly known as translators, who need to ensure project managers know they are available for work, as it's a competitive market where they need to get many clients as possible.
+- **Project Managers** - Add linguists and instantly see who's available for translation projects
+- **Linguists** - Connect their Google Calendar once and let availability sync automatically
 
-### Features
+## Features
 
-1. **User Authentication:**
+| Feature                     | Description                                                                   |
+| --------------------------- | ----------------------------------------------------------------------------- |
+| 🔐 **Authentication**       | Secure Google OAuth2 login with role-based access control                     |
+| 📅 **Calendar Integration** | Real-time availability from Google Calendar                                   |
+| 👥 **Linguist Management**  | CRUD operations for managing linguist profiles                                |
+| 🌍 **Internationalization** | Support for 11 languages including English, French, Spanish, German, and more |
+| 🔒 **Secure Token Storage** | OAuth tokens stored in HashiCorp Vault                                        |
 
-   - Secure login and registration for project managers and linguists using Google OAuth2.
-   - Role-based access control.
+## Installation
 
-2. **Linguist Google Calendar profile**
+Follow the [Installation Guide](./docs/install-instructions.md) to set up the application locally.
 
-   - Linguists select their calendars in user profile
+For Docker deployment, see [Deploy Locally with Docker](./docs/deploy-local-docker.md).
 
-3. **Project Scheduling:**
+## Tech Stack
 
-   - Project managers can find available linguist, using CRUD operations to add, edit, delete, and view their profiles.
-   - Get linguist availability from Google Calendar using n8n integration
+### Frontend
 
-4. **Localization**
-   - Using `react-intl` to support English, French, and Simplified Chinese interfaces, with language toggle functionality.
+- React 19 with Vite
+- React Router v7
+- Tailwind CSS v4
+- shadcn/ui components
+- TanStack Table
+- i18next for internationalization
 
-## Install
+### Backend
 
-To install and run the LinguistNow application, follow these steps:
+- Node.js with Express.js
+- TypeScript (strict mode)
+- HashiCorp Vault for secure token storage
+- n8n for scheduled token refresh
 
-Follow the steps in the [Install Instructions](./docs/install-instructions.md)
+### External Services
 
-## Implementation
+- **Database**: Airtable
+- **Authentication**: Google OAuth2
+- **Calendar API**: Google Calendar freeBusy API
 
-[Tech Stack](#tech-stack)<br>
-[GitHub folder structure](#github-folder-structure)<br>
-[APIs](#apis)<br>
-[Sitemap, User journey and Screenshots](#sitemap-user-journey-and-screenshots)<br>
-[Data](#data)<br>
-[Auth](#auth)
+### Deployment
 
-### Tech Stack
+- **Frontend**: Netlify
+- **Backend**: Render
+- **Infrastructure**: Docker Compose
 
-- **Front-end:**
-  - React 19 with Vite (migrated from Create React App)
-  - React Router v6 (for navigation)
-  - Tailwind CSS v4 (utility-first styling)
-  - shadcn/ui (component library)
-  - TanStack Table (data tables)
-  - Axios (for API calls)
-- **Back-end:** Node.js, Express.js
-- **Database:** Airtable
-- **Authentication:** Google OAuth2 (server-side token refresh)
-- **Localization:** [react-intl](https://www.npmjs.com/package/react-intl) library for internationalization
-- **Calendar Integration:** [n8n](https://www.npmjs.com/package/n8n) workflow automation library
-- **Deployment:** Netlify (for front-end), Render (for back-end)
-
-**Architecture:** Component-based design with DRY principles. See [Architecture Overview](./docs/architecture-overview.md) for details.
-
-Note: see design documents in the [docs folder](./docs/) for implementation details.
-
-### GitHub folder structure
-
-For ease of maintenance as a solo developer, I created a single repository for client and server.
+## Architecture
 
 ```
-your-repo/
-│
-├── client/
-│ ├── src/
-│ │ ├── components/
-│ │ ├── pages/
-│ │ └── ...
-│ ├── public/
-│ └── ...
-│
-├── server/
-│ ├── controllers/
-│ ├── models/
-│ ├── routes/
-│ └── ...
-│
-├── n8n/
-│ ├── workflows/
-│ ├── settings/
-│ └── ...
-│
-├── README.md
-├── .gitignore
-├── package.json
-└── ...
+linguistnow/
+├── client/           # React frontend
+│   ├── src/
+│   │   ├── components/
+│   │   ├── pages/
+│   │   └── i18n/     # Internationalization
+│   └── public/
+├── server/           # Express backend
+│   ├── controllers/
+│   ├── services/     # Business logic
+│   ├── routes/
+│   └── utils/
+├── shared/           # Shared TypeScript types
+├── n8n/              # Workflow automation configs
+├── docs/             # Documentation
+└── docker-compose.yml
 ```
 
-### APIs
+**Design Principles**: Component-based design with DRY principles, API-first development, and TDD.
 
-I am using the following external APIs:
+See [Architecture Overview](./docs/architecture-overview.md) for details.
 
-- Google APIs used:
-  - by n8n to [check when busy](./docs/n8n-workflow-integration.md#check-when-busy) to get up to date availability and
-  - by the Node server to get [calendar list](./docs/integration-of-google-calendar-api.md)
-- Connection to [Airtable](./docs/store-user-data-in-airtable.md) cloud-based database platform is managed through `airtable` package
+## Documentation
 
-### Sitemap, User journey and Screenshots
-
-See user journey, and sitemap with screenshots in the [Sitemap and User Journey](./docs/sitemap-and-user-journey.md) documentation.
-
-### Data
-
-I am using a single Users table in Airtable. See [Airtable data structure documentation](./docs/store-user-data-in-airtable.md#airtable-data-structure).
-
-![alt text](./readme_images/airtable.png)
-
-### Auth
-
-The app is using Google OAuth2 authentication. See related design information in the [Google Authentication](./docs/google-authentication.md) documentation.
+| Document                                                                    | Description                 |
+| --------------------------------------------------------------------------- | --------------------------- |
+| [Install Instructions](./docs/install-instructions.md)                      | Local development setup     |
+| [Google Calendar Integration](./docs/integration-of-google-calendar-api.md) | Calendar API implementation |
+| [Vault Integration](./docs/vault-integration-guide.md)                      | Secure token storage        |
+| [Airtable Data Structure](./docs/store-user-data-in-airtable.md)            | Database schema             |
+| [User Journey & Sitemap](./docs/sitemap-and-user-journey.md)                | UX documentation            |
+| [Google Authentication](./docs/google-authentication.md)                    | OAuth2 flow                 |
 
 ## Roadmap
 
-I am using GitHub Project to manage the roadmap and Kanban board.
-Please see the public roadmap [here](https://github.com/users/nicmart-dev/projects/1/views/6).
+Track progress on the [GitHub Project Board](https://github.com/users/nicmart-dev/projects/1/views/6).
 
-![alt text](./readme_images/roadmap.png)
+### Planned Features
 
-## Nice-to-haves
+- Multi-calendar provider support (Outlook, Apple Calendar, Calendly)
+- Bulk availability checking
+- Advanced timezone handling
+- Email notifications
 
-Please see the nice to have [backlog list](https://github.com/users/nicmart-dev/projects/1/views/8)
+See the [backlog](https://github.com/users/nicmart-dev/projects/1/views/8) for the complete list.
 
-Examples:
+## About
 
-![alt text](./readme_images/nice-to-have.png)
+This capstone project was developed by **Nicolas Martinez** as part of the Web Development Diploma Program at BrainStation.
 
-# Behind the scene
+With 20+ years in the Localization & Translation industry and 7 years as a Technical Product Manager, this project combines domain expertise with modern development practices.
 
-## About me
+---
 
-This capstone project was developed by Nicolas Martinez as part of the 3-month Web Development Diploma Program at BrainStation.
-It serves as a demonstration of newly acquired modern development skills, following a 20+ year journey of providing customer solutions.
+## License
 
-My background is in the Localization & Translation industry spanning two decades, coupled with 7 years as a Technical Product Manager overseeing workflow management and productivity-oriented products.
+MIT

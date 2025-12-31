@@ -1,5 +1,6 @@
 import express, { type Router } from "express";
 import {
+  checkAvailability,
   isUserFree,
   listCalendars,
 } from "../controllers/calendarController.js";
@@ -8,12 +9,18 @@ const router: Router = express.Router();
 
 /**
  * @openapi
- * /api/calendars/free:
+ * /api/calendars/availability:
  *   post:
  *     tags:
  *       - Calendars
  *     summary: Check user availability
- *     description: Checks if a user is available by querying their Google Calendars through an n8n workflow. The access token is read from Vault using the userEmail.
+ *     description: |
+ *       Checks if a user is available by querying their Google Calendars directly.
+ *       Reads the access token from Vault and calculates availability based on:
+ *       - Working hours (configurable, default 8am-6pm)
+ *       - Minimum hours per day (configurable, default 8 hours)
+ *       - Weekend exclusion (configurable, default true)
+ *       - Timezone (configurable, default America/Los_Angeles)
  *     requestBody:
  *       required: true
  *       content:
@@ -35,16 +42,107 @@ const router: Router = express.Router();
  *                 format: email
  *                 description: User's email address (used to fetch token from Vault)
  *                 example: user@example.com
+ *               startDate:
+ *                 type: string
+ *                 format: date-time
+ *                 description: Start of time window (ISO 8601). Defaults to tomorrow.
+ *                 example: '2024-01-15T00:00:00Z'
+ *               endDate:
+ *                 type: string
+ *                 format: date-time
+ *                 description: End of time window (ISO 8601). Defaults to 7 days from now.
+ *                 example: '2024-01-22T00:00:00Z'
+ *               timezone:
+ *                 type: string
+ *                 description: IANA timezone for working hours calculation
+ *                 default: America/Los_Angeles
+ *                 example: 'America/Los_Angeles'
+ *               workingHoursStart:
+ *                 type: integer
+ *                 description: Start of working hours (24h format)
+ *                 default: 8
+ *                 example: 8
+ *               workingHoursEnd:
+ *                 type: integer
+ *                 description: End of working hours (24h format)
+ *                 default: 18
+ *                 example: 18
+ *               minHoursPerDay:
+ *                 type: integer
+ *                 description: Minimum free hours required per working day
+ *                 default: 8
+ *                 example: 8
+ *               excludeWeekends:
+ *                 type: boolean
+ *                 description: Whether to exclude weekends from calculation
+ *                 default: true
+ *                 example: true
  *     responses:
  *       200:
- *         description: Availability check result from n8n workflow
+ *         description: Availability check result
  *         content:
  *           application/json:
  *             schema:
  *               type: object
- *               description: Response from n8n workflow (structure varies based on workflow configuration)
+ *               properties:
+ *                 isAvailable:
+ *                   type: boolean
+ *                   description: Whether user meets minimum availability requirements
+ *                   example: true
+ *                 freeSlots:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       start:
+ *                         type: string
+ *                         format: date-time
+ *                       end:
+ *                         type: string
+ *                         format: date-time
+ *                   description: List of free time slots within working hours
+ *                 totalFreeHours:
+ *                   type: number
+ *                   description: Total free hours across all working days
+ *                   example: 40
+ *                 workingDays:
+ *                   type: integer
+ *                   description: Number of working days in the time window
+ *                   example: 5
+ *                 hoursPerDay:
+ *                   type: object
+ *                   additionalProperties:
+ *                     type: number
+ *                   description: Free hours per day (date string -> hours)
+ *                   example: { '2024-01-15': 8, '2024-01-16': 10 }
+ *       400:
+ *         description: Validation error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: 'calendarIds array is required'
+ *                 code:
+ *                   type: string
+ *                   example: 'VALIDATION_ERROR'
+ *       401:
+ *         description: Access token expired or invalid
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: 'Access token expired or invalid'
+ *                 code:
+ *                   type: string
+ *                   example: 'TOKEN_EXPIRED'
  *       404:
- *         description: n8n webhook not found (workflow may not be active)
+ *         description: No access token found for user
  *         content:
  *           application/json:
  *             schema:
@@ -52,21 +150,12 @@ const router: Router = express.Router();
  *               properties:
  *                 error:
  *                   type: string
- *                   example: 'n8n webhook not found'
- *                 details:
- *                   type: string
- *                   example: 'The workflow may not be active. Please activate the workflow in n8n.'
- *                 hint:
- *                   type: string
- *                   example: 'Make sure the workflow is active in n8n for production URLs to work.'
- *                 userEmail:
- *                   type: string
- *                   nullable: true
+ *                   example: 'No access token found for user'
  *                 code:
  *                   type: string
- *                   example: 'N8N_WEBHOOK_NOT_FOUND'
+ *                   example: 'TOKEN_NOT_FOUND'
  *       503:
- *         description: Cannot reach n8n workflow
+ *         description: Cannot reach Vault service
  *         content:
  *           application/json:
  *             schema:
@@ -74,48 +163,58 @@ const router: Router = express.Router();
  *               properties:
  *                 error:
  *                   type: string
- *                   example: 'Cannot reach n8n workflow'
- *                 details:
- *                   type: string
- *                   example: 'The n8n service may be down or unreachable.'
- *                 userEmail:
- *                   type: string
- *                   nullable: true
+ *                   example: 'Cannot read token from Vault'
  *                 code:
  *                   type: string
- *                   example: 'N8N_SERVICE_UNAVAILABLE'
- *       504:
- *         description: n8n workflow timeout
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 error:
- *                   type: string
- *                   example: 'n8n workflow timeout'
- *                 details:
- *                   type: string
- *                   example: 'The n8n workflow took too long to execute (exceeded 90 seconds).'
- *                 hint:
- *                   type: string
- *                   example: 'Check the n8n workflow execution logs.'
- *                 userEmail:
- *                   type: string
- *                   nullable: true
- *                 code:
- *                   type: string
- *                   example: 'N8N_WORKFLOW_TIMEOUT'
+ *                   example: 'VAULT_ERROR'
  *       500:
- *         description: Error triggering n8n workflow
+ *         description: Internal server error
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
+router.post("/availability", (req, res, next) => {
+  void checkAvailability(req, res, next);
+});
+
+/**
+ * @openapi
+ * /api/calendars/free:
+ *   post:
+ *     tags:
+ *       - Calendars
+ *     summary: Check user availability (deprecated)
+ *     deprecated: true
+ *     description: |
+ *       **DEPRECATED**: Use POST /api/calendars/availability instead.
+ *       This endpoint is kept for backward compatibility and forwards to the new endpoint.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - calendarIds
+ *               - userEmail
+ *             properties:
+ *               calendarIds:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *               userEmail:
+ *                 type: string
+ *                 format: email
+ *     responses:
+ *       200:
+ *         description: Availability check result (same as /availability endpoint)
+ */
+/* eslint-disable @typescript-eslint/no-deprecated -- intentionally kept for backward compatibility */
 router.post("/free", (req, res, next) => {
   void isUserFree(req, res, next);
 });
+/* eslint-enable @typescript-eslint/no-deprecated */
 
 /**
  * @openapi

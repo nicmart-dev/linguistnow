@@ -10,15 +10,16 @@ const LinguistTable = ({ linguists, errors = [] }) => {
     [
         {
             "Role": "Linguist",
-            "Picture": "https://lh3.googleusercontent.com/a/ACg8ocKHlwJUpk6cYZAH2WfJBUmyvWEP3UOeIlzxGvFwhomNAU1bLQ=s96-c",
-            "Email": "pokemontest734@gmail.com",
-            "Name": "Pokemon Test2",
-            "availability": [
-                {
-                    "result": true
-                }
-            ]
-            (...) // other user details
+            "Picture": "https://lh3.googleusercontent.com/...",
+            "Email": "user@example.com",
+            "Name": "User Name",
+            "availability": {
+                "isAvailable": true,
+                "freeSlots": [...],
+                "totalFreeHours": 40,
+                "workingDays": 5,
+                "hoursPerDay": { "2024-01-15": 8, ... }
+            }
         },
     ]     */
 
@@ -26,10 +27,35 @@ const LinguistTable = ({ linguists, errors = [] }) => {
 
     const availabilityToText = (linguists) => {
         return linguists.map((linguist) => {
-            const isAvailable = linguist.availability[0].result
-            const textToDisplay = isAvailable
-                ? t('dashboard.available')
-                : t('dashboard.notAvailable')
+            // Handle both new format (object with isAvailable) and legacy format (array with result)
+            let isAvailable = false
+            let needsLogin = false
+            if (linguist.availability) {
+                if (
+                    typeof linguist.availability === 'object' &&
+                    'isAvailable' in linguist.availability
+                ) {
+                    // New Express format: { isAvailable: boolean, needsLogin?: boolean, ... }
+                    isAvailable = linguist.availability.isAvailable
+                    needsLogin = linguist.availability.needsLogin === true
+                } else if (
+                    Array.isArray(linguist.availability) &&
+                    linguist.availability[0]?.result !== undefined
+                ) {
+                    // Legacy n8n format: [{ result: boolean }]
+                    isAvailable = linguist.availability[0].result
+                }
+            }
+
+            let textToDisplay: string
+            if (needsLogin) {
+                textToDisplay = t('dashboard.needsLogin')
+            } else if (isAvailable) {
+                textToDisplay = t('dashboard.available')
+            } else {
+                textToDisplay = t('dashboard.notAvailable')
+            }
+
             return {
                 ...linguist,
                 availability: textToDisplay,

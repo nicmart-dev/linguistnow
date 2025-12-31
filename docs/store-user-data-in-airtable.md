@@ -18,7 +18,7 @@ Airtable is used in the app to store and manage user data efficiently and effort
 
 Access the base at https://airtable.com/ after [creating it](./install-instructions.md#airtable-database).
 
-> **Note**: OAuth tokens (Access Token and Refresh Token) are stored in **HashiCorp Vault**, not Airtable. See [Vault Integration Guide](./n8n-vault-integration-guide.md) for details.
+> **Note**: OAuth tokens (Access Token and Refresh Token) are stored in **HashiCorp Vault**, not Airtable. See [Vault Integration Guide](./vault-integration-guide.md) for details.
 
 Below are the key steps and components involved in this implementation:
 
@@ -61,7 +61,7 @@ A simple structure was retained to store the data with appropriate [field types]
 | Role         | Single select    | `Linguist` or `Project Manager`     |
 | Calendar IDs | Long text        | Comma-separated Google Calendar IDs |
 
-> **Note**: The `Access Token` and `Refresh Token` columns have been **deprecated** and removed. OAuth tokens are now stored securely in [HashiCorp Vault](./n8n-vault-integration-guide.md).
+> **Note**: The `Access Token` and `Refresh Token` columns have been **deprecated** and removed. OAuth tokens are now stored securely in [HashiCorp Vault](./vault-integration-guide.md).
 
 ### Airtable Environment
 

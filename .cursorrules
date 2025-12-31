@@ -23,7 +23,17 @@
 - `server/controllers/` - HTTP request/response handling
 - `server/routes/` - Route definitions with Swagger docs
 - `client/src/components/` - React components
+- `client/src/i18n/locales/` - Internationalization strings (all user-facing text)
 - `docs/` - Architecture and integration documentation
+
+## Internationalization (i18n)
+
+- **All user-facing strings must be externalized** to `client/src/i18n/locales/*.json`
+- **When adding new strings, translate them in ALL locale files** (en, fr, es, de, it, pt, zh-cn, ja, ko, ar, ru)
+- Server error codes (e.g., `VAULT_ERROR`, `TOKEN_EXPIRED`) should map to i18n keys in the client
+- Use the pattern `section.subsection.key` (e.g., `dashboard.errors.vaultError`)
+- Support pluralization with `_one` and `_other` suffixes
+- Interpolate dynamic values using `{{variable}}` syntax
 
 ---
 
