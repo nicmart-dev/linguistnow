@@ -1,80 +1,174 @@
 name: Build and Push Docker Images
 
 on:
+  # Trigger after Release workflow completes (ensures correct version)
+  workflow_run:
+    workflows: ["Release"]
+    types: [completed]
+    branches: [main]
+  # Also trigger on version tags directly
   push:
-    branches: ["main"]
     tags: ["v*.*.*"]
+  # PR builds for testing (not pushed)
   pull_request:
     branches: ["main"]
+  # Manual trigger for emergencies
   workflow_dispatch:
     inputs:
       vite_api_url:
-        description: "Backend API URL for frontend build (e.g., https://api.yourdomain.com)"
+        description: "Backend API URL for frontend build"
         required: false
       vite_base_url:
-        description: "Frontend base URL for OAuth redirects (e.g., https://app.yourdomain.com)"
+        description: "Frontend base URL for OAuth redirects"
         required: false
 
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
-  # Default URLs used when secrets are not configured
-  # For production, configure repository secrets: VITE_API_URL, VITE_BASE_URL, VITE_GOOGLE_CLIENT_ID
   DEFAULT_API_URL: "http://localhost:5000"
   DEFAULT_BASE_URL: "http://localhost:3000"
 
 jobs:
-  # First job: Check if Docker-relevant files changed
-  changes:
+  # Check if we should build
+  check:
     runs-on: ubuntu-latest
+    # Skip if release workflow failed
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     outputs:
-      should_build: ${{ steps.filter.outputs.docker || github.ref_type == 'tag' || github.event_name == 'workflow_dispatch' }}
+      should_build: ${{ steps.decide.outputs.should_build }}
+      build_ref: ${{ steps.decide.outputs.build_ref }}
+      is_release: ${{ steps.decide.outputs.is_release }}
     steps:
       - uses: actions/checkout@v4
-
-      - name: Check for Docker-relevant changes
-        uses: dorny/paths-filter@v3
-        id: filter
         with:
-          filters: |
-            docker:
-              - 'server/**'
-              - '!server/**/*.test.ts'
-              - '!server/**/*.spec.ts'
-              - '!server/coverage/**'
-              - 'client/**'
-              - '!client/**/*.test.ts'
-              - '!client/**/*.test.tsx'
-              - '!client/**/*.spec.ts'
-              - '!client/**/*.spec.tsx'
-              - '!client/coverage/**'
-              - 'shared/**'
-              - 'package.json'
-              - 'pnpm-lock.yaml'
-              - 'pnpm-workspace.yaml'
-              - '**/Dockerfile'
-              - 'docker-compose*.yml'
-              - '.github/workflows/docker-publish.yml'
+          fetch-depth: 0
+
+      - name: Get latest release info
+        id: release_info
+        run: |
+          # Get the latest tag
+          LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          echo "latest_tag=$LATEST_TAG" >> $GITHUB_OUTPUT
+          
+          if [[ -n "$LATEST_TAG" ]]; then
+            # Get the timestamp of the tag
+            TAG_TIMESTAMP=$(git log -1 --format=%ct "$LATEST_TAG" 2>/dev/null || echo "0")
+            NOW=$(date +%s)
+            TAG_AGE=$((NOW - TAG_TIMESTAMP))
+            echo "tag_age=$TAG_AGE" >> $GITHUB_OUTPUT
+            echo "Latest tag: $LATEST_TAG (age: ${TAG_AGE}s)"
+          else
+            echo "tag_age=999999" >> $GITHUB_OUTPUT
+            echo "No tags found"
+          fi
+
+      - name: Check changed files
+        id: changed_files
+        if: github.event_name == 'workflow_run'
+        run: |
+          # Get the commit from the workflow run
+          COMMIT_SHA="${{ github.event.workflow_run.head_sha }}"
+          
+          # Get changed files in the commit
+          CHANGED_FILES=$(git diff-tree --no-commit-id --name-only -r "$COMMIT_SHA" 2>/dev/null || echo "")
+          echo "Changed files:"
+          echo "$CHANGED_FILES"
+          
+          # Check if any Docker-relevant files changed
+          DOCKER_RELEVANT=false
+          while IFS= read -r file; do
+            case "$file" in
+              server/*|client/*|shared/*|package.json|pnpm-lock.yaml|*Dockerfile*|docker-compose*)
+                # Skip test files
+                if [[ ! "$file" =~ \.(test|spec)\.(ts|tsx)$ ]]; then
+                  DOCKER_RELEVANT=true
+                  echo "Docker-relevant: $file"
+                fi
+                ;;
+            esac
+          done <<< "$CHANGED_FILES"
+          
+          echo "docker_relevant=$DOCKER_RELEVANT" >> $GITHUB_OUTPUT
+
+      - name: Decide whether to build
+        id: decide
+        run: |
+          EVENT="${{ github.event_name }}"
+          LATEST_TAG="${{ steps.release_info.outputs.latest_tag }}"
+          TAG_AGE="${{ steps.release_info.outputs.tag_age }}"
+          DOCKER_RELEVANT="${{ steps.changed_files.outputs.docker_relevant }}"
+          
+          echo "Event: $EVENT"
+          echo "Latest tag: $LATEST_TAG"
+          echo "Tag age: $TAG_AGE seconds"
+          echo "Docker relevant: $DOCKER_RELEVANT"
+          
+          if [[ "$EVENT" == "push" && "${{ github.ref }}" == refs/tags/v* ]]; then
+            # Direct tag push - always build
+            echo "should_build=true" >> $GITHUB_OUTPUT
+            echo "build_ref=${{ github.ref }}" >> $GITHUB_OUTPUT
+            echo "is_release=true" >> $GITHUB_OUTPUT
+            echo "Decision: Build from tag push"
+            
+          elif [[ "$EVENT" == "workflow_dispatch" ]]; then
+            # Manual trigger - always build from main
+            echo "should_build=true" >> $GITHUB_OUTPUT
+            echo "build_ref=refs/heads/main" >> $GITHUB_OUTPUT
+            echo "is_release=false" >> $GITHUB_OUTPUT
+            echo "Decision: Build from manual trigger"
+            
+          elif [[ "$EVENT" == "pull_request" ]]; then
+            # PR - always build for testing
+            echo "should_build=true" >> $GITHUB_OUTPUT
+            echo "build_ref=${{ github.ref }}" >> $GITHUB_OUTPUT
+            echo "is_release=false" >> $GITHUB_OUTPUT
+            echo "Decision: Build for PR"
+            
+          elif [[ "$EVENT" == "workflow_run" ]]; then
+            # After release workflow completed
+            
+            # Check if a new release was just created (tag < 5 minutes old)
+            if [[ -n "$LATEST_TAG" && "$TAG_AGE" -lt 300 ]]; then
+              echo "should_build=true" >> $GITHUB_OUTPUT
+              echo "build_ref=refs/tags/$LATEST_TAG" >> $GITHUB_OUTPUT
+              echo "is_release=true" >> $GITHUB_OUTPUT
+              echo "Decision: Build from new release tag $LATEST_TAG"
+              
+            elif [[ "$DOCKER_RELEVANT" == "true" ]]; then
+              # No new release, but Docker-relevant files changed
+              echo "should_build=true" >> $GITHUB_OUTPUT
+              echo "build_ref=refs/heads/main" >> $GITHUB_OUTPUT
+              echo "is_release=false" >> $GITHUB_OUTPUT
+              echo "Decision: Build from main (Docker files changed, no release)"
+              
+            else
+              # No release, no Docker changes
+              echo "should_build=false" >> $GITHUB_OUTPUT
+              echo "build_ref=" >> $GITHUB_OUTPUT
+              echo "is_release=false" >> $GITHUB_OUTPUT
+              echo "Decision: Skip (no release, no Docker-relevant changes)"
+            fi
+          else
+            echo "should_build=false" >> $GITHUB_OUTPUT
+            echo "build_ref=" >> $GITHUB_OUTPUT
+            echo "is_release=false" >> $GITHUB_OUTPUT
+            echo "Decision: Skip (unknown event)"
+          fi
 
       - name: Log decision
         run: |
           echo "## 🔍 Docker Build Decision" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          if [[ "${{ github.ref_type }}" == "tag" ]]; then
-            echo "✅ **Building**: Version tag detected (${{ github.ref_name }})" >> $GITHUB_STEP_SUMMARY
-          elif [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-            echo "✅ **Building**: Manual trigger" >> $GITHUB_STEP_SUMMARY
-          elif [[ "${{ steps.filter.outputs.docker }}" == "true" ]]; then
-            echo "✅ **Building**: Docker-relevant files changed" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "⏭️ **Skipping**: No Docker-relevant files changed" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "Changed files don't affect Docker images (docs, tests, configs only)." >> $GITHUB_STEP_SUMMARY
-          fi
+          echo "| Property | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|----------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Event | ${{ github.event_name }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Should Build | ${{ steps.decide.outputs.should_build }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Build Ref | ${{ steps.decide.outputs.build_ref }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Is Release | ${{ steps.decide.outputs.is_release }} |" >> $GITHUB_STEP_SUMMARY
 
   build-and-push:
-    needs: changes
-    if: needs.changes.outputs.should_build == 'true'
+    needs: check
+    if: needs.check.outputs.should_build == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -85,6 +179,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.check.outputs.build_ref }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -98,7 +194,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       # =========================================================================
-      # BACKEND - Node.js Express API Server
+      # BACKEND
       # =========================================================================
       - name: Extract metadata for Backend
         id: meta-backend
@@ -106,15 +202,14 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-backend
           tags: |
-            type=ref,event=branch
             type=ref,event=pr
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=sha,prefix=
-            type=raw,value=latest,enable={{is_default_branch}}
+            type=raw,value=latest,enable=${{ needs.check.outputs.is_release == 'true' }}
+            type=raw,value=main,enable=${{ needs.check.outputs.is_release != 'true' && github.event_name != 'pull_request' }}
 
       - name: Build and push Backend
-        id: push-backend
         uses: docker/build-push-action@v6
         with:
           context: .
@@ -125,22 +220,12 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           build-args: |
-            BUILD_VERSION=${{ github.ref_name }}
+            BUILD_VERSION=${{ needs.check.outputs.build_ref }}
             BUILD_DATE=${{ github.event.head_commit.timestamp || github.event.repository.updated_at }}
             BUILD_SHA=${{ github.sha }}
 
       # =========================================================================
-      # FRONTEND - Vite React Application
-      # =========================================================================
-      # IMPORTANT: Vite bakes environment variables into static files at build time.
-      #
-      # To build with your production URLs, add these repository secrets:
-      #   - VITE_API_URL (e.g., https://api.yourdomain.com)
-      #   - VITE_BASE_URL (e.g., https://app.yourdomain.com)
-      #   - VITE_GOOGLE_CLIENT_ID (your Google OAuth client ID)
-      #
-      # Without secrets, images are built with localhost URLs (for local testing).
-      # See: docs/deploy-app-to-production.md for setup instructions.
+      # FRONTEND
       # =========================================================================
       - name: Extract metadata for Frontend
         id: meta-frontend
@@ -148,15 +233,14 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-frontend
           tags: |
-            type=ref,event=branch
             type=ref,event=pr
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=sha,prefix=
-            type=raw,value=latest,enable={{is_default_branch}}
+            type=raw,value=latest,enable=${{ needs.check.outputs.is_release == 'true' }}
+            type=raw,value=main,enable=${{ needs.check.outputs.is_release != 'true' && github.event_name != 'pull_request' }}
 
       - name: Build and push Frontend
-        id: push-frontend
         uses: docker/build-push-action@v6
         with:
           context: .
@@ -179,29 +263,18 @@ jobs:
         run: |
           echo "## 🐳 Docker Images Published" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### Trigger" >> $GITHUB_STEP_SUMMARY
-          if [[ "${{ github.ref }}" == refs/tags/* ]]; then
-            echo "📦 **Release**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          if [[ "${{ needs.check.outputs.is_release }}" == "true" ]]; then
+            echo "📦 **Release Build**: ${{ needs.check.outputs.build_ref }}" >> $GITHUB_STEP_SUMMARY
           else
-            echo "🔄 **Branch Push**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+            echo "🔧 **Development Build**: main branch" >> $GITHUB_STEP_SUMMARY
           fi
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### Backend" >> $GITHUB_STEP_SUMMARY
+          echo "### Backend Tags" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
           echo "${{ steps.meta-backend.outputs.tags }}" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### Frontend" >> $GITHUB_STEP_SUMMARY
+          echo "### Frontend Tags" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
           echo "${{ steps.meta-frontend.outputs.tags }}" >> $GITHUB_STEP_SUMMARY
-          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### Usage" >> $GITHUB_STEP_SUMMARY
-          echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
-          echo "# Pull the images" >> $GITHUB_STEP_SUMMARY
-          echo "docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-backend:latest" >> $GITHUB_STEP_SUMMARY
-          echo "docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-frontend:latest" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "# Or use docker-compose to build with your own environment variables" >> $GITHUB_STEP_SUMMARY
-          echo "docker-compose up -d --build" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
