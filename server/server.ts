@@ -114,7 +114,9 @@ app.get(
   swaggerUi.setup(null, {
     customCss: ".swagger-ui .topbar { display: none }",
     customSiteTitle: "LinguistNow API Documentation",
-    swaggerUrl: "/api-docs.json",
+    swaggerOptions: {
+      url: "/api-docs.json",
+    },
   }),
 );
 
