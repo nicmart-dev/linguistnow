@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.4](https://github.com/nicmart-dev/linguistnow/compare/v1.0.3...v1.0.4) (2025-12-31)
+
+### 🐛 Bug Fixes
+
+- **server:** use correct swaggerOptions.url for dynamic spec loading ([868aab1](https://github.com/nicmart-dev/linguistnow/commit/868aab18d6b268299511c7b3e6e67cd84a3a2eda))
+
 ## [1.0.3](https://github.com/nicmart-dev/linguistnow/compare/v1.0.2...v1.0.3) (2025-12-31)
 
 ### 🐛 Bug Fixes

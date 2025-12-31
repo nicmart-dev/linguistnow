@@ -1,6 +1,6 @@
 {
   "name": "linguistnow",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "private": true,
   "packageManager": "pnpm@9.15.2",
   "scripts": {
