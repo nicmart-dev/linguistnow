@@ -14,16 +14,18 @@ RUN npm install -g pnpm@9.15.2
 WORKDIR /app
 
 # Copy pnpm workspace files from root context
-COPY pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY pnpm-lock.yaml pnpm-workspace.yaml package.json .npmrc ./
 
-# Copy package.json from client directory
+# Copy package.json from client and shared directories
 COPY client/package.json ./client/
+COPY shared/package.json ./shared/
 
-# Install dependencies for client workspace
-RUN pnpm install --frozen-lockfile --filter linguistnow
+# Install dependencies for client workspace (includes shared via workspace link)
+RUN pnpm install --frozen-lockfile
 
-# Copy client source code
+# Copy source code for client and shared
 COPY client/ ./client/
+COPY shared/ ./shared/
 
 WORKDIR /app/client
 

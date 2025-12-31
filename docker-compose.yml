@@ -60,11 +60,6 @@ services:
       - AIRTABLE_PERSONAL_ACCESS_TOKEN=${AIRTABLE_PERSONAL_ACCESS_TOKEN}
       - AIRTABLE_BASE_ID=${AIRTABLE_BASE_ID}
 
-      # n8n Workflow Configuration
-      # Note: Use Docker service name 'n8n' for internal network communication
-      - N8N_BASE_URL=${N8N_BASE_URL:-http://n8n:5678}
-      - N8N_WEBHOOK_PATH=${N8N_WEBHOOK_PATH:-/webhook/calendar-check}
-
       # HashiCorp Vault Configuration
       # Note: Use Docker service name 'vault' for internal network communication
       - VAULT_ADDR=${VAULT_ADDR:-http://vault:8200}

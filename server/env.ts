@@ -9,8 +9,6 @@ const envSchema = z
     AIRTABLE_PERSONAL_ACCESS_TOKEN: z.string().min(1).optional(),
     AIRTABLE_API_KEY: z.string().min(1).optional(),
     AIRTABLE_BASE_ID: z.string().min(1),
-    N8N_BASE_URL: z.url().optional(),
-    N8N_WEBHOOK_PATH: z.string().optional(),
     GOOGLE_REDIRECT_URI: z.url().optional(),
     BACKEND_URL: z.url().optional(),
     VAULT_ADDR: z.url().optional(),

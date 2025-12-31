@@ -7,10 +7,23 @@
 
 FROM node:25-alpine
 
+# Build arguments for version tracking
+ARG BUILD_VERSION=dev
+ARG BUILD_DATE
+ARG BUILD_SHA
+
 # Add labels for container metadata
 LABEL org.opencontainers.image.source="https://github.com/nicmart-dev/linguistnow"
 LABEL org.opencontainers.image.description="LinguistNow Backend - Express API server for linguist availability management"
 LABEL org.opencontainers.image.licenses="MIT"
+LABEL org.opencontainers.image.version="${BUILD_VERSION}"
+LABEL org.opencontainers.image.created="${BUILD_DATE}"
+LABEL org.opencontainers.image.revision="${BUILD_SHA}"
+
+# Set version as environment variable for runtime access
+ENV BUILD_VERSION=${BUILD_VERSION}
+ENV BUILD_DATE=${BUILD_DATE}
+ENV BUILD_SHA=${BUILD_SHA}
 
 # Install pnpm globally
 RUN npm install -g pnpm@9.15.2
@@ -22,17 +35,28 @@ RUN addgroup -g 1001 -S nodejs && \
 WORKDIR /app
 
 # Copy pnpm workspace files from root context
-COPY pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY pnpm-lock.yaml pnpm-workspace.yaml package.json .npmrc ./
 
-# Copy package.json from server directory
+# Copy package.json files for both server and shared
 COPY server/package.json ./server/
+COPY shared/package.json ./shared/
 
-# Install dependencies (including dev dependencies for tsx) for server workspace
-RUN pnpm install --frozen-lockfile --filter linguistnow-api && \
+# Copy source code for both packages BEFORE pnpm install
+# (pnpm workspace links need source files to exist)
+COPY server/ ./server/
+COPY shared/ ./shared/
+
+# Install all workspace dependencies
+RUN pnpm install --frozen-lockfile && \
     pnpm store prune
 
-# Copy server source code
-COPY server/ ./server/
+# Manually create the workspace symlink (pnpm sometimes fails in Docker)
+RUN mkdir -p /app/node_modules/@linguistnow && \
+    ln -sf /app/shared /app/node_modules/@linguistnow/shared && \
+    echo "=== Verifying workspace setup ===" && \
+    ls -la /app/node_modules/@linguistnow/ && \
+    ls -la /app/shared/src/ && \
+    echo "=== End verification ==="
 
 WORKDIR /app/server
 

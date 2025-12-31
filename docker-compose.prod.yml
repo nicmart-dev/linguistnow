@@ -7,11 +7,11 @@
 # PREREQUISITES:
 #   - shared_net network exists
 #   - Vault deployed separately (see docker-compose.vault.yml)
-#   - n8n deployed separately with external secrets configured
+#   - (Optional) n8n for token refresh scheduling
 #
 # USE THIS FILE WHEN:
 #   - Deploying to production with Portainer (any Docker host)
-#   - You have shared infrastructure (Vault, n8n) already running
+#   - You have shared infrastructure (Vault) already running
 #   - You want to use pre-built images from GitHub Container Registry
 #
 # FOR LOCAL DEVELOPMENT OR SELF-CONTAINED DEPLOYMENTS:
@@ -43,6 +43,9 @@ services:
       # Frontend URL (for CORS and OAuth redirect validation)
       - FRONTEND_URL=${FRONTEND_URL}
 
+      # Backend URL (for Swagger API documentation)
+      - BACKEND_URL=${BACKEND_URL}
+
       # Google OAuth (Required)
       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
       - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
@@ -52,11 +55,7 @@ services:
       - AIRTABLE_PERSONAL_ACCESS_TOKEN=${AIRTABLE_PERSONAL_ACCESS_TOKEN}
       - AIRTABLE_BASE_ID=${AIRTABLE_BASE_ID}
 
-      # n8n Workflow Integration
-      - N8N_BASE_URL=${N8N_BASE_URL}
-      - N8N_WEBHOOK_PATH=${N8N_WEBHOOK_PATH:-/webhook/calendar-check}
-
-      # HashiCorp Vault (External - deployed separately)
+      # HashiCorp Vault (Required - for token storage)
       - VAULT_ADDR=${VAULT_ADDR:-http://shared-vault:8200}
       - VAULT_TOKEN=${VAULT_TOKEN}
       - VAULT_SECRET_PATH=${VAULT_SECRET_PATH:-secret/data/linguistnow/tokens}
@@ -127,11 +126,11 @@ networks:
 # Add these in Portainer's "Environment variables" section:
 #
 # FRONTEND_URL=https://linguistnow.yourdomain.com
+# BACKEND_URL=https://linguistnow-api.yourdomain.com
 # GOOGLE_CLIENT_ID=your_google_client_id
 # GOOGLE_CLIENT_SECRET=your_google_client_secret
 # AIRTABLE_PERSONAL_ACCESS_TOKEN=pat_xxxxx
 # AIRTABLE_BASE_ID=appxxxxx
-# N8N_BASE_URL=https://n8n.yourdomain.com
 # VAULT_ADDR=http://shared-vault:8200
 # VAULT_TOKEN=your_linguistnow_vault_token
 #

@@ -137,6 +137,9 @@ app.get("/api/health", (_req: Request, res: Response) => {
     status: "healthy",
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
+    version: process.env.BUILD_VERSION || "dev",
+    buildDate: process.env.BUILD_DATE || null,
+    buildSha: process.env.BUILD_SHA || null,
   });
 });
 
