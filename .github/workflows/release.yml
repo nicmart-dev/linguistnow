@@ -9,8 +9,6 @@ permissions:
   contents: write
   issues: write
   pull-requests: write
-  packages: write
-  id-token: write
 
 jobs:
   release:
@@ -18,32 +16,32 @@ jobs:
     runs-on: ubuntu-latest
     # Skip release for commits made by semantic-release
     if: "!contains(github.event.head_commit.message, '[skip ci]')"
-    
+
     outputs:
       new_release_published: ${{ steps.semantic.outputs.new_release_published }}
       new_release_version: ${{ steps.semantic.outputs.new_release_version }}
-    
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
           persist-credentials: false
-      
+
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
           version: 9.15.2
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'pnpm'
-      
+          node-version: "20"
+          cache: "pnpm"
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-      
+
       - name: Semantic Release
         id: semantic
         env:
@@ -53,7 +51,7 @@ jobs:
           GIT_COMMITTER_NAME: github-actions[bot]
           GIT_COMMITTER_EMAIL: github-actions[bot]@users.noreply.github.com
         run: npx semantic-release
-      
+
       - name: Release Summary
         if: steps.semantic.outputs.new_release_published == 'true'
         run: |
@@ -61,26 +59,22 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "A new version has been released!" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### Changes" >> $GITHUB_STEP_SUMMARY
+          echo "### What's Next" >> $GITHUB_STEP_SUMMARY
+          echo "- Docker images will be built automatically (triggered by the version tag)" >> $GITHUB_STEP_SUMMARY
+          echo "- See [docker-publish workflow](https://github.com/${{ github.repository }}/actions/workflows/docker-publish.yml) for build status" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Release Details" >> $GITHUB_STEP_SUMMARY
           echo "See the [release notes](https://github.com/${{ github.repository }}/releases/tag/v${{ steps.semantic.outputs.new_release_version }}) for details." >> $GITHUB_STEP_SUMMARY
 
-  # Trigger Docker build after successful release
-  trigger-docker-build:
-    name: Trigger Docker Build
-    needs: release
-    if: needs.release.outputs.new_release_published == 'true'
-    runs-on: ubuntu-latest
-    
-    steps:
-      - name: Trigger Docker Publish Workflow
-        uses: actions/github-script@v7
-        with:
-          script: |
-            await github.rest.actions.createWorkflowDispatch({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              workflow_id: 'docker-publish.yml',
-              ref: 'main'
-            });
-            console.log('Docker publish workflow triggered for v${{ needs.release.outputs.new_release_version }}');
-
+      - name: No Release Summary
+        if: steps.semantic.outputs.new_release_published != 'true'
+        run: |
+          echo "## ℹ️ No Release Required" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "No releasable commits found since last release." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Commits that trigger releases:" >> $GITHUB_STEP_SUMMARY
+          echo "- \`feat:\` → minor version bump" >> $GITHUB_STEP_SUMMARY
+          echo "- \`fix:\` → patch version bump" >> $GITHUB_STEP_SUMMARY
+          echo "- \`perf:\` → patch version bump" >> $GITHUB_STEP_SUMMARY
+          echo "- \`BREAKING CHANGE:\` → major version bump" >> $GITHUB_STEP_SUMMARY

@@ -4,8 +4,51 @@ on:
   push:
     branches: ["main"]
     tags: ["v*.*.*"]
+    # Only rebuild on main branch when relevant files change
+    # Tags (releases) always trigger a build
+    paths:
+      # Docker configuration
+      - "server/Dockerfile"
+      - "client/Dockerfile"
+      - "docker-compose*.yml"
+      # Server code and dependencies
+      - "server/**"
+      - "!server/**/*.test.ts"
+      - "!server/**/*.spec.ts"
+      - "!server/coverage/**"
+      # Client code and dependencies
+      - "client/**"
+      - "!client/**/*.test.ts"
+      - "!client/**/*.test.tsx"
+      - "!client/**/*.spec.ts"
+      - "!client/**/*.spec.tsx"
+      - "!client/coverage/**"
+      # Shared code
+      - "shared/**"
+      # Root dependencies
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      # This workflow itself
+      - ".github/workflows/docker-publish.yml"
   pull_request:
     branches: ["main"]
+    paths:
+      # Same paths as push - only run PR checks when Docker-relevant files change
+      - "server/Dockerfile"
+      - "client/Dockerfile"
+      - "docker-compose*.yml"
+      - "server/**"
+      - "!server/**/*.test.ts"
+      - "!server/**/*.spec.ts"
+      - "client/**"
+      - "!client/**/*.test.ts"
+      - "!client/**/*.test.tsx"
+      - "shared/**"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - ".github/workflows/docker-publish.yml"
   workflow_dispatch:
     inputs:
       vite_api_url:
@@ -34,7 +77,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -128,6 +171,13 @@ jobs:
         if: github.event_name != 'pull_request'
         run: |
           echo "## 🐳 Docker Images Published" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Trigger" >> $GITHUB_STEP_SUMMARY
+          if [[ "${{ github.ref }}" == refs/tags/* ]]; then
+            echo "📦 **Release**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "🔄 **Branch Push**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          fi
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Backend" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
