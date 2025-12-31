@@ -4,51 +4,8 @@ on:
   push:
     branches: ["main"]
     tags: ["v*.*.*"]
-    # Only rebuild on main branch when relevant files change
-    # Tags (releases) always trigger a build
-    paths:
-      # Docker configuration
-      - "server/Dockerfile"
-      - "client/Dockerfile"
-      - "docker-compose*.yml"
-      # Server code and dependencies
-      - "server/**"
-      - "!server/**/*.test.ts"
-      - "!server/**/*.spec.ts"
-      - "!server/coverage/**"
-      # Client code and dependencies
-      - "client/**"
-      - "!client/**/*.test.ts"
-      - "!client/**/*.test.tsx"
-      - "!client/**/*.spec.ts"
-      - "!client/**/*.spec.tsx"
-      - "!client/coverage/**"
-      # Shared code
-      - "shared/**"
-      # Root dependencies
-      - "package.json"
-      - "pnpm-lock.yaml"
-      - "pnpm-workspace.yaml"
-      # This workflow itself
-      - ".github/workflows/docker-publish.yml"
   pull_request:
     branches: ["main"]
-    paths:
-      # Same paths as push - only run PR checks when Docker-relevant files change
-      - "server/Dockerfile"
-      - "client/Dockerfile"
-      - "docker-compose*.yml"
-      - "server/**"
-      - "!server/**/*.test.ts"
-      - "!server/**/*.spec.ts"
-      - "client/**"
-      - "!client/**/*.test.ts"
-      - "!client/**/*.test.tsx"
-      - "shared/**"
-      - "package.json"
-      - "pnpm-lock.yaml"
-      - "pnpm-workspace.yaml"
-      - ".github/workflows/docker-publish.yml"
   workflow_dispatch:
     inputs:
       vite_api_url:
