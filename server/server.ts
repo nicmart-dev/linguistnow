@@ -100,21 +100,23 @@ const corsOptions: cors.CorsOptions = {
 };
 app.use(cors(corsOptions));
 
-// Swagger UI at root URL
-app.use("/", swaggerUi.serve);
-app.get(
-  "/",
-  swaggerUi.setup(swaggerSpec(), {
-    customCss: ".swagger-ui .topbar { display: none }",
-    customSiteTitle: "LinguistNow API Documentation",
-  }),
-);
-
-// Raw OpenAPI spec endpoint
+// Raw OpenAPI spec endpoint (must be before Swagger UI)
 app.get("/api-docs.json", (_req: Request, res: Response) => {
   res.setHeader("Content-Type", "application/json");
   res.send(swaggerSpec());
 });
+
+// Swagger UI at root URL - fetch spec dynamically from /api-docs.json
+// This ensures the version is always correct (not embedded at startup)
+app.use("/", swaggerUi.serve);
+app.get(
+  "/",
+  swaggerUi.setup(null, {
+    customCss: ".swagger-ui .topbar { display: none }",
+    customSiteTitle: "LinguistNow API Documentation",
+    swaggerUrl: "/api-docs.json",
+  }),
+);
 
 /**
  * @openapi
