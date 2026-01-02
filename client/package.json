@@ -20,7 +20,7 @@
         "react": "^19.0.0",
         "react-dom": "^19.0.0",
         "react-router-dom": "^7.11.0",
-        "i18next": "^24.0.0",
+        "i18next": "^25.7.3",
         "react-i18next": "^15.1.0",
         "tailwind-merge": "^3.4.0",
         "tailwindcss-animate": "^1.0.7",
