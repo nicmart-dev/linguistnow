@@ -70,62 +70,12 @@ router.get("/:id", usersController.getOne);
 
 /**
  * @openapi
- * /api/users:
- *   post:
- *     tags:
- *       - Users
- *     summary: Create a new user
- *     description: Creates a new user in Airtable upon first login using Google User API information
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - email
- *               - name
- *               - picture_url
- *             properties:
- *               email:
- *                 type: string
- *                 format: email
- *                 example: user@example.com
- *               name:
- *                 type: string
- *                 example: John Doe
- *               picture_url:
- *                 type: string
- *                 format: uri
- *                 example: https://lh3.googleusercontent.com/a/...
- *               role:
- *                 type: string
- *                 default: Linguist
- *                 example: Linguist
- *     responses:
- *       200:
- *         description: User created successfully
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/User'
- *       500:
- *         description: Failed to create user
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
- */
-router.post("/", usersController.create);
-
-/**
- * @openapi
  * /api/users/{id}:
  *   put:
  *     tags:
  *       - Users
  *     summary: Update user
- *     description: Updates user's calendar IDs. Note - OAuth tokens are stored in Vault, not Airtable.
+ *     description: Updates user's calendar IDs and availability preferences. Note - OAuth tokens are stored in Vault, not Airtable.
  *     parameters:
  *       - in: path
  *         name: id
@@ -148,6 +98,28 @@ router.post("/", usersController.create);
  *                   type: string
  *                 description: List of Google Calendar IDs
  *                 example: ['calendar1@group.calendar.google.com', 'calendar2@group.calendar.google.com']
+ *               availabilityPreferences:
+ *                 type: object
+ *                 description: "User's availability preferences. Note: minHoursPerDay is not a linguist preference - it's a PM requirement set in availability requests."
+ *                 properties:
+ *                   timezone:
+ *                     type: string
+ *                     description: IANA timezone identifier
+ *                     example: America/Los_Angeles
+ *                   workingHoursStart:
+ *                     type: string
+ *                     description: Start of working day in ISO 8601 time format (HH:mm)
+ *                     example: "08:00"
+ *                   workingHoursEnd:
+ *                     type: string
+ *                     description: End of working day in ISO 8601 time format (HH:mm)
+ *                     example: "18:00"
+ *                   offDays:
+ *                     type: array
+ *                     items:
+ *                       type: number
+ *                     description: Days off (0=Sunday, 1=Monday, ..., 6=Saturday)
+ *                     example: [0, 6]
  *     responses:
  *       200:
  *         description: User updated successfully
@@ -227,6 +199,59 @@ router.put("/:id", usersController.update);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
+router.delete("/:id", usersController.remove);
+
+/**
+ * @openapi
+ * /api/users:
+ *   post:
+ *     tags:
+ *       - Users
+ *     summary: Create a new user
+ *     description: Creates a new user in Airtable upon first login using Google User API information
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - name
+ *               - picture_url
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: user@example.com
+ *               name:
+ *                 type: string
+ *                 example: John Doe
+ *               picture_url:
+ *                 type: string
+ *                 format: uri
+ *                 example: https://lh3.googleusercontent.com/a/...
+ *               role:
+ *                 type: string
+ *                 default: Linguist
+ *                 example: Linguist
+ *     responses:
+ *       200:
+ *         description: User created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
+ *       500:
+ *         description: Failed to create user
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+router.post("/", usersController.create);
+
+router.put("/:id", usersController.update);
 router.delete("/:id", usersController.remove);
 
 export default router;

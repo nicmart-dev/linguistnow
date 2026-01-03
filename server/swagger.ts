@@ -86,8 +86,36 @@ function getSwaggerOptions() {
               Role: { type: "string", example: "Linguist" },
               "Calendar IDs": {
                 type: "string",
+                description:
+                  "Comma-separated list of Google Calendar IDs (not display names)",
                 example:
                   "calendar1@group.calendar.google.com,calendar2@group.calendar.google.com",
+              },
+              Timezone: {
+                type: "string",
+                description: "IANA timezone identifier",
+                example: "America/Los_Angeles",
+              },
+              "Working Hours Start": {
+                type: "string",
+                description:
+                  "Start of working day in ISO 8601 time format (HH:mm)",
+                example: "08:00",
+              },
+              "Working Hours End": {
+                type: "string",
+                description:
+                  "End of working day in ISO 8601 time format (HH:mm)",
+                example: "18:00",
+              },
+              "Off Days": {
+                type: "array",
+                items: {
+                  type: "string",
+                },
+                description:
+                  "Days off as day names (e.g., ['Sunday', 'Saturday']) or numbers (0-6) for backward compatibility",
+                example: ["Sunday", "Saturday"],
               },
             },
           },
