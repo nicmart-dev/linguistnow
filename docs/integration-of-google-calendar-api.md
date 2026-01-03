@@ -56,15 +56,16 @@ sequenceDiagram
 
 The `availabilityService.ts` determines if a linguist is available:
 
-| Parameter           | Default             | Description                         |
-| ------------------- | ------------------- | ----------------------------------- |
-| `timezone`          | America/Los_Angeles | IANA timezone for working hours     |
-| `workingHoursStart` | 8                   | Start of working day (24h format)   |
-| `workingHoursEnd`   | 18                  | End of working day (24h format)     |
-| `minHoursPerDay`    | 8                   | Minimum free hours required per day |
-| `excludeWeekends`   | true                | Skip Saturday and Sunday            |
-| `startDate`         | tomorrow            | Start of availability window        |
-| `endDate`           | +7 days             | End of availability window          |
+| Parameter           | Default             | Description                                    |
+| ------------------- | ------------------- | ---------------------------------------------- |
+| `timezone`          | America/Los_Angeles | IANA timezone for working hours                |
+| `workingHoursStart` | "08:00"             | Start of working day (ISO 8601 HH:mm format)   |
+| `workingHoursEnd`   | "18:00"             | End of working day (ISO 8601 HH:mm format)     |
+| `minHoursPerDay`    | 8                   | Minimum free hours required per day            |
+| `offDays`           | [0, 6]              | Days off (0=Sunday, 1=Monday, ..., 6=Saturday) |
+| `excludeWeekends`   | true                | Deprecated - use `offDays` instead             |
+| `startDate`         | tomorrow            | Start of availability window                   |
+| `endDate`           | +7 days             | End of availability window                     |
 
 **Rule:** A linguist is **available** if they have ≥ `minHoursPerDay` free hours on **every** working day.
 
@@ -75,7 +76,7 @@ flowchart TB
     subgraph Express["Express Server"]
         Controller["calendarController<br/>checkAvailability()"]
         Client["googleCalendarClient.ts<br/>getFreeBusy(token, ids)"]
-        Service["availabilityService.ts<br/>calculateFreeSlots()<br/>excludeWeekends()<br/>excludeNonWorkingHours()<br/>calculateAvailability()"]
+        Service["availabilityService.ts<br/>calculateFreeSlots()<br/>excludeOffDays()<br/>excludeNonWorkingHours()<br/>calculateAvailability()"]
         Vault["vaultClient.ts<br/>readToken(userEmail)"]
     end
 
@@ -100,10 +101,10 @@ flowchart TB
   "calendarIds": ["primary", "work@group.calendar.google.com"],
   "userEmail": "linguist@example.com",
   "timezone": "America/Los_Angeles",
-  "workingHoursStart": 8,
-  "workingHoursEnd": 18,
+  "workingHoursStart": "08:00",
+  "workingHoursEnd": "18:00",
   "minHoursPerDay": 8,
-  "excludeWeekends": true
+  "offDays": [0, 6]
 }
 ```
 
