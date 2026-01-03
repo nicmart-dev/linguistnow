@@ -32,6 +32,8 @@ jobs:
   # Check if we should build
   check:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     # Skip if release workflow failed
     if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     outputs:
