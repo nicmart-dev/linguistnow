@@ -1,9 +1,11 @@
 {
     "calendarSelector": {
         "chooseCalendars": "カレンダーを選択:",
+        "searchCalendars": "カレンダーを検索...",
         "noCalendarsAvailable": "利用可能なカレンダーがありません。",
         "tokenNotFound": "カレンダーへのアクセスを許可するには、再度ログインしてください。",
-        "tokenExpired": "セッションの有効期限が切れました。再度ログインしてください。",
+        "tokenExpired": "Googleカレンダーへのアクセスが期限切れです。再度ログインして再認証してください。",
+        "sessionExpired": "セッションの有効期限が切れました。再度ログインしてください。",
         "fetchError": "カレンダーを取得できませんでした。もう一度お試しください。"
     },
     "accountSettings": {
@@ -160,5 +162,43 @@
         "loggingOut": "ログアウト中...",
         "loginDescription": "カレンダーを選択してください。残りはお任せください。",
         "logoutSuccessMessage": "正常にログアウトしました。またお会いできることを楽しみにしています。"
+    },
+    "availabilitySettings": {
+        "title": "利用可能設定",
+        "description": "勤務時間、タイムゾーン、利用可能設定を構成します。",
+        "timezone": "タイムゾーン",
+        "timezoneHint": "検出されたタイムゾーン: {{timezone}}",
+        "workingHours": "勤務時間",
+        "start": "開始",
+        "end": "終了",
+        "offDays": "休日",
+        "offDaysHint": "勤務しない日を選択してください",
+        "saving": "保存中...",
+        "saveSuccess": "利用可能設定が正常に保存されました",
+        "saveSuccessTimezone": "タイムゾーンが保存されました",
+        "saveSuccessStartHour": "勤務開始時間が保存されました",
+        "saveSuccessEndHour": "勤務終了時間が保存されました",
+        "saveSuccessOffDays": "休日が保存されました",
+        "saveError": "利用可能設定の保存に失敗しました。もう一度お試しください。",
+        "days": {
+            "sunday": "日曜日",
+            "monday": "月曜日",
+            "tuesday": "火曜日",
+            "wednesday": "水曜日",
+            "thursday": "木曜日",
+            "friday": "金曜日",
+            "saturday": "土曜日"
+        },
+        "errors": {
+            "invalidTimezone": "ドロップダウンから有効なタイムゾーンを選択してください",
+            "invalidStartHour": "勤務時間の開始時刻は0から23の間である必要があります",
+            "invalidEndHour": "勤務時間の終了時刻は0から23の間である必要があります",
+            "startAfterEnd": "勤務時間の開始時刻は終了時刻より前である必要があります"
+        },
+        "selectHour": "時間を選択",
+        "workingHoursHintAmPm": "勤務時間を選択してください",
+        "workingHoursHint24h": "24時間形式（0-23）で勤務時間を選択してください",
+        "noTimezoneFound": "タイムゾーンが見つかりません",
+        "timezoneSearchPlaceholder": "タイムゾーンを検索..."
     }
 }

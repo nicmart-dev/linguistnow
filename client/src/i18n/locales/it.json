@@ -1,9 +1,11 @@
 {
     "calendarSelector": {
         "chooseCalendars": "Scegli calendari:",
+        "searchCalendars": "Cerca calendari...",
         "noCalendarsAvailable": "Nessun calendario disponibile.",
         "tokenNotFound": "Effettua nuovamente l'accesso per autorizzare l'accesso al calendario.",
-        "tokenExpired": "La tua sessione è scaduta. Effettua nuovamente l'accesso.",
+        "tokenExpired": "Il tuo accesso a Google Calendar è scaduto. Effettua nuovamente l'accesso per riautorizzare.",
+        "sessionExpired": "La tua sessione è scaduta. Effettua nuovamente l'accesso.",
         "fetchError": "Impossibile recuperare i calendari. Riprova."
     },
     "accountSettings": {
@@ -160,5 +162,43 @@
         "loggingOut": "Disconnessione in corso...",
         "loginDescription": "Seleziona i tuoi calendari e ci occuperemo del resto.",
         "logoutSuccessMessage": "Sei stato disconnesso con successo. Speriamo di rivederti presto."
+    },
+    "availabilitySettings": {
+        "title": "Preferenze di disponibilità",
+        "description": "Configura le tue ore di lavoro, fuso orario e impostazioni di disponibilità.",
+        "timezone": "Fuso orario",
+        "timezoneHint": "Fuso orario rilevato: {{timezone}}",
+        "workingHours": "Ore di lavoro",
+        "start": "Inizio",
+        "end": "Fine",
+        "offDays": "Giorni liberi",
+        "offDaysHint": "Seleziona i giorni in cui non lavori",
+        "saving": "Salvataggio...",
+        "saveSuccess": "Impostazioni di disponibilità salvate con successo",
+        "saveSuccessTimezone": "Fuso orario salvato",
+        "saveSuccessStartHour": "Ora di inizio salvata",
+        "saveSuccessEndHour": "Ora di fine salvata",
+        "saveSuccessOffDays": "Giorni liberi salvati",
+        "saveError": "Errore nel salvare le impostazioni di disponibilità. Riprova.",
+        "days": {
+            "sunday": "Domenica",
+            "monday": "Lunedì",
+            "tuesday": "Martedì",
+            "wednesday": "Mercoledì",
+            "thursday": "Giovedì",
+            "friday": "Venerdì",
+            "saturday": "Sabato"
+        },
+        "errors": {
+            "invalidTimezone": "Selezionare un fuso orario valido dal menu a discesa",
+            "invalidStartHour": "L'ora di inizio delle ore di lavoro deve essere tra 0 e 23",
+            "invalidEndHour": "L'ora di fine delle ore di lavoro deve essere tra 0 e 23",
+            "startAfterEnd": "L'ora di inizio delle ore di lavoro deve essere prima della fine"
+        },
+        "selectHour": "Seleziona ora",
+        "workingHoursHintAmPm": "Seleziona le tue ore di lavoro",
+        "workingHoursHint24h": "Seleziona le tue ore di lavoro in formato 24 ore (0-23)",
+        "noTimezoneFound": "Nessun fuso orario trovato",
+        "timezoneSearchPlaceholder": "Cerca fuso orario..."
     }
 }

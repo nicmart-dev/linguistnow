@@ -24,10 +24,12 @@
         "logoutSuccessMessage": "You have been successfully logged out. We hope to see you again soon."
     },
     "calendarSelector": {
-        "chooseCalendars": "Choose Calendars:",
+        "chooseCalendars": "Choose Calendars",
+        "searchCalendars": "Search calendars...",
         "noCalendarsAvailable": "No calendars available.",
         "tokenNotFound": "Please login again to authorize calendar access.",
-        "tokenExpired": "Your session has expired. Please login again.",
+        "tokenExpired": "Your Google Calendar access has expired. Please login again to re-authorize.",
+        "sessionExpired": "Your session has expired. Please login again.",
         "fetchError": "Unable to fetch calendars. Please try again."
     },
     "accountSettings": {
@@ -160,5 +162,46 @@
         "settings": "Settings",
         "menuIcon": "menu",
         "languageIcon": "language"
+    },
+    "availabilitySettings": {
+        "title": "Availability Preferences",
+        "description": "Configure your working hours, timezone, and availability settings.",
+        "timezone": "Timezone",
+        "timezoneHint": "Detected timezone: {{timezone}}",
+        "timezoneSearchPlaceholder": "Search timezone...",
+        "noTimezoneFound": "No timezone found",
+        "workingHours": "Working Hours",
+        "start": "Start",
+        "end": "End",
+        "selectHour": "Select hour",
+        "workingHoursHintAmPm": "Select your working hours",
+        "workingHoursHint24h": "Select your working hours in 24-hour format (0-23)",
+        "offDays": "Days Off",
+        "offDaysHint": "Select the days you do not work",
+        "saving": "Saving...",
+        "saveSuccess": "Availability settings saved successfully",
+        "saveSuccessTimezone": "Timezone saved",
+        "saveSuccessStartHour": "Working hours start saved",
+        "saveSuccessEndHour": "Working hours end saved",
+        "saveSuccessOffDays": "Days off saved",
+        "saveError": "Failed to save availability settings. Please try again.",
+        "days": {
+            "sunday": "Sunday",
+            "monday": "Monday",
+            "tuesday": "Tuesday",
+            "wednesday": "Wednesday",
+            "thursday": "Thursday",
+            "friday": "Friday",
+            "saturday": "Saturday"
+        },
+        "errors": {
+            "invalidTimezone": "Please select a valid timezone from the dropdown",
+            "invalidStartHour": "Working hours start must be between 0 and 23",
+            "invalidEndHour": "Working hours end must be between 0 and 23",
+            "startAfterEnd": "Working hours start must be before end"
+        },
+        "selectHour": "Select hour",
+        "workingHoursHintAmPm": "Select your working hours",
+        "workingHoursHint24h": "Select your working hours in 24-hour format (0-23)"
     }
 }

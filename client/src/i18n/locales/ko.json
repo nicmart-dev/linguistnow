@@ -1,9 +1,11 @@
 {
     "calendarSelector": {
         "chooseCalendars": "캘린더 선택:",
+        "searchCalendars": "캘린더 검색...",
         "noCalendarsAvailable": "사용 가능한 캘린더가 없습니다.",
         "tokenNotFound": "캘린더 접근을 승인하려면 다시 로그인하세요.",
-        "tokenExpired": "세션이 만료되었습니다. 다시 로그인하세요.",
+        "tokenExpired": "Google 캘린더 접근 권한이 만료되었습니다. 다시 로그인하여 재승인하세요.",
+        "sessionExpired": "세션이 만료되었습니다. 다시 로그인하세요.",
         "fetchError": "캘린더를 가져올 수 없습니다. 다시 시도하세요."
     },
     "accountSettings": {
@@ -160,5 +162,43 @@
         "loggingOut": "로그아웃 중...",
         "loginDescription": "캘린더를 선택하면 나머지는 저희가 처리하겠습니다.",
         "logoutSuccessMessage": "성공적으로 로그아웃되었습니다. 곧 다시 뵙기를 기대합니다."
+    },
+    "availabilitySettings": {
+        "title": "가용성 설정",
+        "description": "근무 시간, 시간대 및 가용성 설정을 구성하세요.",
+        "timezone": "시간대",
+        "timezoneHint": "감지된 시간대: {{timezone}}",
+        "workingHours": "근무 시간",
+        "start": "시작",
+        "end": "종료",
+        "offDays": "휴무일",
+        "offDaysHint": "근무하지 않는 날을 선택하세요",
+        "saving": "저장 중...",
+        "saveSuccess": "가용성 설정이 성공적으로 저장되었습니다",
+        "saveSuccessTimezone": "시간대가 저장되었습니다",
+        "saveSuccessStartHour": "근무 시작 시간이 저장되었습니다",
+        "saveSuccessEndHour": "근무 종료 시간이 저장되었습니다",
+        "saveSuccessOffDays": "휴무일이 저장되었습니다",
+        "saveError": "가용성 설정 저장에 실패했습니다. 다시 시도해 주세요.",
+        "days": {
+            "sunday": "일요일",
+            "monday": "월요일",
+            "tuesday": "화요일",
+            "wednesday": "수요일",
+            "thursday": "목요일",
+            "friday": "금요일",
+            "saturday": "토요일"
+        },
+        "errors": {
+            "invalidTimezone": "드롭다운에서 유효한 시간대를 선택하세요",
+            "invalidStartHour": "근무 시간 시작 시간은 0에서 23 사이여야 합니다",
+            "invalidEndHour": "근무 시간 종료 시간은 0에서 23 사이여야 합니다",
+            "startAfterEnd": "근무 시간 시작 시간은 종료 시간보다 앞서야 합니다"
+        },
+        "selectHour": "시간 선택",
+        "workingHoursHintAmPm": "근무 시간을 선택하세요",
+        "workingHoursHint24h": "24시간 형식(0-23)으로 근무 시간을 선택하세요",
+        "noTimezoneFound": "시간대를 찾을 수 없습니다",
+        "timezoneSearchPlaceholder": "시간대 검색..."
     }
 }
