@@ -38,7 +38,16 @@
         "name": "Name:",
         "selectCalendars": "To assist with scheduling, we will need to know which Google Calendar to check for your availability.",
         "automaticSave": "Your choices are automatically saved.",
-        "notReadingEvents": "For security reasons, we will not view the content of your calendar."
+        "notReadingEvents": "For security reasons, we will not view the content of your calendar.",
+        "deleteAccountTitle": "Delete Account",
+        "deleteAccountDescription": "Permanently delete your account and all associated data. This action cannot be undone.",
+        "deleteAccountButton": "Delete My Account",
+        "deleteAccountConfirm": "Are you sure you want to delete your account? This action cannot be undone.",
+        "deleteAccountError": "Failed to delete account. Please try again.",
+        "deleteAccountSuccess": "Account deleted successfully",
+        "confirmDelete": "Yes, Delete My Account",
+        "cancel": "Cancel",
+        "deleting": "Deleting..."
     },
     "dashboard": {
         "linguistsDescription": "Here is the schedule from tomorrow until {{date}} included.",

@@ -14,7 +14,16 @@
         "name": "姓名：",
         "selectCalendars": "为了协助日程安排，我们需要知道要检查您的可用性的谷歌日历。放心，我们只会保存您选择的日期并验证您的可用性。",
         "automaticSave": "您的选择将自动保存。",
-        "notReadingEvents": "出于安全考虑，我们将不会查看您的日历内容。"
+        "notReadingEvents": "出于安全考虑，我们将不会查看您的日历内容。",
+        "deleteAccountTitle": "删除帐户",
+        "deleteAccountDescription": "永久删除您的帐户和所有相关数据。此操作无法撤销。",
+        "deleteAccountButton": "删除我的帐户",
+        "deleteAccountConfirm": "您确定要删除您的帐户吗？此操作无法撤销。",
+        "deleteAccountError": "删除帐户失败。请重试。",
+        "deleteAccountSuccess": "帐户已成功删除",
+        "confirmDelete": "是的，删除我的帐户",
+        "cancel": "取消",
+        "deleting": "正在删除..."
     },
     "dashboard": {
         "linguistsDescription": "以下是从明天起直到 {{date}}（含）的日程安排。",

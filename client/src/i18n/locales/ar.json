@@ -14,7 +14,16 @@
         "name": "الاسم:",
         "selectCalendars": "لمساعدتك في الجدولة، نحتاج إلى معرفة تقويم Google الذي يجب التحقق منه لتوفرك.",
         "automaticSave": "يتم حفظ اختياراتك تلقائياً.",
-        "notReadingEvents": "لأسباب أمنية، لن نعرض محتوى تقويمك."
+        "notReadingEvents": "لأسباب أمنية، لن نعرض محتوى تقويمك.",
+        "deleteAccountTitle": "حذف الحساب",
+        "deleteAccountDescription": "حذف حسابك وجميع البيانات المرتبطة به بشكل دائم. لا يمكن التراجع عن هذا الإجراء.",
+        "deleteAccountButton": "حذف حسابي",
+        "deleteAccountConfirm": "هل أنت متأكد من أنك تريد حذف حسابك؟ لا يمكن التراجع عن هذا الإجراء.",
+        "deleteAccountError": "فشل في حذف الحساب. يرجى المحاولة مرة أخرى.",
+        "deleteAccountSuccess": "تم حذف الحساب بنجاح",
+        "confirmDelete": "نعم، احذف حسابي",
+        "cancel": "إلغاء",
+        "deleting": "جاري الحذف..."
     },
     "hero": {
         "login": {

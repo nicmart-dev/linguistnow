@@ -14,7 +14,16 @@
         "name": "Nom :",
         "selectCalendars": "Pour faciliter la planification, nous aurons besoin de savoir quel calendrier Google vérifier pour votre disponibilité.",
         "automaticSave": "Vos choix sont automatiquement enregistrés.",
-        "notReadingEvents": "Pour des raisons de sécurité, nous ne consulterons pas le contenu de votre calendrier."
+        "notReadingEvents": "Pour des raisons de sécurité, nous ne consulterons pas le contenu de votre calendrier.",
+        "deleteAccountTitle": "Supprimer le compte",
+        "deleteAccountDescription": "Supprimer définitivement votre compte et toutes les données associées. Cette action ne peut pas être annulée.",
+        "deleteAccountButton": "Supprimer mon compte",
+        "deleteAccountConfirm": "Êtes-vous sûr de vouloir supprimer votre compte ? Cette action ne peut pas être annulée.",
+        "deleteAccountError": "Échec de la suppression du compte. Veuillez réessayer.",
+        "deleteAccountSuccess": "Compte supprimé avec succès",
+        "confirmDelete": "Oui, supprimer mon compte",
+        "cancel": "Annuler",
+        "deleting": "Suppression..."
     },
     "dashboard": {
         "linguistsDescription": "Voici le programme de demain jusqu'au {{date}} inclus.",

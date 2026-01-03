@@ -2,6 +2,11 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import type { Request, Response } from "express";
 import { getAll, getOne, create, update, remove } from "./usersController";
 
+// Mock vaultClient
+vi.mock("../utils/vaultClient.js", () => ({
+  deleteToken: vi.fn().mockResolvedValue(undefined),
+}));
+
 // Mock Airtable - use hoisted to ensure mocks are available
 const {
   mockSelect,
@@ -328,19 +333,56 @@ describe("usersController", () => {
   });
 
   describe("remove", () => {
-    it("should delete user successfully", async () => {
+    it("should return 400 for invalid email format", async () => {
       mockRequest = {
-        params: { id: "rec123" },
+        params: { id: "invalid-email" },
       };
+
+      await remove(mockRequest as Request, mockResponse as Response);
+
+      expect(statusSpy).toHaveBeenCalledWith(400);
+      expect(jsonSpy).toHaveBeenCalledWith({ error: "Invalid email format" });
+    });
+
+    it("should delete user successfully from Airtable and Vault", async () => {
+      const { deleteToken } = await import("../utils/vaultClient.js");
+      const userEmail = "user@example.com";
+      const recordId = "rec123";
+      mockRequest = {
+        params: { id: userEmail },
+      };
+      mockFirstPage.mockResolvedValue([
+        {
+          id: recordId,
+          fields: {
+            Email: userEmail,
+            Name: "Test User",
+          },
+        },
+      ]);
       mockDestroy.mockResolvedValue(undefined);
 
       await remove(mockRequest as Request, mockResponse as Response);
 
-      expect(mockDestroy).toHaveBeenCalledWith("rec123");
+      expect(mockFirstPage).toHaveBeenCalled();
+      expect(mockDestroy).toHaveBeenCalledWith(recordId);
+      expect(deleteToken).toHaveBeenCalledWith(userEmail);
       expect(jsonSpy).toHaveBeenCalledWith({
         message: "Deleted user",
-        id: "rec123",
+        email: userEmail,
       });
+    });
+
+    it("should return 404 when user not found", async () => {
+      mockRequest = {
+        params: { id: "notfound@example.com" },
+      };
+      mockFirstPage.mockResolvedValue([]);
+
+      await remove(mockRequest as Request, mockResponse as Response);
+
+      expect(statusSpy).toHaveBeenCalledWith(404);
+      expect(jsonSpy).toHaveBeenCalledWith({ error: "User not found" });
     });
 
     it("should handle errors", async () => {
@@ -348,9 +390,9 @@ describe("usersController", () => {
         .spyOn(console, "log")
         .mockImplementation(() => {});
       mockRequest = {
-        params: { id: "rec123" },
+        params: { id: "user@example.com" },
       };
-      mockDestroy.mockRejectedValue(new Error("Airtable error"));
+      mockFirstPage.mockRejectedValue(new Error("Airtable error"));
 
       await remove(mockRequest as Request, mockResponse as Response);
 

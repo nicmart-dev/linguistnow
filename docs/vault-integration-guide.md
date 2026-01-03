@@ -357,6 +357,11 @@ VAULT_TOKEN=dev-token              # or your production scoped token
 | `writeToken(email, tokens)` | Store access/refresh tokens for a user    |
 | `readToken(email)`          | Retrieve tokens for a user                |
 | `listTokens()`              | List all stored user emails (for refresh) |
+| `deleteToken(email)`        | Delete tokens for a user                  |
+
+### Automatic Cleanup
+
+The `/api/tokens/list` endpoint automatically removes tokens from Vault for users who no longer exist in Airtable. This ensures that orphaned tokens are cleaned up and only valid users are returned in the token list.
 
 ---
 

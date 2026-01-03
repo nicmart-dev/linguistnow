@@ -14,7 +14,16 @@
         "name": "Nome:",
         "selectCalendars": "Per aiutare con la pianificazione, avremo bisogno di sapere quale calendario Google controllare per la tua disponibilità.",
         "automaticSave": "Le tue scelte vengono salvate automaticamente.",
-        "notReadingEvents": "Per motivi di sicurezza, non visualizzeremo il contenuto del tuo calendario."
+        "notReadingEvents": "Per motivi di sicurezza, non visualizzeremo il contenuto del tuo calendario.",
+        "deleteAccountTitle": "Elimina account",
+        "deleteAccountDescription": "Elimina definitivamente il tuo account e tutti i dati associati. Questa azione non può essere annullata.",
+        "deleteAccountButton": "Elimina il mio account",
+        "deleteAccountConfirm": "Sei sicuro di voler eliminare il tuo account? Questa azione non può essere annullata.",
+        "deleteAccountError": "Impossibile eliminare l'account. Riprova.",
+        "deleteAccountSuccess": "Account eliminato con successo",
+        "confirmDelete": "Sì, elimina il mio account",
+        "cancel": "Annulla",
+        "deleting": "Eliminazione..."
     },
     "hero": {
         "login": {

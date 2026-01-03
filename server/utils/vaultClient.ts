@@ -79,4 +79,15 @@ export async function listTokens(): Promise<string[]> {
   return result.data.keys || [];
 }
 
+/**
+ * Delete tokens from Vault for a specific user
+ * @param userEmail - User's email address (used as key)
+ */
+export async function deleteToken(userEmail: string): Promise<void> {
+  const vault = getVaultClient();
+  const path = `${getSecretPath()}/${userEmail}`;
+  console.log("Deleting tokens from Vault:", path);
+  await vault.delete(path);
+}
+
 export type { TokenPair };

@@ -14,7 +14,16 @@
         "name": "Name:",
         "selectCalendars": "Um bei der Terminplanung zu helfen, müssen wir wissen, welchen Google-Kalender wir auf Ihre Verfügbarkeit prüfen sollen.",
         "automaticSave": "Ihre Auswahl wird automatisch gespeichert.",
-        "notReadingEvents": "Aus Sicherheitsgründen werden wir den Inhalt Ihres Kalenders nicht einsehen."
+        "notReadingEvents": "Aus Sicherheitsgründen werden wir den Inhalt Ihres Kalenders nicht einsehen.",
+        "deleteAccountTitle": "Konto löschen",
+        "deleteAccountDescription": "Löschen Sie Ihr Konto und alle zugehörigen Daten dauerhaft. Diese Aktion kann nicht rückgängig gemacht werden.",
+        "deleteAccountButton": "Mein Konto löschen",
+        "deleteAccountConfirm": "Sind Sie sicher, dass Sie Ihr Konto löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
+        "deleteAccountError": "Fehler beim Löschen des Kontos. Bitte versuchen Sie es erneut.",
+        "deleteAccountSuccess": "Konto erfolgreich gelöscht",
+        "confirmDelete": "Ja, mein Konto löschen",
+        "cancel": "Abbrechen",
+        "deleting": "Wird gelöscht..."
     },
     "hero": {
         "login": {

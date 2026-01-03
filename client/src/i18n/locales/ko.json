@@ -14,7 +14,16 @@
         "name": "이름:",
         "selectCalendars": "일정 조율을 돕기 위해 어떤 Google 캘린더에서 사용 가능 여부를 확인할지 알아야 합니다.",
         "automaticSave": "선택 사항이 자동으로 저장됩니다.",
-        "notReadingEvents": "보안상의 이유로 캘린더 내용을 보지 않습니다."
+        "notReadingEvents": "보안상의 이유로 캘린더 내용을 보지 않습니다.",
+        "deleteAccountTitle": "계정 삭제",
+        "deleteAccountDescription": "계정 및 관련된 모든 데이터를 영구적으로 삭제합니다. 이 작업은 취소할 수 없습니다.",
+        "deleteAccountButton": "내 계정 삭제",
+        "deleteAccountConfirm": "계정을 삭제하시겠습니까? 이 작업은 취소할 수 없습니다.",
+        "deleteAccountError": "계정 삭제에 실패했습니다. 다시 시도해 주세요.",
+        "deleteAccountSuccess": "계정이 성공적으로 삭제되었습니다",
+        "confirmDelete": "예, 내 계정 삭제",
+        "cancel": "취소",
+        "deleting": "삭제 중..."
     },
     "hero": {
         "login": {
