@@ -11,9 +11,20 @@ Go to "More tools" > "Sensors".
 Under "Geolocation", select the desired language from the dropdown menu.
 */
 
-export type Locale = "en" | "fr" | "zh-cn" | "es" | "de" | "it" | "pt" | "ja" | "ko" | "ar" | "ru";
+export type Locale =
+    | 'en'
+    | 'fr'
+    | 'zh-cn'
+    | 'es'
+    | 'de'
+    | 'it'
+    | 'pt'
+    | 'ja'
+    | 'ko'
+    | 'ar'
+    | 'ru'
 
-const STORAGE_KEY = 'linguistnow-language';
+const STORAGE_KEY = 'linguistnow-language'
 
 const isLocalStorageAvailable = (): boolean => {
     try {
@@ -31,40 +42,69 @@ export const getLocale = (): Locale => {
     if (isLocalStorageAvailable()) {
         const savedLanguage = localStorage.getItem(STORAGE_KEY)
         if (savedLanguage) {
-            const supportedLocales: Locale[] = ["en", "fr", "zh-cn", "es", "de", "it", "pt", "ja", "ko", "ar", "ru"]
+            const supportedLocales: Locale[] = [
+                'en',
+                'fr',
+                'zh-cn',
+                'es',
+                'de',
+                'it',
+                'pt',
+                'ja',
+                'ko',
+                'ar',
+                'ru',
+            ]
             if (supportedLocales.includes(savedLanguage as Locale)) {
                 return savedLanguage as Locale
             }
         }
     }
-    
+
     // Fall back to browser language if no saved preference
     const browserLang = navigator.language.toLowerCase()
     const language = browserLang.split(/[-_]/)[0] // Extract language code only
-    
+
     // Map browser language codes to our locale codes
     const localeMap: Record<string, Locale> = {
-        "en": "en",
-        "fr": "fr",
-        "zh": "zh-cn",
-        "es": "es",
-        "de": "de",
-        "it": "it",
-        "pt": "pt",
-        "ja": "ja",
-        "ko": "ko",
-        "ar": "ar",
-        "ru": "ru"
+        en: 'en',
+        fr: 'fr',
+        zh: 'zh-cn',
+        es: 'es',
+        de: 'de',
+        it: 'it',
+        pt: 'pt',
+        ja: 'ja',
+        ko: 'ko',
+        ar: 'ar',
+        ru: 'ru',
     }
-    
-    const detectedLocale = localeMap[language] ?? "en"
-    
+
+    const detectedLocale = localeMap[language] ?? 'en'
+
     // Save the detected locale to localStorage for future use
     if (isLocalStorageAvailable()) {
         localStorage.setItem(STORAGE_KEY, detectedLocale)
     }
-    
+
     return detectedLocale
+}
+
+// RTL languages
+const RTL_LANGUAGES: Locale[] = ['ar', 'he']
+
+/**
+ * Check if a locale is a Right-to-Left (RTL) language
+ */
+export const isRTL = (locale: Locale): boolean => {
+    return RTL_LANGUAGES.includes(locale)
+}
+
+/**
+ * Get the text direction for a locale
+ */
+export const getDirection = (locale: Locale): 'ltr' | 'rtl' => {
+    return isRTL(locale) ? 'rtl' : 'ltr'
 }
 
 export const saveLocale = (locale: Locale): void => {

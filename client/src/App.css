@@ -1,3 +1,35 @@
 .App {
   text-align: center;
 }
+
+/* RTL Support */
+html[dir="rtl"] {
+  direction: rtl;
+}
+
+html[dir="ltr"] {
+  direction: ltr;
+}
+
+/* RTL-specific adjustments */
+html[dir="rtl"] body {
+  text-align: right;
+}
+
+html[dir="ltr"] body {
+  text-align: left;
+}
+
+/* Ensure proper text alignment for RTL */
+html[dir="rtl"] .text-left {
+  text-align: right;
+}
+
+html[dir="rtl"] .text-right {
+  text-align: left;
+}
+
+/* RTL adjustments for flex containers */
+html[dir="rtl"] .flex-row-reverse {
+  flex-direction: row-reverse;
+}
