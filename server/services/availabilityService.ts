@@ -12,7 +12,6 @@ import {
   startOfDay,
   endOfDay,
   eachDayOfInterval,
-  isWeekend,
   parseISO,
   formatISO,
 } from "date-fns";
@@ -25,6 +24,28 @@ import type {
 import { AVAILABILITY_DEFAULTS } from "@linguistnow/shared";
 
 /**
+ * Parse ISO 8601 time string (HH:mm) to hours as decimal number
+ * @param time - Time string in HH:mm format
+ * @returns Hours as decimal (e.g., "08:30" -> 8.5, "18:00" -> 18)
+ */
+function parseTimeToHours(time: string | undefined): number {
+  if (!time) {
+    return 0;
+  }
+
+  // Parse HH:mm format
+  const [hours, minutes] = time.split(":");
+  const hoursNum = parseInt(hours, 10);
+  const minutesNum = parseInt(minutes, 10);
+
+  if (isNaN(hoursNum) || isNaN(minutesNum)) {
+    return 0;
+  }
+
+  return hoursNum + minutesNum / 60;
+}
+
+/**
  * Service interface for availability calculation
  */
 export interface IAvailabilityService {
@@ -33,7 +54,11 @@ export interface IAvailabilityService {
     timeMin: string,
     timeMax: string,
   ): BusySlot[];
-  excludeWeekends(slots: BusySlot[], timezone: string): BusySlot[];
+  excludeOffDays(
+    slots: BusySlot[],
+    offDays: number[],
+    timezone: string,
+  ): BusySlot[];
   excludeNonWorkingHours(
     slots: BusySlot[],
     options: Required<
@@ -141,15 +166,25 @@ export function calculateFreeSlots(
 }
 
 /**
- * Filter out slots that fall on weekends
+ * Filter out slots that fall on off-days (configurable days of the week)
  *
- * Bug fix from n8n: Proper handling of slots spanning multiple days
+ * @param slots - Array of time slots to filter
+ * @param offDays - Array of day numbers to exclude (0=Sunday, 1=Monday, ..., 6=Saturday)
+ * @param timezone - IANA timezone string
+ * @returns Filtered slots excluding off-days
  */
-export function excludeWeekends(
+export function excludeOffDays(
   slots: BusySlot[],
+  offDays: number[],
   timezone: string,
 ): BusySlot[] {
   const result: BusySlot[] = [];
+
+  // Helper to check if a day is an off-day
+  const isOffDay = (date: Date): boolean => {
+    const dayOfWeek = date.getDay(); // 0=Sunday, 1=Monday, ..., 6=Saturday
+    return offDays.includes(dayOfWeek);
+  };
 
   for (const slot of slots) {
     const startDate = toZonedTime(parseISO(slot.start), timezone);
@@ -160,8 +195,8 @@ export function excludeWeekends(
 
     // Process each day
     days.forEach((day, i) => {
-      if (isWeekend(day)) {
-        return; // Skip weekend days
+      if (isOffDay(day)) {
+        return; // Skip off-days
       }
 
       // Calculate the portion of the slot for this day
@@ -244,51 +279,70 @@ export function excludeNonWorkingHours(
   const { timezone, workingHoursStart, workingHoursEnd } = options;
   const result: BusySlot[] = [];
 
+  // Parse time strings to hours (with backward compatibility for numbers)
+  const startHours = parseTimeToHours(workingHoursStart);
+  const endHours = parseTimeToHours(workingHoursEnd);
+
+  // Extract hour and minute from parsed hours
+  const startHour = Math.floor(startHours);
+  const startMinute = Math.round((startHours - startHour) * 60);
+  const endHour = Math.floor(endHours);
+  const endMinute = Math.round((endHours - endHour) * 60);
+
   for (const slot of slots) {
     const slotStart = parseISO(slot.start);
     const slotEnd = parseISO(slot.end);
 
     // Get hours and minutes in the target timezone
-    const startHour = getHourInTimezone(slotStart, timezone);
-    const startMinute = getMinuteInTimezone(slotStart, timezone);
-    const endHour = getHourInTimezone(slotEnd, timezone);
-    const endMinute = getMinuteInTimezone(slotEnd, timezone);
+    const slotStartHour = getHourInTimezone(slotStart, timezone);
+    const slotStartMinute = getMinuteInTimezone(slotStart, timezone);
+    const slotEndHour = getHourInTimezone(slotEnd, timezone);
+    const slotEndMinute = getMinuteInTimezone(slotEnd, timezone);
 
     // Calculate effective hours (with fractional minutes)
-    const startEffective = startHour + startMinute / 60;
-    const endEffective = endHour + endMinute / 60;
+    const startEffective = slotStartHour + slotStartMinute / 60;
+    const endEffective = slotEndHour + slotEndMinute / 60;
 
     // Skip slot entirely if it ends before or at working hours start
-    if (endEffective <= workingHoursStart) {
+    if (endEffective <= startHours) {
       continue;
     }
 
     // Skip slot entirely if it starts at or after working hours end
-    if (startEffective >= workingHoursEnd) {
+    if (startEffective >= endHours) {
       continue;
     }
 
     // Adjust start to working hours if before
     let adjustedStart = slotStart;
-    if (startHour < workingHoursStart) {
+    if (
+      slotStartHour < startHour ||
+      (slotStartHour === startHour && slotStartMinute < startMinute)
+    ) {
       adjustedStart = createDateAtHourInTimezone(
         slotStart,
-        workingHoursStart,
+        startHour,
         timezone,
       );
+      // Adjust minutes if needed
+      if (startMinute > 0) {
+        adjustedStart = new Date(
+          adjustedStart.getTime() + startMinute * 60 * 1000,
+        );
+      }
     }
 
     // Adjust end to working hours if after
     let adjustedEnd = slotEnd;
     if (
-      endHour >= workingHoursEnd ||
-      (endHour === workingHoursEnd && endMinute > 0)
+      slotEndHour > endHour ||
+      (slotEndHour === endHour && slotEndMinute > endMinute)
     ) {
-      adjustedEnd = createDateAtHourInTimezone(
-        slotEnd,
-        workingHoursEnd,
-        timezone,
-      );
+      adjustedEnd = createDateAtHourInTimezone(slotEnd, endHour, timezone);
+      // Adjust minutes if needed
+      if (endMinute > 0) {
+        adjustedEnd = new Date(adjustedEnd.getTime() + endMinute * 60 * 1000);
+      }
     }
 
     // Only add if adjusted start is before adjusted end
@@ -319,8 +373,18 @@ export function calculateAvailability(
     options.workingHoursEnd ?? AVAILABILITY_DEFAULTS.workingHoursEnd;
   const minHoursPerDay =
     options.minHoursPerDay ?? AVAILABILITY_DEFAULTS.minHoursPerDay;
-  const excludeWeekendsFlag =
-    options.excludeWeekends ?? AVAILABILITY_DEFAULTS.excludeWeekends;
+
+  // Determine off-days: prefer offDays array, fallback to excludeWeekends for backward compatibility
+  let offDays: number[];
+  if (options.offDays !== undefined) {
+    offDays = options.offDays;
+  } else if (options.excludeWeekends === false) {
+    // Explicitly set to false means no off-days
+    offDays = [];
+  } else {
+    // Default or excludeWeekends === true means weekends are off-days
+    offDays = AVAILABILITY_DEFAULTS.offDays;
+  }
 
   const startDate = options.startDate ?? getDefaultStartDate(timezone);
   const endDate = options.endDate ?? getDefaultEndDate(timezone);
@@ -328,16 +392,16 @@ export function calculateAvailability(
   // Step 1: Calculate free slots from busy slots
   let freeSlots = calculateFreeSlots(busySlots, startDate, endDate);
 
-  // Step 2: Exclude weekends if configured
-  if (excludeWeekendsFlag) {
-    freeSlots = excludeWeekends(freeSlots, timezone);
+  // Step 2: Exclude off-days if configured
+  if (offDays.length > 0) {
+    freeSlots = excludeOffDays(freeSlots, offDays, timezone);
   }
 
   // Step 3: Exclude non-working hours
   freeSlots = excludeNonWorkingHours(freeSlots, {
     timezone,
-    workingHoursStart,
-    workingHoursEnd,
+    workingHoursStart: workingHoursStart as string,
+    workingHoursEnd: workingHoursEnd as string,
   });
 
   // Step 4: Calculate hours per day
@@ -359,9 +423,14 @@ export function calculateAvailability(
   const endZoned = toZonedTime(parseISO(endDate), timezone);
   const allDays = eachDayOfInterval({ start: startZoned, end: endZoned });
 
-  const expectedWorkingDays = excludeWeekendsFlag
-    ? allDays.filter((day) => !isWeekend(day))
-    : allDays;
+  // Helper to check if a day is an off-day
+  const isOffDay = (date: Date): boolean => {
+    const dayOfWeek = date.getDay(); // 0=Sunday, 1=Monday, ..., 6=Saturday
+    return offDays.includes(dayOfWeek);
+  };
+
+  const expectedWorkingDays =
+    offDays.length > 0 ? allDays.filter((day) => !isOffDay(day)) : allDays;
 
   // Step 6: Check if each working day has minimum hours
   // Bug fix: Check ALL expected days, not just days that have slots
