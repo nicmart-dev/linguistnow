@@ -27,7 +27,7 @@
     "node-vault": "^0.10.9",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",
-    "zod": "^4.2.1"
+    "zod": "^4.3.4"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",
@@ -36,7 +36,7 @@
     "@types/swagger-jsdoc": "^6.0.4",
     "@types/swagger-ui-express": "^4.1.8",
     "@vitest/coverage-v8": "^4.0.16",
-    "cross-env": "^7.0.3",
+    "cross-env": "^10.1.0",
     "tsx": "^4.21.0",
     "typescript": "^5.7.2",
     "vitest": "^4.0.16"
