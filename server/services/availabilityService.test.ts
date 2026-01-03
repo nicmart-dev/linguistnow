@@ -2,7 +2,7 @@
 import { describe, it, expect } from "vitest";
 import {
   calculateFreeSlots,
-  excludeWeekends,
+  excludeOffDays,
   excludeNonWorkingHours,
   calculateAvailability,
   getDefaultStartDate,
@@ -100,25 +100,36 @@ describe("availabilityService", () => {
     });
   });
 
-  describe("excludeWeekends", () => {
+  describe("excludeOffDays", () => {
     it("should filter out Saturday slots", () => {
-      // 2024-01-13 is a Saturday
+      // 2024-01-13 is a Saturday (day 6)
       const slots: BusySlot[] = [
         { start: "2024-01-13T08:00:00Z", end: "2024-01-13T18:00:00Z" },
       ];
 
-      const result = excludeWeekends(slots, TEST_TIMEZONE);
+      const result = excludeOffDays(slots, [6], TEST_TIMEZONE);
 
       expect(result).toHaveLength(0);
     });
 
     it("should filter out Sunday slots", () => {
-      // 2024-01-14 is a Sunday
+      // 2024-01-14 is a Sunday (day 0)
       const slots: BusySlot[] = [
         { start: "2024-01-14T08:00:00Z", end: "2024-01-14T18:00:00Z" },
       ];
 
-      const result = excludeWeekends(slots, TEST_TIMEZONE);
+      const result = excludeOffDays(slots, [0], TEST_TIMEZONE);
+
+      expect(result).toHaveLength(0);
+    });
+
+    it("should filter out weekends (Saturday and Sunday)", () => {
+      // 2024-01-13 is a Saturday, 2024-01-14 is a Sunday
+      const slots: BusySlot[] = [
+        { start: "2024-01-13T08:00:00Z", end: "2024-01-14T18:00:00Z" },
+      ];
+
+      const result = excludeOffDays(slots, [0, 6], TEST_TIMEZONE);
 
       expect(result).toHaveLength(0);
     });
@@ -129,29 +140,50 @@ describe("availabilityService", () => {
         { start: "2024-01-15T08:00:00Z", end: "2024-01-15T18:00:00Z" },
       ];
 
-      const result = excludeWeekends(slots, TEST_TIMEZONE);
+      const result = excludeOffDays(slots, [0, 6], TEST_TIMEZONE);
 
       expect(result).toHaveLength(1);
     });
 
-    it("should split slots spanning weekend", () => {
+    it("should filter out Friday and Saturday (Middle East weekend)", () => {
+      // 2024-01-12 is a Friday, 2024-01-13 is a Saturday
+      const slots: BusySlot[] = [
+        { start: "2024-01-12T08:00:00Z", end: "2024-01-13T18:00:00Z" },
+      ];
+
+      const result = excludeOffDays(slots, [5, 6], TEST_TIMEZONE);
+
+      expect(result).toHaveLength(0);
+    });
+
+    it("should split slots spanning off-days", () => {
       // Friday to Monday (2024-01-12 is Friday, 2024-01-15 is Monday)
       const slots: BusySlot[] = [
         { start: "2024-01-12T08:00:00Z", end: "2024-01-15T18:00:00Z" },
       ];
 
-      const result = excludeWeekends(slots, TEST_TIMEZONE);
+      const result = excludeOffDays(slots, [0, 6], TEST_TIMEZONE);
 
       // Should have Friday and Monday portions
       expect(result.length).toBeGreaterThanOrEqual(2);
+    });
+
+    it("should handle empty off-days array (no filtering)", () => {
+      const slots: BusySlot[] = [
+        { start: "2024-01-13T08:00:00Z", end: "2024-01-13T18:00:00Z" },
+      ];
+
+      const result = excludeOffDays(slots, [], TEST_TIMEZONE);
+
+      expect(result).toHaveLength(1);
     });
   });
 
   describe("excludeNonWorkingHours", () => {
     const options = {
       timezone: TEST_TIMEZONE,
-      workingHoursStart: 8,
-      workingHoursEnd: 18,
+      workingHoursStart: "08:00",
+      workingHoursEnd: "18:00",
     };
 
     it("should trim slots to working hours", () => {
@@ -191,10 +223,10 @@ describe("availabilityService", () => {
         startDate: "2024-01-15T00:00:00Z", // Monday
         endDate: "2024-01-19T23:59:59Z", // Friday
         timezone: "UTC",
-        workingHoursStart: 8,
-        workingHoursEnd: 18,
+        workingHoursStart: "08:00",
+        workingHoursEnd: "18:00",
         minHoursPerDay: 8,
-        excludeWeekends: true,
+        offDays: [0, 6],
       };
 
       const result = calculateAvailability(busySlots, options);
@@ -220,10 +252,10 @@ describe("availabilityService", () => {
         startDate: "2024-01-15T00:00:00Z",
         endDate: "2024-01-19T23:59:59Z",
         timezone: TEST_TIMEZONE,
-        workingHoursStart: 8,
-        workingHoursEnd: 18,
+        workingHoursStart: "08:00",
+        workingHoursEnd: "18:00",
         minHoursPerDay: 8,
-        excludeWeekends: true,
+        offDays: [0, 6],
       };
 
       const result = calculateAvailability(busySlots, options);
@@ -244,10 +276,10 @@ describe("availabilityService", () => {
         startDate: "2024-01-15T00:00:00Z",
         endDate: "2024-01-15T23:59:59Z", // Just Monday
         timezone: TEST_TIMEZONE,
-        workingHoursStart: 8,
-        workingHoursEnd: 18,
+        workingHoursStart: "08:00",
+        workingHoursEnd: "18:00",
         minHoursPerDay: 8,
-        excludeWeekends: true,
+        offDays: [0, 6],
       };
 
       const result = calculateAvailability(busySlots, options);
@@ -267,10 +299,10 @@ describe("availabilityService", () => {
         startDate: "2024-01-15T00:00:00Z",
         endDate: "2024-01-15T23:59:59Z",
         timezone: "UTC",
-        workingHoursStart: 8,
-        workingHoursEnd: 18,
+        workingHoursStart: "08:00",
+        workingHoursEnd: "18:00",
         minHoursPerDay: 8,
-        excludeWeekends: true,
+        offDays: [0, 6],
       };
 
       const result = calculateAvailability(busySlots, options);
@@ -292,10 +324,10 @@ describe("availabilityService", () => {
         startDate: "2024-01-15T00:00:00Z",
         endDate: "2024-01-15T23:59:59Z",
         timezone: "UTC",
-        workingHoursStart: 8,
-        workingHoursEnd: 18,
+        workingHoursStart: "08:00",
+        workingHoursEnd: "18:00",
         minHoursPerDay: 8,
-        excludeWeekends: true,
+        offDays: [0, 6],
       };
 
       const result = calculateAvailability(busySlots, options);
