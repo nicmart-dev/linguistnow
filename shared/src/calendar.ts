@@ -45,10 +45,12 @@ export interface AvailabilityRequest {
   startDate?: string; // ISO date, defaults to tomorrow
   endDate?: string; // ISO date, defaults to +7 days
   timezone?: string; // Default: America/Los_Angeles
-  workingHoursStart?: number; // Default: 8
-  workingHoursEnd?: number; // Default: 18
+  workingHoursStart?: string; // Default: "08:00" (ISO 8601 time format HH:mm)
+  workingHoursEnd?: string; // Default: "18:00" (ISO 8601 time format HH:mm)
   minHoursPerDay?: number; // Default: 8
-  excludeWeekends?: boolean; // Default: true
+  offDays?: number[]; // Days off (0=Sunday, 1=Monday, ..., 6=Saturday). Default: [0, 6] (weekends)
+  // Deprecated: use offDays instead
+  excludeWeekends?: boolean; // Default: true (for backward compatibility)
 }
 
 /**
@@ -56,10 +58,11 @@ export interface AvailabilityRequest {
  */
 export const AVAILABILITY_DEFAULTS = {
   timezone: "America/Los_Angeles",
-  workingHoursStart: 8,
-  workingHoursEnd: 18,
+  workingHoursStart: "08:00", // ISO 8601 time format (HH:mm)
+  workingHoursEnd: "18:00", // ISO 8601 time format (HH:mm)
   minHoursPerDay: 8,
-  excludeWeekends: true,
+  offDays: [0, 6], // Sunday and Saturday
+  excludeWeekends: true, // Deprecated: kept for backward compatibility
 } as const;
 
 /**
