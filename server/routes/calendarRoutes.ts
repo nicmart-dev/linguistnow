@@ -17,10 +17,13 @@ const router: Router = express.Router();
  *     description: |
  *       Checks if a user is available by querying their Google Calendars directly.
  *       Reads the access token from Vault and calculates availability based on:
- *       - Working hours (configurable, default 8am-6pm)
+ *       - Working hours (configurable, default 8am-6pm in ISO 8601 HH:mm format)
  *       - Minimum hours per day (configurable, default 8 hours)
- *       - Weekend exclusion (configurable, default true)
+ *       - Off days (configurable, default [0, 6] for weekends)
  *       - Timezone (configurable, default America/Los_Angeles)
+ *
+ *       Note: If user preferences are stored in Airtable, they are used as defaults.
+ *       PMs can override these defaults in the request.
  *     requestBody:
  *       required: true
  *       content:
@@ -58,25 +61,31 @@ const router: Router = express.Router();
  *                 default: America/Los_Angeles
  *                 example: 'America/Los_Angeles'
  *               workingHoursStart:
- *                 type: integer
- *                 description: Start of working hours (24h format)
- *                 default: 8
- *                 example: 8
+ *                 type: string
+ *                 description: Start of working hours in ISO 8601 time format (HH:mm)
+ *                 default: "08:00"
+ *                 example: "08:00"
  *               workingHoursEnd:
- *                 type: integer
- *                 description: End of working hours (24h format)
- *                 default: 18
- *                 example: 18
+ *                 type: string
+ *                 description: End of working hours in ISO 8601 time format (HH:mm)
+ *                 default: "18:00"
+ *                 example: "18:00"
  *               minHoursPerDay:
  *                 type: integer
  *                 description: Minimum free hours required per working day
  *                 default: 8
  *                 example: 8
+ *               offDays:
+ *                 type: array
+ *                 items:
+ *                   type: number
+ *                 description: "Days off (0=Sunday, 1=Monday, ..., 6=Saturday). Default: [0, 6] (weekends)"
+ *                 example: [0, 6]
  *               excludeWeekends:
  *                 type: boolean
- *                 description: Whether to exclude weekends from calculation
+ *                 description: Deprecated - use offDays instead. Whether to exclude weekends from calculation (for backward compatibility)
  *                 default: true
- *                 example: true
+ *                 deprecated: true
  *     responses:
  *       200:
  *         description: Availability check result
