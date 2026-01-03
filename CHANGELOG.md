@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0](https://github.com/nicmart-dev/linguistnow/compare/v1.0.5...v1.1.0) (2026-01-03)
+
+### ⚠ BREAKING CHANGES
+
+- DELETE /api/users/:id now uses email address instead of Airtable record ID
+
+### ✨ Features
+
+- user cleanup and self-deletion ([eaa8505](https://github.com/nicmart-dev/linguistnow/commit/eaa8505d33998d36545677563c51ca64d2ab18f1))
+
 ## [1.0.5](https://github.com/nicmart-dev/linguistnow/compare/v1.0.4...v1.0.5) (2026-01-03)
 
 ### 🐛 Bug Fixes
