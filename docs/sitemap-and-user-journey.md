@@ -10,7 +10,7 @@
 
 # Live sandbox
 
-You can login to https://linguistnow.netlify.app/ and use test accounts below:
+You can login to https://linguistnow.nicmart.dev and use test accounts below:
 
 - Linguist: `PokemonTest784@gmail.com`
 - PM: `pokemontest525@gmail.com`
