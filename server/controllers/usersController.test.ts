@@ -282,6 +282,45 @@ describe("usersController", () => {
     // Note: Token fields have been removed from usersController
     // Tokens are now stored in Vault, not Airtable
 
+    it("should update user successfully with availability preferences", async () => {
+      mockRequest = {
+        params: { id: "user@example.com" },
+        body: {
+          availabilityPreferences: {
+            timezone: "Europe/Paris",
+            workingHoursStart: "09:00",
+            workingHoursEnd: "17:00",
+            offDays: [0, 6],
+          },
+        },
+      };
+      const mockRecord = {
+        id: "rec123",
+        fields: { Email: "user@example.com" },
+      };
+      const updatedRecord = {
+        fields: {
+          Email: "user@example.com",
+          Timezone: "Europe/Paris",
+          "Working Hours Start": "09:00",
+          "Working Hours End": "17:00",
+          "Off Days": ["Sunday", "Saturday"],
+        },
+      };
+      mockFirstPage.mockResolvedValue([mockRecord]);
+      mockUpdate.mockResolvedValue(updatedRecord);
+
+      await update(mockRequest as Request, mockResponse as Response);
+
+      expect(mockUpdate).toHaveBeenCalledWith("rec123", {
+        Timezone: "Europe/Paris",
+        "Working Hours Start": "09:00",
+        "Working Hours End": "17:00",
+        "Off Days": ["Sunday", "Saturday"],
+      });
+      expect(jsonSpy).toHaveBeenCalledWith(updatedRecord.fields);
+    });
+
     it("should return 400 when no fields provided", async () => {
       mockRequest = {
         params: { id: "user@example.com" },
@@ -327,7 +366,10 @@ describe("usersController", () => {
       await update(mockRequest as Request, mockResponse as Response);
 
       expect(statusSpy).toHaveBeenCalledWith(500);
-      expect(jsonSpy).toHaveBeenCalledWith({ error: "Failed to update user" });
+      expect(jsonSpy).toHaveBeenCalledWith({
+        error: "Failed to update user",
+        details: "Airtable error",
+      });
       consoleLogSpy.mockRestore();
     });
   });

@@ -44,6 +44,17 @@ vi.mock("../services/googleCalendarClient.js", () => ({
   },
 }));
 
+// Mock Airtable to prevent env var errors in tests
+vi.mock("airtable", () => ({
+  default: vi.fn(() => ({
+    base: vi.fn(() => ({
+      select: vi.fn(() => ({
+        firstPage: vi.fn().mockResolvedValue([]),
+      })),
+    })),
+  })),
+}));
+
 describe("calendarController", () => {
   let mockRequest: Partial<Request>;
   let mockResponse: Partial<Response>;
@@ -69,10 +80,10 @@ describe("calendarController", () => {
           startDate: "2024-01-15T00:00:00Z",
           endDate: "2024-01-19T23:59:59Z",
           timezone: "UTC",
-          workingHoursStart: 8,
-          workingHoursEnd: 18,
+          workingHoursStart: "08:00",
+          workingHoursEnd: "18:00",
           minHoursPerDay: 8,
-          excludeWeekends: true,
+          offDays: [0, 6],
         },
       };
       const mockTokens = {
@@ -104,8 +115,19 @@ describe("calendarController", () => {
       mockRequest = {
         body: {
           calendarIds: ["cal1@group.calendar.google.com"],
+          // userEmail is missing
         },
       };
+      // Mock Airtable to return empty preferences (no user found)
+      vi.doMock("airtable", () => ({
+        default: vi.fn(() => ({
+          base: vi.fn(() => ({
+            select: vi.fn(() => ({
+              firstPage: vi.fn().mockResolvedValue([]),
+            })),
+          })),
+        })),
+      }));
 
       await checkAvailability(mockRequest as Request, mockResponse as Response);
 
@@ -247,10 +269,10 @@ describe("calendarController", () => {
           startDate: "2024-01-15T00:00:00Z",
           endDate: "2024-01-15T23:59:59Z",
           timezone: "UTC",
-          workingHoursStart: 8,
-          workingHoursEnd: 18,
+          workingHoursStart: "08:00",
+          workingHoursEnd: "18:00",
           minHoursPerDay: 8,
-          excludeWeekends: true,
+          offDays: [0, 6],
         },
       };
       mockReadToken.mockResolvedValue({
@@ -370,12 +392,21 @@ describe("calendarController", () => {
         ],
       };
       mockReadToken.mockResolvedValue(mockTokens);
-      mockedAxios.get.mockResolvedValue({ data: mockCalendars });
+      // Mock token validation (first call) then calendar list (second call)
+      mockedAxios.get
+        .mockResolvedValueOnce({
+          status: 200,
+          data: { expires_in: 3600 },
+        })
+        .mockResolvedValueOnce({ data: mockCalendars });
 
       await listCalendars(mockRequest as Request, mockResponse as Response);
 
       expect(mockReadToken).toHaveBeenCalledWith("user@example.com");
-      expect(mockedAxios.get).toHaveBeenCalledWith(
+      // Should be called twice: once for token validation, once for calendar list
+      expect(mockedAxios.get).toHaveBeenCalledTimes(2);
+      expect(mockedAxios.get).toHaveBeenNthCalledWith(
+        2,
         "https://www.googleapis.com/calendar/v3/users/me/calendarList",
         {
           headers: { Authorization: "Bearer mock-access-token" },
@@ -420,7 +451,7 @@ describe("calendarController", () => {
       });
     });
 
-    it("should handle expired/invalid access token from Google", async () => {
+    it("should handle expired/invalid access token from Google (token validation fails)", async () => {
       const consoleErrorSpy = vi
         .spyOn(console, "error")
         .mockImplementation(() => {});
@@ -431,11 +462,12 @@ describe("calendarController", () => {
         accessToken: "expired-token",
         refreshToken: "refresh-token",
       });
-      mockedAxios.get.mockRejectedValue({
+      // Mock token validation to fail (token is expired)
+      mockedAxios.get.mockRejectedValueOnce({
         response: {
-          status: 401,
+          status: 400,
           data: {
-            error: { message: "Invalid Credentials" },
+            error: "invalid_token",
           },
         },
       });
@@ -445,9 +477,11 @@ describe("calendarController", () => {
       expect(statusSpy).toHaveBeenCalledWith(401);
       expect(jsonSpy).toHaveBeenCalledWith({
         error: "Access token expired or invalid",
-        details: "Invalid Credentials",
+        details: "User needs to login again to refresh their token.",
         code: "TOKEN_EXPIRED",
       });
+      // Should not call calendar API if token validation fails
+      expect(mockedAxios.get).toHaveBeenCalledTimes(1);
       consoleErrorSpy.mockRestore();
     });
 
@@ -462,7 +496,13 @@ describe("calendarController", () => {
         accessToken: "valid-token",
         refreshToken: "refresh-token",
       });
-      mockedAxios.get.mockRejectedValue({
+      // Mock token validation to succeed
+      mockedAxios.get.mockResolvedValueOnce({
+        status: 200,
+        data: { expires_in: 3600 },
+      });
+      // Mock calendar API call to fail
+      mockedAxios.get.mockRejectedValueOnce({
         response: {
           status: 403,
           data: {
@@ -510,7 +550,13 @@ describe("calendarController", () => {
         accessToken: "valid-token",
         refreshToken: "refresh-token",
       });
-      mockedAxios.get.mockResolvedValue({ data: { items: [] } });
+      // Mock token validation (first call) then calendar list (second call)
+      mockedAxios.get
+        .mockResolvedValueOnce({
+          status: 200,
+          data: { expires_in: 3600 },
+        })
+        .mockResolvedValueOnce({ data: { items: [] } });
 
       await listCalendars(mockRequest as Request, mockResponse as Response);
 
@@ -526,7 +572,13 @@ describe("calendarController", () => {
         accessToken: "valid-token",
         refreshToken: "refresh-token",
       });
-      mockedAxios.get.mockResolvedValue({ data: {} });
+      // Mock token validation (first call) then calendar list (second call)
+      mockedAxios.get
+        .mockResolvedValueOnce({
+          status: 200,
+          data: { expires_in: 3600 },
+        })
+        .mockResolvedValueOnce({ data: {} });
 
       await listCalendars(mockRequest as Request, mockResponse as Response);
 
