@@ -30,7 +30,9 @@
         "tokenNotFound": "Please login again to authorize calendar access.",
         "tokenExpired": "Your Google Calendar access has expired. Please login again to re-authorize.",
         "sessionExpired": "Your session has expired. Please login again.",
-        "fetchError": "Unable to fetch calendars. Please try again."
+        "fetchError": "Unable to fetch calendars. Please try again.",
+        "saveSuccess": "Calendars saved",
+        "saveError": "Failed to save calendars"
     },
     "accountSettings": {
         "accountSettings": "Account Settings",

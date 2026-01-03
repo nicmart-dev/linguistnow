@@ -6,7 +6,9 @@
         "tokenNotFound": "Bitte melden Sie sich erneut an, um den Kalenderzugriff zu autorisieren.",
         "tokenExpired": "Ihr Zugriff auf Google Calendar ist abgelaufen. Bitte melden Sie sich erneut an, um erneut zu autorisieren.",
         "sessionExpired": "Ihre Sitzung ist abgelaufen. Bitte melden Sie sich erneut an.",
-        "fetchError": "Kalender konnten nicht abgerufen werden. Bitte versuchen Sie es erneut."
+        "fetchError": "Kalender konnten nicht abgerufen werden. Bitte versuchen Sie es erneut.",
+        "saveSuccess": "Kalender gespeichert",
+        "saveError": "Fehler beim Speichern der Kalender"
     },
     "accountSettings": {
         "accountSettings": "Kontoeinstellungen",
