@@ -561,15 +561,94 @@ const AvailabilitySettings: React.FC<AvailabilitySettingsProps> = ({
         savePreferences,
     ])
 
-    const dayNames = [
-        t('availabilitySettings.days.sunday', 'Sunday'),
-        t('availabilitySettings.days.monday', 'Monday'),
-        t('availabilitySettings.days.tuesday', 'Tuesday'),
-        t('availabilitySettings.days.wednesday', 'Wednesday'),
-        t('availabilitySettings.days.thursday', 'Thursday'),
-        t('availabilitySettings.days.friday', 'Friday'),
-        t('availabilitySettings.days.saturday', 'Saturday'),
-    ]
+    // Get first day of week based on locale
+    // 0 = Sunday, 1 = Monday, etc.
+    const getFirstDayOfWeek = React.useMemo(() => {
+        const lang = i18n.language.toLowerCase()
+
+        // Try using Intl.Locale weekInfo if available (modern browsers)
+        try {
+            // Map i18n language codes to locale strings
+            const localeMap: Record<string, string> = {
+                en: 'en-US',
+                fr: 'fr-FR',
+                es: 'es-ES',
+                de: 'de-DE',
+                it: 'it-IT',
+                pt: 'pt-PT',
+                'zh-cn': 'zh-CN',
+                ja: 'ja-JP',
+                ko: 'ko-KR',
+                ar: 'ar-SA',
+                ru: 'ru-RU',
+            }
+            const locale = localeMap[lang] || lang
+
+            // Use Intl.Locale if available (supported in modern browsers)
+            if (typeof Intl !== 'undefined' && 'Locale' in Intl) {
+                const localeObj = new Intl.Locale(locale)
+                // @ts-expect-error - weekInfo is not in TypeScript types yet but exists in modern browsers
+                const weekInfo = localeObj.weekInfo as
+                    | { firstDay?: number }
+                    | undefined
+                if (weekInfo?.firstDay !== undefined) {
+                    // weekInfo.firstDay: 1 = Monday, 7 = Sunday
+                    return weekInfo.firstDay === 7 ? 0 : weekInfo.firstDay
+                }
+            }
+        } catch {
+            // Fall through to locale-specific defaults
+        }
+
+        // Fallback: check locale-specific defaults
+        // Arabic and Hebrew: Sunday (0) - weekend is Fri/Sat
+        // Most European: Monday (1) - week starts Monday
+        // US English: Sunday (0)
+        if (lang.startsWith('ar') || lang.startsWith('he')) {
+            return 0 // Sunday
+        }
+        if (
+            lang.startsWith('fr') ||
+            lang.startsWith('de') ||
+            lang.startsWith('es') ||
+            lang.startsWith('it') ||
+            lang.startsWith('pt') ||
+            lang.startsWith('ru')
+        ) {
+            return 1 // Monday
+        }
+        // Default to Sunday for en, zh-cn, ja, ko
+        return 0
+    }, [i18n.language])
+
+    // Create ordered arrays based on first day of week
+    const { dayNames, dayNumbers } = React.useMemo(() => {
+        const allDayNames = [
+            t('availabilitySettings.days.sunday', 'Sunday'),
+            t('availabilitySettings.days.monday', 'Monday'),
+            t('availabilitySettings.days.tuesday', 'Tuesday'),
+            t('availabilitySettings.days.wednesday', 'Wednesday'),
+            t('availabilitySettings.days.thursday', 'Thursday'),
+            t('availabilitySettings.days.friday', 'Friday'),
+            t('availabilitySettings.days.saturday', 'Saturday'),
+        ]
+        const allDayNumbers = [0, 1, 2, 3, 4, 5, 6] // Sunday=0, Monday=1, ..., Saturday=6
+
+        // Reorder based on first day of week
+        const reorderedNames: string[] = []
+        const reorderedNumbers: number[] = []
+
+        for (let i = 0; i < 7; i++) {
+            const index = (getFirstDayOfWeek + i) % 7
+            reorderedNames.push(allDayNames[index])
+            reorderedNumbers.push(allDayNumbers[index])
+        }
+
+        return {
+            dayNames: reorderedNames,
+            dayNumbers: reorderedNumbers,
+        }
+    }, [t, getFirstDayOfWeek])
 
     return (
         <div className="max-w-3xl mb-8">
@@ -772,24 +851,27 @@ const AvailabilitySettings: React.FC<AvailabilitySettingsProps> = ({
                     {t('availabilitySettings.offDays', 'Days Off')}
                 </label>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                    {dayNames.map((dayName, index) => (
-                        <label
-                            key={index}
-                            className="flex cursor-pointer items-center gap-2 rounded-lg border border-gray-200 p-3 transition hover:bg-gray-50 has-[:checked]:bg-blue-50"
-                        >
-                            <input
-                                type="checkbox"
-                                checked={offDays.includes(index)}
-                                onChange={() => {
-                                    handleOffDayToggle(index)
-                                }}
-                                className="size-4 rounded border-gray-300"
-                            />
-                            <span className="text-sm font-medium text-gray-900">
-                                {dayName}
-                            </span>
-                        </label>
-                    ))}
+                    {dayNames.map((dayName, displayIndex) => {
+                        const dayNumber = dayNumbers[displayIndex]
+                        return (
+                            <label
+                                key={dayNumber}
+                                className="flex cursor-pointer items-center gap-2 rounded-lg border border-gray-200 p-3 transition hover:bg-gray-50 has-checked:bg-blue-50"
+                            >
+                                <input
+                                    type="checkbox"
+                                    checked={offDays.includes(dayNumber)}
+                                    onChange={() => {
+                                        handleOffDayToggle(dayNumber)
+                                    }}
+                                    className="size-4 rounded border-gray-300"
+                                />
+                                <span className="text-sm font-medium text-gray-900">
+                                    {dayName}
+                                </span>
+                            </label>
+                        )
+                    })}
                 </div>
                 <p className="mt-1 text-sm text-gray-500">
                     {t(
