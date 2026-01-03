@@ -1,9 +1,11 @@
 {
     "calendarSelector": {
         "chooseCalendars": "اختر التقويمات:",
+        "searchCalendars": "البحث عن التقويمات...",
         "noCalendarsAvailable": "لا توجد تقويمات متاحة.",
         "tokenNotFound": "يرجى تسجيل الدخول مرة أخرى للسماح بالوصول إلى التقويم.",
-        "tokenExpired": "انتهت صلاحية جلستك. يرجى تسجيل الدخول مرة أخرى.",
+        "tokenExpired": "انتهت صلاحية الوصول إلى تقويم Google. يرجى تسجيل الدخول مرة أخرى لإعادة التفويض.",
+        "sessionExpired": "انتهت صلاحية جلستك. يرجى تسجيل الدخول مرة أخرى.",
         "fetchError": "تعذر جلب التقويمات. يرجى المحاولة مرة أخرى."
     },
     "accountSettings": {
@@ -160,5 +162,43 @@
         "loggingOut": "جاري تسجيل الخروج...",
         "loginDescription": "اختر تقويماتك وسنهتم بالباقي.",
         "logoutSuccessMessage": "تم تسجيل خروجك بنجاح. نأمل أن نراك مرة أخرى قريباً."
+    },
+    "availabilitySettings": {
+        "title": "إعدادات التوفر",
+        "description": "قم بتكوين ساعات العمل والمنطقة الزمنية وإعدادات التوفر.",
+        "timezone": "المنطقة الزمنية",
+        "timezoneHint": "المنطقة الزمنية المكتشفة: {{timezone}}",
+        "workingHours": "ساعات العمل",
+        "start": "البداية",
+        "end": "النهاية",
+        "offDays": "أيام الراحة",
+        "offDaysHint": "حدد الأيام التي لا تعمل فيها",
+        "saving": "جاري الحفظ...",
+        "saveSuccess": "تم حفظ إعدادات التوفر بنجاح",
+        "saveSuccessTimezone": "تم حفظ المنطقة الزمنية",
+        "saveSuccessStartHour": "تم حفظ ساعة البدء",
+        "saveSuccessEndHour": "تم حفظ ساعة النهاية",
+        "saveSuccessOffDays": "تم حفظ أيام الراحة",
+        "saveError": "فشل حفظ إعدادات التوفر. يرجى المحاولة مرة أخرى.",
+        "days": {
+            "sunday": "الأحد",
+            "monday": "الإثنين",
+            "tuesday": "الثلاثاء",
+            "wednesday": "الأربعاء",
+            "thursday": "الخميس",
+            "friday": "الجمعة",
+            "saturday": "السبت"
+        },
+        "errors": {
+            "invalidTimezone": "يرجى اختيار منطقة زمنية صالحة من القائمة المنسدلة",
+            "invalidStartHour": "يجب أن تكون ساعة بداية ساعات العمل بين 0 و 23",
+            "invalidEndHour": "يجب أن تكون ساعة نهاية ساعات العمل بين 0 و 23",
+            "startAfterEnd": "يجب أن تكون ساعة بداية ساعات العمل قبل النهاية"
+        },
+        "selectHour": "اختر الساعة",
+        "workingHoursHintAmPm": "حدد ساعات عملك",
+        "workingHoursHint24h": "حدد ساعات عملك بتنسيق 24 ساعة (0-23)",
+        "noTimezoneFound": "لم يتم العثور على المنطقة الزمنية",
+        "timezoneSearchPlaceholder": "البحث عن المنطقة الزمنية..."
     }
 }

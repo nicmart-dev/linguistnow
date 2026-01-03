@@ -1,9 +1,11 @@
 {
     "calendarSelector": {
         "chooseCalendars": "选择日历：",
+        "searchCalendars": "搜索日历...",
         "noCalendarsAvailable": "没有可用的日历。",
         "tokenNotFound": "请重新登录以授权日历访问。",
-        "tokenExpired": "您的会话已过期。请重新登录。",
+        "tokenExpired": "您的 Google 日历访问权限已过期。请重新登录以重新授权。",
+        "sessionExpired": "您的会话已过期。请重新登录。",
         "fetchError": "无法获取日历。请重试。"
     },
     "accountSettings": {
@@ -160,5 +162,43 @@
         "loggingOut": "正在登出...",
         "loginDescription": "选择您的日历，剩下的就交给我们。",
         "logoutSuccessMessage": "您已成功登出。希望很快再见到您。"
+    },
+    "availabilitySettings": {
+        "title": "可用性设置",
+        "description": "配置您的工作时间、时区和可用性设置。",
+        "timezone": "时区",
+        "timezoneHint": "检测到的时区: {{timezone}}",
+        "workingHours": "工作时间",
+        "start": "开始",
+        "end": "结束",
+        "offDays": "休息日",
+        "offDaysHint": "选择您不工作的日子",
+        "saving": "保存中...",
+        "saveSuccess": "可用性设置已成功保存",
+        "saveSuccessTimezone": "时区已保存",
+        "saveSuccessStartHour": "工作开始时间已保存",
+        "saveSuccessEndHour": "工作结束时间已保存",
+        "saveSuccessOffDays": "休息日已保存",
+        "saveError": "保存可用性设置失败。请重试。",
+        "days": {
+            "sunday": "星期日",
+            "monday": "星期一",
+            "tuesday": "星期二",
+            "wednesday": "星期三",
+            "thursday": "星期四",
+            "friday": "星期五",
+            "saturday": "星期六"
+        },
+        "errors": {
+            "invalidTimezone": "请从下拉菜单中选择有效的时区",
+            "invalidStartHour": "工作开始时间必须在0到23之间",
+            "invalidEndHour": "工作结束时间必须在0到23之间",
+            "startAfterEnd": "工作开始时间必须在结束时间之前"
+        },
+        "selectHour": "选择时间",
+        "workingHoursHintAmPm": "选择您的工作时间",
+        "workingHoursHint24h": "以24小时格式（0-23）选择您的工作时间",
+        "noTimezoneFound": "未找到时区",
+        "timezoneSearchPlaceholder": "搜索时区..."
     }
 }

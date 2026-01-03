@@ -1,9 +1,11 @@
 {
     "calendarSelector": {
         "chooseCalendars": "Kalender auswählen:",
+        "searchCalendars": "Kalender suchen...",
         "noCalendarsAvailable": "Keine Kalender verfügbar.",
         "tokenNotFound": "Bitte melden Sie sich erneut an, um den Kalenderzugriff zu autorisieren.",
-        "tokenExpired": "Ihre Sitzung ist abgelaufen. Bitte melden Sie sich erneut an.",
+        "tokenExpired": "Ihr Zugriff auf Google Calendar ist abgelaufen. Bitte melden Sie sich erneut an, um erneut zu autorisieren.",
+        "sessionExpired": "Ihre Sitzung ist abgelaufen. Bitte melden Sie sich erneut an.",
         "fetchError": "Kalender konnten nicht abgerufen werden. Bitte versuchen Sie es erneut."
     },
     "accountSettings": {
@@ -160,5 +162,43 @@
         "loggingOut": "Abmelden...",
         "loginDescription": "Wählen Sie Ihre Kalender aus, und wir kümmern uns um den Rest.",
         "logoutSuccessMessage": "Sie wurden erfolgreich abgemeldet. Wir hoffen, Sie bald wiederzusehen."
+    },
+    "availabilitySettings": {
+        "title": "Verfügbarkeitseinstellungen",
+        "description": "Konfigurieren Sie Ihre Arbeitszeiten, Zeitzone und Verfügbarkeitseinstellungen.",
+        "timezone": "Zeitzone",
+        "timezoneHint": "Erkannte Zeitzone: {{timezone}}",
+        "workingHours": "Arbeitszeiten",
+        "start": "Beginn",
+        "end": "Ende",
+        "offDays": "Freie Tage",
+        "offDaysHint": "Wählen Sie die Tage aus, an denen Sie nicht arbeiten",
+        "saving": "Speichern...",
+        "saveSuccess": "Verfügbarkeitseinstellungen erfolgreich gespeichert",
+        "saveSuccessTimezone": "Zeitzone gespeichert",
+        "saveSuccessStartHour": "Arbeitsbeginn gespeichert",
+        "saveSuccessEndHour": "Arbeitsende gespeichert",
+        "saveSuccessOffDays": "Freie Tage gespeichert",
+        "saveError": "Fehler beim Speichern der Verfügbarkeitseinstellungen. Bitte versuchen Sie es erneut.",
+        "days": {
+            "sunday": "Sonntag",
+            "monday": "Montag",
+            "tuesday": "Dienstag",
+            "wednesday": "Mittwoch",
+            "thursday": "Donnerstag",
+            "friday": "Freitag",
+            "saturday": "Samstag"
+        },
+        "errors": {
+            "invalidTimezone": "Bitte wählen Sie eine gültige Zeitzone aus der Dropdown-Liste aus",
+            "invalidStartHour": "Die Arbeitsbeginnzeit muss zwischen 0 und 23 liegen",
+            "invalidEndHour": "Die Arbeitsendzeit muss zwischen 0 und 23 liegen",
+            "startAfterEnd": "Die Arbeitsbeginnzeit muss vor dem Ende liegen"
+        },
+        "selectHour": "Stunde auswählen",
+        "workingHoursHintAmPm": "Wählen Sie Ihre Arbeitszeiten",
+        "workingHoursHint24h": "Wählen Sie Ihre Arbeitszeiten im 24-Stunden-Format (0-23)",
+        "noTimezoneFound": "Keine Zeitzone gefunden",
+        "timezoneSearchPlaceholder": "Zeitzone suchen..."
     }
 }
