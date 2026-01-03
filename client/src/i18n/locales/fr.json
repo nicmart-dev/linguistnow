@@ -6,7 +6,9 @@
         "tokenNotFound": "Veuillez vous reconnecter pour autoriser l'accès au calendrier.",
         "tokenExpired": "Votre accès à Google Calendar a expiré. Veuillez vous reconnecter pour réautoriser.",
         "sessionExpired": "Votre session a expiré. Veuillez vous reconnecter.",
-        "fetchError": "Impossible de récupérer les calendriers. Veuillez réessayer."
+        "fetchError": "Impossible de récupérer les calendriers. Veuillez réessayer.",
+        "saveSuccess": "Calendriers enregistrés",
+        "saveError": "Échec de l'enregistrement des calendriers"
     },
     "accountSettings": {
         "accountSettings": "Paramètres du compte",

@@ -43,7 +43,18 @@ const AccountSettings = ({ userDetails, setUserDetails }) => {
             )
 
             if (!response.ok) {
-                throw new Error('Failed to save calendars.')
+                const errorData = await response.json().catch(() => ({}))
+                const errorMessage =
+                    errorData.details ||
+                    errorData.error ||
+                    errorData.message ||
+                    t('calendarSelector.saveError')
+                console.error('Save calendars error:', {
+                    status: response.status,
+                    statusText: response.statusText,
+                    errorData,
+                })
+                throw new Error(errorMessage)
             }
 
             setUserDetails({
@@ -51,9 +62,17 @@ const AccountSettings = ({ userDetails, setUserDetails }) => {
                 'Calendar IDs': updatedCalendars.join(','),
             })
 
+            // Show success toast
+            toast.success(t('calendarSelector.saveSuccess'))
             logger.log('Calendars saved.')
         } catch (error) {
             console.error('Failed to save calendars:', error)
+            // Show error toast
+            const errorMessage =
+                error instanceof Error
+                    ? error.message
+                    : t('calendarSelector.saveError')
+            toast.error(errorMessage)
         }
     }
 

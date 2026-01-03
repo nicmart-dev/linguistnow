@@ -6,7 +6,9 @@
         "tokenNotFound": "请重新登录以授权日历访问。",
         "tokenExpired": "您的 Google 日历访问权限已过期。请重新登录以重新授权。",
         "sessionExpired": "您的会话已过期。请重新登录。",
-        "fetchError": "无法获取日历。请重试。"
+        "fetchError": "无法获取日历。请重试。",
+        "saveSuccess": "日历已保存",
+        "saveError": "保存日历失败"
     },
     "accountSettings": {
         "accountSettings": "帐户设置",

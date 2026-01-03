@@ -6,7 +6,9 @@
         "tokenNotFound": "Effettua nuovamente l'accesso per autorizzare l'accesso al calendario.",
         "tokenExpired": "Il tuo accesso a Google Calendar è scaduto. Effettua nuovamente l'accesso per riautorizzare.",
         "sessionExpired": "La tua sessione è scaduta. Effettua nuovamente l'accesso.",
-        "fetchError": "Impossibile recuperare i calendari. Riprova."
+        "fetchError": "Impossibile recuperare i calendari. Riprova.",
+        "saveSuccess": "Calendari salvati",
+        "saveError": "Errore nel salvataggio dei calendari"
     },
     "accountSettings": {
         "accountSettings": "Impostazioni account",

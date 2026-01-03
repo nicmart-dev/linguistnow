@@ -6,7 +6,9 @@
         "tokenNotFound": "カレンダーへのアクセスを許可するには、再度ログインしてください。",
         "tokenExpired": "Googleカレンダーへのアクセスが期限切れです。再度ログインして再認証してください。",
         "sessionExpired": "セッションの有効期限が切れました。再度ログインしてください。",
-        "fetchError": "カレンダーを取得できませんでした。もう一度お試しください。"
+        "fetchError": "カレンダーを取得できませんでした。もう一度お試しください。",
+        "saveSuccess": "カレンダーを保存しました",
+        "saveError": "カレンダーの保存に失敗しました"
     },
     "accountSettings": {
         "accountSettings": "アカウント設定",
