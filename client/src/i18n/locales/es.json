@@ -14,7 +14,16 @@
         "name": "Nombre:",
         "selectCalendars": "Para ayudar con la programación, necesitamos saber qué calendario de Google verificar para tu disponibilidad.",
         "automaticSave": "Tus elecciones se guardan automáticamente.",
-        "notReadingEvents": "Por razones de seguridad, no veremos el contenido de tu calendario."
+        "notReadingEvents": "Por razones de seguridad, no veremos el contenido de tu calendario.",
+        "deleteAccountTitle": "Eliminar cuenta",
+        "deleteAccountDescription": "Eliminar permanentemente tu cuenta y todos los datos asociados. Esta acción no se puede deshacer.",
+        "deleteAccountButton": "Eliminar mi cuenta",
+        "deleteAccountConfirm": "¿Estás seguro de que deseas eliminar tu cuenta? Esta acción no se puede deshacer.",
+        "deleteAccountError": "Error al eliminar la cuenta. Por favor, inténtalo de nuevo.",
+        "deleteAccountSuccess": "Cuenta eliminada exitosamente",
+        "confirmDelete": "Sí, eliminar mi cuenta",
+        "cancel": "Cancelar",
+        "deleting": "Eliminando..."
     },
     "dashboard": {
         "linguistsDescription": "Aquí está el horario desde mañana hasta el {{date}} incluido.",

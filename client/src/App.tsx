@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { Toaster } from 'sonner'
 import Login from './pages/Login'
 import AccountSettings from './pages/AccountSettings'
 import Dashboard from './pages/Dashboard'
@@ -117,6 +118,7 @@ const App = () => {
                         <Route path="/privacy" element={<PrivacyPolicy />} />
                     </Routes>
                     <Footer />
+                    <Toaster position="top-right" />
                 </BrowserRouter>
             </LanguageProvider>
         </GoogleOAuthProvider>

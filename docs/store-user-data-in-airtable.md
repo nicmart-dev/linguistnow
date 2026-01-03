@@ -39,6 +39,7 @@ Below are the key steps and components involved in this implementation:
 - **Express Routes:**
   - Defined routes to handle CRUD operations on user records.
   - Implemented routes for fetching all users, fetching a single user, creating a new user, updating user information, and deleting a user.
+  - The DELETE endpoint accepts email addresses and removes users from both Airtable and Vault, allowing linguists to remove themselves from the database.
   - Calendar routes fetch tokens from Vault for Google API calls.
 
 - **Users Controller:**

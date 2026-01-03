@@ -14,7 +14,16 @@
         "name": "Nome:",
         "selectCalendars": "Para ajudar com o agendamento, precisaremos saber qual Calendário do Google verificar para sua disponibilidade.",
         "automaticSave": "Suas escolhas são salvas automaticamente.",
-        "notReadingEvents": "Por razões de segurança, não visualizaremos o conteúdo do seu calendário."
+        "notReadingEvents": "Por razões de segurança, não visualizaremos o conteúdo do seu calendário.",
+        "deleteAccountTitle": "Excluir conta",
+        "deleteAccountDescription": "Excluir permanentemente sua conta e todos os dados associados. Esta ação não pode ser desfeita.",
+        "deleteAccountButton": "Excluir minha conta",
+        "deleteAccountConfirm": "Tem certeza de que deseja excluir sua conta? Esta ação não pode ser desfeita.",
+        "deleteAccountError": "Falha ao excluir a conta. Por favor, tente novamente.",
+        "deleteAccountSuccess": "Conta excluída com sucesso",
+        "confirmDelete": "Sim, excluir minha conta",
+        "cancel": "Cancelar",
+        "deleting": "Excluindo..."
     },
     "hero": {
         "login": {

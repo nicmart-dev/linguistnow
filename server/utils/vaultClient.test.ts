@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
 // Create mock functions using vi.hoisted to ensure they're available in the mock factory
-const { mockWrite, mockRead, mockList } = vi.hoisted(() => {
+const { mockWrite, mockRead, mockList, mockDelete } = vi.hoisted(() => {
   const mockWrite = vi.fn().mockResolvedValue({});
   const mockRead = vi.fn().mockResolvedValue({
     data: {
@@ -15,8 +15,9 @@ const { mockWrite, mockRead, mockList } = vi.hoisted(() => {
   const mockList = vi.fn().mockResolvedValue({
     data: { keys: ["user1@test.com", "user2@test.com"] },
   });
+  const mockDelete = vi.fn().mockResolvedValue({});
 
-  return { mockWrite, mockRead, mockList };
+  return { mockWrite, mockRead, mockList, mockDelete };
 });
 
 // Mock node-vault before importing the module under test
@@ -25,10 +26,16 @@ vi.mock("node-vault", () => ({
     write: mockWrite,
     read: mockRead,
     list: mockList,
+    delete: mockDelete,
   })),
 }));
 
-import { writeToken, readToken, listTokens } from "./vaultClient.js";
+import {
+  writeToken,
+  readToken,
+  listTokens,
+  deleteToken,
+} from "./vaultClient.js";
 
 describe("vaultClient", () => {
   beforeEach(() => {
@@ -106,6 +113,24 @@ describe("vaultClient", () => {
       mockList.mockRejectedValueOnce(new Error("Vault error"));
 
       await expect(listTokens()).rejects.toThrow("Vault error");
+    });
+  });
+
+  describe("deleteToken", () => {
+    it("should delete tokens from Vault at correct path", async () => {
+      await deleteToken("user@test.com");
+
+      expect(mockDelete).toHaveBeenCalledWith(
+        "secret/data/linguistnow/tokens/user@test.com",
+      );
+    });
+
+    it("should handle Vault delete errors", async () => {
+      mockDelete.mockRejectedValueOnce(new Error("Token not found"));
+
+      await expect(deleteToken("nonexistent@test.com")).rejects.toThrow(
+        "Token not found",
+      );
     });
   });
 });

@@ -183,15 +183,16 @@ router.put("/:id", usersController.update);
  *     tags:
  *       - Users
  *     summary: Delete user
- *     description: Deletes a user from Airtable by their record ID (not currently used)
+ *     description: Deletes a user from Airtable and Vault by their email address. This endpoint is actively used by the Account Settings page to allow linguists to permanently remove themselves from the database. All user data and tokens are permanently deleted.
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
  *         schema:
  *           type: string
- *         description: Airtable record ID
- *         example: recABC123
+ *           format: email
+ *         description: User's email address
+ *         example: user@example.com
  *     responses:
  *       200:
  *         description: User deleted successfully
@@ -203,9 +204,22 @@ router.put("/:id", usersController.update);
  *                 message:
  *                   type: string
  *                   example: Deleted user
- *                 id:
+ *                 email:
  *                   type: string
- *                   example: recABC123
+ *                   format: email
+ *                   example: user@example.com
+ *       400:
+ *         description: Invalid email format
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       404:
+ *         description: User not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  *       500:
  *         description: Failed to delete user
  *         content:

@@ -61,10 +61,33 @@ export const getAll = async (
     );
     res.json(users);
   } catch (error) {
-    console.log("Error getting users", error);
+    console.error("Error getting users", error);
     res.status(500).json({ error: "Failed to fetch users" });
   }
 };
+
+/**
+ * Check if a user exists in Airtable by email
+ * @param userEmail - User's email address
+ * @returns true if user exists, false otherwise
+ */
+export async function userExistsInAirtable(
+  userEmail: string,
+): Promise<boolean> {
+  const escapedEmail = escapeAirtableFormulaString(userEmail);
+  try {
+    const records = await getAirtableBase()("Users")
+      .select({
+        filterByFormula: `{Email} = '${escapedEmail}'`,
+        maxRecords: 1,
+      })
+      .firstPage();
+    return records.length > 0;
+  } catch (error) {
+    console.log("Error checking if user exists in Airtable", error);
+    return false;
+  }
+}
 
 /* GET /users/:id
 Get a single user details based on their email address, set as primary key in Airtable */
@@ -87,7 +110,7 @@ export const getOne = async (req: Request<{ id: string }>, res: Response) => {
       res.status(404).json({ error: "User not found" });
     }
   } catch (error) {
-    console.log("Error getting single user", error);
+    console.error("Error getting single user", error);
     res.status(500).json({ error: "Failed to fetch user" });
   }
 };
@@ -108,7 +131,7 @@ export const create = async (
     });
     res.json(createdRecord.fields as unknown as AirtableUserFields);
   } catch (error) {
-    console.log("Error creating user", error);
+    console.error("Error creating user", error);
     res.status(500).json({ error: "Failed to create user" });
   }
 };
@@ -156,20 +179,65 @@ export const update = async (
       res.status(404).json({ error: "User not found" });
     }
   } catch (error) {
-    console.log("Error updating user", error);
+    console.error("Error updating user", error);
     res.status(500).json({ error: "Failed to update user" });
   }
 };
 
 /* DELETE /users/:id
-Delete user from Airtable by their record ID (not currently used) */
+Delete user from Airtable and Vault by their email address.
+Allows linguists to remove themselves from the database. */
 export const remove = async (req: Request<{ id: string }>, res: Response) => {
-  const recordId = req.params.id;
+  const userEmail = req.params.id;
+
+  // Basic email validation with length check to prevent ReDoS
+  // Email addresses are typically under 254 characters (RFC 5321)
+  if (!userEmail || userEmail.length > 254) {
+    return res.status(400).json({ error: "Invalid email format" });
+  }
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(userEmail)) {
+    return res.status(400).json({ error: "Invalid email format" });
+  }
+
+  // Escape single quotes in email to prevent formula injection
+  const escapedEmail = escapeAirtableFormulaString(userEmail);
   try {
-    await getAirtableBase()("Users").destroy(recordId);
-    res.json({ message: "Deleted user", id: recordId });
+    // Find the record with the matching email address
+    const records = await getAirtableBase()("Users")
+      .select({
+        filterByFormula: `{Email} = '${escapedEmail}'`,
+        maxRecords: 1,
+      })
+      .firstPage();
+
+    if (records.length > 0) {
+      const recordId = records[0].id;
+      // Delete from Airtable
+      await getAirtableBase()("Users").destroy(recordId);
+
+      // Delete tokens from Vault
+      try {
+        const { deleteToken } = await import("../utils/vaultClient.js");
+        await deleteToken(userEmail);
+        // Safe to log: email is validated and escaped before use
+        console.log("Deleted tokens from Vault for user:", userEmail);
+      } catch (vaultError) {
+        // Log error but don't fail the request - Airtable deletion succeeded
+        // Safe to log: email is validated and escaped before use
+        console.error(
+          "Failed to delete tokens from Vault for user:",
+          userEmail,
+          vaultError,
+        );
+      }
+
+      res.json({ message: "Deleted user", email: userEmail });
+    } else {
+      res.status(404).json({ error: "User not found" });
+    }
   } catch (error) {
-    console.log("Error deleting user", error);
+    console.error("Error deleting user", error);
     res.status(500).json({ error: "Failed to delete user" });
   }
 };

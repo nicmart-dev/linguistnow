@@ -14,7 +14,16 @@
         "name": "名前:",
         "selectCalendars": "スケジュール調整を支援するため、どのGoogleカレンダーで空き状況を確認するか知る必要があります。",
         "automaticSave": "選択内容は自動的に保存されます。",
-        "notReadingEvents": "セキュリティ上の理由により、カレンダーの内容は表示しません。"
+        "notReadingEvents": "セキュリティ上の理由により、カレンダーの内容は表示しません。",
+        "deleteAccountTitle": "アカウントを削除",
+        "deleteAccountDescription": "アカウントと関連するすべてのデータを永続的に削除します。この操作は元に戻せません。",
+        "deleteAccountButton": "アカウントを削除",
+        "deleteAccountConfirm": "アカウントを削除してもよろしいですか？この操作は元に戻せません。",
+        "deleteAccountError": "アカウントの削除に失敗しました。もう一度お試しください。",
+        "deleteAccountSuccess": "アカウントが正常に削除されました",
+        "confirmDelete": "はい、アカウントを削除します",
+        "cancel": "キャンセル",
+        "deleting": "削除中..."
     },
     "hero": {
         "login": {
