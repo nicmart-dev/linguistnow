@@ -12,6 +12,122 @@ import {
 } from "../services/availabilityService.js";
 import type { AvailabilityRequest } from "@linguistnow/shared";
 import { AVAILABILITY_DEFAULTS } from "@linguistnow/shared";
+import Airtable from "airtable";
+import { env } from "../env.js";
+
+/**
+ * Escape single quotes in Airtable formula strings to prevent formula injection.
+ */
+function escapeAirtableFormulaString(value: string): string {
+  return value.replace(/'/g, "''");
+}
+
+/**
+ * Get Airtable base instance
+ */
+function getAirtableBase() {
+  const airtableApiKey =
+    env.AIRTABLE_PERSONAL_ACCESS_TOKEN || env.AIRTABLE_API_KEY || "";
+  return new Airtable({ apiKey: airtableApiKey }).base(env.AIRTABLE_BASE_ID);
+}
+
+/**
+ * Fetch user preferences from Airtable
+ */
+async function getUserPreferences(userEmail: string): Promise<{
+  timezone?: string;
+  workingHoursStart?: string;
+  workingHoursEnd?: string;
+  offDays?: number[];
+}> {
+  const escapedEmail = escapeAirtableFormulaString(userEmail);
+  try {
+    const records = await getAirtableBase()("Users")
+      .select({
+        filterByFormula: `{Email} = '${escapedEmail}'`,
+        maxRecords: 1,
+      })
+      .firstPage();
+
+    if (records.length === 0) {
+      return {};
+    }
+
+    const fields = records[0].fields as {
+      Timezone?: string;
+      "Working Hours Start"?: string; // ISO 8601 time format (HH:mm, e.g., "08:00")
+      "Working Hours End"?: string; // ISO 8601 time format (HH:mm, e.g., "18:00")
+      "Off Days"?: string[] | string; // Array for dropdown, or string for backward compatibility
+    };
+
+    const preferences: {
+      timezone?: string;
+      workingHoursStart?: string;
+      workingHoursEnd?: string;
+      offDays?: number[];
+    } = {};
+
+    if (fields.Timezone) {
+      preferences.timezone = fields.Timezone;
+    }
+    if (fields["Working Hours Start"] !== undefined) {
+      preferences.workingHoursStart = fields["Working Hours Start"];
+    }
+    if (fields["Working Hours End"] !== undefined) {
+      preferences.workingHoursEnd = fields["Working Hours End"];
+    }
+    if (fields["Off Days"]) {
+      // Handle both array (dropdown field) and string (backward compatibility)
+      if (Array.isArray(fields["Off Days"])) {
+        // Map day names back to day numbers (0-6)
+        const dayNames = [
+          "Sunday",
+          "Monday",
+          "Tuesday",
+          "Wednesday",
+          "Thursday",
+          "Friday",
+          "Saturday",
+        ];
+        preferences.offDays = fields["Off Days"]
+          .map((d) => {
+            if (typeof d === "string") {
+              // Try to find day name in array
+              const index = dayNames.indexOf(d);
+              if (index !== -1) return index;
+              // Fallback: try parsing as number (backward compatibility)
+              const num = parseInt(d.trim(), 10);
+              return typeof num === "number" &&
+                !isNaN(num) &&
+                num >= 0 &&
+                num <= 6
+                ? num
+                : null;
+            }
+            // If it's already a number, validate it
+            return typeof d === "number" && !isNaN(d) && d >= 0 && d <= 6
+              ? d
+              : null;
+          })
+          .filter((d): d is number => d !== null);
+      } else if (typeof fields["Off Days"] === "string") {
+        // Backward compatibility: parse comma-separated string
+        preferences.offDays = fields["Off Days"]
+          .split(",")
+          .map((d) => parseInt(d.trim(), 10))
+          .filter((d) => !isNaN(d));
+      }
+    }
+    if (fields["Min Hours Per Day"] !== undefined) {
+      // Note: minHoursPerDay is not a linguist preference - it's a PM requirement set in availability requests
+    }
+
+    return preferences;
+  } catch (error) {
+    console.log("Error fetching user preferences:", error);
+    return {};
+  }
+}
 
 interface GoogleCalendar {
   id: string;
@@ -26,6 +142,30 @@ interface GoogleCalendarListResponse {
 }
 
 /* List all calendars for a user by reading their access token from Vault */
+/**
+ * Validate Google OAuth token by calling Google's tokeninfo endpoint
+ * Returns true if token is valid, false otherwise
+ */
+const validateGoogleToken = async (accessToken: string): Promise<boolean> => {
+  try {
+    const response = await axios.get<{ expires_in?: number }>(
+      `https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=${accessToken}`,
+      {
+        timeout: 5000,
+      },
+    );
+    // Token is valid if we get a 200 response with an expires_in field
+    return (
+      response.status === 200 &&
+      typeof response.data.expires_in === "number" &&
+      response.data.expires_in > 0
+    );
+  } catch {
+    // If tokeninfo endpoint returns an error, token is invalid
+    return false;
+  }
+};
+
 // GET /api/calendars/list/:userEmail
 export const listCalendars = async (
   req: Request<{ userEmail: string }>,
@@ -46,6 +186,16 @@ export const listCalendars = async (
         error: "No access token found for user",
         details: "User needs to login again to authorize calendar access.",
         code: "TOKEN_NOT_FOUND",
+      });
+    }
+
+    // Validate token before making calendar API call
+    const isTokenValid = await validateGoogleToken(tokens.accessToken);
+    if (!isTokenValid) {
+      return res.status(401).json({
+        error: "Access token expired or invalid",
+        details: "User needs to login again to refresh their token.",
+        code: "TOKEN_EXPIRED",
       });
     }
 
@@ -149,15 +299,45 @@ export const checkAvailability = async (
   const userEmail = body.userEmail;
   const startDate = body.startDate;
   const endDate = body.endDate;
-  const timezone = body.timezone ?? AVAILABILITY_DEFAULTS.timezone;
+
+  // Validate required fields
+  if (!userEmail) {
+    return res.status(400).json({
+      error: "userEmail is required",
+      code: "VALIDATION_ERROR",
+    });
+  }
+
+  // Fetch user preferences from Airtable
+  const userPreferences = await getUserPreferences(userEmail);
+
+  // Use user preferences with fallback to request body, then defaults
+  const timezone =
+    body.timezone ?? userPreferences.timezone ?? AVAILABILITY_DEFAULTS.timezone;
   const workingHoursStart =
-    body.workingHoursStart ?? AVAILABILITY_DEFAULTS.workingHoursStart;
+    body.workingHoursStart ??
+    userPreferences.workingHoursStart ??
+    AVAILABILITY_DEFAULTS.workingHoursStart;
   const workingHoursEnd =
-    body.workingHoursEnd ?? AVAILABILITY_DEFAULTS.workingHoursEnd;
+    body.workingHoursEnd ??
+    userPreferences.workingHoursEnd ??
+    AVAILABILITY_DEFAULTS.workingHoursEnd;
+  // minHoursPerDay is a PM requirement, not a linguist preference
   const minHoursPerDay =
     body.minHoursPerDay ?? AVAILABILITY_DEFAULTS.minHoursPerDay;
-  const excludeWeekends =
-    body.excludeWeekends ?? AVAILABILITY_DEFAULTS.excludeWeekends;
+
+  // Determine off-days: prefer request body, then user preferences, then defaults
+  let offDays: number[] | undefined;
+  if (body.offDays !== undefined) {
+    offDays = body.offDays;
+  } else if (userPreferences.offDays !== undefined) {
+    offDays = userPreferences.offDays;
+  } else if (body.excludeWeekends === false) {
+    offDays = [];
+  } else {
+    // Default or excludeWeekends === true means weekends
+    offDays = AVAILABILITY_DEFAULTS.offDays;
+  }
 
   // Validate required fields
   if (!userEmail) {
@@ -208,7 +388,7 @@ export const checkAvailability = async (
       workingHoursStart,
       workingHoursEnd,
       minHoursPerDay,
-      excludeWeekends,
+      offDays,
     });
 
     // Step 5: Return detailed response
