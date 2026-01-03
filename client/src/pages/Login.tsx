@@ -10,15 +10,6 @@ const Login = ({ setUserDetails }) => {
     const navigate = useNavigate()
 
     const handleGoogleLoginSuccess = async (response) => {
-        logger.log('Google Login Success:', response)
-        /* Sample response:
-    {
-    "code": "4/0AdLIrYdoh19k1VkeCH7wYtKir_oRqF...",
-    "scope": "email profile openid https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email",
-    "authuser": "0",
-    "prompt": "consent"
-}
-    */
         const { code } = response // Extract the authorization code
 
         try {
@@ -27,10 +18,6 @@ const Login = ({ setUserDetails }) => {
             const tokenResponse = await axios.post(
                 `${import.meta.env.VITE_API_URL}/api/auth/google/code`,
                 { code }
-            )
-            logger.log(
-                'Google access and refresh tokens from server:',
-                tokenResponse.data
             )
             const { accessToken } = tokenResponse.data
 
@@ -45,7 +32,7 @@ const Login = ({ setUserDetails }) => {
             )
 
             const userInfo = userInfoResponse.data
-            logger.log('User Info from Google:', userInfo)
+            logger.log(`Login successful for ${userInfo.email}`)
 
             // Tokens are already stored in Vault by backend (backend fetches email if not provided)
 
@@ -69,12 +56,6 @@ const Login = ({ setUserDetails }) => {
                     console.error('An error occurred:', error)
                 }
             }
-
-            // Tokens are now stored in Vault, not Airtable
-            logger.log('Tokens stored in Vault via backend')
-
-            // Update user details in state (no token fields needed)
-            logger.log('Updating user details in state...')
             setUserDetails((prevDetails) => {
                 // Use fetchedUserDetails if available, otherwise fall back to prevDetails
                 const baseDetails = fetchedUserDetails || prevDetails
@@ -99,6 +80,9 @@ const Login = ({ setUserDetails }) => {
 
             // Store user email in localStorage for persistence across page refreshes
             localStorage.setItem('userEmail', userInfo.email)
+
+            // Clear calendar session expired flag on successful login
+            localStorage.removeItem('calendarSessionExpired')
 
             navigate('/') // navigate to Home route when further routing will be handled
         } catch (error) {
