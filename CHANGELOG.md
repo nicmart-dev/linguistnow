@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0](https://github.com/nicmart-dev/linguistnow/compare/v1.1.0...v1.2.0) (2026-01-03)
+
+### ✨ Features
+
+- **client:** add availability preferences settings component ([5caf677](https://github.com/nicmart-dev/linguistnow/commit/5caf677307fbfee1145bc2829c87ebce09506293))
+- **client:** add toast notifications for calendar selection changes ([bc451a7](https://github.com/nicmart-dev/linguistnow/commit/bc451a77d9f3ca0d1b599851b499bc7e8589a1b3))
+- **client:** improve calendar selector UX and session management ([42c721e](https://github.com/nicmart-dev/linguistnow/commit/42c721e3a70c7b89159fa120a413b091243b1ef5))
+- **client:** integrate availability settings into account settings ([31a5c4c](https://github.com/nicmart-dev/linguistnow/commit/31a5c4c6ffd27c9ace9af24aff0f1b1f55f74f25))
+- **client:** reorder days of week based on locale first day ([6137715](https://github.com/nicmart-dev/linguistnow/commit/613771511b77c1aa063ad69281dc5a3608c8d6eb))
+- **i18n:** add RTL support for Arabic language ([5abb17f](https://github.com/nicmart-dev/linguistnow/commit/5abb17f9873afeefa97ba52fec69e46d5d890be9))
+- **i18n:** add translations for availability settings ([88cbe22](https://github.com/nicmart-dev/linguistnow/commit/88cbe2237b77425c30bdd5ff4e3c39c3f24ff9a1))
+- **server:** implement availability preferences and token validation ([1f5a758](https://github.com/nicmart-dev/linguistnow/commit/1f5a7583bb3b8c77d551568bb77d453b4800ea97))
+- **shared:** add availability preferences types ([cd24e5d](https://github.com/nicmart-dev/linguistnow/commit/cd24e5db7096f961467bb8c0df0f4bdafee29ee2))
+
 ## [1.1.0](https://github.com/nicmart-dev/linguistnow/compare/v1.0.5...v1.1.0) (2026-01-03)
 
 ### ⚠ BREAKING CHANGES
