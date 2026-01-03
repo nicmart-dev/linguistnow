@@ -29,6 +29,11 @@ interface AirtableUserFields {
   Picture?: string;
   Role?: string;
   "Calendar IDs"?: string;
+  Timezone?: string;
+  "Working Hours Start"?: string; // ISO 8601 time format (HH:mm, e.g., "08:00")
+  "Working Hours End"?: string; // ISO 8601 time format (HH:mm, e.g., "18:00")
+  "Off Days"?: string[] | string; // Array for dropdown field, or comma-separated string for backward compatibility
+  "Min Hours Per Day"?: number;
   // Tokens are now stored in Vault, not Airtable
 }
 
@@ -41,6 +46,12 @@ interface CreateUserRequest {
 
 interface UpdateUserRequest {
   calendarIds?: string[];
+  availabilityPreferences?: {
+    timezone?: string;
+    workingHoursStart?: number;
+    workingHoursEnd?: number;
+    offDays?: number[];
+  };
   // Tokens are now stored in Vault, not Airtable
 }
 
@@ -137,7 +148,7 @@ export const create = async (
 };
 
 /* PUT /users/:id
-Update lists of calendars for a user.
+Update lists of calendars and availability preferences for a user.
 Used when user selects calendars and saves them in the account settings.
 Tokens are now stored in Vault, not Airtable. */
 export const update = async (
@@ -145,7 +156,16 @@ export const update = async (
   res: Response,
 ) => {
   const userEmail = req.params.id;
-  const { calendarIds } = req.body;
+  const { calendarIds, availabilityPreferences } = req.body;
+
+  // Debug logging
+  console.log("Update user request:", {
+    userEmail,
+    hasCalendarIds: !!calendarIds,
+    hasAvailabilityPreferences: !!availabilityPreferences,
+    availabilityPreferences,
+  });
+
   // Escape single quotes in email to prevent formula injection
   const escapedEmail = escapeAirtableFormulaString(userEmail);
   try {
@@ -163,24 +183,180 @@ export const update = async (
         {} as Partial<AirtableUserFields>;
 
       // Update the fields if provided
+      // IMPORTANT: Store only calendar IDs (not display names) for privacy
+      // Calendar IDs can be email addresses (primary calendars) or alphanumeric strings (secondary calendars)
       if (calendarIds) fieldsToUpdate["Calendar IDs"] = calendarIds.join(",");
+
+      // Update availability preferences if provided
+      if (availabilityPreferences) {
+        console.log(
+          "Processing availability preferences:",
+          availabilityPreferences,
+        );
+        // Only set timezone if it's a non-empty string
+        if (
+          availabilityPreferences.timezone !== undefined &&
+          typeof availabilityPreferences.timezone === "string" &&
+          availabilityPreferences.timezone.trim() !== ""
+        ) {
+          fieldsToUpdate["Timezone"] = availabilityPreferences.timezone.trim();
+        }
+        // Set workingHoursStart - validate HH:mm format
+        if (
+          availabilityPreferences.workingHoursStart !== undefined &&
+          typeof availabilityPreferences.workingHoursStart === "string"
+        ) {
+          const timeRegex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
+          if (timeRegex.test(availabilityPreferences.workingHoursStart)) {
+            fieldsToUpdate["Working Hours Start"] =
+              availabilityPreferences.workingHoursStart;
+          }
+        }
+        // Set workingHoursEnd - validate HH:mm format
+        if (
+          availabilityPreferences.workingHoursEnd !== undefined &&
+          typeof availabilityPreferences.workingHoursEnd === "string"
+        ) {
+          const timeRegex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
+          if (timeRegex.test(availabilityPreferences.workingHoursEnd)) {
+            fieldsToUpdate["Working Hours End"] =
+              availabilityPreferences.workingHoursEnd;
+          }
+        }
+        // Handle offDays - convert to array of day names for Airtable dropdown field
+        if (availabilityPreferences.offDays !== undefined) {
+          if (
+            Array.isArray(availabilityPreferences.offDays) &&
+            availabilityPreferences.offDays.length > 0
+          ) {
+            // Map day numbers to day names for readability in Airtable dropdown
+            const dayNames = [
+              "Sunday",
+              "Monday",
+              "Tuesday",
+              "Wednesday",
+              "Thursday",
+              "Friday",
+              "Saturday",
+            ];
+            // Filter out invalid values and convert to day names
+            const validOffDays = availabilityPreferences.offDays
+              .filter(
+                (day) =>
+                  typeof day === "number" &&
+                  !isNaN(day) &&
+                  day >= 0 &&
+                  day <= 6,
+              )
+              .map((day) => dayNames[day]); // Convert to day names for Airtable dropdown
+            // Only set if we have valid days
+            if (validOffDays.length > 0) {
+              // Airtable dropdown fields accept arrays of strings
+              fieldsToUpdate["Off Days"] = validOffDays;
+            }
+            // If no valid days, don't set the field (let Airtable keep existing value)
+          }
+          // If array is empty or undefined, don't set the field
+        }
+        // Note: minHoursPerDay is not a linguist preference - it's a PM requirement set in availability requests
+      }
 
       // Check if any fields to update
       if (Object.keys(fieldsToUpdate).length > 0) {
-        const updatedRecord = await getAirtableBase()("Users").update(
-          recordId,
-          fieldsToUpdate,
-        );
-        res.json(updatedRecord.fields as unknown as AirtableUserFields);
+        console.log("Fields to update:", fieldsToUpdate);
+        try {
+          const updatedRecord = await getAirtableBase()("Users").update(
+            recordId,
+            fieldsToUpdate,
+          );
+          console.log("Successfully updated user:", updatedRecord.fields);
+          res.json(updatedRecord.fields as unknown as AirtableUserFields);
+        } catch (airtableError: unknown) {
+          console.error("Airtable update error:", airtableError);
+          console.error("Fields that were attempted:", fieldsToUpdate);
+
+          // Extract Airtable error message if available
+          let errorMessage = "Failed to update user in Airtable";
+          let errorDetails: unknown = airtableError;
+          let invalidField: string | undefined;
+
+          if (airtableError && typeof airtableError === "object") {
+            // Airtable errors often have error property with nested structure
+            if ("error" in airtableError) {
+              errorDetails = airtableError.error;
+              const errorObj = airtableError.error;
+
+              if (errorObj && typeof errorObj === "object") {
+                // Check for message
+                if ("message" in errorObj) {
+                  errorMessage = String(errorObj.message);
+                }
+                // Check for field name in error (common in Airtable errors)
+                if ("field" in errorObj) {
+                  invalidField = String(errorObj.field);
+                }
+                // Sometimes the field is in a different structure
+                if ("errors" in errorObj && Array.isArray(errorObj.errors)) {
+                  const errorsArray = errorObj.errors as unknown[];
+                  if (errorsArray.length > 0) {
+                    const firstError = errorsArray[0];
+                    if (
+                      typeof firstError === "object" &&
+                      firstError !== null &&
+                      "field" in firstError &&
+                      "message" in firstError
+                    ) {
+                      const fieldError = firstError as {
+                        field: string | number;
+                        message: string;
+                      };
+                      invalidField =
+                        typeof fieldError.field === "string"
+                          ? fieldError.field
+                          : String(fieldError.field);
+                      errorMessage = fieldError.message;
+                    }
+                  }
+                }
+              }
+            } else if ("message" in airtableError) {
+              errorMessage = String(airtableError.message);
+            }
+          }
+
+          console.error(
+            "Airtable error details:",
+            JSON.stringify(errorDetails, null, 2),
+          );
+          if (invalidField) {
+            console.error(`Invalid field detected: ${invalidField}`);
+          }
+
+          res.status(500).json({
+            error: "Failed to update user",
+            details: errorMessage,
+            code: "AIRTABLE_UPDATE_ERROR",
+            invalidField,
+            airtableError: errorDetails,
+            attemptedFields: Object.keys(fieldsToUpdate),
+          });
+          return;
+        }
       } else {
         res.status(400).json({ error: "No fields provided for update" });
+        return;
       }
     } else {
       res.status(404).json({ error: "User not found" });
+      return;
     }
   } catch (error) {
-    console.error("Error updating user", error);
-    res.status(500).json({ error: "Failed to update user" });
+    console.error("Error updating user:", error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    res.status(500).json({
+      error: "Failed to update user",
+      details: errorMessage,
+    });
   }
 };
 
