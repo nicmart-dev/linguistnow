@@ -20,6 +20,11 @@ export const fetchUserDetails = async (
             Role?: string
             'Calendar IDs'?: string
             Picture?: string
+            Timezone?: string
+            'Working Hours Start'?: number
+            'Working Hours End'?: number
+            'Off Days'?: string[] | string // Array for dropdown field, or string for backward compatibility
+            'Min Hours Per Day'?: number
         }
 
         // Map Airtable fields to User type for type safety
@@ -41,6 +46,12 @@ export const fetchUserDetails = async (
             Role: airtableData.Role || 'Linguist',
             'Calendar IDs': airtableData['Calendar IDs'],
             Picture: airtableData.Picture,
+            // Include availability preferences
+            Timezone: airtableData.Timezone,
+            'Working Hours Start': airtableData['Working Hours Start'],
+            'Working Hours End': airtableData['Working Hours End'],
+            'Off Days': airtableData['Off Days'],
+            'Min Hours Per Day': airtableData['Min Hours Per Day'],
         } as User & typeof airtableData
 
         setUserDetails(userWithAirtableFields)

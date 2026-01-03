@@ -1,4 +1,5 @@
 import CalendarSelector from '../components/CalendarSelector'
+import AvailabilitySettings from '../components/AvailabilitySettings'
 import { useTranslation } from 'react-i18next' // To show localized strings
 import Hero from '../components/Hero'
 import { logger } from '../utils/logger'
@@ -53,6 +54,73 @@ const AccountSettings = ({ userDetails, setUserDetails }) => {
             logger.log('Calendars saved.')
         } catch (error) {
             console.error('Failed to save calendars:', error)
+        }
+    }
+
+    /* Save user availability preferences */
+    const handleSaveAvailabilityPreferences = async (preferences) => {
+        try {
+            // Get email from userDetails - use lowercase 'email' from User type, or fallback to uppercase 'Email' for Airtable compatibility
+            const userEmail = userDetails?.email || (userDetails as any)?.Email
+            if (!userEmail) {
+                console.error(
+                    'User email not found in userDetails:',
+                    userDetails
+                )
+                throw new Error('User email is required to save preferences.')
+            }
+
+            // Update the user's availability preferences in Airtable
+            const response = await fetch(
+                `${import.meta.env.VITE_API_URL}/api/users/${encodeURIComponent(userEmail)}`,
+                {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        availabilityPreferences: preferences,
+                    }),
+                }
+            )
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}))
+                // Use details if available, otherwise fall back to error message
+                const errorMessage =
+                    errorData.details ||
+                    errorData.error ||
+                    errorData.message ||
+                    `Failed to save availability preferences (${response.status})`
+                console.error('Save availability preferences error:', {
+                    status: response.status,
+                    statusText: response.statusText,
+                    errorData,
+                    airtableError: errorData.airtableError,
+                })
+                throw new Error(errorMessage)
+            }
+
+            const updatedUser = await response.json()
+            // Handle Off Days as either array (dropdown) or string (backward compatibility)
+            const offDaysValue = updatedUser['Off Days']
+            const offDaysString = Array.isArray(offDaysValue)
+                ? offDaysValue.join(',')
+                : offDaysValue || ''
+
+            setUserDetails({
+                ...userDetails,
+                Timezone: updatedUser.Timezone,
+                'Working Hours Start': updatedUser['Working Hours Start'],
+                'Working Hours End': updatedUser['Working Hours End'],
+                'Off Days': offDaysString,
+                'Min Hours Per Day': updatedUser['Min Hours Per Day'],
+            })
+
+            logger.log('Availability preferences saved.')
+        } catch (error) {
+            console.error('Failed to save availability preferences:', error)
+            throw error // Re-throw to let component handle error display
         }
     }
 
@@ -160,6 +228,14 @@ const AccountSettings = ({ userDetails, setUserDetails }) => {
                                 userDetails={userDetails}
                                 onSave={handleSaveCalendars}
                             />
+
+                            {/* Availability Settings Section */}
+                            <div className="max-w-3xl mt-8 pt-8 border-t border-gray-300">
+                                <AvailabilitySettings
+                                    userDetails={userDetails}
+                                    onSave={handleSaveAvailabilityPreferences}
+                                />
+                            </div>
 
                             {/* Delete Account Section */}
                             <div className="max-w-3xl mt-8 pt-8 border-t border-gray-300">
