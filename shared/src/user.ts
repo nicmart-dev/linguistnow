@@ -24,6 +24,11 @@ export interface User {
   createdAt?: string;
   updatedAt?: string;
   availabilityPreferences?: AvailabilityPreferences;
+  // Linguist profile fields
+  languages?: string[]; // e.g., ["EN-FR", "EN-ES"]
+  specialization?: string[]; // e.g., ["Legal", "Medical"]
+  hourlyRate?: number;
+  rating?: number;
 }
 
 export interface CreateUserRequest {
@@ -39,4 +44,8 @@ export interface UpdateUserRequest {
   googleCalendarId?: string;
   calendarIds?: string[];
   availabilityPreferences?: AvailabilityPreferences;
+  languages?: string[];
+  specialization?: string[];
+  hourlyRate?: number;
+  rating?: number;
 }
