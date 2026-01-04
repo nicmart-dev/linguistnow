@@ -54,20 +54,17 @@ sequenceDiagram
 
 ## Availability Calculation
 
-The `availabilityService.ts` determines if a linguist is available:
+For detailed information about availability calculation logic, including timezone conversion, working hours application, and off-days filtering, see [Dashboard Design](./dashboard-design.md#timezone-conversion-and-availability-calculation).
 
-| Parameter           | Default             | Description                                    |
-| ------------------- | ------------------- | ---------------------------------------------- |
-| `timezone`          | America/Los_Angeles | IANA timezone for working hours                |
-| `workingHoursStart` | "08:00"             | Start of working day (ISO 8601 HH:mm format)   |
-| `workingHoursEnd`   | "18:00"             | End of working day (ISO 8601 HH:mm format)     |
-| `minHoursPerDay`    | 8                   | Minimum free hours required per day            |
-| `offDays`           | [0, 6]              | Days off (0=Sunday, 1=Monday, ..., 6=Saturday) |
-| `excludeWeekends`   | true                | Deprecated - use `offDays` instead             |
-| `startDate`         | tomorrow            | Start of availability window                   |
-| `endDate`           | +7 days             | End of availability window                     |
+**Quick Reference:**
 
-**Rule:** A linguist is **available** if they have ≥ `minHoursPerDay` free hours on **every** working day.
+The `availabilityService.ts` determines if a linguist is available based on:
+
+- **Timezone Conversion**: PM's selected calendar dates are converted to linguist's timezone
+- **Working Hours**: Applied in linguist's timezone (default: 08:00-18:00)
+- **Off-Days**: Excluded from availability (empty array = no off-days)
+- **Busy Slots**: Removed from free time calculation
+- **Minimum Hours**: Linguist must have ≥ `minHoursPerDay` free hours on every working day
 
 ## Express Server Architecture
 

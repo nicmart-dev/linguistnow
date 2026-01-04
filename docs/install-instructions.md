@@ -179,7 +179,7 @@ For development without Docker:
 
 ## Google OAuth setup
 
-Follow steps in [Set up OAuth in Google Cloud](./set-up-oauth-in-google-cloud.md)
+Follow steps in [Google Authentication Setup](./google-authentication.md#setup-google-oauth-configuration)
 
 ## Start our app
 
@@ -235,7 +235,7 @@ For a containerized setup using Docker Compose:
 ### Prerequisites
 
 - [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/) installed
-- Google OAuth credentials (see [Set up OAuth in Google Cloud](./set-up-oauth-in-google-cloud.md))
+- Google OAuth credentials (see [Google Authentication Setup](./google-authentication.md#setup-google-oauth-configuration))
 - Airtable database set up (see [Airtable Database](#airtable-database) above)
 
 ### Steps

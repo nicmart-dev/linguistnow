@@ -19,11 +19,11 @@ This document provides a comprehensive overview of the LinguistNow application a
 - **TypeScript** - Type-safe JavaScript with strict mode
 - **Vite** - Fast build tool and dev server (migrated from Create React App)
 - **Tailwind CSS v4** - Utility-first CSS framework with PostCSS
-- **React Router v6** - Client-side routing
+- **React Router v7** - Client-side routing
 - **TanStack Table** - Powerful data table component
 - **shadcn/ui** - High-quality component library built on Radix UI
-- **react-intl** - Internationalization (i18n) support
-- **Vitest** - Fast unit test framework
+- **i18next** - Internationalization (i18n) support
+- **Vitest 4.0.16** - Fast unit test framework with happy-dom
 - **Zod** - Runtime type validation
 
 ### Backend
@@ -34,7 +34,7 @@ This document provides a comprehensive overview of the LinguistNow application a
 - **ES Modules (ESM)** - Modern JavaScript module system
 - **tsx** - TypeScript execution for Node.js
 - **google-auth-library** - Google OAuth2 authentication
-- **Vitest** - Fast unit test framework
+- **Vitest 4.0.16** - Fast unit test framework
 - **Zod** - Runtime type validation
 
 ### Database & Services
@@ -100,6 +100,7 @@ graph TB
         H --> J[Users Controller]
         H --> K[Calendar Controller]
         H --> T[Token Refresh Controller]
+        H --> U[Token Refresh Utils]
     end
 
     subgraph "External Services"
@@ -120,6 +121,8 @@ graph TB
     O -->|Calendar Query| M
     T -->|Refresh Tokens| V
     T -->|OAuth| L
+    U -->|Auto Refresh| K
+    U -->|Validate Tokens| V
 
     style A fill:#61dafb
     style H fill:#90ee90
@@ -195,6 +198,10 @@ Located in `client/src/components/`:
 - **Skeleton** - Loading state component
 - **CalendarSelector** - Calendar selection interface
 - **LinguistTable** - Specialized table for linguist data
+- **DateInput** - Date input component with keyboard navigation
+- **DateRangePicker** - Date range picker with presets and calendar
+- **RatingInput** - Star rating input component with API integration
+- **LinguistProfileSettings** - Linguist profile settings form with currency and language selection
 
 ### Component Patterns
 
@@ -296,6 +303,61 @@ Centralized authentication functions:
 
 - `cn()` - Combines class names using `clsx` and `tailwind-merge`
 - Ensures Tailwind classes are properly merged and deduplicated
+
+#### Date Utilities (`client/src/utils/date-presets.ts`)
+
+Date range preset calculations for DateRangePicker:
+
+- `getPresetRange()` - Calculates date ranges for presets (next7, next14, next30, nextWeek, nextMonth)
+- `getDateAdjustedForTimezone()` - Parses date strings adjusted for timezone
+- `PRESETS` - Array of available date presets with i18n label keys
+
+**Benefits:**
+
+- Testable date calculations
+- Consistent date range handling
+- Locale-aware week start (Sunday/Monday)
+
+#### Currency Utilities (`client/src/utils/currency.ts`)
+
+Currency symbol and code management:
+
+- `getCurrencySymbol()` - Gets currency symbol from ISO 4217 code
+- `CURRENCIES` - Array of supported currencies with codes, symbols, and names
+
+**Benefits:**
+
+- Centralized currency definitions
+- Consistent currency display across the app
+- Easy to extend with new currencies
+
+#### Shared Date Locale Utilities (`shared/src/date-locale.ts`)
+
+Shared date and locale utilities for consistent date handling:
+
+- `getWeekStartsOn()` - Determines first day of week based on locale (0=Sunday, 1=Monday)
+- `getDateFnsLocale()` - Maps i18next locale codes to date-fns locale objects
+- `DAY_NUMBERS` - Constants for day numbers (0-6)
+- `DAY_NAMES` - Array of day names in English
+
+**Benefits:**
+
+- Consistent date handling across client and server
+- Locale-aware date formatting
+- Uses browser's Intl.Locale API when available
+
+#### Server Token Refresh Utilities (`server/utils/tokenRefresh.ts`)
+
+Automatic token refresh for Google OAuth tokens:
+
+- `getValidAccessToken()` - Gets valid access token, refreshing if expired
+- `withAutoRefresh()` - Executes function with automatic token refresh on expiration
+
+**Benefits:**
+
+- Prevents user disruption from expired tokens
+- Automatic token management
+- Retry logic for transient token expiration errors
 
 ### Path Aliases
 
@@ -498,11 +560,13 @@ See [TypeScript Guidelines](./typescript-guidelines.md) for detailed information
 
 ## Testing
 
-We follow Test-Driven Development (TDD) with Vitest:
+We follow Test-Driven Development (TDD) with Vitest 4.0.16:
 
-- **Client Tests**: React components with jsdom environment
+- **Client Tests**: React components with `happy-dom` environment
 - **Server Tests**: API endpoints with Node.js environment
-- **Coverage**: Aim for >80% code coverage
+- **Coverage**:
+  - Client: ≥80% statements/branches/lines, ≥70% functions
+  - Server: ≥90% statements/lines, ≥75% branches, ≥80% functions
 
 See [Testing and TDD](./testing-and-tdd.md) for workflow and examples.
 

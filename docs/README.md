@@ -37,13 +37,16 @@ If Mermaid diagrams don't render in your local markdown preview:
 ### Getting Started
 
 - [Install Instructions](./install-instructions.md) - Setup guide for local development
-- [Set up OAuth in Google Cloud](./set-up-oauth-in-google-cloud.md) - Google OAuth configuration
+- [Google Authentication](./google-authentication.md#setup-google-oauth-configuration) - Google OAuth setup and implementation
 
 ### Software Design Documents
 
 #### Architecture
 
 - [Architecture Overview](./architecture-overview.md) - Component-based design, DRY principles, and modern architecture
+- [Dashboard Design](./dashboard-design.md) - Comprehensive design document for the Project Manager Dashboard
+- [Linguist Settings Design](./linguist-settings-design.md) - Comprehensive design document for the Linguist Settings Page
+- [Currency Support](./currency-support.md) - Multi-currency support and future exchange rate integration
 
 #### API
 
@@ -51,12 +54,13 @@ If Mermaid diagrams don't render in your local markdown preview:
 
 #### Authentication and Google APIs
 
-- [Google Authentication](./google-authentication.md) - Authentication implementation details
+- [Google Authentication](./google-authentication.md) - OAuth setup, authentication implementation, and token management
 - [Integration of Google Calendar API](./integration-of-google-calendar-api.md) - Calendar API integration
 
 #### Localization
 
 - [Internationalization using react-intl package](./internationalization-using-react-intl-package.md) - i18n implementation
+- [Email Language Policy](./email-language-policy.md) - English-only email policy and rationale
 
 #### n8n Workflow
 
@@ -64,11 +68,15 @@ If Mermaid diagrams don't render in your local markdown preview:
 
 #### Database
 
-- [Store user data in Airtable](./store-user-data-in-airtable.md) - Database structure and usage
+- [Store user data in Airtable](./store-user-data-in-airtable.md) - Database structure and usage (includes manual field creation appendix)
 
 #### UI
 
 - [Style using Tailwind CSS framework](./style-using-tailwind-css-framework.md) - UI styling approach
+
+#### Testing
+
+- [Testing and TDD](./testing-and-tdd.md) - Test-driven development workflow, Vitest configuration, and test examples
 
 ### User Experience
 
