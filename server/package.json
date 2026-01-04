@@ -8,7 +8,11 @@
     "start": "cross-env NODE_OPTIONS=--no-deprecation tsx server.ts",
     "dev": "cross-env NODE_OPTIONS=--no-deprecation tsx watch server.ts",
     "type-check": "tsc --noEmit",
-    "test": "vitest"
+    "test": "vitest",
+    "test:run": "vitest run",
+    "airtable:validate": "tsx airtable/validate-schema.ts",
+    "airtable:sync": "tsx airtable/sync-schema.ts",
+    "airtable:debug": "tsx airtable/debug-schema.ts"
   },
   "keywords": [],
   "author": "",

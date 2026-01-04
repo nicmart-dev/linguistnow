@@ -13,6 +13,10 @@
     "clean": "pnpm -r exec rm -rf node_modules && rm -rf node_modules",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
+    "test": "pnpm --filter ./shared test:run && pnpm --filter ./client test:run && pnpm --filter ./server test:run",
+    "test:client": "pnpm --filter ./client test",
+    "test:server": "pnpm --filter ./server test",
+    "test:shared": "pnpm --filter ./shared test",
     "prepare": "husky",
     "release": "semantic-release",
     "release:dry-run": "semantic-release --dry-run"

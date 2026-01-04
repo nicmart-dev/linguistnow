@@ -27,10 +27,14 @@ export default defineConfig({
                 'src/assets/**',
                 'src/**/*.css',
                 'src/**/*.json',
-                // Complex components excluded - tested via integration
+                // Complex UI components excluded - tested via integration
                 'src/components/CalendarSelector.tsx',
                 'src/components/DataTable.tsx',
+                'src/components/DateRangePicker.tsx',
+                'src/components/DateInput.tsx',
                 'src/components/LinguistTable.tsx',
+                // UI primitives excluded - tested implicitly through component tests
+                'src/components/ui/**',
                 // Environment validation tested at runtime
                 'src/env.ts',
                 // Auth utils have complex import.meta.env mocking

@@ -27,6 +27,10 @@ RUN pnpm install --frozen-lockfile
 COPY client/ ./client/
 COPY shared/ ./shared/
 
+# Build shared package first (required for client build)
+WORKDIR /app/shared
+RUN pnpm run build
+
 WORKDIR /app/client
 
 # Build arguments - these are baked into the static files at build time
