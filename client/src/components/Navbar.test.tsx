@@ -39,24 +39,24 @@ describe('Navbar', () => {
 
     it('shows dashboard link for Project Manager', () => {
         renderWithProviders(
-            <Navbar userDetails={{ Role: 'Project Manager' }} />
+            <Navbar userDetails={{ role: 'Project Manager' }} />
         )
         expect(screen.getByRole('link', { name: 'Dashboard' })).toBeDefined()
     })
 
     it('hides dashboard link for Linguist', () => {
-        renderWithProviders(<Navbar userDetails={{ Role: 'Linguist' }} />)
+        renderWithProviders(<Navbar userDetails={{ role: 'Linguist' }} />)
         expect(screen.queryByRole('link', { name: 'Dashboard' })).toBeNull()
     })
 
     it('shows settings link for non-Project Manager', () => {
-        renderWithProviders(<Navbar userDetails={{ Role: 'Linguist' }} />)
+        renderWithProviders(<Navbar userDetails={{ role: 'Linguist' }} />)
         const settingsLink = document.querySelector('a[href="/settings"]')
         expect(settingsLink).toBeDefined()
     })
 
     it('shows logout link when user is logged in', () => {
-        renderWithProviders(<Navbar userDetails={{ Role: 'Linguist' }} />)
+        renderWithProviders(<Navbar userDetails={{ role: 'Linguist' }} />)
         const logoutLink = document.querySelector('a[href="/logout"]')
         expect(logoutLink).toBeDefined()
     })

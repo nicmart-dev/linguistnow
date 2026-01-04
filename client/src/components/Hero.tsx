@@ -7,7 +7,12 @@ import googleIcon from '../assets/icons/google.svg'
 import { useLocation } from 'react-router-dom' // to check the current route
 import { useTranslation } from 'react-i18next' // to localize text displayed
 
-const Hero = ({ cta, userName }) => {
+interface HeroProps {
+    cta?: () => void
+    userName?: string
+}
+
+const Hero = ({ cta, userName }: HeroProps) => {
     const { t } = useTranslation()
     const location = useLocation()
 
@@ -54,11 +59,11 @@ const Hero = ({ cta, userName }) => {
     }
     return (
         <section
-            className="mt-4 w-full bg-center bg-cover min-h-[350px] md:min-h-[400px]"
+            className="mt-4 w-full bg-center bg-cover min-h-[200px] md:min-h-[250px]"
             style={{ backgroundImage: `url(${backgroundImage})` }}
         >
-            <div className="flex items-center justify-center w-full min-h-[350px] md:min-h-[400px] bg-gray-900/50 py-6">
-                <div className="text-center container px-4 max-w-4xl mx-auto">
+            <div className="flex items-center justify-center w-full min-h-[200px] md:min-h-[250px] bg-gray-900/50 py-4">
+                <div className="text-center container px-4 max-w-3xl mx-auto">
                     <span className="text-gray-200 font-semibold uppercase tracking-widest">
                         {t(subtitle, { userName: userName || '' })}
                     </span>

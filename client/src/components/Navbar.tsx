@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { LanguageContext } from '../i18n/LanguageProvider'
 
 interface NavbarProps {
-    userDetails: { Role: string } | null
+    userDetails: { role: string } | null
 }
 
 const Navbar = ({ userDetails }: NavbarProps) => {
@@ -56,7 +56,7 @@ const Navbar = ({ userDetails }: NavbarProps) => {
                                 </Link>
                             </li>
                             {userDetails &&
-                                userDetails.Role === 'Project Manager' && (
+                                userDetails.role === 'Project Manager' && (
                                     <li>
                                         <Link
                                             className="inline-block no-underline hover:text-black hover:underline py-2 px-4"
@@ -98,7 +98,7 @@ const Navbar = ({ userDetails }: NavbarProps) => {
                     id="nav-content"
                 >
                     {(!userDetails ||
-                        userDetails.Role !== 'Project Manager') && (
+                        userDetails.role !== 'Project Manager') && (
                         <Link
                             to="/settings"
                             className="inline-block no-underline hover:text-black"
@@ -293,7 +293,7 @@ const Navbar = ({ userDetails }: NavbarProps) => {
                                         </Link>
                                     </li>
                                     {userDetails &&
-                                        userDetails.Role ===
+                                        userDetails.role ===
                                             'Project Manager' && (
                                             <li>
                                                 <Link

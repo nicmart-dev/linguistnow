@@ -18,20 +18,20 @@ describe('Input', () => {
     it('handles text input type', () => {
         render(<Input type="text" data-testid="text-input" />)
         const input = screen.getByTestId('text-input')
-        expect(input).toHaveAttribute('type', 'text')
+        expect(input.getAttribute('type')).toBe('text')
     })
 
     it('handles password input type', () => {
         render(<Input type="password" data-testid="password-input" />)
         const input = screen.getByTestId('password-input')
-        expect(input).toHaveAttribute('type', 'password')
+        expect(input.getAttribute('type')).toBe('password')
     })
 
     it('handles user input', () => {
         render(<Input data-testid="input" />)
         const input = screen.getByTestId('input')
         fireEvent.change(input, { target: { value: 'Hello' } })
-        expect(input.value).toBe('Hello')
+        expect((input as HTMLInputElement).value).toBe('Hello')
     })
 
     it('forwards ref correctly', () => {
@@ -43,6 +43,6 @@ describe('Input', () => {
     it('applies disabled state', () => {
         render(<Input disabled data-testid="disabled-input" />)
         const input = screen.getByTestId('disabled-input')
-        expect(input).toBeDisabled()
+        expect(input).toHaveProperty('disabled', true)
     })
 })
