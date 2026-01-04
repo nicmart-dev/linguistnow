@@ -1,16 +1,12 @@
 import { OAuth2Client } from "google-auth-library";
 import type { Request, Response } from "express";
 import { env } from "../env.js";
-import { writeToken, readToken } from "../utils/vaultClient.js";
+import { writeToken } from "../utils/vaultClient.js";
 
 // Lazy initialization functions to ensure dotenv is loaded before accessing env
 function getGoogleRedirectUri(): string {
-  return (
-    process.env.GOOGLE_REDIRECT_URI ||
-    env.FRONTEND_URL ||
-    process.env.BACKEND_URL ||
-    ""
-  );
+  // Use validated env variables, fallback to empty string
+  return env.GOOGLE_REDIRECT_URI || env.FRONTEND_URL || env.BACKEND_URL || "";
 }
 
 // Initialize on first use (lazy)
@@ -38,11 +34,6 @@ interface UserInfoRequest {
   accessToken: string;
 }
 
-interface RefreshTokenRequest {
-  refreshToken?: string;
-  userEmail?: string;
-}
-
 /* Route for exchanging authorization code for access token and refresh token */
 export const exchangeCodeForToken = async (
   req: Request<
@@ -55,10 +46,15 @@ export const exchangeCodeForToken = async (
   try {
     const { code } = req.body;
 
+    // Validate OAuth code
+    if (!code || typeof code !== "string" || code.trim().length === 0) {
+      return res.status(400).json({ error: "Invalid authorization code" });
+    }
+
     // Exchange the authorization code for access token and refresh token
     const client = getOAuth2ClientInstance();
     const { tokens } = await client.getToken({
-      code,
+      code: code.trim(),
       redirect_uri: getGoogleRedirectUri(), // Ensure this matches the registered redirect URI
     });
     // Set the refresh token
@@ -67,7 +63,11 @@ export const exchangeCodeForToken = async (
     });
 
     // Get userEmail from request or fetch from Google
-    let userEmail = req.body.userEmail;
+    // Validate userEmail if provided in request body
+    let userEmail: string | undefined = req.body.userEmail;
+    if (userEmail && typeof userEmail !== "string") {
+      throw new Error("Invalid userEmail: must be a string");
+    }
     if (!userEmail && tokens.access_token) {
       try {
         // Fetch user info from Google's userinfo endpoint (simpler, always available with oauth scopes)
@@ -131,10 +131,19 @@ export const getUserInfo = async (
   try {
     const { accessToken } = req.body;
 
+    // Validate access token
+    if (
+      !accessToken ||
+      typeof accessToken !== "string" ||
+      accessToken.trim().length === 0
+    ) {
+      return res.status(400).json({ error: "Invalid access token" });
+    }
+
     // Set the access token
     const client = getOAuth2ClientInstance();
     client.setCredentials({
-      access_token: accessToken,
+      access_token: accessToken.trim(),
     });
 
     // You can use this info to get user information too.
@@ -161,119 +170,7 @@ export const getUserInfo = async (
   }
 };
 
-/* Route for refreshing access token using refresh token
-   This endpoint keeps the client secret secure on the server */
-export const refreshAccessToken = async (
-  req: Request<
-    Record<string, never>,
-    Record<string, never>,
-    RefreshTokenRequest
-  >,
-  res: Response,
-) => {
-  try {
-    const { refreshToken, userEmail } = req.body;
-    let tokenToUse = refreshToken;
-
-    // If userEmail is provided but no refreshToken, read from Vault
-    if (!tokenToUse && userEmail) {
-      try {
-        const tokens = await readToken(userEmail);
-        tokenToUse = tokens.refreshToken;
-      } catch (error) {
-        console.error("Failed to read token from Vault:", error);
-        return res.status(400).json({
-          error: "Refresh token is required",
-          details: "Could not retrieve refresh token from Vault",
-        });
-      }
-    }
-
-    if (!tokenToUse) {
-      return res.status(400).json({ error: "Refresh token is required" });
-    }
-
-    // Set the refresh token
-    const client = getOAuth2ClientInstance();
-    client.setCredentials({
-      refresh_token: tokenToUse,
-    });
-
-    // Refresh the access token
-    const { credentials } = await client.refreshAccessToken();
-
-    if (!credentials.access_token) {
-      return res.status(500).json({ error: "Failed to refresh access token" });
-    }
-
-    // Write updated tokens to Vault if userEmail is provided
-    if (userEmail) {
-      try {
-        await writeToken(userEmail, {
-          accessToken: credentials.access_token,
-          refreshToken: tokenToUse,
-        });
-      } catch (error) {
-        // Log error but don't fail the request - token is still returned
-        console.error("Failed to write tokens to Vault:", error);
-      }
-    }
-
-    res.json({ accessToken: credentials.access_token });
-  } catch (error: unknown) {
-    // Handle specific OAuth errors
-    if (error && typeof error === "object" && "response" in error) {
-      const oauthError = error as {
-        response?: {
-          data?: {
-            error?: string;
-            error_description?: string;
-            status?: number;
-          };
-        };
-      };
-      const errorData = oauthError.response?.data;
-
-      // invalid_grant typically means refresh token is revoked/expired
-      if (errorData?.error === "invalid_grant") {
-        // Log concise message for this common error (users need to re-authenticate)
-        console.warn(
-          "Token refresh failed: invalid_grant - User needs to re-authenticate",
-        );
-        return res.status(401).json({
-          error: "Refresh token is invalid or expired",
-          details:
-            "The refresh token has been revoked or is no longer valid. User needs to re-authenticate.",
-          code: "INVALID_REFRESH_TOKEN",
-        });
-      }
-
-      console.error(
-        "Error during token refresh:",
-        errorData?.error,
-        errorData?.error_description,
-      );
-      return res.status(oauthError.response?.data?.status || 500).json({
-        error: "Failed to refresh access token",
-        details:
-          errorData?.error_description ||
-          errorData?.error ||
-          "Unknown OAuth error",
-      });
-    }
-
-    const errorMessage =
-      error instanceof Error ? error.message : "Unknown error occurred";
-    console.error("Error during token refresh:", errorMessage);
-    res.status(500).json({
-      error: "Failed to refresh access token",
-      details: errorMessage,
-    });
-  }
-};
-
 export default {
   exchangeCodeForToken,
   getUserInfo,
-  refreshAccessToken,
 };

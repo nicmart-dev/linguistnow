@@ -3,19 +3,16 @@ import type { Request, Response } from "express";
 import type {
   exchangeCodeForToken as ExchangeCodeForTokenType,
   getUserInfo as GetUserInfoType,
-  refreshAccessToken as RefreshAccessTokenType,
 } from "./authController";
 
 // Store mock functions at module level for access in tests
 let mockGetToken: ReturnType<typeof vi.fn>;
 let mockSetCredentials: ReturnType<typeof vi.fn>;
 let mockOAuthRequest: ReturnType<typeof vi.fn>;
-let mockRefreshAccessToken: ReturnType<typeof vi.fn>;
 let mockWriteToken: ReturnType<typeof vi.fn>;
 let mockReadToken: ReturnType<typeof vi.fn>;
 let exchangeCodeForToken: typeof ExchangeCodeForTokenType;
 let getUserInfo: typeof GetUserInfoType;
-let refreshAccessToken: typeof RefreshAccessTokenType;
 
 describe("authController", () => {
   let mockRequest: Partial<Request>;
@@ -28,7 +25,6 @@ describe("authController", () => {
     mockGetToken = vi.fn();
     mockSetCredentials = vi.fn();
     mockOAuthRequest = vi.fn();
-    mockRefreshAccessToken = vi.fn();
 
     // Mock the modules before importing
     vi.doMock("google-auth-library", () => ({
@@ -36,7 +32,6 @@ describe("authController", () => {
         getToken = mockGetToken;
         setCredentials = mockSetCredentials;
         request = mockOAuthRequest;
-        refreshAccessToken = mockRefreshAccessToken;
       },
     }));
 
@@ -64,7 +59,6 @@ describe("authController", () => {
     const authController = await import("./authController");
     exchangeCodeForToken = authController.exchangeCodeForToken;
     getUserInfo = authController.getUserInfo;
-    refreshAccessToken = authController.refreshAccessToken;
   });
 
   beforeEach(() => {
@@ -225,173 +219,6 @@ describe("authController", () => {
       expect(statusSpy).toHaveBeenCalledWith(500);
       expect(jsonSpy).toHaveBeenCalledWith({
         error: "Failed to fetch user info",
-      });
-      consoleErrorSpy.mockRestore();
-    });
-  });
-
-  describe("refreshAccessToken", () => {
-    it("should refresh access token successfully and write to Vault", async () => {
-      mockRequest = {
-        body: { refreshToken: "refresh-token", userEmail: "user@example.com" },
-      };
-      mockRefreshAccessToken.mockResolvedValue({
-        credentials: {
-          access_token: "new-access-token",
-        },
-      });
-
-      await refreshAccessToken(
-        mockRequest as Request,
-        mockResponse as Response,
-      );
-
-      expect(mockSetCredentials).toHaveBeenCalledWith({
-        refresh_token: "refresh-token",
-      });
-      expect(mockRefreshAccessToken).toHaveBeenCalled();
-      // Verify new token is written to Vault
-      expect(mockWriteToken).toHaveBeenCalledWith("user@example.com", {
-        accessToken: "new-access-token",
-        refreshToken: "refresh-token",
-      });
-      expect(jsonSpy).toHaveBeenCalledWith({
-        accessToken: "new-access-token",
-      });
-    });
-
-    it("should read existing refresh token from Vault if userEmail provided", async () => {
-      mockRequest = {
-        body: { userEmail: "user@example.com" },
-      };
-      mockRefreshAccessToken.mockResolvedValue({
-        credentials: {
-          access_token: "new-access-token",
-        },
-      });
-
-      await refreshAccessToken(
-        mockRequest as Request,
-        mockResponse as Response,
-      );
-
-      // Should read token from Vault
-      expect(mockReadToken).toHaveBeenCalledWith("user@example.com");
-      expect(mockSetCredentials).toHaveBeenCalledWith({
-        refresh_token: "existing-refresh-token",
-      });
-      expect(mockWriteToken).toHaveBeenCalledWith("user@example.com", {
-        accessToken: "new-access-token",
-        refreshToken: "existing-refresh-token",
-      });
-    });
-
-    it("should return 400 when refresh token is missing", async () => {
-      mockRequest = {
-        body: {},
-      };
-
-      await refreshAccessToken(
-        mockRequest as Request,
-        mockResponse as Response,
-      );
-
-      expect(statusSpy).toHaveBeenCalledWith(400);
-      expect(jsonSpy).toHaveBeenCalledWith({
-        error: "Refresh token is required",
-      });
-    });
-
-    it("should return 500 when access token is missing", async () => {
-      mockRequest = {
-        body: { refreshToken: "refresh-token" },
-      };
-      mockRefreshAccessToken.mockResolvedValue({
-        credentials: {},
-      });
-
-      await refreshAccessToken(
-        mockRequest as Request,
-        mockResponse as Response,
-      );
-
-      expect(statusSpy).toHaveBeenCalledWith(500);
-      expect(jsonSpy).toHaveBeenCalledWith({
-        error: "Failed to refresh access token",
-      });
-    });
-
-    it("should handle invalid_grant error", async () => {
-      mockRequest = {
-        body: { refreshToken: "invalid-token" },
-      };
-      mockRefreshAccessToken.mockRejectedValue({
-        response: {
-          data: {
-            error: "invalid_grant",
-            error_description: "Token expired",
-          },
-        },
-      });
-
-      await refreshAccessToken(
-        mockRequest as Request,
-        mockResponse as Response,
-      );
-
-      expect(statusSpy).toHaveBeenCalledWith(401);
-      expect(jsonSpy).toHaveBeenCalledWith({
-        error: "Refresh token is invalid or expired",
-        details:
-          "The refresh token has been revoked or is no longer valid. User needs to re-authenticate.",
-        code: "INVALID_REFRESH_TOKEN",
-      });
-    });
-
-    it("should handle other OAuth errors", async () => {
-      mockRequest = {
-        body: { refreshToken: "token" },
-      };
-      mockRefreshAccessToken.mockRejectedValue({
-        response: {
-          data: {
-            error: "server_error",
-            error_description: "Server error",
-            status: 500,
-          },
-        },
-      });
-
-      await refreshAccessToken(
-        mockRequest as Request,
-        mockResponse as Response,
-      );
-
-      expect(statusSpy).toHaveBeenCalledWith(500);
-      expect(jsonSpy).toHaveBeenCalledWith({
-        error: "Failed to refresh access token",
-        details: "Server error",
-      });
-    });
-
-    it("should handle unknown errors", async () => {
-      const consoleErrorSpy = vi
-        .spyOn(console, "error")
-        .mockImplementation(() => {});
-      mockRequest = {
-        body: { refreshToken: "token" },
-      };
-      mockRefreshAccessToken.mockRejectedValue(new Error("Network error"));
-
-      await refreshAccessToken(
-        mockRequest as Request,
-        mockResponse as Response,
-      );
-
-      expect(statusSpy).toHaveBeenCalledWith(500);
-      expect(jsonSpy).toHaveBeenCalledWith({
-        error: "Failed to refresh access token",
-        details: "Network error",
       });
       consoleErrorSpy.mockRestore();
     });
