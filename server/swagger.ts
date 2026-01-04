@@ -2,6 +2,7 @@ import swaggerJsdoc from "swagger-jsdoc";
 import { readFileSync } from "fs";
 import { dirname, join } from "path";
 import { fileURLToPath } from "url";
+import { env } from "./env.js";
 
 // Type for the minimal package.json fields we need
 interface PackageJson {
@@ -22,16 +23,16 @@ function getSwaggerOptions() {
   const servers: Array<{ url: string; description: string }> = [];
 
   // Add production server if BACKEND_URL is configured
-  if (process.env.BACKEND_URL) {
+  if (env.BACKEND_URL) {
     servers.push({
-      url: process.env.BACKEND_URL,
+      url: env.BACKEND_URL,
       description: "Production server",
     });
   }
 
   // Always add localhost for development
-  // Use process.env.PORT directly (defaults to 5000 if not set)
-  const port = process.env.PORT || "5000";
+  // Use validated env.PORT (defaults to 5000 if not set)
+  const port = env.PORT.toString();
   servers.push({
     url: `http://localhost:${port}`,
     description: "Development server",
@@ -47,9 +48,7 @@ function getSwaggerOptions() {
           "API for LinguistNow - A platform connecting linguists with clients through Google Calendar integration",
         contact: {
           name: "LinguistNow Support",
-          url:
-            process.env.FRONTEND_URL ||
-            "https://github.com/nicmart-dev/linguistnow",
+          url: env.FRONTEND_URL || "https://github.com/nicmart-dev/linguistnow",
         },
         license: {
           name: "ISC",
@@ -173,6 +172,123 @@ function getSwaggerOptions() {
               },
             },
           },
+          SetupStatus: {
+            type: "object",
+            description: "Linguist profile setup completion status",
+            properties: {
+              isComplete: {
+                type: "boolean",
+                description: "Whether the linguist has completed setup",
+                example: true,
+              },
+              missingItems: {
+                type: "array",
+                items: { type: "string" },
+                description:
+                  "List of missing setup items (e.g., ['calendars', 'timezone', 'working_hours'])",
+                example: [],
+              },
+            },
+          },
+          LinguistAvailability: {
+            type: "object",
+            description: "Availability information for a linguist",
+            properties: {
+              isAvailable: {
+                type: "boolean",
+                description: "Whether the linguist is available",
+                example: true,
+              },
+              freeSlots: {
+                type: "array",
+                items: {
+                  type: "object",
+                  properties: {
+                    start: {
+                      type: "string",
+                      format: "date-time",
+                      example: "2024-01-15T08:00:00Z",
+                    },
+                    end: {
+                      type: "string",
+                      format: "date-time",
+                      example: "2024-01-15T18:00:00Z",
+                    },
+                  },
+                },
+                description: "List of free time slots",
+              },
+              totalFreeHours: {
+                type: "number",
+                description: "Total free hours in the availability window",
+                example: 40,
+              },
+            },
+          },
+          LinguistWithAvailability: {
+            type: "object",
+            description: "Linguist profile with availability information",
+            properties: {
+              id: {
+                type: "string",
+                description: "Airtable record ID",
+                example: "rec1234567890",
+              },
+              email: {
+                type: "string",
+                format: "email",
+                example: "linguist@example.com",
+              },
+              name: { type: "string", example: "Jane Linguist" },
+              picture: {
+                type: "string",
+                format: "uri",
+                nullable: true,
+                example: "https://lh3.googleusercontent.com/a/...",
+              },
+              languages: {
+                type: "array",
+                items: { type: "string" },
+                description: "Language pairs (e.g., ['EN-FR', 'EN-ES'])",
+                example: ["EN-FR", "EN-ES"],
+              },
+              specialization: {
+                type: "array",
+                items: { type: "string" },
+                description: "Domain expertise areas",
+                example: ["Legal", "Medical"],
+              },
+              hourlyRate: {
+                type: "number",
+                nullable: true,
+                description: "Hourly rate in USD",
+                example: 50,
+              },
+              timezone: {
+                type: "string",
+                nullable: true,
+                description: "IANA timezone identifier",
+                example: "America/Los_Angeles",
+              },
+              rating: {
+                type: "number",
+                nullable: true,
+                description: "Average rating (1-5)",
+                example: 4.5,
+              },
+              setupStatus: {
+                $ref: "#/components/schemas/SetupStatus",
+              },
+              availability: {
+                oneOf: [
+                  { $ref: "#/components/schemas/LinguistAvailability" },
+                  { type: "null" },
+                ],
+                description:
+                  "Availability information, null if setup is incomplete",
+              },
+            },
+          },
         },
       },
     },
@@ -187,6 +303,10 @@ function getSwaggerOptions() {
       {
         name: "Tokens",
         description: "Token management endpoints (internal)",
+      },
+      {
+        name: "Linguists",
+        description: "Linguist search and filtering endpoints",
       },
     ],
     apis: ["./server.ts", "./routes/*.ts"],
