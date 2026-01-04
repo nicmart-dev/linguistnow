@@ -208,7 +208,7 @@ jobs:
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=sha,prefix=
-            type=raw,value=latest,enable=${{ needs.check.outputs.is_release == 'true' }}
+            type=raw,value=latest,enable=${{ github.event_name != 'pull_request' }}
             type=raw,value=main,enable=${{ needs.check.outputs.is_release != 'true' && github.event_name != 'pull_request' }}
 
       - name: Build and push Backend
@@ -239,7 +239,7 @@ jobs:
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=sha,prefix=
-            type=raw,value=latest,enable=${{ needs.check.outputs.is_release == 'true' }}
+            type=raw,value=latest,enable=${{ github.event_name != 'pull_request' }}
             type=raw,value=main,enable=${{ needs.check.outputs.is_release != 'true' && github.event_name != 'pull_request' }}
 
       - name: Build and push Frontend
