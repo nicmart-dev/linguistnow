@@ -50,12 +50,15 @@ COPY shared/ ./shared/
 RUN pnpm install --frozen-lockfile && \
     pnpm store prune
 
+# Build the shared package (compiles TypeScript to dist/)
+RUN cd /app/shared && pnpm build
+
 # Manually create the workspace symlink (pnpm sometimes fails in Docker)
 RUN mkdir -p /app/node_modules/@linguistnow && \
     ln -sf /app/shared /app/node_modules/@linguistnow/shared && \
     echo "=== Verifying workspace setup ===" && \
     ls -la /app/node_modules/@linguistnow/ && \
-    ls -la /app/shared/src/ && \
+    ls -la /app/shared/dist/ && \
     echo "=== End verification ==="
 
 WORKDIR /app/server
