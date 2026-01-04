@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { Check, ChevronsUpDown } from 'lucide-react'
 import { cn } from '../lib/utils'
+import { getWeekStartsOn } from '@linguistnow/shared'
 import { Button } from './ui/button'
 import {
     Command,
@@ -273,6 +274,11 @@ const AvailabilitySettings: React.FC<AvailabilitySettingsProps> = ({
             const offDaysValue = userDetails['Off Days']
             // Handle array of day names (from Airtable dropdown field)
             if (Array.isArray(offDaysValue)) {
+                // Empty array means user explicitly set no off-days
+                if (offDaysValue.length === 0) {
+                    return [] // Explicitly no off-days
+                }
+
                 const dayNames = [
                     'Sunday',
                     'Monday',
@@ -301,6 +307,11 @@ const AvailabilitySettings: React.FC<AvailabilitySettingsProps> = ({
             }
             // Handle comma-separated string (backward compatibility)
             if (typeof offDaysValue === 'string') {
+                // Empty string means user explicitly set no off-days
+                if (offDaysValue.trim() === '') {
+                    return [] // Explicitly no off-days
+                }
+
                 const dayNames = [
                     'Sunday',
                     'Monday',
@@ -324,7 +335,8 @@ const AvailabilitySettings: React.FC<AvailabilitySettingsProps> = ({
                     .filter((d): d is number => d !== null)
             }
         }
-        return [0, 6] // Default: Sunday and Saturday
+        // Field not set = no off-days
+        return [] // Default: no off-days
     })
     const [isSaving, setIsSaving] = useState(false)
     const [hasInitialized, setHasInitialized] = useState(false)
@@ -337,6 +349,25 @@ const AvailabilitySettings: React.FC<AvailabilitySettingsProps> = ({
         offDays: number[]
     } | null>(null)
     const changedFieldRef = useRef<string | null>(null)
+    // Use refs to track latest state values to avoid stale closures in timeout
+    const offDaysRef = useRef<number[]>(offDays)
+    const timezoneRef = useRef<string>(timezone)
+    const workingHoursStartRef = useRef<string>(workingHoursStart)
+    const workingHoursEndRef = useRef<string>(workingHoursEnd)
+
+    // Keep refs in sync with state
+    useEffect(() => {
+        offDaysRef.current = offDays
+    }, [offDays])
+    useEffect(() => {
+        timezoneRef.current = timezone
+    }, [timezone])
+    useEffect(() => {
+        workingHoursStartRef.current = workingHoursStart
+    }, [workingHoursStart])
+    useEffect(() => {
+        workingHoursEndRef.current = workingHoursEnd
+    }, [workingHoursEnd])
 
     // Get timezones to display - only when dropdown is open
     // Command component handles filtering and search internally
@@ -531,15 +562,25 @@ const AvailabilitySettings: React.FC<AvailabilitySettingsProps> = ({
         }
 
         // Set new timeout to save after 200ms of no changes (reduced from 500ms)
+        // IMPORTANT: Use refs to get the latest state values when timeout fires,
+        // avoiding stale closure issues when state updates rapidly
         saveTimeoutRef.current = setTimeout(() => {
+            // Get latest values from refs (always up-to-date, even if state changed after timeout was set)
+            const latestValues = {
+                timezone: timezoneRef.current,
+                workingHoursStart: workingHoursStartRef.current,
+                workingHoursEnd: workingHoursEndRef.current,
+                offDays: [...offDaysRef.current].sort(),
+            }
+
             // Update previous values before saving
-            previousValuesRef.current = currentValues
+            previousValuesRef.current = latestValues
             void savePreferences(
                 {
-                    timezone,
-                    workingHoursStart,
-                    workingHoursEnd,
-                    offDays,
+                    timezone: latestValues.timezone,
+                    workingHoursStart: latestValues.workingHoursStart,
+                    workingHoursEnd: latestValues.workingHoursEnd,
+                    offDays: latestValues.offDays,
                 },
                 changedFieldRef.current
             )
@@ -564,61 +605,9 @@ const AvailabilitySettings: React.FC<AvailabilitySettingsProps> = ({
     // Get first day of week based on locale
     // 0 = Sunday, 1 = Monday, etc.
     const getFirstDayOfWeek = React.useMemo(() => {
-        const lang = i18n.language.toLowerCase()
-
-        // Try using Intl.Locale weekInfo if available (modern browsers)
-        try {
-            // Map i18n language codes to locale strings
-            const localeMap: Record<string, string> = {
-                en: 'en-US',
-                fr: 'fr-FR',
-                es: 'es-ES',
-                de: 'de-DE',
-                it: 'it-IT',
-                pt: 'pt-PT',
-                'zh-cn': 'zh-CN',
-                ja: 'ja-JP',
-                ko: 'ko-KR',
-                ar: 'ar-SA',
-                ru: 'ru-RU',
-            }
-            const locale = localeMap[lang] || lang
-
-            // Use Intl.Locale if available (supported in modern browsers)
-            if (typeof Intl !== 'undefined' && 'Locale' in Intl) {
-                const localeObj = new Intl.Locale(locale)
-                // @ts-expect-error - weekInfo is not in TypeScript types yet but exists in modern browsers
-                const weekInfo = localeObj.weekInfo as
-                    | { firstDay?: number }
-                    | undefined
-                if (weekInfo?.firstDay !== undefined) {
-                    // weekInfo.firstDay: 1 = Monday, 7 = Sunday
-                    return weekInfo.firstDay === 7 ? 0 : weekInfo.firstDay
-                }
-            }
-        } catch {
-            // Fall through to locale-specific defaults
-        }
-
-        // Fallback: check locale-specific defaults
-        // Arabic and Hebrew: Sunday (0) - weekend is Fri/Sat
-        // Most European: Monday (1) - week starts Monday
-        // US English: Sunday (0)
-        if (lang.startsWith('ar') || lang.startsWith('he')) {
-            return 0 // Sunday
-        }
-        if (
-            lang.startsWith('fr') ||
-            lang.startsWith('de') ||
-            lang.startsWith('es') ||
-            lang.startsWith('it') ||
-            lang.startsWith('pt') ||
-            lang.startsWith('ru')
-        ) {
-            return 1 // Monday
-        }
-        // Default to Sunday for en, zh-cn, ja, ko
-        return 0
+        // Use shared utility which leverages Intl.Locale API when available
+        // This ensures consistency with DateRangePicker and avoids code duplication
+        return getWeekStartsOn(i18n.language)
     }, [i18n.language])
 
     // Create ordered arrays based on first day of week
@@ -651,21 +640,14 @@ const AvailabilitySettings: React.FC<AvailabilitySettingsProps> = ({
     }, [t, getFirstDayOfWeek])
 
     return (
-        <div className="max-w-3xl mb-8">
-            <h2 className="text-xl font-semibold mb-4">
+        <div className="mb-8">
+            <h2 className="text-lg font-semibold mb-4">
                 {t('availabilitySettings.title', 'Availability Preferences')}
             </h2>
-            <p className="text-lg text-black mb-4">
+            <p className="text-sm text-gray-600 mb-6">
                 {t(
                     'availabilitySettings.description',
                     'Configure your working hours, timezone, and availability settings.'
-                )}
-            </p>
-            <p className="text-lg mb-6">
-                *{' '}
-                {t(
-                    'accountSettings.automaticSave',
-                    'Changes are saved automatically'
                 )}
                 {isSaving && (
                     <span className="ml-2 text-gray-500">
@@ -688,7 +670,7 @@ const AvailabilitySettings: React.FC<AvailabilitySettingsProps> = ({
                             variant="outline"
                             role="combobox"
                             aria-expanded={timezoneOpen}
-                            className="w-full justify-between"
+                            className="w-auto min-w-[280px] justify-between"
                         >
                             {timezone
                                 ? (timezoneLabels.get(timezone) ?? timezone)

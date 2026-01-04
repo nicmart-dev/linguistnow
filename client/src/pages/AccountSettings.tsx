@@ -1,5 +1,6 @@
 import CalendarSelector from '../components/CalendarSelector'
 import AvailabilitySettings from '../components/AvailabilitySettings'
+import LinguistProfileSettings from '../components/LinguistProfileSettings'
 import { useTranslation } from 'react-i18next' // To show localized strings
 import Hero from '../components/Hero'
 import { logger } from '../utils/logger'
@@ -18,6 +19,21 @@ const AccountSettings = ({ userDetails, setUserDetails }) => {
     /* Save user selected calendars */
     const handleSaveCalendars = async (updatedCalendars) => {
         try {
+            // Validate: at least one calendar must be selected
+            const validCalendars = Array.isArray(updatedCalendars)
+                ? updatedCalendars.filter(Boolean)
+                : []
+
+            if (validCalendars.length === 0) {
+                toast.error(
+                    t(
+                        'calendarSelector.atLeastOneRequired',
+                        'At least one calendar must be selected'
+                    )
+                )
+                return
+            }
+
             // Get email from userDetails - use lowercase 'email' from User type, or fallback to uppercase 'Email' for Airtable compatibility
             const userEmail = userDetails?.email || (userDetails as any)?.Email
             if (!userEmail) {
@@ -143,6 +159,74 @@ const AccountSettings = ({ userDetails, setUserDetails }) => {
         }
     }
 
+    /* Save user profile settings (hourly rate, currency, languages, specialization) */
+    const handleSaveProfile = async (profile) => {
+        try {
+            // Get email from userDetails - use lowercase 'email' from User type, or fallback to uppercase 'Email' for Airtable compatibility
+            const userEmail = userDetails?.email || (userDetails as any)?.Email
+            if (!userEmail) {
+                console.error(
+                    'User email not found in userDetails:',
+                    userDetails
+                )
+                throw new Error('User email is required to save profile.')
+            }
+
+            // Update the user's profile in Airtable
+            const response = await fetch(
+                `${import.meta.env.VITE_API_URL}/api/users/${encodeURIComponent(userEmail)}`,
+                {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        profile: profile,
+                    }),
+                }
+            )
+
+            if (!response.ok) {
+                let errorData = {}
+                try {
+                    const text = await response.text()
+                    errorData = text ? JSON.parse(text) : {}
+                } catch (parseError) {
+                    console.error('Failed to parse error response:', parseError)
+                }
+
+                const errorMessage =
+                    errorData.details ||
+                    errorData.error ||
+                    errorData.message ||
+                    `Failed to save profile (${response.status}: ${response.statusText})`
+                console.error('Save profile error:', {
+                    status: response.status,
+                    statusText: response.statusText,
+                    errorData,
+                })
+                throw new Error(errorMessage)
+            }
+
+            const updatedUser = await response.json()
+
+            // Update userDetails with the new profile data
+            setUserDetails({
+                ...userDetails,
+                'Hourly Rate': updatedUser['Hourly Rate'],
+                Currency: updatedUser.Currency,
+                Languages: updatedUser.Languages,
+                Specialization: updatedUser.Specialization,
+            })
+
+            logger.log('Profile saved.')
+        } catch (error) {
+            console.error('Failed to save profile:', error)
+            // Re-throw to let component handle error display and toast
+            throw error
+        }
+    }
+
     const handleGoToCalendar = () => {
         // Replace 'url' with the URL you want to open
         const url = 'https://calendar.google.com/'
@@ -231,40 +315,76 @@ const AccountSettings = ({ userDetails, setUserDetails }) => {
             <Hero userName={userDetails.Name} cta={handleGoToCalendar} />
             <main className="container mx-auto px-3 mb-5">
                 <div>
-                    <p className="max-w-3xl text-lg text-black my-4">
-                        {t('accountSettings.selectCalendars')}
-                        &nbsp;
-                    </p>
-                    <p className="max-w-3xl text-lg text-black my-4">
-                        {t('accountSettings.notReadingEvents')}
+                    <p className="max-w-3xl text-sm text-gray-600 my-4">
+                        {t('accountSettings.introText')}
                     </p>
 
                     {userDetails && (
                         <>
-                            {/* Pass user details to child component to display list of calendars,
-            as well as function it can call when saving selected calendars. */}
-                            <CalendarSelector
-                                userDetails={userDetails}
-                                onSave={handleSaveCalendars}
-                            />
+                            {/* Calendar Selection, Profile Settings, and Availability Settings - Grid layout on large screens */}
+                            {userDetails.Role === 'Linguist' ? (
+                                <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 xl:gap-12">
+                                    {/* Left Column: Calendar Selection and Profile Settings */}
+                                    <div className="space-y-8 xl:space-y-12">
+                                        {/* Calendar Selection Section */}
+                                        <div>
+                                            <CalendarSelector
+                                                userDetails={userDetails}
+                                                onSave={handleSaveCalendars}
+                                            />
+                                        </div>
 
-                            {/* Availability Settings Section */}
-                            <div className="max-w-3xl mt-8 pt-8 border-t border-gray-300">
-                                <AvailabilitySettings
-                                    userDetails={userDetails}
-                                    onSave={handleSaveAvailabilityPreferences}
-                                />
-                            </div>
+                                        {/* Linguist Profile Settings Section */}
+                                        <div>
+                                            <LinguistProfileSettings
+                                                userDetails={userDetails}
+                                                onSave={handleSaveProfile}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {/* Right Column: Availability Settings */}
+                                    <div>
+                                        <AvailabilitySettings
+                                            userDetails={userDetails}
+                                            onSave={
+                                                handleSaveAvailabilityPreferences
+                                            }
+                                        />
+                                    </div>
+                                </div>
+                            ) : (
+                                /* Calendar Selection and Availability Settings - Side by side for non-linguists */
+                                <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 xl:gap-12">
+                                    {/* Calendar Selection Section */}
+                                    <div>
+                                        <CalendarSelector
+                                            userDetails={userDetails}
+                                            onSave={handleSaveCalendars}
+                                        />
+                                    </div>
+
+                                    {/* Availability Settings Section */}
+                                    <div>
+                                        <AvailabilitySettings
+                                            userDetails={userDetails}
+                                            onSave={
+                                                handleSaveAvailabilityPreferences
+                                            }
+                                        />
+                                    </div>
+                                </div>
+                            )}
 
                             {/* Delete Account Section */}
-                            <div className="max-w-3xl mt-8 pt-8 border-t border-gray-300">
-                                <h2 className="text-xl font-semibold text-red-600 mb-4">
+                            <div className="mt-8 pt-8 border-t border-gray-300">
+                                <h2 className="text-lg font-semibold text-red-600 mb-4">
                                     {t(
                                         'accountSettings.deleteAccountTitle',
                                         'Delete Account'
                                     )}
                                 </h2>
-                                <p className="text-lg text-black mb-4">
+                                <p className="text-sm text-gray-600 mb-4">
                                     {t(
                                         'accountSettings.deleteAccountDescription',
                                         'Permanently delete your account and all associated data. This action cannot be undone.'
@@ -283,7 +403,7 @@ const AccountSettings = ({ userDetails, setUserDetails }) => {
                                     </button>
                                 ) : (
                                     <div>
-                                        <p className="text-lg text-red-600 font-semibold mb-4">
+                                        <p className="text-sm text-red-600 font-semibold mb-4">
                                             {t(
                                                 'accountSettings.deleteAccountConfirm',
                                                 'Are you sure you want to delete your account? This action cannot be undone.'
