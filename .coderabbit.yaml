@@ -1,0 +1,114 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+language: en-US
+early_access: true
+tone_instructions: >
+  Be concise and actionable. Focus on security, type safety, and architectural consistency.
+  Reference existing patterns in the codebase when suggesting improvements.
+
+reviews:
+  profile: chill
+  request_changes_workflow: false
+  high_level_summary: true
+  high_level_summary_placeholder: "@coderabbitai summary"
+  poem: false
+  review_status: true
+  collapse_walkthrough: false
+  sequence_diagrams: true
+  changed_files_summary: true
+
+  # Ignore auto-generated and build files
+  path_filters:
+    - "!**/dist/**"
+    - "!**/build/**"
+    - "!**/coverage/**"
+    - "!**/node_modules/**"
+    - "!**/*.lock"
+    - "!**/pnpm-lock.yaml"
+    - "!**/*.min.js"
+    - "!**/*.min.css"
+
+  path_instructions:
+    - path: "client/src/components/**"
+      instructions: |
+        - All user-facing strings MUST use i18n via useTranslation hook
+        - New i18n keys must be added to ALL 11 locales: en, fr, es, de, it, pt, zh-cn, ja, ko, ar, ru
+        - Follow i18n key pattern: section.subsection.key (e.g., dashboard.errors.vaultError)
+        - Check for proper React hooks usage and dependency arrays
+        - Ensure components are accessible (aria labels, keyboard navigation)
+
+    - path: "client/src/i18n/locales/**"
+      instructions: |
+        - Verify the same key exists in ALL locale files when adding new strings
+        - Use {{variable}} syntax for interpolation
+        - Use _one and _other suffixes for pluralization
+        - Keys should follow pattern: section.subsection.key
+
+    - path: "server/controllers/**"
+      instructions: |
+        - SECURITY: Validate all req.body/query/params before use (type, format, bounds)
+        - Check type with typeof before string operations (.split, .includes, .map)
+        - Add length limits before regex to prevent ReDoS (email max 254 chars)
+        - Sanitize user input in logs (escape % characters with %%)
+        - Prevent path traversal: reject inputs containing .., /, or \
+        - For Airtable formulas: escape single quotes (' → '')
+        - Should have corresponding .test.ts file with unit tests
+
+    - path: "server/services/**"
+      instructions: |
+        - Services contain business logic and should be unit testable
+        - Must have corresponding .test.ts file
+        - Follow TDD: ensure tests cover edge cases and error scenarios
+        - Services should be stateless and injectable
+
+    - path: "server/routes/**"
+      instructions: |
+        - All endpoints MUST have Swagger/OpenAPI documentation
+        - Use proper HTTP status codes
+        - Follow RESTful conventions
+        - Route handlers should delegate to controllers
+
+    - path: "shared/src/**"
+      instructions: |
+        - This package defines the API contract between client and server
+        - Types should be defined here FIRST before implementation (API First)
+        - Avoid breaking changes to existing types without major version bump
+        - Export all public types from index.ts
+
+    - path: "docs/**"
+      instructions: |
+        - Use Mermaid diagrams for visual representations (graph, flowchart, sequenceDiagram)
+        - Keep documentation in sync with implementation
+        - Follow existing documentation structure and formatting
+
+    - path: "**/*.test.ts"
+      instructions: |
+        - Follow TDD principles: tests should be written before or alongside implementation
+        - Test edge cases and error scenarios, not just happy paths
+        - Use descriptive test names that explain the expected behavior
+        - Mock external dependencies (Airtable, Google APIs, Vault)
+
+    - path: "**/Dockerfile"
+      instructions: |
+        - Use multi-stage builds for smaller images
+        - Pin base image versions for reproducibility
+        - Follow security best practices (non-root user, minimal packages)
+
+  auto_review:
+    enabled: true
+    drafts: false
+    base_branches:
+      - main
+      - develop
+    ignore_title_keywords:
+      - "WIP"
+      - "DO NOT MERGE"
+      - "[skip ci]"
+
+chat:
+  auto_reply: true
+
+knowledge_base:
+  learnings:
+    scope: local
+  pull_requests:
+    scope: local
