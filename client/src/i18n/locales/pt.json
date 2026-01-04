@@ -1,5 +1,7 @@
 {
     "calendarSelector": {
+        "title": "Seleção de calendários",
+        "description": "Selecione calendários para verificação de disponibilidade. Verificamos apenas horários livres/ocupados, não o conteúdo dos eventos.",
         "chooseCalendars": "Escolher calendários:",
         "searchCalendars": "Pesquisar calendários...",
         "noCalendarsAvailable": "Nenhum calendário disponível.",
@@ -8,7 +10,8 @@
         "sessionExpired": "Sua sessão expirou. Por favor, faça login novamente.",
         "fetchError": "Não foi possível buscar os calendários. Por favor, tente novamente.",
         "saveSuccess": "Calendários salvos",
-        "saveError": "Erro ao salvar os calendários"
+        "saveError": "Erro ao salvar os calendários",
+        "atLeastOneRequired": "Pelo menos um calendário deve ser selecionado"
     },
     "accountSettings": {
         "accountSettings": "Configurações da conta",
@@ -16,9 +19,8 @@
         "picture": "Foto",
         "email": "E-mail:",
         "name": "Nome:",
-        "selectCalendars": "Para ajudar com o agendamento, precisaremos saber qual Calendário do Google verificar para sua disponibilidade.",
         "automaticSave": "Suas escolhas são salvas automaticamente.",
-        "notReadingEvents": "Por razões de segurança, não visualizaremos o conteúdo do seu calendário.",
+        "introText": "Configure as configurações da sua conta abaixo.",
         "deleteAccountTitle": "Excluir conta",
         "deleteAccountDescription": "Excluir permanentemente sua conta e todos os dados associados. Esta ação não pode ser desfeita.",
         "deleteAccountButton": "Excluir minha conta",
@@ -28,6 +30,164 @@
         "confirmDelete": "Sim, excluir minha conta",
         "cancel": "Cancelar",
         "deleting": "Excluindo..."
+    },
+    "linguistProfile": {
+        "title": "Configurações do perfil",
+        "description": "Defina sua taxa horária, moeda, pares de idiomas e áreas de especialização.",
+        "hourlyRate": "Taxa horária",
+        "ratePlaceholder": "Digite a taxa horária",
+        "currency": "Moeda",
+        "languagePairs": "Pares de idiomas",
+        "selectLanguages": "Selecionar pares de idiomas...",
+        "selectedLanguages": "{{count}} par de idiomas selecionado",
+        "selectedLanguages_other": "{{count}} pares de idiomas selecionados",
+        "searchLanguages": "Buscar pares de idiomas...",
+        "noLanguagesFound": "Nenhum par de idiomas encontrado.",
+        "specialization": "Especialização",
+        "selectSpecializations": "Selecionar especializações...",
+        "selectedSpecializations": "{{count}} especialização selecionada",
+        "selectedSpecializations_other": "{{count}} especializações selecionadas",
+        "searchSpecializations": "Buscar especializações...",
+        "noSpecializationsFound": "Nenhuma especialização encontrada.",
+        "saveSuccess": "Perfil salvo com sucesso",
+        "saveError": "Erro ao salvar o perfil",
+        "saving": "Salvando...",
+        "currencyReadOnly": "A seleção de moeda estará disponível com suporte de conversão de moeda"
+    },
+    "dashboard": {
+        "linguistsDescription": "Aqui está o cronograma de {{startDate}} até {{endDate}} incluído.",
+        "availabilityDescription": "Os disponíveis podem se comprometer com turnos de {{hours}} horas.",
+        "availabilityDescriptionNoHours": "Os disponíveis podem se comprometer com turnos.",
+        "available": "Disponível",
+        "notAvailable": "Indisponível",
+        "needsLogin": "Requer login",
+        "availability": "Disponibilidade",
+        "email": "E-mail",
+        "name": "Nome",
+        "languages": "Idiomas",
+        "specialization": "Especialização",
+        "hourlyRate": "Taxa horária",
+        "rating": "Avaliação",
+        "ratingInput": {
+            "tooltip": "Clique para avaliar este linguista",
+            "setRating": "Definir avaliação para {{rating}} estrelas",
+            "saveSuccess": "Avaliação atualizada com sucesso",
+            "saveError": "Falha ao atualizar a avaliação. Por favor, tente novamente."
+        },
+        "filterEmailPlaceholder": "Filtrar por e-mail...",
+        "noResults": "Sem resultados.",
+        "previous": "Anterior",
+        "next": "Próximo",
+        "viewMode": {
+            "list": "Lista",
+            "card": "Cartão"
+        },
+        "dateRange": {
+            "label": "Janela de disponibilidade",
+            "placeholder": "Selecionar intervalo de datas",
+            "cancel": "Cancelar",
+            "update": "Atualizar",
+            "selectPreset": "Selecionar...",
+            "presets": {
+                "next7": "Próximos 7 dias",
+                "next14": "Próximos 14 dias",
+                "next30": "Próximos 30 dias",
+                "nextWeek": "Próxima semana",
+                "nextMonth": "Próximo mês"
+            }
+        },
+        "filters": {
+            "title": "Filtros",
+            "loading": "Carregando opções de filtro...",
+            "clear": "Limpar filtros",
+            "languages": "Idiomas",
+            "languagesPlaceholder": "Selecionar pares de idiomas",
+            "specialization": "Especialização",
+            "specializationPlaceholder": "Selecionar especializações",
+            "hourlyRate": "Intervalo de taxa horária",
+            "minRating": "Avaliação mínima",
+            "projectSize": "Tamanho do projeto (horas)",
+            "projectSizePlaceholder": "Inserir horas necessárias",
+            "projectSizeHint": "Filtrar linguistas com pelo menos {{hours}} horas livres",
+            "projectSizeTooltip": "As horas estimadas são calculadas com base em uma semana de trabalho padrão de 40 horas. Esta é uma estimativa aproximada - a disponibilidade real varia por linguista (horas de trabalho, fins de semana, feriados). Use o 'Disponível (Xh)' mostrado nos cartões de linguistas para disponibilidade precisa.",
+            "useEstimated": "Usar {{hours}}h",
+            "useEstimatedHours": "Clique para usar as {{hours}} horas estimadas com base no intervalo de datas selecionado (cálculo 40h/semana)",
+            "availability": "Disponibilidade",
+            "all": "Todos",
+            "availableOnly": "Apenas disponíveis"
+        },
+        "availabilityBadge": {
+            "available": "Disponível",
+            "unavailable": "Indisponível",
+            "limited": "Limitado",
+            "setupIncomplete": "Configuração incompleta",
+            "missingItems": "Faltando: {{items}}"
+        },
+        "availabilityTimeline": {
+            "title": "Cronograma de disponibilidade",
+            "free": "livre",
+            "noFreeSlots": "Nenhum slot livre disponível"
+        },
+        "linguistCard": {
+            "languages": "Idiomas",
+            "specialization": "Especialização",
+            "rating": "Avaliação"
+        },
+        "booking": {
+            "title": "Reservar {{name}}",
+            "description": "Forneça detalhes do projeto para enviar uma solicitação de reserva. O linguista deve estar disponível para toda a janela de disponibilidade.",
+            "projectName": "Nome do projeto",
+            "projectNamePlaceholder": "Inserir nome do projeto",
+            "projectDescription": "Descrição do projeto",
+            "projectDescriptionPlaceholder": "Inserir descrição do projeto (opcional)",
+            "selectTimeSlot": "Selecionar intervalo de tempo",
+            "noSlotsAvailable": "Nenhum intervalo disponível no intervalo selecionado.",
+            "cancel": "Cancelar",
+            "sendEmail": "Enviar e-mail de reserva",
+            "bookButton": "Reservar",
+            "sendSetupReminder": "Enviar lembrete de configuração",
+            "sendSetupReminderToAll": "Enviar lembrete a {{count}} linguista",
+            "sendSetupReminderToAll_other": "Enviar lembrete a {{count}} linguistas",
+            "setupReminderSubjectBulk": "Complete sua configuração LinguistNow",
+            "setupReminderBodyBulk": "Olá,\n\nVocê está sendo considerado(a) para um projeto próximo! Para ser elegível, complete sua configuração LinguistNow. Itens faltando: {{missingItems}}\n\nPor favor, faça login e complete seu perfil em: {{accountSettingsUrl}}\n\nObrigado!",
+            "defaultTitle": "Projeto de tradução",
+            "emailSubject": "Solicitação de reserva: {{projectName}}",
+            "emailBody": "Olá {{linguistName}},\n\nGostaria de reservá-lo para o seguinte projeto:\n\nProjeto: {{projectName}}\nDisponibilidade necessária: {{startDate}} - {{endDate}}\n\n{{description}}\n\nPor favor confirme sua disponibilidade para toda a duração do projeto.\n\nAtenciosamente",
+            "attachmentNote": "Nota: Por favor, anexe o arquivo de calendário (booking.ics) que será baixado.",
+            "availabilityWindow": "Janela de disponibilidade",
+            "availabilityWindowNote": "O linguista deve estar disponível para toda a duração do projeto mostrada acima.",
+            "emailPreview": "Pré-visualização do e-mail",
+            "emailSubjectLabel": "Assunto:",
+            "emailBodyGreeting": "Olá {{linguistName}},",
+            "emailBodyIntro": "Gostaria de reservá-lo para o seguinte projeto:",
+            "emailBodyProjectLabel": "Projeto:",
+            "emailBodyAvailabilityLabel": "Disponibilidade necessária:",
+            "emailBodyClosing": "Por favor confirme sua disponibilidade para toda a duração do projeto.\n\nAtenciosamente"
+        },
+        "errors": {
+            "title": "Ocorreram erros ao verificar a disponibilidade",
+            "n8nWorkflowInactive": "O fluxo de trabalho n8n não está ativo. Ative o fluxo de trabalho no n8n.",
+            "n8nServiceUnavailable": "O serviço n8n não está disponível no momento.",
+            "networkError": "Não é possível alcançar o serviço de disponibilidade. O serviço pode estar inativo.",
+            "authenticationError": "Falha na autenticação. Verifique sua configuração de API.",
+            "unknownError": "Ocorreu um erro ao verificar a disponibilidade.",
+            "vaultPermissionDenied": "Não é possível recuperar tokens de autenticação. O acesso do servidor ao armazenamento de tokens expirou. Entre em contato com seu administrador.",
+            "vaultError": "Não é possível conectar ao armazenamento de tokens. Tente novamente mais tarde ou entre em contato com seu administrador.",
+            "tokenNotFound_one": "Nenhum token de acesso ao calendário encontrado para {{count}} linguista ({{emails}}). Eles precisam fazer login novamente com sua conta do Google.",
+            "tokenNotFound_other": "Nenhum token de acesso ao calendário encontrado para {{count}} linguistas ({{emails}}). Eles precisam fazer login novamente com suas contas do Google.",
+            "tokenExpired_one": "O token de acesso ao calendário expirou para {{count}} linguista ({{emails}}). Eles precisam fazer login novamente com sua conta do Google.",
+            "tokenExpired_other": "Os tokens de acesso ao calendário expiraram para {{count}} linguistas ({{emails}}). Eles precisam fazer login novamente com suas contas do Google.",
+            "googleApiError": "Não é possível verificar a disponibilidade do calendário. O Google Calendar retornou um erro.",
+            "invalidRefreshToken_one": "O token de atualização foi revogado ou não é mais válido para {{count}} linguista ({{emails}}). Eles precisam se reautenticar fazendo login novamente com sua conta do Google e selecionando novamente seus calendários na página de configurações.",
+            "invalidRefreshToken_other": "O token de atualização foi revogado ou não é mais válido para {{count}} linguistas ({{emails}}). Eles precisam se reautenticar fazendo login novamente com sua conta do Google e selecionando novamente seus calendários na página de configurações.",
+            "missingCredentials_one": "IDs de calendário ou autenticação não disponíveis para {{count}} linguista ({{emails}}). Peça-lhes para fazer login novamente com sua conta do Google, selecionar seus calendários e clicar no botão \"Salvar calendários\" na página de configurações.",
+            "missingCredentials_other": "IDs de calendário ou autenticação não disponíveis para {{count}} linguistas ({{emails}}). Peça-lhes para fazer login novamente com sua conta do Google, selecionar seus calendários e clicar no botão \"Salvar calendários\" na página de configurações.",
+            "genericMultiple_one": "{{message}} ({{count}} usuário afetado: {{emails}})",
+            "genericMultiple_other": "{{message}} ({{count}} usuários afetados: {{emails}})"
+        },
+        "alt": {
+            "userProfileAvatar": "avatar do perfil do usuário"
+        }
     },
     "hero": {
         "login": {
@@ -39,8 +199,8 @@
             "subtitle": "Olá {{userName}}!"
         },
         "settings": {
-            "title": "Quais calendários devemos verificar?",
-            "subtitle": "Bem-vindo {{userName}}!"
+            "title": "Gerencie sua conta",
+            "subtitle": "Bem-vindo {{userName}}! Personalize suas preferências e disponibilidade."
         },
         "logout": {
             "title": "Hora de alçar voo!",
@@ -102,44 +262,6 @@
         "dashboard": "Painel",
         "settings": "Configurações",
         "home": "Início"
-    },
-    "dashboard": {
-        "linguistsDescription": "Aqui está a programação de amanhã até {{date}} incluído.",
-        "availabilityDescription": "Aqueles disponíveis podem se comprometer com turnos de 8 horas todos os dias úteis, das 8h às 18h PST.",
-        "available": "Disponível",
-        "notAvailable": "Indisponível",
-        "needsLogin": "Precisa fazer login",
-        "availability": "Disponibilidade",
-        "email": "E-mail",
-        "name": "Nome",
-        "filterEmailPlaceholder": "Filtrar por e-mail...",
-        "noResults": "Nenhum resultado.",
-        "previous": "Anterior",
-        "next": "Próximo",
-        "errors": {
-            "title": "Ocorreram erros ao verificar a disponibilidade",
-            "n8nWorkflowInactive": "O fluxo de trabalho n8n não está ativo. Por favor, ative o fluxo de trabalho no n8n.",
-            "n8nServiceUnavailable": "O serviço n8n não está disponível no momento.",
-            "networkError": "Não foi possível alcançar o serviço de disponibilidade. O serviço pode estar inativo.",
-            "authenticationError": "A autenticação falhou. Por favor, verifique sua configuração de API.",
-            "unknownError": "Ocorreu um erro ao verificar a disponibilidade.",
-            "vaultPermissionDenied": "Não foi possível recuperar os tokens de autenticação. O acesso do servidor ao armazenamento de tokens expirou. Por favor, entre em contato com seu administrador.",
-            "vaultError": "Não foi possível conectar ao armazenamento de tokens. Por favor, tente novamente mais tarde ou entre em contato com seu administrador.",
-            "tokenNotFound_one": "Nenhum token de acesso ao calendário encontrado para {{count}} linguista ({{emails}}). Ele precisa fazer login novamente com sua conta do Google.",
-            "tokenNotFound_other": "Nenhum token de acesso ao calendário encontrado para {{count}} linguistas ({{emails}}). Eles precisam fazer login novamente com suas contas do Google.",
-            "tokenExpired_one": "O token de acesso ao calendário expirou para {{count}} linguista ({{emails}}). Ele precisa fazer login novamente com sua conta do Google.",
-            "tokenExpired_other": "Os tokens de acesso ao calendário expiraram para {{count}} linguistas ({{emails}}). Eles precisam fazer login novamente com suas contas do Google.",
-            "googleApiError": "Não foi possível verificar a disponibilidade do calendário. O Google Calendar retornou um erro.",
-            "invalidRefreshToken_one": "O token de atualização foi revogado ou não é mais válido para {{count}} linguista ({{emails}}). Eles precisam se reautenticar fazendo login novamente com sua conta do Google e re-selecionando seus calendários na página de configurações.",
-            "invalidRefreshToken_other": "O token de atualização foi revogado ou não é mais válido para {{count}} linguistas ({{emails}}). Eles precisam se reautenticar fazendo login novamente com sua conta do Google e re-selecionando seus calendários na página de configurações.",
-            "missingCredentials_one": "IDs de calendário ou autenticação não disponíveis para {{count}} linguista ({{emails}}). Por favor, peça-lhes para fazer login novamente com sua conta do Google, selecionar seus calendários e clicar no botão \"Salvar calendários\" na página de configurações.",
-            "missingCredentials_other": "IDs de calendário ou autenticação não disponíveis para {{count}} linguistas ({{emails}}). Por favor, peça-lhes para fazer login novamente com sua conta do Google, selecionar seus calendários e clicar no botão \"Salvar calendários\" na página de configurações.",
-            "genericMultiple_one": "{{message}} ({{count}} usuário afetado: {{emails}})",
-            "genericMultiple_other": "{{message}} ({{count}} usuários afetados: {{emails}})"
-        },
-        "alt": {
-            "userProfileAvatar": "avatar do perfil do usuário"
-        }
     },
     "general": {
         "loading": "Carregando..."

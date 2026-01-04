@@ -1,5 +1,7 @@
 {
     "calendarSelector": {
+        "title": "اختيار التقويم",
+        "description": "اختر التقويمات للتحقق من التوفر. نتحقق فقط من الأوقات المتاحة/المشغولة، وليس محتوى الأحداث.",
         "chooseCalendars": "اختر التقويمات:",
         "searchCalendars": "البحث عن التقويمات...",
         "noCalendarsAvailable": "لا توجد تقويمات متاحة.",
@@ -8,7 +10,8 @@
         "sessionExpired": "انتهت صلاحية جلستك. يرجى تسجيل الدخول مرة أخرى.",
         "fetchError": "تعذر جلب التقويمات. يرجى المحاولة مرة أخرى.",
         "saveSuccess": "تم حفظ التقويمات",
-        "saveError": "فشل حفظ التقويمات"
+        "saveError": "فشل حفظ التقويمات",
+        "atLeastOneRequired": "يجب اختيار تقويم واحد على الأقل"
     },
     "accountSettings": {
         "accountSettings": "إعدادات الحساب",
@@ -16,9 +19,8 @@
         "picture": "صورة",
         "email": "البريد الإلكتروني:",
         "name": "الاسم:",
-        "selectCalendars": "لمساعدتك في الجدولة، نحتاج إلى معرفة تقويم Google الذي يجب التحقق منه لتوفرك.",
         "automaticSave": "يتم حفظ اختياراتك تلقائياً.",
-        "notReadingEvents": "لأسباب أمنية، لن نعرض محتوى تقويمك.",
+        "introText": "قم بتكوين إعدادات حسابك أدناه.",
         "deleteAccountTitle": "حذف الحساب",
         "deleteAccountDescription": "حذف حسابك وجميع البيانات المرتبطة به بشكل دائم. لا يمكن التراجع عن هذا الإجراء.",
         "deleteAccountButton": "حذف حسابي",
@@ -28,6 +30,164 @@
         "confirmDelete": "نعم، احذف حسابي",
         "cancel": "إلغاء",
         "deleting": "جاري الحذف..."
+    },
+    "linguistProfile": {
+        "title": "إعدادات الملف الشخصي",
+        "description": "قم بتعيين معدل الساعة، والعملة، وأزواج اللغات، ومجالات التخصص.",
+        "hourlyRate": "معدل الساعة",
+        "ratePlaceholder": "أدخل معدل الساعة",
+        "currency": "العملة",
+        "languagePairs": "أزواج اللغات",
+        "selectLanguages": "اختر أزواج اللغات...",
+        "selectedLanguages": "تم اختيار {{count}} زوج لغات",
+        "selectedLanguages_other": "تم اختيار {{count}} زوج لغات",
+        "searchLanguages": "البحث عن أزواج اللغات...",
+        "noLanguagesFound": "لم يتم العثور على أزواج اللغات.",
+        "specialization": "التخصص",
+        "selectSpecializations": "اختر التخصصات...",
+        "selectedSpecializations": "تم اختيار {{count}} تخصص",
+        "selectedSpecializations_other": "تم اختيار {{count}} تخصص",
+        "searchSpecializations": "البحث عن التخصصات...",
+        "noSpecializationsFound": "لم يتم العثور على تخصصات.",
+        "saveSuccess": "تم حفظ الملف الشخصي بنجاح",
+        "saveError": "فشل حفظ الملف الشخصي",
+        "saving": "جارٍ الحفظ...",
+        "currencyReadOnly": "سيتم توفير اختيار العملة مع دعم تحويل العملات"
+    },
+    "dashboard": {
+        "linguistsDescription": "إليك الجدول من {{startDate}} حتى {{endDate}} شاملاً.",
+        "availabilityDescription": "يمكن للمتاحين الالتزام بنوبات عمل مدتها {{hours}} ساعات.",
+        "availabilityDescriptionNoHours": "يمكن للمتاحين الالتزام بنوبات عمل.",
+        "available": "متاح",
+        "notAvailable": "غير متاح",
+        "needsLogin": "يتطلب تسجيل الدخول",
+        "availability": "التوفر",
+        "email": "البريد الإلكتروني",
+        "name": "الاسم",
+        "languages": "اللغات",
+        "specialization": "التخصص",
+        "hourlyRate": "السعر بالساعة",
+        "rating": "التقييم",
+        "ratingInput": {
+            "tooltip": "انقر لتقييم هذا اللغوي",
+            "setRating": "تعيين التقييم إلى {{rating}} نجوم",
+            "saveSuccess": "تم تحديث التقييم بنجاح",
+            "saveError": "فشل تحديث التقييم. يرجى المحاولة مرة أخرى."
+        },
+        "filterEmailPlaceholder": "تصفية حسب البريد الإلكتروني...",
+        "noResults": "لا توجد نتائج.",
+        "previous": "السابق",
+        "next": "التالي",
+        "viewMode": {
+            "list": "قائمة",
+            "card": "بطاقة"
+        },
+        "dateRange": {
+            "label": "نافذة التوفر",
+            "placeholder": "حدد نطاق التاريخ",
+            "cancel": "إلغاء",
+            "update": "تحديث",
+            "selectPreset": "اختر...",
+            "presets": {
+                "next7": "7 أيام القادمة",
+                "next14": "14 يومًا القادمة",
+                "next30": "30 يومًا القادمة",
+                "nextWeek": "الأسبوع القادم",
+                "nextMonth": "الشهر القادم"
+            }
+        },
+        "filters": {
+            "title": "المرشحات",
+            "loading": "جاري تحميل خيارات المرشح...",
+            "clear": "مسح المرشحات",
+            "languages": "اللغات",
+            "languagesPlaceholder": "حدد أزواج اللغات",
+            "specialization": "التخصص",
+            "specializationPlaceholder": "حدد التخصصات",
+            "hourlyRate": "نطاق السعر بالساعة",
+            "minRating": "الحد الأدنى للتقييم",
+            "projectSize": "حجم المشروع (ساعات)",
+            "projectSizePlaceholder": "أدخل الساعات المطلوبة",
+            "projectSizeHint": "تصفية اللغويين الذين لديهم على الأقل {{hours}} ساعة فراغ",
+            "projectSizeTooltip": "يتم حساب الساعات المقدرة على أساس أسبوع عمل قياسي مدته 40 ساعة. هذا تقدير تقريبي - تختلف التوفر الفعلي حسب اللغوي (ساعات العمل، عطلات نهاية الأسبوع، العطل). استخدم 'متاح (Xh)' المعروض على بطاقات اللغويين للحصول على توفر دقيق.",
+            "useEstimated": "استخدام {{hours}}س",
+            "useEstimatedHours": "انقر لاستخدام {{hours}} ساعة مقدرة بناءً على نطاق التاريخ المحدد (حساب 40 ساعة/أسبوع)",
+            "availability": "التوفر",
+            "all": "الكل",
+            "availableOnly": "المتاحون فقط"
+        },
+        "availabilityBadge": {
+            "available": "متاح",
+            "unavailable": "غير متاح",
+            "limited": "محدود",
+            "setupIncomplete": "الإعداد غير مكتمل",
+            "missingItems": "مفقود: {{items}}"
+        },
+        "availabilityTimeline": {
+            "title": "الجدول الزمني للتوفر",
+            "free": "مجاني",
+            "noFreeSlots": "لا توجد فترات فراغ متاحة"
+        },
+        "linguistCard": {
+            "languages": "اللغات",
+            "specialization": "التخصص",
+            "rating": "التقييم"
+        },
+        "booking": {
+            "title": "حجز {{name}}",
+            "description": "قدم تفاصيل المشروع لإرسال طلب الحجز. يجب أن يكون اللغوي متاحاً لكامل نافذة التوفر.",
+            "projectName": "اسم المشروع",
+            "projectNamePlaceholder": "أدخل اسم المشروع",
+            "projectDescription": "وصف المشروع",
+            "projectDescriptionPlaceholder": "أدخل وصف المشروع (اختياري)",
+            "selectTimeSlot": "حدد الفترة الزمنية",
+            "noSlotsAvailable": "لا توجد فترات متاحة في النطاق المحدد.",
+            "cancel": "إلغاء",
+            "sendEmail": "إرسال بريد الحجز",
+            "bookButton": "حجز",
+            "sendSetupReminder": "إرسال تذكير الإعداد",
+            "sendSetupReminderToAll": "إرسال تذكير إلى {{count}} لغوي",
+            "sendSetupReminderToAll_other": "إرسال تذكير إلى {{count}} لغويين",
+            "setupReminderSubjectBulk": "أكمل إعداد LinguistNow الخاص بك",
+            "setupReminderBodyBulk": "مرحباً،\n\nأنت قيد النظر لمشروع قادم! لتكون مؤهلاً، يرجى إكمال إعداد LinguistNow الخاص بك. العناصر المفقودة: {{missingItems}}\n\nيرجى تسجيل الدخول وإكمال ملفك الشخصي في: {{accountSettingsUrl}}\n\nشكراً لك!",
+            "defaultTitle": "مشروع الترجمة",
+            "emailSubject": "طلب الحجز: {{projectName}}",
+            "emailBody": "مرحباً {{linguistName}}،\n\nأود حجزك للمشروع التالي:\n\nالمشروع: {{projectName}}\nالتوفر المطلوب: {{startDate}} - {{endDate}}\n\n{{description}}\n\nيرجى تأكيد توفرك لكامل مدة المشروع.\n\nمع أطيب التحيات",
+            "attachmentNote": "ملاحظة: يرجى إرفاق ملف التقويم (booking.ics) الذي سيتم تنزيله.",
+            "availabilityWindow": "نافذة التوفر",
+            "availabilityWindowNote": "يجب أن يكون اللغوي متاحاً لكامل مدة المشروع الموضحة أعلاه.",
+            "emailPreview": "معاينة البريد الإلكتروني",
+            "emailSubjectLabel": "الموضوع:",
+            "emailBodyGreeting": "مرحباً {{linguistName}}،",
+            "emailBodyIntro": "أود حجزك للمشروع التالي:",
+            "emailBodyProjectLabel": "المشروع:",
+            "emailBodyAvailabilityLabel": "التوفر المطلوب:",
+            "emailBodyClosing": "يرجى تأكيد توفرك لكامل مدة المشروع.\n\nمع أطيب التحيات"
+        },
+        "errors": {
+            "title": "حدثت أخطاء أثناء التحقق من التوفر",
+            "n8nWorkflowInactive": "سير عمل n8n غير نشط. يرجى تفعيل سير العمل في n8n.",
+            "n8nServiceUnavailable": "خدمة n8n غير متاحة حالياً.",
+            "networkError": "لا يمكن الوصول إلى خدمة التوفر. قد تكون الخدمة معطلة.",
+            "authenticationError": "فشل المصادقة. يرجى التحقق من إعدادات API الخاصة بك.",
+            "unknownError": "حدث خطأ أثناء التحقق من التوفر.",
+            "vaultPermissionDenied": "لا يمكن استرداد رموز المصادقة. انتهت صلاحية وصول الخادم إلى مخزن الرموز. يرجى الاتصال بالمسؤول.",
+            "vaultError": "لا يمكن الاتصال بمخزن الرموز. يرجى المحاولة مرة أخرى لاحقاً أو الاتصال بالمسؤول.",
+            "tokenNotFound_one": "لم يتم العثور على رمز وصول التقويم لـ {{count}} لغوي ({{emails}}). يحتاجون إلى تسجيل الدخول مرة أخرى باستخدام حساب Google الخاص بهم.",
+            "tokenNotFound_other": "لم يتم العثور على رموز وصول التقويم لـ {{count}} لغويين ({{emails}}). يحتاجون إلى تسجيل الدخول مرة أخرى باستخدام حسابات Google الخاصة بهم.",
+            "tokenExpired_one": "انتهت صلاحية رمز وصول التقويم لـ {{count}} لغوي ({{emails}}). يحتاجون إلى تسجيل الدخول مرة أخرى باستخدام حساب Google الخاص بهم.",
+            "tokenExpired_other": "انتهت صلاحية رموز وصول التقويم لـ {{count}} لغويين ({{emails}}). يحتاجون إلى تسجيل الدخول مرة أخرى باستخدام حسابات Google الخاصة بهم.",
+            "googleApiError": "لا يمكن التحقق من توفر التقويم. أرجعت Google Calendar خطأً.",
+            "invalidRefreshToken_one": "تم إلغاء رمز التحديث أو لم يعد صالحاً لـ {{count}} لغوي ({{emails}}). يحتاجون إلى إعادة المصادقة عن طريق تسجيل الدخول مرة أخرى باستخدام حساب Google الخاص بهم وإعادة تحديد تقويماتهم في صفحة الإعدادات.",
+            "invalidRefreshToken_other": "تم إلغاء رمز التحديث أو لم يعد صالحاً لـ {{count}} لغويين ({{emails}}). يحتاجون إلى إعادة المصادقة عن طريق تسجيل الدخول مرة أخرى باستخدام حساب Google الخاص بهم وإعادة تحديد تقويماتهم في صفحة الإعدادات.",
+            "missingCredentials_one": "معرفات التقويم أو المصادقة غير متاحة لـ {{count}} لغوي ({{emails}}). يرجى طلب تسجيل الدخول مرة أخرى باستخدام حساب Google الخاص بهم وتحديد تقويماتهم والنقر على زر \"حفظ التقويمات\" في صفحة الإعدادات.",
+            "missingCredentials_other": "معرفات التقويم أو المصادقة غير متاحة لـ {{count}} لغويين ({{emails}}). يرجى طلب تسجيل الدخول مرة أخرى باستخدام حساب Google الخاص بهم وتحديد تقويماتهم والنقر على زر \"حفظ التقويمات\" في صفحة الإعدادات.",
+            "genericMultiple_one": "{{message}} ({{count}} مستخدم متأثر: {{emails}})",
+            "genericMultiple_other": "{{message}} ({{count}} مستخدمين متأثرين: {{emails}})"
+        },
+        "alt": {
+            "userProfileAvatar": "صورة رمزية لملف المستخدم"
+        }
     },
     "hero": {
         "login": {
@@ -39,8 +199,8 @@
             "subtitle": "مرحباً {{userName}}!"
         },
         "settings": {
-            "title": "ما هي التقويمات التي يجب أن نتحقق منها؟",
-            "subtitle": "أهلاً {{userName}}!"
+            "title": "إدارة حسابك",
+            "subtitle": "أهلاً {{userName}}! خصص تفضيلاتك والتوفر."
         },
         "logout": {
             "title": "حان الوقت لتفرد أجنحتك!",
@@ -102,44 +262,6 @@
         "dashboard": "لوحة التحكم",
         "settings": "الإعدادات",
         "home": "الرئيسية"
-    },
-    "dashboard": {
-        "linguistsDescription": "هذا هو الجدول من الغد حتى {{date}} شاملاً.",
-        "availabilityDescription": "يمكن للمتاحين الالتزام بنوبات عمل مدتها 8 ساعات كل يوم عمل، من الساعة 8 صباحاً حتى 6 مساءً بتوقيت المحيط الهادئ.",
-        "available": "متاح",
-        "notAvailable": "غير متاح",
-        "needsLogin": "يحتاج لتسجيل الدخول",
-        "availability": "التوفر",
-        "email": "البريد الإلكتروني",
-        "name": "الاسم",
-        "filterEmailPlaceholder": "تصفية حسب البريد الإلكتروني...",
-        "noResults": "لا توجد نتائج.",
-        "previous": "السابق",
-        "next": "التالي",
-        "errors": {
-            "title": "حدثت أخطاء أثناء التحقق من التوفر",
-            "n8nWorkflowInactive": "سير العمل n8n غير نشط. يرجى تفعيل سير العمل في n8n.",
-            "n8nServiceUnavailable": "خدمة n8n غير متاحة حالياً.",
-            "networkError": "تعذر الوصول إلى خدمة التوفر. قد تكون الخدمة معطلة.",
-            "authenticationError": "فشل المصادقة. يرجى التحقق من إعدادات API الخاصة بك.",
-            "unknownError": "حدث خطأ أثناء التحقق من التوفر.",
-            "vaultPermissionDenied": "تعذر استرداد رموز المصادقة. انتهت صلاحية وصول الخادم إلى مخزن الرموز. يرجى الاتصال بالمسؤول.",
-            "vaultError": "تعذر الاتصال بمخزن الرموز. يرجى المحاولة مرة أخرى لاحقاً أو الاتصال بالمسؤول.",
-            "tokenNotFound_one": "لم يتم العثور على رمز وصول التقويم لـ {{count}} من اللغويين ({{emails}}). يحتاجون إلى تسجيل الدخول مرة أخرى باستخدام حساب Google الخاص بهم.",
-            "tokenNotFound_other": "لم يتم العثور على رموز وصول التقويم لـ {{count}} من اللغويين ({{emails}}). يحتاجون إلى تسجيل الدخول مرة أخرى باستخدام حسابات Google الخاصة بهم.",
-            "tokenExpired_one": "انتهت صلاحية رمز وصول التقويم لـ {{count}} من اللغويين ({{emails}}). يحتاجون إلى تسجيل الدخول مرة أخرى باستخدام حساب Google الخاص بهم.",
-            "tokenExpired_other": "انتهت صلاحية رموز وصول التقويم لـ {{count}} من اللغويين ({{emails}}). يحتاجون إلى تسجيل الدخول مرة أخرى باستخدام حسابات Google الخاصة بهم.",
-            "googleApiError": "تعذر التحقق من توفر التقويم. أرجع تقويم Google خطأً.",
-            "invalidRefreshToken_one": "تم إلغاء رمز التحديث أو لم يعد صالحاً لـ {{count}} من اللغويين ({{emails}}). يحتاجون إلى إعادة المصادقة عن طريق تسجيل الدخول مرة أخرى باستخدام حساب Google الخاص بهم وإعادة اختيار تقويماتهم في صفحة الإعدادات.",
-            "invalidRefreshToken_other": "تم إلغاء رمز التحديث أو لم يعد صالحاً لـ {{count}} من اللغويين ({{emails}}). يحتاجون إلى إعادة المصادقة عن طريق تسجيل الدخول مرة أخرى باستخدام حساب Google الخاص بهم وإعادة اختيار تقويماتهم في صفحة الإعدادات.",
-            "missingCredentials_one": "معرفات التقويم أو المصادقة غير متاحة لـ {{count}} من اللغويين ({{emails}}). يرجى طلب تسجيل الدخول مرة أخرى باستخدام حساب Google الخاص بهم واختيار تقويماتهم والنقر على زر \"حفظ التقويمات\" في صفحة الإعدادات.",
-            "missingCredentials_other": "معرفات التقويم أو المصادقة غير متاحة لـ {{count}} من اللغويين ({{emails}}). يرجى طلب تسجيل الدخول مرة أخرى باستخدام حساب Google الخاص بهم واختيار تقويماتهم والنقر على زر \"حفظ التقويمات\" في صفحة الإعدادات.",
-            "genericMultiple_one": "{{message}} ({{count}} مستخدم متأثر: {{emails}})",
-            "genericMultiple_other": "{{message}} ({{count}} مستخدمين متأثرين: {{emails}})"
-        },
-        "alt": {
-            "userProfileAvatar": "صورة رمزية لملف المستخدم"
-        }
     },
     "general": {
         "loading": "جاري التحميل..."

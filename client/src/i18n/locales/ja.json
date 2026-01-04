@@ -1,5 +1,7 @@
 {
     "calendarSelector": {
+        "title": "カレンダー選択",
+        "description": "空き状況確認用のカレンダーを選択してください。空き/予定ありの時間帯のみを確認し、イベント内容は表示しません。",
         "chooseCalendars": "カレンダーを選択:",
         "searchCalendars": "カレンダーを検索...",
         "noCalendarsAvailable": "利用可能なカレンダーがありません。",
@@ -8,7 +10,8 @@
         "sessionExpired": "セッションの有効期限が切れました。再度ログインしてください。",
         "fetchError": "カレンダーを取得できませんでした。もう一度お試しください。",
         "saveSuccess": "カレンダーを保存しました",
-        "saveError": "カレンダーの保存に失敗しました"
+        "saveError": "カレンダーの保存に失敗しました",
+        "atLeastOneRequired": "少なくとも1つのカレンダーを選択する必要があります"
     },
     "accountSettings": {
         "accountSettings": "アカウント設定",
@@ -16,9 +19,8 @@
         "picture": "写真",
         "email": "メール:",
         "name": "名前:",
-        "selectCalendars": "スケジュール調整を支援するため、どのGoogleカレンダーで空き状況を確認するか知る必要があります。",
         "automaticSave": "選択内容は自動的に保存されます。",
-        "notReadingEvents": "セキュリティ上の理由により、カレンダーの内容は表示しません。",
+        "introText": "以下でアカウント設定を構成してください。",
         "deleteAccountTitle": "アカウントを削除",
         "deleteAccountDescription": "アカウントと関連するすべてのデータを永続的に削除します。この操作は元に戻せません。",
         "deleteAccountButton": "アカウントを削除",
@@ -28,6 +30,164 @@
         "confirmDelete": "はい、アカウントを削除します",
         "cancel": "キャンセル",
         "deleting": "削除中..."
+    },
+    "linguistProfile": {
+        "title": "プロフィール設定",
+        "description": "時給、通貨、言語ペア、専門分野を設定します。",
+        "hourlyRate": "時給",
+        "ratePlaceholder": "時給を入力",
+        "currency": "通貨",
+        "languagePairs": "言語ペア",
+        "selectLanguages": "言語ペアを選択...",
+        "selectedLanguages": "{{count}} つの言語ペアを選択",
+        "selectedLanguages_other": "{{count}} つの言語ペアを選択",
+        "searchLanguages": "言語ペアを検索...",
+        "noLanguagesFound": "言語ペアが見つかりません。",
+        "specialization": "専門分野",
+        "selectSpecializations": "専門分野を選択...",
+        "selectedSpecializations": "{{count}} つの専門分野を選択",
+        "selectedSpecializations_other": "{{count}} つの専門分野を選択",
+        "searchSpecializations": "専門分野を検索...",
+        "noSpecializationsFound": "専門分野が見つかりません。",
+        "saveSuccess": "プロフィールが正常に保存されました",
+        "saveError": "プロフィールの保存に失敗しました",
+        "saving": "保存中...",
+        "currencyReadOnly": "通貨選択は通貨換算サポートと共に利用可能になります"
+    },
+    "dashboard": {
+        "linguistsDescription": "以下は{{startDate}}から{{endDate}}まで（含む）のスケジュールです。",
+        "availabilityDescription": "利用可能な人は、{{hours}}時間のシフトにコミットできます。",
+        "availabilityDescriptionNoHours": "利用可能な人は、シフトにコミットできます。",
+        "available": "利用可能",
+        "notAvailable": "利用不可",
+        "needsLogin": "ログインが必要",
+        "availability": "可用性",
+        "email": "メール",
+        "name": "名前",
+        "languages": "言語",
+        "specialization": "専門分野",
+        "hourlyRate": "時給",
+        "rating": "評価",
+        "ratingInput": {
+            "tooltip": "クリックしてこの言語学者を評価",
+            "setRating": "評価を {{rating}} つ星に設定",
+            "saveSuccess": "評価が正常に更新されました",
+            "saveError": "評価の更新に失敗しました。もう一度お試しください。"
+        },
+        "filterEmailPlaceholder": "メールでフィルタリング...",
+        "noResults": "結果がありません。",
+        "previous": "前へ",
+        "next": "次へ",
+        "viewMode": {
+            "list": "リスト",
+            "card": "カード"
+        },
+        "dateRange": {
+            "label": "可用性ウィンドウ",
+            "placeholder": "日付範囲を選択",
+            "cancel": "キャンセル",
+            "update": "更新",
+            "selectPreset": "選択...",
+            "presets": {
+                "next7": "次の7日間",
+                "next14": "次の14日間",
+                "next30": "次の30日間",
+                "nextWeek": "来週",
+                "nextMonth": "来月"
+            }
+        },
+        "filters": {
+            "title": "フィルター",
+            "loading": "フィルターオプションを読み込み中...",
+            "clear": "フィルターをクリア",
+            "languages": "言語",
+            "languagesPlaceholder": "言語ペアを選択",
+            "specialization": "専門分野",
+            "specializationPlaceholder": "専門分野を選択",
+            "hourlyRate": "時給範囲",
+            "minRating": "最低評価",
+            "projectSize": "プロジェクトサイズ（時間）",
+            "projectSizePlaceholder": "必要な時間を入力",
+            "projectSizeHint": "少なくとも{{hours}}時間の空きがある言語学者をフィルタリング",
+            "projectSizeTooltip": "推定時間は、標準的な40時間の労働週に基づいて計算されます。これは大まかな見積もりです - 実際の可用性は言語学者によって異なります（労働時間、週末、休日）。正確な可用性については、言語学者カードに表示されている「利用可能（Xh）」を使用してください。",
+            "useEstimated": "{{hours}}時間を使用",
+            "useEstimatedHours": "選択した日付範囲に基づいて推定{{hours}}時間を使用するにはクリック（40時間/週の計算）",
+            "availability": "可用性",
+            "all": "すべて",
+            "availableOnly": "利用可能なもののみ"
+        },
+        "availabilityBadge": {
+            "available": "利用可能",
+            "unavailable": "利用不可",
+            "limited": "限定",
+            "setupIncomplete": "設定が不完全",
+            "missingItems": "不足: {{items}}"
+        },
+        "availabilityTimeline": {
+            "title": "可用性タイムライン",
+            "free": "空き",
+            "noFreeSlots": "空きスロットがありません"
+        },
+        "linguistCard": {
+            "languages": "言語",
+            "specialization": "専門分野",
+            "rating": "評価"
+        },
+        "booking": {
+            "title": "{{name}}を予約",
+            "description": "プロジェクトの詳細を提供して予約リクエストを送信します。言語学者は、利用可能期間全体で利用可能である必要があります。",
+            "projectName": "プロジェクト名",
+            "projectNamePlaceholder": "プロジェクト名を入力",
+            "projectDescription": "プロジェクトの説明",
+            "projectDescriptionPlaceholder": "プロジェクトの説明を入力（オプション）",
+            "selectTimeSlot": "時間枠を選択",
+            "noSlotsAvailable": "選択した範囲に利用可能な時間枠がありません。",
+            "cancel": "キャンセル",
+            "sendEmail": "予約メールを送信",
+            "bookButton": "予約",
+            "sendSetupReminder": "設定リマインダーを送信",
+            "sendSetupReminderToAll": "{{count}}人の言語学者にリマインダーを送信",
+            "sendSetupReminderToAll_other": "{{count}}人の言語学者にリマインダーを送信",
+            "setupReminderSubjectBulk": "LinguistNowの設定を完了してください",
+            "setupReminderBodyBulk": "こんにちは、\n\n今後のプロジェクトの候補として検討されています！資格を得るには、LinguistNowの設定を完了してください。不足している項目: {{missingItems}}\n\nログインして、{{accountSettingsUrl}}でプロフィールを完了してください\n\nありがとうございます！",
+            "defaultTitle": "翻訳プロジェクト",
+            "emailSubject": "予約リクエスト: {{projectName}}",
+            "emailBody": "こんにちは{{linguistName}}さん、\n\n以下のプロジェクトで予約したいと思います:\n\nプロジェクト: {{projectName}}\n必要な可用性: {{startDate}} - {{endDate}}\n\n{{description}}\n\nプロジェクト期間全体の可用性を確認してください。\n\n敬具",
+            "attachmentNote": "注意: ダウンロードされるカレンダーファイル（booking.ics）を添付してください。",
+            "availabilityWindow": "利用可能期間",
+            "availabilityWindowNote": "言語学者は、上記に示されたプロジェクト期間全体で利用可能である必要があります。",
+            "emailPreview": "メールプレビュー",
+            "emailSubjectLabel": "件名：",
+            "emailBodyGreeting": "こんにちは{{linguistName}}さん、",
+            "emailBodyIntro": "以下のプロジェクトで予約したいと思います：",
+            "emailBodyProjectLabel": "プロジェクト：",
+            "emailBodyAvailabilityLabel": "必要な可用性：",
+            "emailBodyClosing": "プロジェクト期間全体の可用性を確認してください。\n\n敬具"
+        },
+        "errors": {
+            "title": "可用性を確認中にエラーが発生しました",
+            "n8nWorkflowInactive": "n8nワークフローがアクティブではありません。n8nでワークフローをアクティブにしてください。",
+            "n8nServiceUnavailable": "n8nサービスは現在利用できません。",
+            "networkError": "可用性サービスに到達できません。サービスがダウンしている可能性があります。",
+            "authenticationError": "認証に失敗しました。API設定を確認してください。",
+            "unknownError": "可用性を確認中にエラーが発生しました。",
+            "vaultPermissionDenied": "認証トークンを取得できません。サーバーのトークンストアへのアクセスが期限切れです。管理者に連絡してください。",
+            "vaultError": "トークンストアに接続できません。後でもう一度お試しいただくか、管理者に連絡してください。",
+            "tokenNotFound_one": "{{count}}人の言語学者（{{emails}}）のカレンダーアクセストークンが見つかりませんでした。Googleアカウントで再度ログインする必要があります。",
+            "tokenNotFound_other": "{{count}}人の言語学者（{{emails}}）のカレンダーアクセストークンが見つかりませんでした。Googleアカウントで再度ログインする必要があります。",
+            "tokenExpired_one": "{{count}}人の言語学者（{{emails}}）のカレンダーアクセストークンが期限切れです。Googleアカウントで再度ログインする必要があります。",
+            "tokenExpired_other": "{{count}}人の言語学者（{{emails}}）のカレンダーアクセストークンが期限切れです。Googleアカウントで再度ログインする必要があります。",
+            "googleApiError": "カレンダーの可用性を確認できません。Googleカレンダーがエラーを返しました。",
+            "invalidRefreshToken_one": "リフレッシュトークンが取り消されたか、{{count}}人の言語学者（{{emails}}）に対して無効になりました。Googleアカウントで再度ログインし、設定ページでカレンダーを再選択して再認証する必要があります。",
+            "invalidRefreshToken_other": "リフレッシュトークンが取り消されたか、{{count}}人の言語学者（{{emails}}）に対して無効になりました。Googleアカウントで再度ログインし、設定ページでカレンダーを再選択して再認証する必要があります。",
+            "missingCredentials_one": "{{count}}人の言語学者（{{emails}}）のカレンダーIDまたは認証が利用できません。Googleアカウントで再度ログインし、カレンダーを選択して、設定ページの「カレンダーを保存」ボタンをクリックするよう依頼してください。",
+            "missingCredentials_other": "{{count}}人の言語学者（{{emails}}）のカレンダーIDまたは認証が利用できません。Googleアカウントで再度ログインし、カレンダーを選択して、設定ページの「カレンダーを保存」ボタンをクリックするよう依頼してください。",
+            "genericMultiple_one": "{{message}}（{{count}}人のユーザーが影響を受けました: {{emails}}）",
+            "genericMultiple_other": "{{message}}（{{count}}人のユーザーが影響を受けました: {{emails}}）"
+        },
+        "alt": {
+            "userProfileAvatar": "ユーザープロフィールアバター"
+        }
     },
     "hero": {
         "login": {
@@ -39,8 +199,8 @@
             "subtitle": "こんにちは{{userName}}さん！"
         },
         "settings": {
-            "title": "どのカレンダーを確認すべきですか？",
-            "subtitle": "ようこそ{{userName}}さん！"
+            "title": "アカウントを管理",
+            "subtitle": "ようこそ{{userName}}さん！設定と可用性をカスタマイズできます。"
         },
         "logout": {
             "title": "羽を広げる時です！",
@@ -102,44 +262,6 @@
         "dashboard": "ダッシュボード",
         "settings": "設定",
         "home": "ホーム"
-    },
-    "dashboard": {
-        "linguistsDescription": "こちらが明日から{{date}}まで（含む）のスケジュールです。",
-        "availabilityDescription": "利用可能な人は、平日の毎日、PSTの午前8時から午後6時まで8時間のシフトにコミットできます。",
-        "available": "利用可能",
-        "notAvailable": "利用不可",
-        "needsLogin": "ログインが必要",
-        "availability": "利用可能性",
-        "email": "メール",
-        "name": "名前",
-        "filterEmailPlaceholder": "メールでフィルター...",
-        "noResults": "結果がありません。",
-        "previous": "前へ",
-        "next": "次へ",
-        "errors": {
-            "title": "利用可能性を確認中にエラーが発生しました",
-            "n8nWorkflowInactive": "n8nワークフローがアクティブではありません。n8nでワークフローをアクティブにしてください。",
-            "n8nServiceUnavailable": "n8nサービスは現在利用できません。",
-            "networkError": "利用可能性サービスに到達できません。サービスがダウンしている可能性があります。",
-            "authenticationError": "認証に失敗しました。API設定を確認してください。",
-            "unknownError": "利用可能性を確認中にエラーが発生しました。",
-            "vaultPermissionDenied": "認証トークンを取得できません。サーバーのトークンストアへのアクセスが期限切れです。管理者に連絡してください。",
-            "vaultError": "トークンストアに接続できません。後でもう一度試すか、管理者に連絡してください。",
-            "tokenNotFound_one": "{{count}}人の言語学者（{{emails}}）のカレンダーアクセストークンが見つかりません。Googleアカウントで再度ログインする必要があります。",
-            "tokenNotFound_other": "{{count}}人の言語学者（{{emails}}）のカレンダーアクセストークンが見つかりません。Googleアカウントで再度ログインする必要があります。",
-            "tokenExpired_one": "{{count}}人の言語学者（{{emails}}）のカレンダーアクセストークンの有効期限が切れました。Googleアカウントで再度ログインする必要があります。",
-            "tokenExpired_other": "{{count}}人の言語学者（{{emails}}）のカレンダーアクセストークンの有効期限が切れました。Googleアカウントで再度ログインする必要があります。",
-            "googleApiError": "カレンダーの利用可能性を確認できません。Googleカレンダーがエラーを返しました。",
-            "invalidRefreshToken_one": "更新トークンが取り消されたか、{{count}}人の言語学者（{{emails}}）に対して無効になりました。Googleアカウントで再度ログインし、設定ページでカレンダーを再選択して再認証する必要があります。",
-            "invalidRefreshToken_other": "更新トークンが取り消されたか、{{count}}人の言語学者（{{emails}}）に対して無効になりました。Googleアカウントで再度ログインし、設定ページでカレンダーを再選択して再認証する必要があります。",
-            "missingCredentials_one": "カレンダーIDまたは認証が{{count}}人の言語学者（{{emails}}）に対して利用できません。Googleアカウントで再度ログインし、カレンダーを選択して、設定ページで「カレンダーを保存」ボタンをクリックするよう依頼してください。",
-            "missingCredentials_other": "カレンダーIDまたは認証が{{count}}人の言語学者（{{emails}}）に対して利用できません。Googleアカウントで再度ログインし、カレンダーを選択して、設定ページで「カレンダーを保存」ボタンをクリックするよう依頼してください。",
-            "genericMultiple_one": "{{message}}（{{count}}人のユーザーが影響を受けました：{{emails}}）",
-            "genericMultiple_other": "{{message}}（{{count}}人のユーザーが影響を受けました：{{emails}}）"
-        },
-        "alt": {
-            "userProfileAvatar": "ユーザープロフィールアバター"
-        }
     },
     "general": {
         "loading": "読み込み中..."
