@@ -3,10 +3,10 @@
 ## Core Principles
 
 1. **API First**: Define types, interfaces, and API contracts before implementation
-2. **TDD (Test Driven Development)**: Write failing tests first, then implement to make them pass
-3. **DRY (Don't Repeat Yourself)**: Extract reusable code into shared modules
+2. **TDD**: Write failing tests first, then implement to make them pass
+3. **DRY**: Extract reusable code into shared modules
 4. **Modular**: Keep services, controllers, and utilities in separate files
-5. **Docs as Code**: Update documentation alongside implementation, not as an afterthought
+5. **Docs as Code**: Update documentation alongside implementation
 
 ## Development Workflow
 
@@ -18,183 +18,177 @@
 
 ## Code Organization
 
-- `shared/src/` - Types shared between client and server
-- `server/services/` - Business logic (testable, reusable)
-- `server/controllers/` - HTTP request/response handling
-- `server/routes/` - Route definitions with Swagger docs
-- `client/src/components/` - React components
-- `client/src/i18n/locales/` - Internationalization strings (all user-facing text)
-- `docs/` - Architecture and integration documentation
+| Path                       | Purpose                                    |
+| -------------------------- | ------------------------------------------ |
+| `shared/src/`              | Types shared between client and server     |
+| `server/services/`         | Business logic (testable, reusable)        |
+| `server/controllers/`      | HTTP request/response handling             |
+| `server/routes/`           | Route definitions with Swagger docs        |
+| `client/src/components/`   | React components                           |
+| `client/src/i18n/locales/` | Internationalization strings               |
+| `docs/`                    | Architecture and integration documentation |
+
+## Documentation Standards
+
+- Use **Mermaid diagrams** for visual representations (`graph`, `flowchart`, `sequenceDiagram`, `classDiagram`)
+- Prefer Mermaid over ASCII art for better maintainability
 
 ## Internationalization (i18n)
 
-- **All user-facing strings must be externalized** to `client/src/i18n/locales/*.json`
-- **When adding new strings, translate them in ALL locale files** (en, fr, es, de, it, pt, zh-cn, ja, ko, ar, ru)
-- Server error codes (e.g., `VAULT_ERROR`, `TOKEN_EXPIRED`) should map to i18n keys in the client
-- Use the pattern `section.subsection.key` (e.g., `dashboard.errors.vaultError`)
-- Support pluralization with `_one` and `_other` suffixes
-- Interpolate dynamic values using `{{variable}}` syntax
+- **All user-facing strings** → `client/src/i18n/locales/*.json`
+- **New strings must be added to ALL locales**: en, fr, es, de, it, pt, zh-cn, ja, ko, ar, ru
+- Pattern: `section.subsection.key` (e.g., `dashboard.errors.vaultError`)
+- Pluralization: `_one` and `_other` suffixes
+- Interpolation: `{{variable}}` syntax
+
+---
+
+## Security Best Practices
+
+**CRITICAL**: All user input must be validated before use. CodeQL flags unvalidated input.
+
+### Input Validation Rules
+
+| Rule                             | Implementation                                         |
+| -------------------------------- | ------------------------------------------------------ |
+| Validate `req.body/query/params` | Check type, format, bounds before use                  |
+| Type validation                  | Validate before `.split()`, `.includes()`, `.map()`    |
+| ReDoS prevention                 | Limit input length before regex (email: max 254 chars) |
+| Format string injection          | Replace `%` with `%%` in user input for logs           |
+| Path traversal                   | Reject paths containing `..`, `/`, `\`                 |
+| Formula injection                | Escape `'` → `''` for Airtable formulas                |
+
+### Code Examples
+
+```typescript
+// ✅ Request validation
+const { code } = req.body;
+if (!code || typeof code !== "string" || code.trim().length === 0) {
+  return res.status(400).json({ error: "Invalid authorization code" });
+}
+
+// ✅ Type validation before string operations
+if (typeof startDate !== "string")
+  throw new Error("startDate must be a string");
+const parts = startDate.split("-").map(Number);
+
+// ✅ Length check before regex (ReDoS prevention)
+if (email.trim().length > 254) return false;
+return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+
+// ✅ Path traversal prevention
+if (
+  userEmail.includes("..") ||
+  userEmail.includes("/") ||
+  userEmail.includes("\\")
+) {
+  throw new Error("Invalid email: path traversal characters");
+}
+
+// ✅ Airtable formula escaping
+const escapedEmail = userEmail.replace(/'/g, "''");
+const formula = `{Email} = '${escapedEmail}'`;
+```
+
+### CodeQL Alert Quick Fixes
+
+| Alert                                      | Fix                             |
+| ------------------------------------------ | ------------------------------- |
+| Type confusion through parameter tampering | Validate type before operations |
+| Polynomial regex on uncontrolled data      | Add length limit before regex   |
+| Externally-controlled format string        | Sanitize `%` in log messages    |
+| Path traversal                             | Validate and sanitize paths     |
+| Unvalidated user input                     | Validate all request inputs     |
+
+### Security Checklist
+
+- [ ] `req.body/query/params` validated (type, format, bounds)
+- [ ] String operations preceded by type checks
+- [ ] Regex matching preceded by length limits
+- [ ] User input sanitized in log messages
+- [ ] File paths validated for traversal
+- [ ] Database/formula strings escaped
 
 ---
 
 # Commit Message Guidelines
 
-**See [CONTRIBUTING.md](./CONTRIBUTING.md) for complete commit message guidelines.**
+Follow [Conventional Commits](https://www.conventionalcommits.org/). See [CONTRIBUTING.md](./CONTRIBUTING.md) for details.
 
-Follow Conventional Commits specification: https://www.conventionalcommits.org/
+## Semantic Release: Choose the Right Type
 
-## CRITICAL: User-Facing vs Internal Changes
+Ask: **"Will a user notice this change?"**
 
-This project uses **semantic-release** for automatic versioning. The commit type determines:
+### Release-Triggering Types (User-Facing)
 
-1. Whether a release is triggered
-2. Whether the change appears in the changelog
+| Type   | When to Use                          | Release       |
+| ------ | ------------------------------------ | ------------- |
+| `feat` | New user-facing functionality        | Minor (1.x.0) |
+| `fix`  | Bug fix users can observe            | Patch (1.0.x) |
+| `perf` | Performance improvement users notice | Patch (1.0.x) |
 
-### 🚀 RELEASE-TRIGGERING Types (User-Facing Changes)
+### Non-Release Types (Internal)
 
-Use these ONLY for changes that affect end users:
+| Type       | When to Use                             |
+| ---------- | --------------------------------------- |
+| `ci`       | CI/CD, GitHub Actions, workflows        |
+| `build`    | Build system, dependencies, Docker      |
+| `chore`    | Maintenance, config updates             |
+| `docs`     | Documentation changes                   |
+| `refactor` | Code restructuring (no behavior change) |
+| `test`     | Adding or updating tests                |
+| `style`    | Formatting, whitespace                  |
 
-| Type   | When to Use                              | Release       |
-| ------ | ---------------------------------------- | ------------- |
-| `feat` | New user-facing functionality            | Minor (1.x.0) |
-| `fix`  | Bug fix that users can observe           | Patch (1.0.x) |
-| `perf` | Performance improvement users can notice | Patch (1.0.x) |
-
-**⚠️ IMPORTANT:**
-
-- `fix` is ONLY for bugs that users experience, NOT for internal/CI/build issues
-- `feat` is ONLY for features users interact with, NOT for developer tooling
-
-### 🔧 NON-RELEASE Types (Internal Changes)
-
-Use these for internal/developer-facing changes:
-
-| Type       | When to Use                                        | Release |
-| ---------- | -------------------------------------------------- | ------- |
-| `ci`       | CI/CD pipeline changes (GitHub Actions, workflows) | None    |
-| `build`    | Build system, dependencies, Docker                 | None    |
-| `chore`    | Maintenance tasks, config updates                  | None    |
-| `docs`     | Documentation changes                              | None    |
-| `refactor` | Code restructuring without behavior change         | None    |
-| `style`    | Formatting, whitespace, semicolons                 | None    |
-| `test`     | Adding or updating tests                           | None    |
-| `revert`   | Reverting a previous commit                        | Depends |
-
-## Decision Guide: Which Type to Use?
-
-Ask yourself: **"Will a user notice this change?"**
+### Decision Guide
 
 ```
-Is this a CI/GitHub Actions change?
-  → YES: Use `ci:` (not `fix(ci):`)
-
-Is this a build/Docker/dependency change?
-  → YES: Use `build:` (not `fix(build):`)
-
-Is this fixing something users experience?
-  → YES: Use `fix:` ✅
-  → NO: Use the appropriate non-release type
-
-Is this a new feature users will use?
-  → YES: Use `feat:` ✅
-  → NO: Use the appropriate non-release type
+CI/GitHub Actions change?     → ci:        (not fix(ci):)
+Build/Docker/deps change?     → build:     (not fix(build):)
+User-visible bug fix?         → fix:       ✅ triggers release
+User-facing new feature?      → feat:      ✅ triggers release
 ```
 
-## Examples
+### Scopes
 
-### ✅ CORRECT Usage
+| Scope    | Description             |
+| -------- | ----------------------- |
+| `client` | Frontend React app      |
+| `server` | Backend Express API     |
+| `shared` | Shared types package    |
+| `docker` | Docker configuration    |
+| `deps`   | Production dependencies |
 
-```bash
-# User-facing bug fix → triggers patch release
-fix(client): prevent crash when calendar is empty
-
-# User-facing feature → triggers minor release
-feat(server): add calendar export endpoint
-
-# CI change → NO release
-ci: add Node.js 22 to test matrix
-
-# Build/Docker change → NO release
-build(docker): optimize multi-stage build
-
-# Workflow fix → NO release (it's CI, not user-facing)
-ci: fix release workflow permissions
-
-# Dependency update → NO release
-build(deps): upgrade express to 5.0
-
-# Internal refactor → NO release
-refactor(server): extract auth logic to service
-
-# Documentation → NO release
-docs: update API documentation
-```
-
-### ❌ INCORRECT Usage (Avoid These)
-
-```bash
-# WRONG: CI issues should use `ci:`, not `fix(ci):`
-fix(ci): update Node.js version
-# CORRECT: ci: update Node.js to v22
-
-# WRONG: Build issues should use `build:`, not `fix(build):`
-fix(build): resolve Docker build error
-# CORRECT: build(docker): resolve multi-stage build error
-
-# WRONG: Internal tooling is not a user feature
-feat(ci): add semantic-release
-# CORRECT: ci: add semantic-release for versioning
-
-# WRONG: Dependency updates are not bug fixes
-fix(deps): update lodash
-# CORRECT: build(deps): update lodash to 4.17.21
-
-# WRONG: Refactoring is not a feature
-feat(server): reorganize file structure
-# CORRECT: refactor(server): reorganize file structure
-```
-
-## Scopes
-
-Use scopes to indicate the affected area:
-
-| Scope      | Description                |
-| ---------- | -------------------------- |
-| `client`   | Frontend React application |
-| `server`   | Backend Express API        |
-| `shared`   | Shared types package       |
-| `docker`   | Docker configuration       |
-| `deps`     | Production dependencies    |
-| `deps-dev` | Development dependencies   |
-
-**Note:** For `ci:`, `build:`, `docs:` types, scope is often optional since the type itself is descriptive.
-
-## Breaking Changes
-
-For breaking changes, add `!` after the type or include `BREAKING CHANGE:` in the footer:
+### Breaking Changes
 
 ```bash
 feat(server)!: remove deprecated /api/v1 endpoints
 
-# or
-
-feat(server): migrate to new authentication system
-
+# or use footer:
 BREAKING CHANGE: OAuth tokens now use JWT format.
-Clients must update their token handling.
 ```
 
-## Quick Reference
+## Commit Organization: Bundle by Feature
 
-| Change               | Correct Type   | Triggers Release? |
-| -------------------- | -------------- | ----------------- |
-| Fix user-visible bug | `fix:`         | ✅ Patch          |
-| Add user feature     | `feat:`        | ✅ Minor          |
-| Performance boost    | `perf:`        | ✅ Patch          |
-| Fix CI workflow      | `ci:`          | ❌ No             |
-| Fix Docker build     | `build:`       | ❌ No             |
-| Update dependency    | `build(deps):` | ❌ No             |
-| Refactor code        | `refactor:`    | ❌ No             |
-| Update docs          | `docs:`        | ❌ No             |
-| Add tests            | `test:`        | ❌ No             |
-| Config changes       | `chore:`       | ❌ No             |
+**CRITICAL**: One commit = one complete feature (code + tests + docs + i18n)
+
+✅ **DO**: Bundle all related changes together
+
+```bash
+feat(client): add currency support with multi-currency display
+# Includes: utility, tests, docs, i18n strings, shared types
+```
+
+❌ **DON'T**: Split by file type
+
+```bash
+# Wrong: separate commits for feat/test/docs/i18n
+feat(client): add currency utility
+test(client): add currency tests
+docs: add currency documentation
+```
+
+### When to Split Commits
+
+1. **Different features** → separate commits
+2. **Unrelated changes** → config/build separate from features
+3. **Large refactors** → separate from new features
