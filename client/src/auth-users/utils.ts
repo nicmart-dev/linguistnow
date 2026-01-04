@@ -21,10 +21,14 @@ export const fetchUserDetails = async (
             'Calendar IDs'?: string
             Picture?: string
             Timezone?: string
-            'Working Hours Start'?: number
-            'Working Hours End'?: number
-            'Off Days'?: string[] | string // Array for dropdown field, or string for backward compatibility
+            'Working Hours Start'?: string
+            'Working Hours End'?: string
+            'Off Days'?: string[] // Array for dropdown field
             'Min Hours Per Day'?: number
+            'Hourly Rate'?: number // Currency field type stores as number
+            Currency?: string // Currency code (ISO 4217)
+            Languages?: string[] | string // Multiple select field
+            Specialization?: string[] | string // Multiple select field
         }
 
         // Map Airtable fields to User type for type safety
@@ -52,6 +56,11 @@ export const fetchUserDetails = async (
             'Working Hours End': airtableData['Working Hours End'],
             'Off Days': airtableData['Off Days'],
             'Min Hours Per Day': airtableData['Min Hours Per Day'],
+            // Include profile fields (Hourly Rate is Currency field type, stores as number)
+            'Hourly Rate': airtableData['Hourly Rate'],
+            Currency: airtableData.Currency,
+            Languages: airtableData.Languages,
+            Specialization: airtableData.Specialization,
         } as User & typeof airtableData
 
         setUserDetails(userWithAirtableFields)
