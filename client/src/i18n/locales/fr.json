@@ -1,5 +1,7 @@
 {
     "calendarSelector": {
+        "title": "Sélection des calendriers",
+        "description": "Sélectionnez des calendriers pour vérifier la disponibilité. Nous vérifions uniquement les créneaux libres/occupés, pas le contenu des événements.",
         "chooseCalendars": "Choisissez des calendriers:",
         "searchCalendars": "Rechercher des calendriers...",
         "noCalendarsAvailable": "Aucun calendrier disponible.",
@@ -8,7 +10,8 @@
         "sessionExpired": "Votre session a expiré. Veuillez vous reconnecter.",
         "fetchError": "Impossible de récupérer les calendriers. Veuillez réessayer.",
         "saveSuccess": "Calendriers enregistrés",
-        "saveError": "Échec de l'enregistrement des calendriers"
+        "saveError": "Échec de l'enregistrement des calendriers",
+        "atLeastOneRequired": "Au moins un calendrier doit être sélectionné"
     },
     "accountSettings": {
         "accountSettings": "Paramètres du compte",
@@ -16,9 +19,8 @@
         "picture": "Photo",
         "email": "E-mail :",
         "name": "Nom :",
-        "selectCalendars": "Pour faciliter la planification, nous aurons besoin de savoir quel calendrier Google vérifier pour votre disponibilité.",
         "automaticSave": "Vos choix sont automatiquement enregistrés.",
-        "notReadingEvents": "Pour des raisons de sécurité, nous ne consulterons pas le contenu de votre calendrier.",
+        "introText": "Configurez vos paramètres de compte ci-dessous.",
         "deleteAccountTitle": "Supprimer le compte",
         "deleteAccountDescription": "Supprimer définitivement votre compte et toutes les données associées. Cette action ne peut pas être annulée.",
         "deleteAccountButton": "Supprimer mon compte",
@@ -29,9 +31,33 @@
         "cancel": "Annuler",
         "deleting": "Suppression..."
     },
+    "linguistProfile": {
+        "title": "Paramètres du profil",
+        "description": "Définissez votre tarif horaire, devise, paires de langues et domaines de spécialisation.",
+        "hourlyRate": "Tarif horaire",
+        "ratePlaceholder": "Entrez le tarif horaire",
+        "currency": "Devise",
+        "languagePairs": "Paires de langues",
+        "selectLanguages": "Sélectionner les paires de langues...",
+        "selectedLanguages": "{{count}} paire de langues sélectionnée",
+        "selectedLanguages_other": "{{count}} paires de langues sélectionnées",
+        "searchLanguages": "Rechercher des paires de langues...",
+        "noLanguagesFound": "Aucune paire de langues trouvée.",
+        "specialization": "Spécialisation",
+        "selectSpecializations": "Sélectionner les spécialisations...",
+        "selectedSpecializations": "{{count}} spécialisation sélectionnée",
+        "selectedSpecializations_other": "{{count}} spécialisations sélectionnées",
+        "searchSpecializations": "Rechercher des spécialisations...",
+        "noSpecializationsFound": "Aucune spécialisation trouvée.",
+        "saveSuccess": "Profil enregistré avec succès",
+        "saveError": "Échec de l'enregistrement du profil",
+        "saving": "Enregistrement...",
+        "currencyReadOnly": "La sélection de devise sera disponible avec le support de change de devises"
+    },
     "dashboard": {
-        "linguistsDescription": "Voici le programme de demain jusqu'au {{date}} inclus.",
-        "availabilityDescription": "Ceux qui sont disponibles le sont pour au moins 8 heures chaque jour de semaine, de 8h à 18h PST.",
+        "linguistsDescription": "Voici le programme du {{startDate}} jusqu'au {{endDate}} inclus.",
+        "availabilityDescription": "Ceux qui sont disponibles peuvent s'engager pour des quarts de travail de {{hours}} heures.",
+        "availabilityDescriptionNoHours": "Ceux qui sont disponibles peuvent s'engager pour des quarts de travail.",
         "available": "Disponible",
         "notAvailable": "Indisponible",
         "needsLogin": "Connexion requise",
@@ -42,6 +68,105 @@
         "noResults": "Aucun résultat.",
         "previous": "Précédent",
         "next": "Suivant",
+        "languages": "Langues",
+        "specialization": "Spécialisation",
+        "hourlyRate": "Tarif horaire",
+        "rating": "Note",
+        "ratingInput": {
+            "tooltip": "Cliquez pour noter ce linguiste",
+            "setRating": "Définir la note à {{rating}} étoiles",
+            "saveSuccess": "Note mise à jour avec succès",
+            "saveError": "Échec de la mise à jour de la note. Veuillez réessayer."
+        },
+        "viewMode": {
+            "list": "Liste",
+            "card": "Carte"
+        },
+        "dateRange": {
+            "label": "Fenêtre de disponibilité",
+            "placeholder": "Sélectionner une plage de dates",
+            "cancel": "Annuler",
+            "update": "Mettre à jour",
+            "selectPreset": "Sélectionner...",
+            "presets": {
+                "next7": "7 prochains jours",
+                "next14": "14 prochains jours",
+                "next30": "30 prochains jours",
+                "nextWeek": "Semaine prochaine",
+                "nextMonth": "Mois prochain"
+            }
+        },
+        "filters": {
+            "title": "Filtres",
+            "loading": "Chargement des options de filtre...",
+            "clear": "Effacer les filtres",
+            "languages": "Langues",
+            "languagesPlaceholder": "Sélectionner des paires de langues",
+            "specialization": "Spécialisation",
+            "specializationPlaceholder": "Sélectionner des spécialisations",
+            "hourlyRate": "Plage de tarifs horaires",
+            "minRating": "Note minimale",
+            "projectSize": "Taille du projet (heures)",
+            "projectSizePlaceholder": "Entrer les heures nécessaires",
+            "projectSizeHint": "Filtrer les linguistes avec au moins {{hours}} heures libres",
+            "projectSizeTooltip": "Les heures estimées sont calculées sur la base d'une semaine de travail standard de 40 heures. Il s'agit d'une estimation approximative - la disponibilité réelle varie selon le linguiste (heures de travail, week-ends, vacances). Utilisez le 'Disponible (Xh)' affiché sur les cartes de linguistes pour une disponibilité précise.",
+            "useEstimated": "Utiliser {{hours}}h",
+            "useEstimatedHours": "Cliquez pour utiliser les {{hours}} heures estimées basées sur la plage de dates sélectionnée (calcul 40h/semaine)",
+            "availability": "Disponibilité",
+            "all": "Tous",
+            "availableOnly": "Disponibles uniquement"
+        },
+        "availabilityBadge": {
+            "available": "Disponible",
+            "unavailable": "Indisponible",
+            "limited": "Limité",
+            "setupIncomplete": "Configuration incomplète",
+            "missingItems": "Manquant : {{items}}"
+        },
+        "availabilityTimeline": {
+            "title": "Chronologie de disponibilité",
+            "free": "libre",
+            "noFreeSlots": "Aucun créneau libre disponible"
+        },
+        "linguistCard": {
+            "languages": "Langues",
+            "specialization": "Spécialisation",
+            "rating": "Note"
+        },
+        "booking": {
+            "title": "Réserver {{name}}",
+            "description": "Fournissez les détails du projet pour envoyer une demande de réservation. Le linguiste doit être disponible pour toute la fenêtre de disponibilité.",
+            "projectName": "Nom du projet",
+            "projectNamePlaceholder": "Entrer le nom du projet",
+            "projectDescription": "Description du projet",
+            "projectDescriptionPlaceholder": "Entrer la description du projet (optionnel)",
+            "selectTimeSlot": "Sélectionner un créneau horaire",
+            "noSlotsAvailable": "Aucun créneau disponible dans la plage sélectionnée.",
+            "cancel": "Annuler",
+            "sendEmail": "Envoyer l'email de réservation",
+            "bookButton": "Réserver",
+            "sendSetupReminder": "Envoyer un rappel de configuration",
+            "sendSetupReminderToAll": "Envoyer un rappel à {{count}} linguiste",
+            "sendSetupReminderToAll_other": "Envoyer un rappel à {{count}} linguistes",
+            "setupReminderSubjectBulk": "Complétez votre configuration LinguistNow",
+            "setupReminderBodyBulk": "Bonjour,\n\nVous êtes considéré(e) pour un projet à venir ! Pour être éligible, veuillez compléter votre configuration LinguistNow. Éléments manquants : {{missingItems}}\n\nVeuillez vous connecter et compléter votre profil à : {{accountSettingsUrl}}\n\nMerci !",
+            "defaultTitle": "Projet de traduction",
+            "emailSubject": "Demande de réservation : {{projectName}}",
+            "emailBody": "Bonjour {{linguistName}},\n\nJe souhaite vous réserver pour le projet suivant :\n\nProjet : {{projectName}}\nDisponibilité requise : {{startDate}} - {{endDate}}\n\n{{description}}\n\nVeuillez confirmer votre disponibilité pour toute la durée du projet.\n\nCordialement",
+            "attachmentNote": "Note : Veuillez joindre le fichier calendrier (booking.ics) qui sera téléchargé.",
+            "availabilityWindow": "Fenêtre de disponibilité",
+            "availabilityWindowNote": "Le linguiste doit être disponible pour toute la durée du projet indiquée ci-dessus.",
+            "emailPreview": "Aperçu de l'e-mail",
+            "emailSubjectLabel": "Objet :",
+            "emailBodyGreeting": "Bonjour {{linguistName}},",
+            "emailBodyIntro": "Je souhaite vous réserver pour le projet suivant :",
+            "emailBodyProjectLabel": "Projet :",
+            "emailBodyAvailabilityLabel": "Disponibilité requise :",
+            "emailBodyClosing": "Veuillez confirmer votre disponibilité pour toute la durée du projet.\n\nCordialement"
+        },
+        "alt": {
+            "userProfileAvatar": "avatar de profil utilisateur"
+        },
         "errors": {
             "title": "Des erreurs se sont produites lors de la vérification de la disponibilité",
             "n8nWorkflowInactive": "Le workflow n8n n'est pas actif. Veuillez activer le workflow dans n8n.",
@@ -77,8 +202,8 @@
             "subtitle": "Bonjour {{userName}} !"
         },
         "settings": {
-            "title": "Quels calendriers devrions-nous vérifier?",
-            "subtitle": "Bienvenue {{userName}} !"
+            "title": "Gérez votre compte",
+            "subtitle": "Bienvenue {{userName}} ! Personnalisez vos préférences et disponibilité."
         },
         "logout": {
             "title": "Il est temps de prendre votre envol!",

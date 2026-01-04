@@ -1,5 +1,7 @@
 {
     "calendarSelector": {
+        "title": "日历选择",
+        "description": "选择日历以进行可用性检查。我们只检查空闲/忙碌时间段，不查看事件内容。",
         "chooseCalendars": "选择日历：",
         "searchCalendars": "搜索日历...",
         "noCalendarsAvailable": "没有可用的日历。",
@@ -8,7 +10,8 @@
         "sessionExpired": "您的会话已过期。请重新登录。",
         "fetchError": "无法获取日历。请重试。",
         "saveSuccess": "日历已保存",
-        "saveError": "保存日历失败"
+        "saveError": "保存日历失败",
+        "atLeastOneRequired": "必须至少选择一个日历"
     },
     "accountSettings": {
         "accountSettings": "帐户设置",
@@ -16,9 +19,8 @@
         "picture": "照片",
         "email": "电子邮件：",
         "name": "姓名：",
-        "selectCalendars": "为了协助日程安排，我们需要知道要检查您的可用性的谷歌日历。放心，我们只会保存您选择的日期并验证您的可用性。",
         "automaticSave": "您的选择将自动保存。",
-        "notReadingEvents": "出于安全考虑，我们将不会查看您的日历内容。",
+        "introText": "请在下方配置您的帐户设置。",
         "deleteAccountTitle": "删除帐户",
         "deleteAccountDescription": "永久删除您的帐户和所有相关数据。此操作无法撤销。",
         "deleteAccountButton": "删除我的帐户",
@@ -29,19 +31,139 @@
         "cancel": "取消",
         "deleting": "正在删除..."
     },
+    "linguistProfile": {
+        "title": "个人资料设置",
+        "description": "设置您的小时费率、货币、语言对和专业领域。",
+        "hourlyRate": "小时费率",
+        "ratePlaceholder": "输入小时费率",
+        "currency": "货币",
+        "languagePairs": "语言对",
+        "selectLanguages": "选择语言对...",
+        "selectedLanguages": "已选择 {{count}} 个语言对",
+        "selectedLanguages_other": "已选择 {{count}} 个语言对",
+        "searchLanguages": "搜索语言对...",
+        "noLanguagesFound": "未找到语言对。",
+        "specialization": "专业领域",
+        "selectSpecializations": "选择专业领域...",
+        "selectedSpecializations": "已选择 {{count}} 个专业领域",
+        "selectedSpecializations_other": "已选择 {{count}} 个专业领域",
+        "searchSpecializations": "搜索专业领域...",
+        "noSpecializationsFound": "未找到专业领域。",
+        "saveSuccess": "个人资料保存成功",
+        "saveError": "保存个人资料失败",
+        "saving": "正在保存...",
+        "currencyReadOnly": "货币选择将在支持货币兑换后可用"
+    },
     "dashboard": {
-        "linguistsDescription": "以下是从明天起直到 {{date}}（含）的日程安排。",
-        "availabilityDescription": "有空的人可以承诺在工作日每天从上午 8 点到下午 6 点提供 8 小时的服务。",
+        "linguistsDescription": "以下是从 {{startDate}} 起直到 {{endDate}}（含）的日程安排。",
+        "availabilityDescription": "有空的人可以承诺提供 {{hours}} 小时的服务。",
+        "availabilityDescriptionNoHours": "有空的人可以承诺提供服务。",
         "available": "可用",
         "notAvailable": "不可用",
         "needsLogin": "需要登录",
         "availability": "可用性",
         "email": "电子邮件",
         "name": "姓名",
+        "languages": "语言",
+        "specialization": "专业领域",
+        "hourlyRate": "时薪",
+        "rating": "评分",
+        "ratingInput": {
+            "tooltip": "点击为此语言学家评分",
+            "setRating": "将评分设置为 {{rating}} 星",
+            "saveSuccess": "评分更新成功",
+            "saveError": "更新评分失败。请重试。"
+        },
         "filterEmailPlaceholder": "按电子邮件筛选...",
         "noResults": "没有结果。",
         "previous": "上一页",
         "next": "下一页",
+        "viewMode": {
+            "list": "列表",
+            "card": "卡片"
+        },
+        "dateRange": {
+            "label": "可用性窗口",
+            "placeholder": "选择日期范围",
+            "cancel": "取消",
+            "update": "更新",
+            "selectPreset": "选择...",
+            "presets": {
+                "next7": "未来7天",
+                "next14": "未来14天",
+                "next30": "未来30天",
+                "nextWeek": "下周",
+                "nextMonth": "下个月"
+            }
+        },
+        "filters": {
+            "title": "筛选器",
+            "loading": "正在加载筛选选项...",
+            "clear": "清除筛选器",
+            "languages": "语言",
+            "languagesPlaceholder": "选择语言对",
+            "specialization": "专业领域",
+            "specializationPlaceholder": "选择专业领域",
+            "hourlyRate": "时薪范围",
+            "minRating": "最低评分",
+            "projectSize": "项目规模（小时）",
+            "projectSizePlaceholder": "输入所需小时数",
+            "projectSizeHint": "筛选至少有 {{hours}} 空闲小时的语言学家",
+            "projectSizeTooltip": "估计小时数基于标准的40小时工作周计算。这是一个粗略的估计 - 实际可用性因语言学家而异（工作时间、周末、假期）。使用语言学家卡片上显示的\"可用（Xh）\"来获得精确的可用性。",
+            "useEstimated": "使用 {{hours}}小时",
+            "useEstimatedHours": "点击使用基于所选日期范围的估计 {{hours}} 小时（40小时/周计算）",
+            "availability": "可用性",
+            "all": "全部",
+            "availableOnly": "仅可用"
+        },
+        "availabilityBadge": {
+            "available": "可用",
+            "unavailable": "不可用",
+            "limited": "有限",
+            "setupIncomplete": "设置不完整",
+            "missingItems": "缺失：{{items}}"
+        },
+        "availabilityTimeline": {
+            "title": "可用性时间线",
+            "free": "空闲",
+            "noFreeSlots": "没有可用的空闲时段"
+        },
+        "linguistCard": {
+            "languages": "语言",
+            "specialization": "专业领域",
+            "rating": "评分"
+        },
+        "booking": {
+            "title": "预订 {{name}}",
+            "description": "提供项目详情以发送预订请求。语言学家必须在整个可用性窗口期间都可用。",
+            "projectName": "项目名称",
+            "projectNamePlaceholder": "输入项目名称",
+            "projectDescription": "项目描述",
+            "projectDescriptionPlaceholder": "输入项目描述（可选）",
+            "selectTimeSlot": "选择时间段",
+            "noSlotsAvailable": "所选范围内没有可用的时间段。",
+            "cancel": "取消",
+            "sendEmail": "发送预订邮件",
+            "bookButton": "预订",
+            "sendSetupReminder": "发送设置提醒",
+            "sendSetupReminderToAll": "向 {{count}} 位语言学家发送设置提醒",
+            "sendSetupReminderToAll_other": "向 {{count}} 位语言学家发送设置提醒",
+            "setupReminderSubjectBulk": "完成您的 LinguistNow 设置",
+            "setupReminderBodyBulk": "您好，\n\n您正在被考虑参与一个即将到来的项目！要符合资格，请完成您的 LinguistNow 设置。缺失项目：{{missingItems}}\n\n请登录并在以下位置完成您的个人资料：{{accountSettingsUrl}}\n\n谢谢！",
+            "defaultTitle": "翻译项目",
+            "emailSubject": "预订请求：{{projectName}}",
+            "emailBody": "您好 {{linguistName}}，\n\n我想为以下项目预订您：\n\n项目：{{projectName}}\n所需可用性：{{startDate}} - {{endDate}}\n\n{{description}}\n\n请确认您在整个项目期间的可用性。\n\n此致",
+            "attachmentNote": "注意：请附加将下载的日历文件 (booking.ics)。",
+            "availabilityWindow": "可用性窗口",
+            "availabilityWindowNote": "语言学家必须在上方显示的整个项目期间都可用。",
+            "emailPreview": "邮件预览",
+            "emailSubjectLabel": "主题：",
+            "emailBodyGreeting": "您好 {{linguistName}}，",
+            "emailBodyIntro": "我想为以下项目预订您：",
+            "emailBodyProjectLabel": "项目：",
+            "emailBodyAvailabilityLabel": "所需可用性：",
+            "emailBodyClosing": "请确认您在整个项目期间的可用性。\n\n此致"
+        },
         "errors": {
             "title": "检查可用性时发生错误",
             "n8nWorkflowInactive": "n8n 工作流未激活。请在 n8n 中激活工作流。",
@@ -77,8 +199,8 @@
             "subtitle": "嗨，{{userName}}！"
         },
         "settings": {
-            "title": "我们应该检查哪些日历？",
-            "subtitle": "欢迎，{{userName}}！"
+            "title": "管理您的帐户",
+            "subtitle": "欢迎，{{userName}}！自定义您的偏好设置和可用性。"
         },
         "logout": {
             "title": "是时候展翅高飞了！",

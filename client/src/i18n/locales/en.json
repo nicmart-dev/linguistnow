@@ -24,6 +24,8 @@
         "logoutSuccessMessage": "You have been successfully logged out. We hope to see you again soon."
     },
     "calendarSelector": {
+        "title": "Calendar Selection",
+        "description": "Select calendars for availability checking. We only check free/busy slots, not event content.",
         "chooseCalendars": "Choose Calendars",
         "searchCalendars": "Search calendars...",
         "noCalendarsAvailable": "No calendars available.",
@@ -32,7 +34,8 @@
         "sessionExpired": "Your session has expired. Please login again.",
         "fetchError": "Unable to fetch calendars. Please try again.",
         "saveSuccess": "Calendars saved",
-        "saveError": "Failed to save calendars"
+        "saveError": "Failed to save calendars",
+        "atLeastOneRequired": "At least one calendar must be selected"
     },
     "accountSettings": {
         "accountSettings": "Account Settings",
@@ -40,9 +43,8 @@
         "picture": "Photo",
         "email": "Email:",
         "name": "Name:",
-        "selectCalendars": "To assist with scheduling, we will need to know which Google Calendar to check for your availability.",
         "automaticSave": "Your choices are automatically saved.",
-        "notReadingEvents": "For security reasons, we will not view the content of your calendar.",
+        "introText": "Configure your account settings below.",
         "deleteAccountTitle": "Delete Account",
         "deleteAccountDescription": "Permanently delete your account and all associated data. This action cannot be undone.",
         "deleteAccountButton": "Delete My Account",
@@ -53,19 +55,139 @@
         "cancel": "Cancel",
         "deleting": "Deleting..."
     },
+    "linguistProfile": {
+        "title": "Profile Settings",
+        "description": "Set your hourly rate, currency, language pairs, and specialization areas.",
+        "hourlyRate": "Hourly Rate",
+        "ratePlaceholder": "Enter hourly rate",
+        "currency": "Currency",
+        "languagePairs": "Language Pairs",
+        "selectLanguages": "Select language pairs...",
+        "selectedLanguages": "{{count}} language pair selected",
+        "selectedLanguages_other": "{{count}} language pairs selected",
+        "searchLanguages": "Search language pairs...",
+        "noLanguagesFound": "No language pairs found.",
+        "specialization": "Specialization",
+        "selectSpecializations": "Select specializations...",
+        "selectedSpecializations": "{{count}} specialization selected",
+        "selectedSpecializations_other": "{{count}} specializations selected",
+        "searchSpecializations": "Search specializations...",
+        "noSpecializationsFound": "No specializations found.",
+        "saveSuccess": "Profile saved successfully",
+        "saveError": "Failed to save profile",
+        "saving": "Saving...",
+        "currencyReadOnly": "Currency selection will be available with currency exchange support"
+    },
     "dashboard": {
-        "linguistsDescription": "Here is the schedule from tomorrow until {{date}} included.",
-        "availabilityDescription": "Those available can commit to 8-hour shifts every weekday, from 8AM to 6PM PST.",
+        "linguistsDescription": "Here is the schedule from {{startDate}} until {{endDate}} included.",
+        "availabilityDescription": "Those available can commit to {{hours}}-hour shifts.",
+        "availabilityDescriptionNoHours": "Those available can commit to shifts.",
         "available": "Available",
         "notAvailable": "Not Available",
         "needsLogin": "Needs Login",
         "availability": "Availability",
         "email": "Email",
         "name": "Name",
+        "languages": "Languages",
+        "specialization": "Specialization",
+        "hourlyRate": "Hourly Rate",
+        "rating": "Rating",
+        "ratingInput": {
+            "tooltip": "Click to rate this linguist",
+            "setRating": "Set rating to {{rating}} stars",
+            "saveSuccess": "Rating updated successfully",
+            "saveError": "Failed to update rating. Please try again."
+        },
         "filterEmailPlaceholder": "Filter by email...",
         "noResults": "No results.",
         "previous": "Previous",
         "next": "Next",
+        "viewMode": {
+            "list": "List",
+            "card": "Card"
+        },
+        "dateRange": {
+            "label": "Availability Window",
+            "placeholder": "Select date range",
+            "cancel": "Cancel",
+            "update": "Update",
+            "selectPreset": "Select...",
+            "presets": {
+                "next7": "Next 7 days",
+                "next14": "Next 14 days",
+                "next30": "Next 30 days",
+                "nextWeek": "Next Week",
+                "nextMonth": "Next Month"
+            }
+        },
+        "filters": {
+            "title": "Filters",
+            "loading": "Loading filter options...",
+            "clear": "Clear Filters",
+            "languages": "Languages",
+            "languagesPlaceholder": "Select language pairs",
+            "specialization": "Specialization",
+            "specializationPlaceholder": "Select specializations",
+            "hourlyRate": "Hourly Rate Range",
+            "minRating": "Minimum Rating",
+            "projectSize": "Project Size (hours)",
+            "projectSizePlaceholder": "Enter hours needed",
+            "projectSizeHint": "Filter linguists with at least {{hours}} free hours",
+            "projectSizeTooltip": "Estimated hours are calculated based on a standard 40-hour work week. This is a rough estimate - actual availability varies by linguist (working hours, weekends, holidays). Use the 'Available (Xh)' shown on linguist cards for precise availability.",
+            "useEstimated": "Use {{hours}}h",
+            "useEstimatedHours": "Click to use estimated {{hours}} hours based on selected date range (40h/week calculation)",
+            "availability": "Availability",
+            "all": "All",
+            "availableOnly": "Available Only"
+        },
+        "availabilityBadge": {
+            "available": "Available",
+            "unavailable": "Not Available",
+            "limited": "Limited",
+            "setupIncomplete": "Setup Incomplete",
+            "missingItems": "Missing: {{items}}"
+        },
+        "availabilityTimeline": {
+            "title": "Availability Timeline",
+            "free": "free",
+            "noFreeSlots": "No free slots available"
+        },
+        "linguistCard": {
+            "languages": "Languages",
+            "specialization": "Specialization",
+            "rating": "Rating"
+        },
+        "booking": {
+            "title": "Book {{name}}",
+            "description": "Provide project details to send a booking request. The linguist must be available for the entire availability window.",
+            "projectName": "Project Name",
+            "projectNamePlaceholder": "Enter project name",
+            "projectDescription": "Project Description",
+            "projectDescriptionPlaceholder": "Enter project description (optional)",
+            "selectTimeSlot": "Select Time Slot",
+            "noSlotsAvailable": "No available time slots in the selected range.",
+            "cancel": "Cancel",
+            "sendEmail": "Send Booking Email",
+            "bookButton": "Book",
+            "sendSetupReminder": "Send Setup Reminder",
+            "sendSetupReminderToAll": "Send Setup Reminder to {{count}} Linguist",
+            "sendSetupReminderToAll_other": "Send Setup Reminder to {{count}} Linguists",
+            "setupReminderSubjectBulk": "Complete Your LinguistNow Setup",
+            "setupReminderBodyBulk": "Hi,\n\nYou are being considered for an upcoming project! To be eligible, please complete your LinguistNow setup. Missing items: {{missingItems}}\n\nPlease log in and complete your profile at: {{accountSettingsUrl}}\n\nThank you!",
+            "defaultTitle": "Translation Project",
+            "emailSubject": "Booking Request: {{projectName}}",
+            "emailBody": "Hi {{linguistName}},\n\nI would like to book you for the following project:\n\nProject: {{projectName}}\nAvailability Required: {{startDate}} - {{endDate}}\n\n{{description}}\n\nPlease confirm your availability for the entire project duration.\n\nBest regards",
+            "attachmentNote": "Note: Please attach the calendar file (booking.ics) that will be downloaded.",
+            "availabilityWindow": "Availability Window",
+            "availabilityWindowNote": "The linguist must be available for the entire project duration shown above.",
+            "emailPreview": "Email Preview",
+            "emailSubjectLabel": "Subject:",
+            "emailBodyGreeting": "Hi {{linguistName}},",
+            "emailBodyIntro": "I would like to book you for the following project:",
+            "emailBodyProjectLabel": "Project:",
+            "emailBodyAvailabilityLabel": "Availability Required:",
+            "emailBodyClosing": "Please confirm your availability for the entire project duration.\n\nBest regards"
+        },
         "alt": {
             "userProfileAvatar": "user profile avatar"
         },
@@ -101,8 +223,8 @@
             "subtitle": "Hey {{userName}}!"
         },
         "settings": {
-            "title": "Which calendars should we check?",
-            "subtitle": "Welcome {{userName}}!"
+            "title": "Manage Your Account",
+            "subtitle": "Welcome {{userName}}! Customize your preferences and availability."
         },
         "logout": {
             "title": "Time to spread your wings!",
