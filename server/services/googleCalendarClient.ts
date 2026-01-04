@@ -5,7 +5,7 @@
  * Replaces n8n workflow for Google Calendar availability checks.
  */
 
-/* eslint-disable @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unnecessary-condition */
+/* eslint-disable @typescript-eslint/no-unnecessary-condition */
 
 import axios from "axios";
 import type { BusySlot, GoogleFreeBusyResponse } from "@linguistnow/shared";
