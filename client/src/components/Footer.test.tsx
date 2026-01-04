@@ -8,9 +8,7 @@ import Footer from './Footer'
 const renderWithProviders = (component: React.ReactNode) => {
     return render(
         <BrowserRouter>
-            <I18nextProvider i18n={i18nInstance}>
-                {component}
-            </I18nextProvider>
+            <I18nextProvider i18n={i18nInstance}>{component}</I18nextProvider>
         </BrowserRouter>
     )
 }
@@ -32,7 +30,7 @@ describe('Footer', () => {
         renderWithProviders(<Footer />)
         const privacyLink = screen.getByRole('link', { name: 'Privacy Policy' })
         expect(privacyLink).toBeDefined()
-        expect(privacyLink).toHaveAttribute('href', '/privacy')
+        expect(privacyLink.getAttribute('href')).toBe('/privacy')
     })
 
     it('displays social media links', () => {
@@ -45,7 +43,7 @@ describe('Footer', () => {
     it('has social links with external attributes', () => {
         renderWithProviders(<Footer />)
         const xLink = screen.getByRole('link', { name: /X Icon/i })
-        expect(xLink).toHaveAttribute('target', '_blank')
-        expect(xLink).toHaveAttribute('rel', 'noopener noreferrer')
+        expect(xLink.getAttribute('target')).toBe('_blank')
+        expect(xLink.getAttribute('rel')).toBe('noopener noreferrer')
     })
 })
