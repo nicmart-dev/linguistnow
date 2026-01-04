@@ -42,9 +42,10 @@ export interface BusySlot {
 export interface AvailabilityRequest {
   calendarIds: string[];
   userEmail: string;
-  startDate?: string; // ISO date, defaults to tomorrow
-  endDate?: string; // ISO date, defaults to +7 days
-  timezone?: string; // Default: America/Los_Angeles
+  startDate?: string; // ISO date (YYYY-MM-DD), defaults to tomorrow. Calendar date selected by PM from their timezone.
+  endDate?: string; // ISO date (YYYY-MM-DD), defaults to +7 days. Calendar date selected by PM from their timezone.
+  timezone?: string; // Linguist's timezone. Default: America/Los_Angeles
+  pmTimezone?: string; // PM's timezone (for converting PM's calendar dates to linguist's timezone). If not provided, assumes dates are already in linguist's timezone.
   workingHoursStart?: string; // Default: "08:00" (ISO 8601 time format HH:mm)
   workingHoursEnd?: string; // Default: "18:00" (ISO 8601 time format HH:mm)
   minHoursPerDay?: number; // Default: 8
@@ -56,7 +57,14 @@ export interface AvailabilityRequest {
 /**
  * Default values for availability calculation
  */
-export const AVAILABILITY_DEFAULTS = {
+export const AVAILABILITY_DEFAULTS: {
+  readonly timezone: string;
+  readonly workingHoursStart: string;
+  readonly workingHoursEnd: string;
+  readonly minHoursPerDay: number;
+  readonly offDays: readonly number[];
+  readonly excludeWeekends: boolean;
+} = {
   timezone: "America/Los_Angeles",
   workingHoursStart: "08:00", // ISO 8601 time format (HH:mm)
   workingHoursEnd: "18:00", // ISO 8601 time format (HH:mm)
