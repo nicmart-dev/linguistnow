@@ -5,8 +5,6 @@
  * This service is provider-agnostic - it works with any source of busy slots.
  */
 
-/* eslint-disable @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-assignment */
-
 import {
   addDays,
   startOfDay,
@@ -386,11 +384,127 @@ export function calculateAvailability(
     offDays = AVAILABILITY_DEFAULTS.offDays;
   }
 
-  const startDate = options.startDate ?? getDefaultStartDate(timezone);
-  const endDate = options.endDate ?? getDefaultEndDate(timezone);
+  // IMPORTANT: startDate and endDate are calendar dates (YYYY-MM-DD) selected by the PM from their timezone.
+  // We need to convert these to the linguist's timezone to determine which calendar days to check.
+  // Example: PM in Vancouver selects "Jan 4" at 4pm. In France it's already "Jan 5" at 1am.
+  // So for the French linguist, we check "Jan 5", not "Jan 4".
+
+  // Get PM's timezone from options (if provided), otherwise assume dates are already in linguist's timezone
+  const pmTimezone = options.pmTimezone ?? timezone;
+
+  let startDate = options.startDate ?? getDefaultStartDate(timezone);
+  let endDate = options.endDate ?? getDefaultEndDate(timezone);
+
+  // Validate date strings are strings before processing
+  if (typeof startDate !== "string") {
+    throw new Error("startDate must be a string");
+  }
+  if (typeof endDate !== "string") {
+    throw new Error("endDate must be a string");
+  }
+
+  // Convert PM's calendar dates to linguist's calendar dates
+  if (!startDate.includes("T") && pmTimezone !== timezone) {
+    // Parse PM's calendar date and find what calendar day it is in linguist's timezone
+    // Validate date format (YYYY-MM-DD) before parsing
+    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+    if (!dateRegex.test(startDate)) {
+      throw new Error(`Invalid date format: ${startDate}. Expected YYYY-MM-DD`);
+    }
+    const startDateParts = startDate.split("-").map(Number);
+    // Create date at start of day in PM's timezone
+    const pmStartFakeLocal = new Date(
+      startDateParts[0],
+      startDateParts[1] - 1,
+      startDateParts[2],
+      0,
+      0,
+      0,
+      0,
+    );
+    const pmStartUTC = fromZonedTime(pmStartFakeLocal, pmTimezone);
+    // Convert to linguist's timezone to get the calendar date
+    const linguistStart = toZonedTime(pmStartUTC, timezone);
+    startDate = formatISO(linguistStart, { representation: "date" });
+  }
+
+  if (!endDate.includes("T") && pmTimezone !== timezone) {
+    // Parse PM's calendar date and find what calendar day it is in linguist's timezone
+    // Validate date format (YYYY-MM-DD) before parsing
+    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+    if (!dateRegex.test(endDate)) {
+      throw new Error(`Invalid date format: ${endDate}. Expected YYYY-MM-DD`);
+    }
+    const endDateParts = endDate.split("-").map(Number);
+    // Create date at end of day in PM's timezone
+    const pmEndFakeLocal = new Date(
+      endDateParts[0],
+      endDateParts[1] - 1,
+      endDateParts[2],
+      23,
+      59,
+      59,
+      999,
+    );
+    const pmEndUTC = fromZonedTime(pmEndFakeLocal, pmTimezone);
+    // Convert to linguist's timezone to get the calendar date
+    const linguistEnd = toZonedTime(pmEndUTC, timezone);
+    endDate = formatISO(linguistEnd, { representation: "date" });
+  }
 
   // Step 1: Calculate free slots from busy slots
-  let freeSlots = calculateFreeSlots(busySlots, startDate, endDate);
+  // Convert date strings (YYYY-MM-DD) to ISO timestamps in the linguist's timezone
+  // Now startDate and endDate are calendar dates in the linguist's timezone
+  let timeMin: string;
+  let timeMax: string;
+
+  if (startDate.includes("T")) {
+    timeMin = startDate;
+  } else {
+    // Parse as calendar date and create start of day in linguist's timezone
+    // Validate date format (YYYY-MM-DD) before parsing
+    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+    if (!dateRegex.test(startDate)) {
+      throw new Error(`Invalid date format: ${startDate}. Expected YYYY-MM-DD`);
+    }
+    const startDateParts = startDate.split("-").map(Number);
+    const startFakeLocal = new Date(
+      startDateParts[0],
+      startDateParts[1] - 1,
+      startDateParts[2],
+      0,
+      0,
+      0,
+      0,
+    );
+    const startUTC = fromZonedTime(startFakeLocal, timezone);
+    timeMin = startUTC.toISOString();
+  }
+
+  if (endDate.includes("T")) {
+    timeMax = endDate;
+  } else {
+    // Parse as calendar date and create end of day in linguist's timezone
+    // Validate date format (YYYY-MM-DD) before parsing
+    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+    if (!dateRegex.test(endDate)) {
+      throw new Error(`Invalid date format: ${endDate}. Expected YYYY-MM-DD`);
+    }
+    const endDateParts = endDate.split("-").map(Number);
+    const endFakeLocal = new Date(
+      endDateParts[0],
+      endDateParts[1] - 1,
+      endDateParts[2],
+      23,
+      59,
+      59,
+      999,
+    );
+    const endUTC = fromZonedTime(endFakeLocal, timezone);
+    timeMax = endUTC.toISOString();
+  }
+
+  let freeSlots = calculateFreeSlots(busySlots, timeMin, timeMax);
 
   // Step 2: Exclude off-days if configured
   if (offDays.length > 0) {
@@ -400,27 +514,102 @@ export function calculateAvailability(
   // Step 3: Exclude non-working hours
   freeSlots = excludeNonWorkingHours(freeSlots, {
     timezone,
-    workingHoursStart: workingHoursStart as string,
-    workingHoursEnd: workingHoursEnd as string,
+    workingHoursStart: workingHoursStart,
+    workingHoursEnd: workingHoursEnd,
   });
 
   // Step 4: Calculate hours per day
+  // IMPORTANT: Slots may span multiple days, so we need to split them correctly
+  // Note: freeSlots have already been filtered to working hours by excludeNonWorkingHours
   const hoursPerDay: Record<string, number> = {};
+
+  // Parse working hours for capping day boundaries
+  const startHours = parseTimeToHours(workingHoursStart);
+  const endHours = parseTimeToHours(workingHoursEnd);
+  const startHour = Math.floor(startHours);
+  const startMinute = Math.round((startHours - startHour) * 60);
+  const endHour = Math.floor(endHours);
+  const endMinute = Math.round((endHours - endHour) * 60);
 
   for (const slot of freeSlots) {
     const slotStart = new Date(slot.start);
     const slotEnd = new Date(slot.end);
-    const zonedStart = toZonedTime(slotStart, timezone);
-    const dateKey = formatISO(zonedStart, { representation: "date" });
 
-    // Use milliseconds for more accurate calculation
-    const hours = (slotEnd.getTime() - slotStart.getTime()) / (1000 * 60 * 60);
-    hoursPerDay[dateKey] = (hoursPerDay[dateKey] ?? 0) + hours;
+    // Get all days this slot spans in the linguist's timezone
+    const zonedStart = toZonedTime(slotStart, timezone);
+    const zonedEnd = toZonedTime(slotEnd, timezone);
+    const daysInSlot = eachDayOfInterval({
+      start: startOfDay(zonedStart),
+      end: startOfDay(zonedEnd),
+    });
+
+    // Split the slot across days, capping each day to working hours
+    daysInSlot.forEach((day, i) => {
+      // For the first day, use the actual slot start
+      // For subsequent days, use start of working hours
+      let dayStart: Date;
+      if (i === 0) {
+        dayStart = zonedStart;
+      } else {
+        // Start of working hours for this day
+        dayStart = createDateAtHourInTimezone(day, startHour, timezone);
+        if (startMinute > 0) {
+          dayStart = new Date(dayStart.getTime() + startMinute * 60 * 1000);
+        }
+      }
+
+      // For the last day, use the actual slot end
+      // For previous days, use end of working hours
+      let dayEnd: Date;
+      if (i === daysInSlot.length - 1) {
+        dayEnd = zonedEnd;
+      } else {
+        // End of working hours for this day
+        dayEnd = createDateAtHourInTimezone(day, endHour, timezone);
+        if (endMinute > 0) {
+          dayEnd = new Date(dayEnd.getTime() + endMinute * 60 * 1000);
+        }
+      }
+
+      // Only count hours if dayStart < dayEnd (slot overlaps with this day's working hours)
+      if (dayStart < dayEnd) {
+        const dateKey = formatISO(day, { representation: "date" });
+        const hours =
+          (dayEnd.getTime() - dayStart.getTime()) / (1000 * 60 * 60);
+        hoursPerDay[dateKey] = (hoursPerDay[dateKey] ?? 0) + hours;
+      }
+    });
   }
 
   // Step 5: Get all expected working days in the range
-  const startZoned = toZonedTime(parseISO(startDate), timezone);
-  const endZoned = toZonedTime(parseISO(endDate), timezone);
+  // IMPORTANT: startDate and endDate are now calendar dates (YYYY-MM-DD) in the linguist's timezone.
+  // They were converted from the PM's calendar dates in Step 1 above.
+  // Example: PM in Vancouver selects "2026-01-04" at 4pm. In France it's already "2026-01-05" at 1am.
+  // So startDate was converted to "2026-01-05" for the French linguist.
+  const startDateParts = startDate.split("-").map(Number);
+  const endDateParts = endDate.split("-").map(Number);
+
+  // Create dates representing the calendar date at midnight in the linguist's timezone
+  // Use the same pattern as createDateAtHourInTimezone: parse date components and use fromZonedTime
+  const startYear = startDateParts[0];
+  const startMonth = startDateParts[1] - 1; // 0-indexed
+  const startDay = startDateParts[2];
+  const endYear = endDateParts[0];
+  const endMonth = endDateParts[1] - 1; // 0-indexed
+  const endDay = endDateParts[2];
+
+  // Create "fake" local dates with the calendar components (these are in system timezone, but we'll fix that)
+  const startFakeLocal = new Date(startYear, startMonth, startDay, 0, 0, 0, 0);
+  const endFakeLocal = new Date(endYear, endMonth, endDay, 23, 59, 59, 999); // End of day to ensure inclusion
+
+  // fromZonedTime treats the Date as if it's in the target timezone and converts to UTC
+  // Then toZonedTime converts back to the target timezone, giving us the correct date
+  const startZoned = startOfDay(
+    toZonedTime(fromZonedTime(startFakeLocal, timezone), timezone),
+  );
+  const endZoned = endOfDay(
+    toZonedTime(fromZonedTime(endFakeLocal, timezone), timezone),
+  );
   const allDays = eachDayOfInterval({ start: startZoned, end: endZoned });
 
   // Helper to check if a day is an off-day

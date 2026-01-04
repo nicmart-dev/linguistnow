@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-non-null-assertion */
 import { describe, it, expect } from "vitest";
 import {
   calculateFreeSlots,
@@ -37,9 +36,9 @@ describe("availabilityService", () => {
 
       expect(result).toHaveLength(3);
       // Check start/end times exist and are correct (ignoring .000Z vs Z format)
-      const slot0 = result[0]!;
-      const slot1 = result[1]!;
-      const slot2 = result[2]!;
+      const slot0 = result[0] as { start: string; end: string };
+      const slot1 = result[1] as { start: string; end: string };
+      const slot2 = result[2] as { start: string; end: string };
       expect(new Date(slot0.start).getTime()).toBe(
         new Date("2024-01-15T08:00:00Z").getTime(),
       );
@@ -71,8 +70,8 @@ describe("availabilityService", () => {
       const result = calculateFreeSlots(busySlots, timeMin, timeMax);
 
       expect(result).toHaveLength(2);
-      const slot0 = result[0]!;
-      const slot1 = result[1]!;
+      const slot0 = result[0] as { start: string; end: string };
+      const slot1 = result[1] as { start: string; end: string };
       expect(new Date(slot0.start).getTime()).toBe(
         new Date("2024-01-15T08:00:00Z").getTime(),
       );
@@ -220,8 +219,8 @@ describe("availabilityService", () => {
       const options: AvailabilityRequest = {
         calendarIds: ["cal1"],
         userEmail: "test@example.com",
-        startDate: "2024-01-15T00:00:00Z", // Monday
-        endDate: "2024-01-19T23:59:59Z", // Friday
+        startDate: "2024-01-15", // Monday
+        endDate: "2024-01-19", // Friday
         timezone: "UTC",
         workingHoursStart: "08:00",
         workingHoursEnd: "18:00",
@@ -249,8 +248,8 @@ describe("availabilityService", () => {
       const options: AvailabilityRequest = {
         calendarIds: ["cal1"],
         userEmail: "test@example.com",
-        startDate: "2024-01-15T00:00:00Z",
-        endDate: "2024-01-19T23:59:59Z",
+        startDate: "2024-01-15",
+        endDate: "2024-01-19",
         timezone: TEST_TIMEZONE,
         workingHoursStart: "08:00",
         workingHoursEnd: "18:00",
@@ -273,8 +272,8 @@ describe("availabilityService", () => {
       const options: AvailabilityRequest = {
         calendarIds: ["cal1"],
         userEmail: "test@example.com",
-        startDate: "2024-01-15T00:00:00Z",
-        endDate: "2024-01-15T23:59:59Z", // Just Monday
+        startDate: "2024-01-15",
+        endDate: "2024-01-15", // Just Monday
         timezone: TEST_TIMEZONE,
         workingHoursStart: "08:00",
         workingHoursEnd: "18:00",
@@ -296,8 +295,8 @@ describe("availabilityService", () => {
       const options: AvailabilityRequest = {
         calendarIds: ["cal1"],
         userEmail: "test@example.com",
-        startDate: "2024-01-15T00:00:00Z",
-        endDate: "2024-01-15T23:59:59Z",
+        startDate: "2024-01-15",
+        endDate: "2024-01-15",
         timezone: "UTC",
         workingHoursStart: "08:00",
         workingHoursEnd: "18:00",
@@ -321,8 +320,8 @@ describe("availabilityService", () => {
       const options: AvailabilityRequest = {
         calendarIds: ["cal1", "cal2"],
         userEmail: "test@example.com",
-        startDate: "2024-01-15T00:00:00Z",
-        endDate: "2024-01-15T23:59:59Z",
+        startDate: "2024-01-15",
+        endDate: "2024-01-15",
         timezone: "UTC",
         workingHoursStart: "08:00",
         workingHoursEnd: "18:00",

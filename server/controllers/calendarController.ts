@@ -1,5 +1,6 @@
 import axios from "axios";
 import type { Request, Response } from "express";
+import { getValidAccessToken } from "../utils/tokenRefresh.js";
 import { readToken } from "../utils/vaultClient.js";
 import {
   getFreeBusy,
@@ -57,7 +58,7 @@ async function getUserPreferences(userEmail: string): Promise<{
       Timezone?: string;
       "Working Hours Start"?: string; // ISO 8601 time format (HH:mm, e.g., "08:00")
       "Working Hours End"?: string; // ISO 8601 time format (HH:mm, e.g., "18:00")
-      "Off Days"?: string[] | string; // Array for dropdown, or string for backward compatibility
+      "Off Days"?: string[]; // Array for dropdown field
     };
 
     const preferences: {
@@ -76,9 +77,16 @@ async function getUserPreferences(userEmail: string): Promise<{
     if (fields["Working Hours End"] !== undefined) {
       preferences.workingHoursEnd = fields["Working Hours End"];
     }
+    // Handle offDays: empty array or field not set = no off-days
+    // If field exists with values → use those values
     if (fields["Off Days"]) {
-      // Handle both array (dropdown field) and string (backward compatibility)
       if (Array.isArray(fields["Off Days"])) {
+        // Empty array means no off-days
+        if (fields["Off Days"].length === 0) {
+          preferences.offDays = [];
+          return preferences;
+        }
+
         // Map day names back to day numbers (0-6)
         const dayNames = [
           "Sunday",
@@ -92,10 +100,9 @@ async function getUserPreferences(userEmail: string): Promise<{
         preferences.offDays = fields["Off Days"]
           .map((d) => {
             if (typeof d === "string") {
-              // Try to find day name in array
               const index = dayNames.indexOf(d);
               if (index !== -1) return index;
-              // Fallback: try parsing as number (backward compatibility)
+              // Fallback: try parsing as number
               const num = parseInt(d.trim(), 10);
               return typeof num === "number" &&
                 !isNaN(num) &&
@@ -104,19 +111,15 @@ async function getUserPreferences(userEmail: string): Promise<{
                 ? num
                 : null;
             }
-            // If it's already a number, validate it
             return typeof d === "number" && !isNaN(d) && d >= 0 && d <= 6
               ? d
               : null;
           })
           .filter((d): d is number => d !== null);
-      } else if (typeof fields["Off Days"] === "string") {
-        // Backward compatibility: parse comma-separated string
-        preferences.offDays = fields["Off Days"]
-          .split(",")
-          .map((d) => parseInt(d.trim(), 10))
-          .filter((d) => !isNaN(d));
       }
+    } else {
+      // Field doesn't exist = no off-days
+      preferences.offDays = [];
     }
     if (fields["Min Hours Per Day"] !== undefined) {
       // Note: minHoursPerDay is not a linguist preference - it's a PM requirement set in availability requests
@@ -141,31 +144,6 @@ interface GoogleCalendarListResponse {
   nextPageToken?: string;
 }
 
-/* List all calendars for a user by reading their access token from Vault */
-/**
- * Validate Google OAuth token by calling Google's tokeninfo endpoint
- * Returns true if token is valid, false otherwise
- */
-const validateGoogleToken = async (accessToken: string): Promise<boolean> => {
-  try {
-    const response = await axios.get<{ expires_in?: number }>(
-      `https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=${accessToken}`,
-      {
-        timeout: 5000,
-      },
-    );
-    // Token is valid if we get a 200 response with an expires_in field
-    return (
-      response.status === 200 &&
-      typeof response.data.expires_in === "number" &&
-      response.data.expires_in > 0
-    );
-  } catch {
-    // If tokeninfo endpoint returns an error, token is invalid
-    return false;
-  }
-};
-
 // GET /api/calendars/list/:userEmail
 export const listCalendars = async (
   req: Request<{ userEmail: string }>,
@@ -177,34 +155,29 @@ export const listCalendars = async (
     return res.status(400).json({ error: "userEmail parameter is required" });
   }
 
+  // Validate email format to prevent injection attacks
+  const trimmedEmail = userEmail.trim();
+  // Limit email length to prevent ReDoS attacks
+  if (trimmedEmail.length > 254) {
+    return res
+      .status(400)
+      .json({ error: "Invalid email: exceeds maximum length" });
+  }
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(trimmedEmail)) {
+    return res.status(400).json({ error: "Invalid email format" });
+  }
+
   try {
-    // Read access token from Vault
-    const tokens = await readToken(userEmail);
-
-    if (!tokens.accessToken) {
-      return res.status(404).json({
-        error: "No access token found for user",
-        details: "User needs to login again to authorize calendar access.",
-        code: "TOKEN_NOT_FOUND",
-      });
-    }
-
-    // Validate token before making calendar API call
-    const isTokenValid = await validateGoogleToken(tokens.accessToken);
-    if (!isTokenValid) {
-      return res.status(401).json({
-        error: "Access token expired or invalid",
-        details: "User needs to login again to refresh their token.",
-        code: "TOKEN_EXPIRED",
-      });
-    }
+    // Get valid access token (automatically refreshes if expired)
+    const accessToken = await getValidAccessToken(userEmail);
 
     // Fetch calendar list from Google
     const response = await axios.get<GoogleCalendarListResponse>(
       "https://www.googleapis.com/calendar/v3/users/me/calendarList",
       {
         headers: {
-          Authorization: `Bearer ${tokens.accessToken}`,
+          Authorization: `Bearer ${accessToken}`,
         },
         timeout: 10000,
       },
@@ -216,22 +189,51 @@ export const listCalendars = async (
   } catch (error: unknown) {
     console.error("Error fetching calendar list:", error);
 
-    // Handle Vault errors
+    // Handle token refresh errors from getValidAccessToken
     if (
       error &&
       typeof error === "object" &&
       "message" in error &&
-      typeof error.message === "string" &&
-      error.message.includes("Vault")
+      typeof error.message === "string"
     ) {
-      return res.status(503).json({
-        error: "Cannot read token from Vault",
-        details: "Vault service may be unavailable.",
-        code: "VAULT_ERROR",
-      });
+      const errorMessage = error.message;
+
+      // Check for token-related errors
+      if (
+        errorMessage.includes("No access token found") ||
+        errorMessage.includes("No refresh token found")
+      ) {
+        return res.status(401).json({
+          error: "Token not found",
+          details: "User needs to login again to authorize calendar access.",
+          code: "TOKEN_NOT_FOUND",
+        });
+      }
+
+      if (
+        errorMessage.includes("Failed to refresh access token") ||
+        errorMessage.includes("invalid_grant")
+      ) {
+        // Refresh token is invalid/expired - user needs to re-authenticate
+        return res.status(401).json({
+          error: "Refresh token expired or invalid",
+          details:
+            "Your Google Calendar access has expired. Please login again to re-authorize.",
+          code: "TOKEN_EXPIRED",
+        });
+      }
+
+      // Handle Vault errors
+      if (errorMessage.includes("Vault")) {
+        return res.status(503).json({
+          error: "Cannot read token from Vault",
+          details: "Vault service may be unavailable.",
+          code: "VAULT_ERROR",
+        });
+      }
     }
 
-    // Handle Google API errors
+    // Handle Google API errors (from axios)
     if (error && typeof error === "object" && "response" in error) {
       const axiosError = error as {
         response?: {
@@ -275,7 +277,7 @@ export const listCalendars = async (
  * This endpoint directly calls Google Calendar API (no n8n dependency).
  * Reads access token from Vault and calculates availability in Express.
  */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-assignment */
+
 export const checkAvailability = async (
   req: Request<
     Record<string, never>,

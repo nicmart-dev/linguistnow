@@ -40,14 +40,11 @@ const App = () => {
 
     return (
         /* Wraps the application to provide the OAuth context */
-        <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
+        <GoogleOAuthProvider
+            clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID || ''}
+        >
             <LanguageProvider>
-                <BrowserRouter
-                    future={{
-                        v7_startTransition: true,
-                        v7_relativeSplatPath: true,
-                    }}
-                >
+                <BrowserRouter>
                     <ScrollToTop />
                     <Navbar userDetails={userDetails} />
                     <Routes>

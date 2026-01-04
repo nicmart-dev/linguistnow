@@ -1,529 +1,410 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
-import { useTranslation } from 'react-i18next' // To show localized strings
-import { fetchUserList } from '../auth-users/utils'
+import { useTranslation } from 'react-i18next'
+import i18next from '../i18n'
+import { format, addDays, startOfDay } from 'date-fns'
 import Hero from '../components/Hero'
+import FilterBar from '../components/FilterBar'
 import LinguistTable from '../components/LinguistTable'
-import Skeleton from '../components/Skeleton' // to sisplay while data is loading
+import LinguistCard from '../components/LinguistCard'
+import BookingModal from '../components/BookingModal'
+import Skeleton from '../components/Skeleton'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs'
+import { Button } from '../components/ui/button'
 import { logger } from '../utils/logger'
-import i18n from '../i18n'
-
-// Map error codes to i18n keys
-const ERROR_CODE_TO_I18N: Record<string, string> = {
-    VAULT_PERMISSION_DENIED: 'dashboard.errors.vaultPermissionDenied',
-    VAULT_ERROR: 'dashboard.errors.vaultError',
-    TOKEN_NOT_FOUND: 'dashboard.errors.tokenNotFound',
-    TOKEN_EXPIRED: 'dashboard.errors.tokenExpired',
-    GOOGLE_API_ERROR: 'dashboard.errors.googleApiError',
-    MISSING_CREDENTIALS: 'dashboard.errors.missingCredentials',
-    INVALID_REFRESH_TOKEN: 'dashboard.errors.invalidRefreshToken',
-    NETWORK_ERROR: 'dashboard.errors.networkError',
-}
-
-// Consolidate similar errors to avoid showing duplicate messages
-function consolidateErrors(
-    errors: Array<{
-        message: string
-        userEmail?: string | null
-        code?: string
-        severity?: string
-    }>
-) {
-    const errorGroups = new Map<
-        string,
-        {
-            message: string
-            userEmails: string[]
-            code?: string
-            severity?: string
-        }
-    >()
-
-    for (const error of errors) {
-        // Create a key based on error code or message pattern
-        const key = error.code || error.message
-        const userEmail = error.userEmail || null
-
-        if (errorGroups.has(key)) {
-            const group = errorGroups.get(key)!
-            if (userEmail && !group.userEmails.includes(userEmail)) {
-                group.userEmails.push(userEmail)
-            }
-        } else {
-            errorGroups.set(key, {
-                message: error.message,
-                userEmails: userEmail ? [userEmail] : [],
-                code: error.code,
-                severity: error.severity || 'error',
-            })
-        }
-    }
-
-    // Convert groups back to error objects with consolidated messages
-    return Array.from(errorGroups.values()).map((group) => {
-        const count = group.userEmails.length
-        const emailList =
-            count <= 5
-                ? group.userEmails.join(', ')
-                : group.userEmails.slice(0, 5).join(', ') +
-                  ` and ${count - 5} more`
-
-        // Check if there's a known i18n key for this error code
-        const i18nKey = group.code ? ERROR_CODE_TO_I18N[group.code] : null
-
-        // Handle system-wide errors (no user emails) with i18n
-        if (i18nKey && count === 0) {
-            return {
-                i18nKey,
-                i18nValues: {},
-                message: group.message,
-                userEmails: group.userEmails,
-                code: group.code,
-                severity: group.severity,
-            }
-        }
-
-        // If multiple users have the same error, use i18n keys
-        if (count >= 1 && i18nKey) {
-            return {
-                i18nKey,
-                i18nValues: { count, emails: emailList },
-                message: group.message,
-                userEmails: group.userEmails,
-                code: group.code,
-                severity: group.severity,
-            }
-        }
-
-        // Legacy handling for errors without a mapped code
-        if (count > 1) {
-            if (group.message.includes('Calendar IDs')) {
-                return {
-                    i18nKey: 'dashboard.errors.missingCredentials',
-                    i18nValues: { count, emails: emailList },
-                    message: group.message,
-                    userEmails: group.userEmails,
-                    code: group.code,
-                    severity: group.severity,
-                }
-            }
-            // Extract the base message without user-specific details
-            const baseMessage = group.message
-                .replace(/for user [^.]*\./gi, '')
-                .replace(/User needs to re-authenticate\./gi, '')
-                .trim()
-            return {
-                i18nKey: 'dashboard.errors.genericMultiple',
-                i18nValues: {
-                    message: baseMessage,
-                    count,
-                    emails: emailList,
-                },
-                message: group.message,
-                userEmails: group.userEmails,
-                code: group.code,
-                severity: group.severity,
-            }
-        }
-
-        // Fallback for errors without user emails or unknown codes
-        return {
-            message: group.message,
-            userEmails: group.userEmails,
-            code: group.code,
-            severity: group.severity,
-        }
-    })
-}
+import { calculateEstimatedHours } from '../utils/project-hours-calculator'
+import type {
+    SearchLinguistsQuery,
+    SearchLinguistsResponse,
+    LinguistWithAvailability,
+} from '@linguistnow/shared'
 
 const Dashboard = ({ userName }) => {
     const { t } = useTranslation()
-    const [linguists, setLinguists] = useState([]) // store list of users retrieved from Airtable
-    const [errors, setErrors] = useState([]) // store error messages to display to users
-    const [loading, setLoading] = useState(true) // State to track loading status so we display table only after fetching data
+    // Use English for email content regardless of PM's UI language
+    const tEmail = i18next.getFixedT('en')
+    const [linguists, setLinguists] = useState<LinguistWithAvailability[]>([])
+    const [loading, setLoading] = useState(true)
+    const [viewMode, setViewMode] = useState<'list' | 'card'>('list')
+    const [selectedLinguist, setSelectedLinguist] =
+        useState<LinguistWithAvailability | null>(null)
+    const [bookingModalOpen, setBookingModalOpen] = useState(false)
 
-    /* Get list of linguists at page load from Airtable  and 
-    for each check their availability using n8n workflow. 
-    */
+    // Default date range: next 7 days
+    const getDefaultStartDate = () => {
+        const tomorrow = startOfDay(addDays(new Date(), 1))
+        return format(tomorrow, 'yyyy-MM-dd')
+    }
+
+    const getDefaultEndDate = () => {
+        const nextWeek = startOfDay(addDays(new Date(), 7))
+        return format(nextWeek, 'yyyy-MM-dd')
+    }
+
+    // Calculate default required hours based on default date range
+    const getDefaultRequiredHours = () => {
+        const defaultStart = getDefaultStartDate()
+        const defaultEnd = getDefaultEndDate()
+        const estimated = calculateEstimatedHours(defaultStart, defaultEnd)
+        return estimated ?? undefined
+    }
+
+    const [filters, setFilters] = useState<SearchLinguistsQuery>({
+        startDate: getDefaultStartDate(),
+        endDate: getDefaultEndDate(),
+        requiredHours: getDefaultRequiredHours(),
+        page: 1,
+        limit: 20,
+    })
+
+    // Fetch linguists using search API
     useEffect(() => {
         const fetchLinguists = async () => {
-            const newErrors = [] // Errors stored as we loop through each user
-            const processedLinguists = [] // Collect all linguists before updating state
-            setErrors([]) // Clear previous errors
-
+            setLoading(true)
             try {
-                // Fetch users directly from API to get all Airtable fields (Calendar IDs, etc.)
-                const response = await axios.get(
-                    `${import.meta.env.VITE_API_URL}/api/users`
-                )
-                const users = response.data // Raw Airtable data with uppercase field names
-                logger.log('Users:', users)
+                const params = new URLSearchParams()
 
-                // Filter out users who are not Linguists
-                const linguists = users.filter(
-                    (user) => user.Role === 'Linguist'
-                )
-                logger.log('Filtered Linguists:', linguists)
-
-                // Get list of users who have tokens in Vault (avoids unnecessary API calls)
-                let usersWithTokens: string[] = []
-                try {
-                    const tokensResponse = await axios.get(
-                        `${import.meta.env.VITE_API_URL}/api/tokens/list`
+                if (filters.languages)
+                    params.append('languages', filters.languages)
+                if (filters.specialization)
+                    params.append('specialization', filters.specialization)
+                if (filters.minRate !== undefined)
+                    params.append('minRate', filters.minRate.toString())
+                if (filters.maxRate !== undefined)
+                    params.append('maxRate', filters.maxRate.toString())
+                if (filters.minRating !== undefined)
+                    params.append('minRating', filters.minRating.toString())
+                if (filters.availableOnly)
+                    params.append('availableOnly', 'true')
+                if (filters.startDate)
+                    params.append('startDate', filters.startDate)
+                if (filters.endDate) params.append('endDate', filters.endDate)
+                if (filters.requiredHours !== undefined)
+                    params.append(
+                        'requiredHours',
+                        filters.requiredHours.toString()
                     )
-                    usersWithTokens = tokensResponse.data.emails || []
-                    logger.log('Users with tokens:', usersWithTokens)
-                } catch (tokenError) {
-                    // If we can't get the token list, we'll check all users and handle errors individually
-                    console.warn(
-                        'Could not fetch token list, will check all users:',
-                        tokenError
-                    )
-                }
+                if (filters.timezone)
+                    params.append('timezone', filters.timezone)
+                if (filters.page) params.append('page', filters.page.toString())
+                if (filters.limit)
+                    params.append('limit', filters.limit.toString())
 
-                // Filter linguists to only those with tokens (if we have the list)
-                const linguistsToCheck =
-                    usersWithTokens.length > 0
-                        ? linguists.filter((user) =>
-                              usersWithTokens.includes(user.Email)
-                          )
-                        : linguists
-
-                // Track linguists without tokens for a consolidated warning
-                const linguistsWithoutTokens =
-                    usersWithTokens.length > 0
-                        ? linguists.filter(
-                              (user) => !usersWithTokens.includes(user.Email)
-                          )
-                        : []
-
-                if (linguistsWithoutTokens.length > 0) {
-                    // Push separate errors for each linguist so consolidateErrors can properly count them
-                    for (const user of linguistsWithoutTokens) {
-                        newErrors.push({
-                            message: `No access token found for ${user.Email}. They need to login.`,
-                            userEmail: user.Email,
-                            code: 'TOKEN_NOT_FOUND',
-                            severity: 'warning',
-                        })
-                    }
-                    logger.log(
-                        'Linguists without tokens (skipped):',
-                        linguistsWithoutTokens.map((u) => u.Email)
-                    )
-                }
-
-                logger.log(
-                    'Linguists to check availability:',
-                    linguistsToCheck.map((u) => u.Email)
+                const response = await axios.get<SearchLinguistsResponse>(
+                    `${import.meta.env.VITE_API_URL}/api/linguists/search?${params.toString()}`
                 )
 
-                for (const user of linguistsToCheck) {
-                    try {
-                        // Check if the calendar list is present
-                        if (!user['Calendar IDs']) {
-                            throw new Error(
-                                `Calendar IDs not available for user: ${user.Email}. Please ask them to login again with their Google account, select their calendars and click "Save calendars" button in the settings page.`
-                            )
-                        }
-                        const calendarIds = user['Calendar IDs']
-                        let availabilityResponse
-
-                        try {
-                            // Check availability via Express server (which calls Google Calendar directly)
-                            availabilityResponse = await axios.post(
-                                `${import.meta.env.VITE_API_URL}/api/calendars/availability`,
-                                {
-                                    calendarIds: calendarIds,
-                                    userEmail: user.Email,
-                                },
-                                {
-                                    headers: {
-                                        Accept: 'application/json',
-                                    },
-                                    timeout: 30000, // 30 seconds
-                                }
-                            )
-                        } catch (error) {
-                            // Handle availability API errors gracefully
-                            if (error.response) {
-                                const errorData = error.response.data || {}
-                                const status = error.response.status
-                                const errorCode =
-                                    errorData.code || 'UNKNOWN_ERROR'
-
-                                // Build user-friendly error message
-                                let errorMessage = `Unable to check availability for ${user.Email || user.Name || 'user'}. `
-                                errorMessage +=
-                                    errorData.details ||
-                                    errorData.error ||
-                                    'An error occurred while checking availability.'
-
-                                newErrors.push({
-                                    message: errorMessage,
-                                    userEmail: user.Email,
-                                    code: errorCode,
-                                    severity:
-                                        status >= 500 ? 'error' : 'warning',
-                                })
-                                console.warn(
-                                    `Availability error for ${user.Email}:`,
-                                    errorData
-                                )
-                                continue // Skip to the next user
-                            } else if (error.request) {
-                                // Network error
-                                newErrors.push({
-                                    message: `Unable to reach availability service for ${user.Email || user.Name || 'user'}. The service may be down.`,
-                                    userEmail: user.Email,
-                                    code: 'NETWORK_ERROR',
-                                    severity: 'error',
-                                })
-                                continue // Skip to the next user
-                            } else if (
-                                error.code === 'ECONNABORTED' ||
-                                error.message?.includes('timeout')
-                            ) {
-                                // Timeout error
-                                newErrors.push({
-                                    message: `Request timed out for ${user.Email || user.Name || 'user'}.`,
-                                    userEmail: user.Email,
-                                    code: 'TIMEOUT_ERROR',
-                                    severity: 'warning',
-                                })
-                                continue // Skip to the next user
-                            } else {
-                                // Other errors
-                                newErrors.push({
-                                    message: `Unexpected error for ${user.Email || user.Name || 'user'}: ${error.message || 'Unknown error'}`,
-                                    userEmail: user.Email,
-                                    code: 'UNEXPECTED_ERROR',
-                                    severity: 'error',
-                                })
-                                continue // Skip to the next user
-                            }
-                        }
-
-                        const availability = availabilityResponse.data
-                        logger.log(
-                            'Availability for',
-                            user.Email,
-                            ':',
-                            availability
-                        )
-
-                        // Check if the response contains an error from n8n workflow
-                        if (
-                            availability?.error ||
-                            availability?.errorMessage ||
-                            availability?.message?.includes('error')
-                        ) {
-                            const errorMsg =
-                                availability.errorMessage ||
-                                availability.error ||
-                                availability.message ||
-                                'Unknown workflow error'
-                            newErrors.push({
-                                message: `Workflow error for ${user.Email}: ${errorMsg}`,
-                                userEmail: user.Email,
-                                code: 'N8N_WORKFLOW_ERROR',
-                                severity: 'error',
-                            })
-                            continue // Skip to next user
-                        }
-
-                        // Collect the user with availability (batch update later)
-                        processedLinguists.push({ ...user, availability })
-                    } catch (userError) {
-                        console.warn(userError)
-                        // Ensure error is formatted as an object
-                        const errorMessage =
-                            userError.message ||
-                            userError.toString() ||
-                            'An unknown error occurred'
-                        // Preserve error code if available, or detect from message
-                        let errorCode = (userError as any)?.code
-                        if (!errorCode) {
-                            if (
-                                errorMessage.includes('refresh token') &&
-                                (errorMessage.includes('revoked') ||
-                                    errorMessage.includes('invalid'))
-                            ) {
-                                errorCode = 'INVALID_REFRESH_TOKEN'
-                            } else if (
-                                errorMessage.includes('Calendar IDs') ||
-                                errorMessage.includes('token') ||
-                                errorMessage.includes('Token')
-                            ) {
-                                errorCode = 'MISSING_CREDENTIALS'
-                            } else {
-                                errorCode = 'USER_ERROR'
-                            }
-                        }
-                        newErrors.push({
-                            message: errorMessage,
-                            userEmail:
-                                (userError as any)?.userEmail ||
-                                user?.Email ||
-                                null,
-                            code: errorCode,
-                            severity: 'error',
-                        })
-                    }
-                }
-
-                // Add linguists without tokens to the list with a "needs login" status
-                for (const user of linguistsWithoutTokens) {
-                    processedLinguists.push({
-                        ...user,
-                        availability: {
-                            isAvailable: false,
-                            needsLogin: true,
-                            freeSlots: [],
-                            totalFreeHours: 0,
-                            workingDays: 0,
-                            hoursPerDay: {},
-                        },
-                    })
-                }
+                logger.log('Search results:', response.data)
+                setLinguists(response.data.linguists)
             } catch (error) {
-                console.error('Error fetching linguists:', error)
-                const errorMessage =
-                    error instanceof Error ? error.message : 'Unknown error'
-                newErrors.push({
-                    message: 'Error fetching linguists: ' + errorMessage,
-                    code: 'FETCH_ERROR',
-                    severity: 'error',
-                })
+                console.error('Error searching linguists:', error)
+                setLinguists([])
+            } finally {
+                setLoading(false)
             }
-
-            // Batch update: set all linguists at once to avoid multiple re-renders
-            setLinguists(processedLinguists)
-            // Consolidate similar errors to avoid showing duplicate messages
-            const consolidatedErrors = consolidateErrors(newErrors)
-            setErrors(consolidatedErrors)
-            setLoading(false) // Set loading to false after fetch is done
         }
 
         fetchLinguists()
-    }, [])
+    }, [filters])
 
-    /* Show available linguists in a table. */
+    const handleFiltersChange = (newFilters: SearchLinguistsQuery) => {
+        setFilters({ ...newFilters, page: 1 }) // Reset to page 1 on filter change
+    }
+
+    const handleClearFilters = () => {
+        const defaultStart = getDefaultStartDate()
+        const defaultEnd = getDefaultEndDate()
+        const estimated = calculateEstimatedHours(defaultStart, defaultEnd)
+        setFilters({
+            startDate: defaultStart,
+            endDate: defaultEnd,
+            requiredHours: estimated ?? undefined,
+            page: 1,
+            limit: 20,
+        })
+    }
+
+    const handleDateRangeChange = (
+        startDate: string | undefined,
+        endDate: string | undefined
+    ) => {
+        const newStartDate = startDate || getDefaultStartDate()
+        const newEndDate = endDate || getDefaultEndDate()
+        // Auto-update requiredHours to match estimated hours when date range changes
+        const estimated = calculateEstimatedHours(newStartDate, newEndDate)
+        setFilters({
+            ...filters,
+            startDate: newStartDate,
+            endDate: newEndDate,
+            requiredHours: estimated ?? filters.requiredHours, // Keep existing if estimation fails
+        })
+    }
+
+    const handleBookLinguist = (linguist: LinguistWithAvailability) => {
+        setSelectedLinguist(linguist)
+        setBookingModalOpen(true)
+    }
+
+    // Get PM info from localStorage or props (if available)
+    const pmEmail = localStorage.getItem('userEmail') || undefined
+    const pmName = userName || undefined
+
     return (
         <>
             <Hero userName={userName} />
-            <main className="container px-3 mb-5">
-                <div className="items-center justify-center">
-                    <p className="max-w-3xl mx-auto my-5 text-lg text-black">
-                        {t('dashboard.linguistsDescription', {
-                            date: new Date(
-                                Date.now() + 7 * 24 * 60 * 60 * 1000
-                            ).toLocaleDateString(
-                                i18n.language === 'zh-cn'
-                                    ? 'zh-CN'
-                                    : i18n.language,
-                                {
-                                    day: 'numeric',
-                                    month: 'short',
-                                    year: 'numeric',
-                                }
-                            ),
-                        })}
-                        <span className="block">
-                            {t('dashboard.availabilityDescription')}
-                        </span>
-                    </p>
-                    {/* Show error messages if any */}
-                    {errors.length > 0 && (
-                        <div className="max-w-3xl mx-auto mb-4">
-                            {errors
-                                .filter((error) => {
-                                    // Filter out errors without messages
-                                    const message =
-                                        typeof error === 'string'
-                                            ? error
-                                            : error?.message
-                                    return message && message.trim().length > 0
-                                })
-                                .map((error, index) => {
-                                    // Normalize error format - handle both string and object formats
-                                    const errorObj =
-                                        typeof error === 'string'
-                                            ? {
-                                                  message: error,
-                                                  severity: 'error',
-                                              }
-                                            : error
-                                    const severity =
-                                        errorObj.severity || 'error'
-                                    const hasI18n =
-                                        errorObj.i18nKey && errorObj.i18nValues
+            <main className="container mx-auto mb-5">
+                <div className="w-full px-3">
+                    {/* Filters */}
+                    <div className="w-full mb-4 mt-5">
+                        <FilterBar
+                            filters={filters}
+                            onFiltersChange={handleFiltersChange}
+                            onClearFilters={handleClearFilters}
+                            onDateChange={handleDateRangeChange}
+                        />
+                    </div>
 
-                                    return (
-                                        <div
-                                            key={index}
-                                            className={`p-4 mb-3 rounded-md border ${
-                                                severity === 'error'
-                                                    ? 'bg-red-50 border-red-200 text-red-800'
-                                                    : 'bg-yellow-50 border-yellow-200 text-yellow-800'
-                                            }`}
-                                        >
-                                            <div className="flex items-start">
-                                                <div className="flex-shrink-0">
-                                                    {severity === 'error' ? (
-                                                        <svg
-                                                            className="h-5 w-5 text-red-400"
-                                                            viewBox="0 0 20 20"
-                                                            fill="currentColor"
-                                                        >
-                                                            <path
-                                                                fillRule="evenodd"
-                                                                d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                                                                clipRule="evenodd"
-                                                            />
-                                                        </svg>
-                                                    ) : (
-                                                        <svg
-                                                            className="h-5 w-5 text-yellow-400"
-                                                            viewBox="0 0 20 20"
-                                                            fill="currentColor"
-                                                        >
-                                                            <path
-                                                                fillRule="evenodd"
-                                                                d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-                                                                clipRule="evenodd"
-                                                            />
-                                                        </svg>
-                                                    )}
-                                                </div>
-                                                <div className="ml-3 flex-1">
-                                                    {hasI18n ? (
-                                                        <p className="text-sm font-medium">
-                                                            {t(
-                                                                errorObj.i18nKey,
-                                                                errorObj.i18nValues
-                                                            )}
-                                                        </p>
-                                                    ) : (
-                                                        <p className="text-sm font-medium">
-                                                            {errorObj.message ||
-                                                                t(
-                                                                    'dashboard.errors.unknownError'
-                                                                )}
-                                                        </p>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    )
-                                })}
+                    {/* View Mode Toggle and Bulk Actions */}
+                    <div className="w-full mb-4 flex justify-between items-center">
+                        <div>
+                            {(() => {
+                                const incompleteLinguists = linguists.filter(
+                                    (l) => !l.setupStatus.isComplete
+                                )
+                                if (incompleteLinguists.length === 0)
+                                    return null
+
+                                return (
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => {
+                                            const accountSettingsUrl = `${window.location.origin}/settings`
+
+                                            // Map field identifiers to their display labels (always in English for emails)
+                                            const fieldLabelMap: Record<
+                                                string,
+                                                string
+                                            > = {
+                                                calendars: tEmail(
+                                                    'calendarSelector.title',
+                                                    'Calendar Selection'
+                                                ),
+                                                timezone: tEmail(
+                                                    'availabilitySettings.timezone',
+                                                    'Timezone'
+                                                ),
+                                                working_hours: tEmail(
+                                                    'availabilitySettings.workingHours',
+                                                    'Working Hours'
+                                                ),
+                                            }
+
+                                            // Collect all unique missing items across all linguists
+                                            const allMissingItems =
+                                                new Set<string>()
+                                            incompleteLinguists.forEach(
+                                                (linguist) => {
+                                                    linguist.setupStatus.missingItems.forEach(
+                                                        (item) => {
+                                                            allMissingItems.add(
+                                                                item
+                                                            )
+                                                        }
+                                                    )
+                                                }
+                                            )
+
+                                            // Convert to display labels
+                                            const missingItemsLabels =
+                                                Array.from(allMissingItems)
+                                                    .map(
+                                                        (item) =>
+                                                            fieldLabelMap[
+                                                                item
+                                                            ] || item
+                                                    )
+                                                    .sort()
+
+                                            const emailBody = tEmail(
+                                                'dashboard.booking.setupReminderBodyBulk',
+                                                {
+                                                    missingItems:
+                                                        missingItemsLabels.join(
+                                                            ', '
+                                                        ),
+                                                    accountSettingsUrl,
+                                                }
+                                            )
+
+                                            // Get all email addresses (comma-separated) for BCC
+                                            const emailAddresses =
+                                                incompleteLinguists
+                                                    .map((l) => l.email)
+                                                    .join(',')
+
+                                            window.open(
+                                                `mailto:?bcc=${emailAddresses}&subject=${encodeURIComponent(tEmail('dashboard.booking.setupReminderSubjectBulk'))}&body=${encodeURIComponent(emailBody)}`,
+                                                '_blank'
+                                            )
+                                        }}
+                                    >
+                                        {t(
+                                            'dashboard.booking.sendSetupReminderToAll',
+                                            {
+                                                count: incompleteLinguists.length,
+                                            }
+                                        )}
+                                    </Button>
+                                )
+                            })()}
                         </div>
-                    )}
-                    {/* Show table of available linguists, but only if data has been loaded */}
+                        <Tabs
+                            value={viewMode}
+                            onValueChange={(v) =>
+                                setViewMode(v as 'list' | 'card')
+                            }
+                        >
+                            <TabsList>
+                                <TabsTrigger value="list">
+                                    {t('dashboard.viewMode.list')}
+                                </TabsTrigger>
+                                <TabsTrigger value="card">
+                                    {t('dashboard.viewMode.card')}
+                                </TabsTrigger>
+                            </TabsList>
+                        </Tabs>
+                    </div>
+
+                    {/* Linguists Display */}
                     {loading ? (
                         <Skeleton />
                     ) : (
-                        <LinguistTable linguists={linguists} errors={errors} />
+                        <Tabs value={viewMode} className="w-full">
+                            <TabsContent value="list">
+                                <LinguistTable
+                                    linguists={linguists.map((l) => ({
+                                        ...l,
+                                        // Map to old format for compatibility
+                                        availability: l.availability
+                                            ? [
+                                                  {
+                                                      result: l.availability
+                                                          .isAvailable,
+                                                  },
+                                              ]
+                                            : [{ result: false }],
+                                    }))}
+                                    errors={[]}
+                                />
+                            </TabsContent>
+                            <TabsContent value="card">
+                                {linguists.length === 0 ? (
+                                    <div className="text-center py-8 text-gray-500">
+                                        {t('dashboard.noResults')}
+                                    </div>
+                                ) : (
+                                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
+                                        {linguists.map((linguist) => (
+                                            <div
+                                                key={linguist.id}
+                                                className="relative"
+                                            >
+                                                <LinguistCard
+                                                    linguist={linguist}
+                                                    showTimeline={false}
+                                                />
+                                                {linguist.setupStatus
+                                                    .isComplete &&
+                                                    linguist.availability
+                                                        ?.isAvailable && (
+                                                        <div className="mt-2">
+                                                            <Button
+                                                                size="sm"
+                                                                onClick={() =>
+                                                                    handleBookLinguist(
+                                                                        linguist
+                                                                    )
+                                                                }
+                                                                className="w-full"
+                                                            >
+                                                                {t(
+                                                                    'dashboard.booking.bookButton'
+                                                                )}
+                                                            </Button>
+                                                        </div>
+                                                    )}
+                                                {!linguist.setupStatus
+                                                    .isComplete && (
+                                                    <div className="mt-2">
+                                                        <Button
+                                                            size="sm"
+                                                            variant="outline"
+                                                            onClick={() => {
+                                                                const accountSettingsUrl = `${window.location.origin}/settings`
+                                                                // Map field identifiers to their display labels (always in English for emails)
+                                                                const fieldLabelMap: Record<
+                                                                    string,
+                                                                    string
+                                                                > = {
+                                                                    calendars:
+                                                                        tEmail(
+                                                                            'calendarSelector.title',
+                                                                            'Calendar Selection'
+                                                                        ),
+                                                                    timezone:
+                                                                        tEmail(
+                                                                            'availabilitySettings.timezone',
+                                                                            'Timezone'
+                                                                        ),
+                                                                    working_hours:
+                                                                        tEmail(
+                                                                            'availabilitySettings.workingHours',
+                                                                            'Working Hours'
+                                                                        ),
+                                                                }
+                                                                const missingItemsLabels =
+                                                                    linguist.setupStatus.missingItems.map(
+                                                                        (
+                                                                            item
+                                                                        ) =>
+                                                                            fieldLabelMap[
+                                                                                item
+                                                                            ] ||
+                                                                            item
+                                                                    )
+                                                                window.open(
+                                                                    `mailto:${linguist.email}?subject=${encodeURIComponent(tEmail('dashboard.booking.setupReminderSubjectBulk'))}&body=${encodeURIComponent(tEmail('dashboard.booking.setupReminderBodyBulk', { missingItems: missingItemsLabels.join(', '), accountSettingsUrl }))}`,
+                                                                    '_blank'
+                                                                )
+                                                            }}
+                                                            className="w-full"
+                                                        >
+                                                            {t(
+                                                                'dashboard.booking.sendSetupReminder'
+                                                            )}
+                                                        </Button>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </TabsContent>
+                        </Tabs>
+                    )}
+
+                    {/* Booking Modal */}
+                    {selectedLinguist && (
+                        <BookingModal
+                            linguist={selectedLinguist}
+                            open={bookingModalOpen}
+                            onOpenChange={setBookingModalOpen}
+                            pmEmail={pmEmail}
+                            pmName={pmName}
+                            startDate={filters.startDate}
+                            endDate={filters.endDate}
+                        />
                     )}
                 </div>
             </main>
