@@ -13,6 +13,25 @@ function escapeAirtableFormulaString(value: string): string {
   return value.replace(/'/g, "''");
 }
 
+/**
+ * Validate email format
+ * @param email - Email address to validate
+ * @returns true if email format is valid
+ */
+function isValidEmail(email: string): boolean {
+  if (!email || typeof email !== "string") {
+    return false;
+  }
+  // Limit email length to prevent ReDoS attacks
+  const trimmedEmail = email.trim();
+  if (trimmedEmail.length > 254) {
+    return false; // RFC 5321 maximum email length
+  }
+  // Basic email format validation
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(trimmedEmail);
+}
+
 /* Configure Airtable DB using token, created using https://airtable.com/create/tokens
 and connecting to associated base ID https://support.airtable.com/docs/finding-airtable-ids
 Lazy initialization to ensure dotenv is loaded before accessing env
@@ -32,8 +51,12 @@ interface AirtableUserFields {
   Timezone?: string;
   "Working Hours Start"?: string; // ISO 8601 time format (HH:mm, e.g., "08:00")
   "Working Hours End"?: string; // ISO 8601 time format (HH:mm, e.g., "18:00")
-  "Off Days"?: string[] | string; // Array for dropdown field, or comma-separated string for backward compatibility
+  "Off Days"?: string[]; // Array for dropdown field
   "Min Hours Per Day"?: number;
+  "Hourly Rate"?: number;
+  Currency?: string;
+  Languages?: string[];
+  Specialization?: string[];
   // Tokens are now stored in Vault, not Airtable
 }
 
@@ -48,9 +71,15 @@ interface UpdateUserRequest {
   calendarIds?: string[];
   availabilityPreferences?: {
     timezone?: string;
-    workingHoursStart?: number;
-    workingHoursEnd?: number;
+    workingHoursStart?: string;
+    workingHoursEnd?: string;
     offDays?: number[];
+  };
+  profile?: {
+    hourlyRate?: number | null;
+    currency?: string;
+    languages?: string[];
+    specialization?: string[];
   };
   // Tokens are now stored in Vault, not Airtable
 }
@@ -104,6 +133,12 @@ export async function userExistsInAirtable(
 Get a single user details based on their email address, set as primary key in Airtable */
 export const getOne = async (req: Request<{ id: string }>, res: Response) => {
   const userEmail = req.params.id;
+
+  // Validate email format to prevent injection attacks
+  if (!isValidEmail(userEmail)) {
+    return res.status(400).json({ error: "Invalid email format" });
+  }
+
   // Escape single quotes in email to prevent formula injection
   const escapedEmail = escapeAirtableFormulaString(userEmail);
   try {
@@ -133,7 +168,23 @@ export const create = async (
   res: Response,
 ) => {
   const { email, name, picture_url, role = "Linguist" } = req.body;
+
+  // Validate required fields
+  if (!email || typeof email !== "string" || !isValidEmail(email)) {
+    return res.status(400).json({ error: "Invalid email format" });
+  }
+  if (!name || typeof name !== "string" || name.trim().length === 0) {
+    return res.status(400).json({ error: "Name is required" });
+  }
+  if (picture_url && typeof picture_url !== "string") {
+    return res.status(400).json({ error: "Invalid picture_url format" });
+  }
+  if (role && typeof role !== "string") {
+    return res.status(400).json({ error: "Invalid role format" });
+  }
+
   try {
+    // Don't set "Off Days" field - empty/not set means no off-days
     const createdRecord = await getAirtableBase()("Users").create({
       Email: email,
       Name: name,
@@ -156,7 +207,13 @@ export const update = async (
   res: Response,
 ) => {
   const userEmail = req.params.id;
-  const { calendarIds, availabilityPreferences } = req.body;
+
+  // Validate email format to prevent injection attacks
+  if (!isValidEmail(userEmail)) {
+    return res.status(400).json({ error: "Invalid email format" });
+  }
+
+  const { calendarIds, availabilityPreferences, profile } = req.body;
 
   // Debug logging
   console.log("Update user request:", {
@@ -183,9 +240,30 @@ export const update = async (
         {} as Partial<AirtableUserFields>;
 
       // Update the fields if provided
+      // IMPORTANT: We use schema field names directly (e.g., "Calendar IDs", "Timezone")
+      // without checking if they exist in record.fields first. Airtable allows updating
+      // fields that exist in the schema even if they're empty/null in the record.
+      // Empty/null fields don't appear in record.fields, but can still be updated.
       // IMPORTANT: Store only calendar IDs (not display names) for privacy
       // Calendar IDs can be email addresses (primary calendars) or alphanumeric strings (secondary calendars)
-      if (calendarIds) fieldsToUpdate["Calendar IDs"] = calendarIds.join(",");
+      if (calendarIds) {
+        // Validate: at least one calendar must be selected
+        const validCalendarIds = Array.isArray(calendarIds)
+          ? calendarIds.filter(
+              (id) => id && typeof id === "string" && id.trim() !== "",
+            )
+          : [];
+
+        if (validCalendarIds.length === 0) {
+          return res.status(400).json({
+            error: "At least one calendar must be selected",
+            details:
+              "The calendarIds array must contain at least one valid calendar ID",
+          });
+        }
+
+        fieldsToUpdate["Calendar IDs"] = validCalendarIds.join(",");
+      }
 
       // Update availability preferences if provided
       if (availabilityPreferences) {
@@ -225,10 +303,7 @@ export const update = async (
         }
         // Handle offDays - convert to array of day names for Airtable dropdown field
         if (availabilityPreferences.offDays !== undefined) {
-          if (
-            Array.isArray(availabilityPreferences.offDays) &&
-            availabilityPreferences.offDays.length > 0
-          ) {
+          if (Array.isArray(availabilityPreferences.offDays)) {
             // Map day numbers to day names for readability in Airtable dropdown
             const dayNames = [
               "Sunday",
@@ -249,16 +324,98 @@ export const update = async (
                   day <= 6,
               )
               .map((day) => dayNames[day]); // Convert to day names for Airtable dropdown
-            // Only set if we have valid days
-            if (validOffDays.length > 0) {
-              // Airtable dropdown fields accept arrays of strings
-              fieldsToUpdate["Off Days"] = validOffDays;
-            }
-            // If no valid days, don't set the field (let Airtable keep existing value)
+
+            // Store the field (even if empty array)
+            // Note: Airtable will omit empty multipleSelects fields from responses,
+            // but we can still set it to empty array to clear the field.
+            // When reading back, if field is not present, it means user hasn't configured it yet (use defaults).
+            // If field is present but empty, it means user explicitly set it to empty (no off-days).
+            fieldsToUpdate["Off Days"] = validOffDays;
           }
-          // If array is empty or undefined, don't set the field
+          // If not an array, don't set the field (let Airtable keep existing value)
         }
         // Note: minHoursPerDay is not a linguist preference - it's a PM requirement set in availability requests
+      }
+
+      // Update profile fields if provided
+      if (profile) {
+        console.log("Processing profile:", profile);
+
+        // Update hourly rate
+        if (profile.hourlyRate !== undefined) {
+          if (profile.hourlyRate === null) {
+            // Explicitly clear the rate
+            fieldsToUpdate["Hourly Rate"] = null as unknown as number;
+          } else if (
+            typeof profile.hourlyRate === "number" &&
+            !isNaN(profile.hourlyRate) &&
+            profile.hourlyRate >= 0
+          ) {
+            fieldsToUpdate["Hourly Rate"] = profile.hourlyRate;
+          }
+          // If hourlyRate is NaN or negative, skip updating (validation should catch this on client)
+        }
+
+        // Update currency
+        // Currency is a singleSelect field - value must exactly match one of the allowed options
+        if (
+          profile.currency !== undefined &&
+          typeof profile.currency === "string"
+        ) {
+          const currencyValue = profile.currency.trim().toUpperCase();
+          // Valid currency codes from schema
+          const validCurrencies = [
+            "USD",
+            "EUR",
+            "GBP",
+            "JPY",
+            "CNY",
+            "CAD",
+            "AUD",
+            "CHF",
+            "INR",
+            "BRL",
+            "MXN",
+            "KRW",
+            "RUB",
+            "ZAR",
+            "SGD",
+          ];
+          if (validCurrencies.includes(currencyValue)) {
+            fieldsToUpdate["Currency"] = currencyValue;
+          } else {
+            console.error(
+              `Invalid currency code: ${currencyValue}. Must be one of: ${validCurrencies.join(", ")}`,
+            );
+            // Don't update if invalid - validation should catch this on client
+          }
+        }
+
+        // Update languages
+        if (profile.languages !== undefined) {
+          if (
+            Array.isArray(profile.languages) &&
+            profile.languages.length > 0
+          ) {
+            fieldsToUpdate["Languages"] = profile.languages;
+          } else {
+            // Clear languages if empty array
+            fieldsToUpdate["Languages"] = [];
+          }
+        }
+
+        // Update specialization
+        if (profile.specialization !== undefined) {
+          if (
+            Array.isArray(profile.specialization) &&
+            profile.specialization.length > 0
+          ) {
+            fieldsToUpdate["Specialization"] = profile.specialization;
+          } else {
+            // Clear specialization if empty array
+            fieldsToUpdate["Specialization"] = [];
+          }
+        }
       }
 
       // Check if any fields to update
@@ -366,13 +523,8 @@ Allows linguists to remove themselves from the database. */
 export const remove = async (req: Request<{ id: string }>, res: Response) => {
   const userEmail = req.params.id;
 
-  // Basic email validation with length check to prevent ReDoS
-  // Email addresses are typically under 254 characters (RFC 5321)
-  if (!userEmail || userEmail.length > 254) {
-    return res.status(400).json({ error: "Invalid email format" });
-  }
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(userEmail)) {
+  // Validate email format to prevent injection attacks
+  if (!isValidEmail(userEmail)) {
     return res.status(400).json({ error: "Invalid email format" });
   }
 
@@ -418,10 +570,12 @@ export const remove = async (req: Request<{ id: string }>, res: Response) => {
   }
 };
 
-export default {
+const usersController = {
   getAll,
   getOne,
   create,
   update,
   remove,
 };
+
+export default usersController;

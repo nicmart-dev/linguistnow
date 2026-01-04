@@ -120,6 +120,31 @@ router.get("/:id", usersController.getOne);
  *                       type: number
  *                     description: Days off (0=Sunday, 1=Monday, ..., 6=Saturday)
  *                     example: [0, 6]
+ *               profile:
+ *                 type: object
+ *                 description: Linguist profile information (only for linguists)
+ *                 properties:
+ *                   hourlyRate:
+ *                     type: number
+ *                     description: Hourly rate (stored as number in Airtable)
+ *                     example: 50.00
+ *                   currency:
+ *                     type: string
+ *                     description: Currency code (ISO 4217). Must be one of: USD, EUR, GBP, JPY, CNY, CAD, AUD, CHF, INR, BRL, MXN, KRW, RUB, ZAR, SGD
+ *                     enum: [USD, EUR, GBP, JPY, CNY, CAD, AUD, CHF, INR, BRL, MXN, KRW, RUB, ZAR, SGD]
+ *                     example: USD
+ *                   languages:
+ *                     type: array
+ *                     items:
+ *                       type: string
+ *                     description: Language pairs. Valid options: EN-FR, EN-ES, EN-DE, EN-ZH, EN-JA, EN-KO, EN-AR, EN-RU, EN-IT, EN-PT, FR-EN, ES-EN, DE-EN, ZH-EN, JA-EN, KO-EN, AR-EN, RU-EN, IT-EN, PT-EN
+ *                     example: ["EN-FR", "EN-ES"]
+ *                   specialization:
+ *                     type: array
+ *                     items:
+ *                       type: string
+ *                     description: Specialization areas. Valid options: Legal, Medical, Technical, Marketing, Financial, Literary, Academic, General
+ *                     example: ["Legal", "Medical"]
  *     responses:
  *       200:
  *         description: User updated successfully
@@ -250,8 +275,5 @@ router.delete("/:id", usersController.remove);
  *               $ref: '#/components/schemas/Error'
  */
 router.post("/", usersController.create);
-
-router.put("/:id", usersController.update);
-router.delete("/:id", usersController.remove);
 
 export default router;

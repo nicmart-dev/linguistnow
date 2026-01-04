@@ -24,16 +24,15 @@ if (envConfig.error) {
   }
 }
 dotenvExpand.expand(envConfig);
-console.log(
-  "After expand - GOOGLE_CLIENT_ID:",
-  process.env.GOOGLE_CLIENT_ID ? "SET" : "NOT_SET",
-);
+// Note: env validation happens in env.ts module
+// This log is for debugging dotenv loading only
 
 // Import modules that use env AFTER dotenv is loaded and expanded
 import calendarRoutes from "./routes/calendarRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import usersRoutes from "./routes/usersRoutes.js";
 import tokenRoutes from "./routes/tokenRoutes.js";
+import linguistsRoutes from "./routes/linguistsRoutes.js";
 import swaggerSpec, { apiVersion } from "./swagger.js";
 import { env } from "./env.js";
 
@@ -52,6 +51,7 @@ const getAllowedOrigins = (): string[] => {
     allowedOrigins.push(env.FRONTEND_URL);
 
     // In development, also allow localhost with common ports
+    // NODE_ENV is a standard Node.js env var, safe to check directly
     if (process.env.NODE_ENV === "development") {
       allowedOrigins.push("http://localhost:3000");
       allowedOrigins.push("http://localhost:3030");
@@ -95,7 +95,7 @@ const corsOptions: cors.CorsOptions = {
     }
   },
   credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
 };
 app.use(cors(corsOptions));
@@ -158,6 +158,9 @@ app.use("/api/calendars", calendarRoutes);
 
 // Route for token refresh (internal endpoint called by n8n)
 app.use("/api/tokens", tokenRoutes);
+
+// Route for linguist search and filtering
+app.use("/api/linguists", linguistsRoutes);
 
 // Start the server
 app.listen(PORT, () => {
