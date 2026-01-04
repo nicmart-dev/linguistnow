@@ -108,14 +108,17 @@ See [Architecture Overview](./docs/architecture-overview.md) for details.
 
 ## Documentation
 
-| Document                                                                    | Description                 |
-| --------------------------------------------------------------------------- | --------------------------- |
-| [Install Instructions](./docs/install-instructions.md)                      | Local development setup     |
-| [Google Calendar Integration](./docs/integration-of-google-calendar-api.md) | Calendar API implementation |
-| [Vault Integration](./docs/vault-integration-guide.md)                      | Secure token storage        |
-| [Airtable Data Structure](./docs/store-user-data-in-airtable.md)            | Database schema             |
-| [User Journey & Sitemap](./docs/sitemap-and-user-journey.md)                | UX documentation            |
-| [Google Authentication](./docs/google-authentication.md)                    | OAuth2 flow                 |
+| Document                                                                    | Description                  |
+| --------------------------------------------------------------------------- | ---------------------------- |
+| [Install Instructions](./docs/install-instructions.md)                      | Local development setup      |
+| [Architecture Overview](./docs/architecture-overview.md)                    | System architecture          |
+| [Dashboard Design](./docs/dashboard-design.md)                              | Dashboard feature design     |
+| [Linguist Settings Design](./docs/linguist-settings-design.md)              | Settings page feature design |
+| [Google Calendar Integration](./docs/integration-of-google-calendar-api.md) | Calendar API implementation  |
+| [Vault Integration](./docs/vault-integration-guide.md)                      | Secure token storage         |
+| [Airtable Data Structure](./docs/store-user-data-in-airtable.md)            | Database schema              |
+| [User Journey & Sitemap](./docs/sitemap-and-user-journey.md)                | UX documentation             |
+| [Google Authentication](./docs/google-authentication.md)                    | OAuth2 flow                  |
 
 ## Roadmap
 

@@ -13,23 +13,44 @@ This document describes the testing setup and Test-Driven Development (TDD) work
 
 ## Overview
 
-We use **Vitest** for testing both client and server code:
+We use **Vitest 4.0.16** for testing both client and server code:
 
-- **Client**: Vitest with jsdom environment for React components
+- **Client**: Vitest with `happy-dom` environment for React components
 - **Server**: Vitest with Node.js environment for API endpoints
+
+Both packages use `@vitest/coverage-v8` for code coverage reporting.
 
 ## Vitest Configuration
 
 ### Client (`client/vitest.config.ts`)
 
 ```typescript
+import { defineConfig } from "vitest/config";
+import react from "@vitejs/plugin-react-swc";
+import path from "path";
+
 export default defineConfig({
   plugins: [react()],
   test: {
     globals: true,
-    environment: "jsdom",
+    environment: "happy-dom",
     setupFiles: "./src/test/setup.ts",
     include: ["src/**/*.{test,spec}.{ts,tsx}"],
+    coverage: {
+      provider: "v8",
+      reporter: ["text", "json", "html"],
+      thresholds: {
+        statements: 80,
+        branches: 80,
+        functions: 70,
+        lines: 80,
+      },
+    },
+  },
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "./src"),
+    },
   },
 });
 ```
@@ -37,11 +58,23 @@ export default defineConfig({
 ### Server (`server/vitest.config.ts`)
 
 ```typescript
+import { defineConfig } from "vitest/config";
+
 export default defineConfig({
   test: {
     globals: true,
     environment: "node",
     include: ["**/*.{test,spec}.ts"],
+    coverage: {
+      provider: "v8",
+      reporter: ["text", "json", "html"],
+      thresholds: {
+        statements: 90,
+        branches: 75,
+        functions: 80,
+        lines: 90,
+      },
+    },
   },
 });
 ```
@@ -67,7 +100,7 @@ describe('Button', () => {
 Run the test to confirm it fails:
 
 ```bash
-pnpm --filter client test
+pnpm --filter ./client test
 ```
 
 ### 2. Green: Make the Test Pass
@@ -84,7 +117,7 @@ export const Button = ({ children }: { children: React.ReactNode }) => {
 Run the test again to confirm it passes:
 
 ```bash
-pnpm --filter client test
+pnpm --filter ./client test
 ```
 
 ### 3. Refactor: Improve the Code
@@ -215,40 +248,220 @@ describe("refreshAccessToken", () => {
 });
 ```
 
+### Testing Currency Utilities
+
+```typescript
+import { describe, it, expect } from "vitest";
+import { CURRENCIES, getCurrencySymbol } from "./currency";
+
+describe("currency utilities", () => {
+  it("should return symbol for valid currency code", () => {
+    expect(getCurrencySymbol("USD")).toBe("$");
+    expect(getCurrencySymbol("EUR")).toBe("€");
+  });
+
+  it("should be case-insensitive", () => {
+    expect(getCurrencySymbol("usd")).toBe("$");
+    expect(getCurrencySymbol("EUR")).toBe("€");
+  });
+
+  it("should return code itself for unknown currency", () => {
+    expect(getCurrencySymbol("XYZ")).toBe("XYZ");
+  });
+});
+```
+
+### Testing Date Presets
+
+```typescript
+import { describe, it, expect } from "vitest";
+import { getPresetRange, PRESETS } from "./date-presets";
+
+describe("date-presets utilities", () => {
+  const referenceDate = new Date(2026, 0, 3); // Saturday, January 3, 2026
+
+  it("should return range for next7 preset", () => {
+    const range = getPresetRange("next7", 0, referenceDate);
+    expect(range.from.getDate()).toBe(4); // Tomorrow
+    expect(range.to?.getDate()).toBe(10); // 7 days from today
+  });
+
+  it("should handle week start preferences", () => {
+    const sundayStart = getPresetRange("nextWeek", 0, referenceDate);
+    const mondayStart = getPresetRange("nextWeek", 1, referenceDate);
+    expect(sundayStart.from.getDay()).toBe(0); // Sunday
+    expect(mondayStart.from.getDay()).toBe(1); // Monday
+  });
+});
+```
+
+### Testing Token Refresh Utilities
+
+```typescript
+import { describe, it, expect, vi } from "vitest";
+import { getValidAccessToken, withAutoRefresh } from "./tokenRefresh";
+import * as vaultClient from "./vaultClient";
+
+vi.mock("./vaultClient");
+
+describe("tokenRefresh utilities", () => {
+  it("should return valid access token when token is still valid", async () => {
+    vi.mocked(vaultClient.readToken).mockResolvedValue({
+      accessToken: "valid-token",
+      refreshToken: "refresh-token",
+    });
+    vi.mocked(axios.get).mockResolvedValue({
+      status: 200,
+      data: { expires_in: 3600 },
+    });
+
+    const result = await getValidAccessToken("user@example.com");
+    expect(result).toBe("valid-token");
+  });
+
+  it("should refresh token when expired", async () => {
+    // Mock expired token scenario
+    vi.mocked(vaultClient.readToken).mockResolvedValue({
+      accessToken: "expired-token",
+      refreshToken: "refresh-token",
+    });
+    vi.mocked(axios.get).mockResolvedValue({ status: 401 });
+
+    // Mock OAuth2Client refresh
+    const mockOAuth2Client = {
+      setCredentials: vi.fn(),
+      refreshAccessToken: vi.fn().mockResolvedValue({
+        credentials: { access_token: "new-token" },
+      }),
+    };
+    vi.mocked(OAuth2Client).mockImplementation(() => mockOAuth2Client as any);
+
+    const result = await getValidAccessToken("user@example.com");
+    expect(result).toBe("new-token");
+  });
+});
+```
+
+### Testing React Components with User Interactions
+
+```typescript
+import { describe, it, expect, vi } from "vitest";
+import { render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { DateInput } from "./DateInput";
+
+describe("DateInput", () => {
+  it("should update date on valid input", async () => {
+    const user = userEvent.setup();
+    const onChange = vi.fn();
+    const initialDate = new Date(2026, 0, 15);
+
+    render(<DateInput value={initialDate} onChange={onChange} />);
+
+    const dayInput = screen.getByPlaceholderText("D");
+    await user.clear(dayInput);
+    await user.type(dayInput, "20");
+
+    expect(onChange).toHaveBeenCalled();
+    const newDate = onChange.mock.calls[0][0];
+    expect(newDate.getDate()).toBe(20);
+  });
+
+  it("should handle arrow key navigation", async () => {
+    const user = userEvent.setup();
+    const onChange = vi.fn();
+    const initialDate = new Date(2026, 0, 15);
+
+    render(<DateInput value={initialDate} onChange={onChange} />);
+
+    const monthInput = screen.getByPlaceholderText("M");
+    monthInput.focus();
+    await user.keyboard("{ArrowUp}");
+
+    expect(onChange).toHaveBeenCalled();
+    const newDate = onChange.mock.calls[0][0];
+    expect(newDate.getMonth()).toBe(1); // February
+  });
+});
+```
+
+### Testing Components with API Calls
+
+```typescript
+import { describe, it, expect, vi } from "vitest";
+import { render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import axios from "axios";
+import RatingInput from "./RatingInput";
+
+vi.mock("axios");
+vi.mock("sonner", () => ({
+  toast: {
+    success: vi.fn(),
+    error: vi.fn(),
+  },
+}));
+
+describe("RatingInput", () => {
+  it("should update rating on star click", async () => {
+    const user = userEvent.setup();
+    const onChange = vi.fn();
+    vi.mocked(axios.patch).mockResolvedValue({
+      data: { rating: 4 },
+    });
+
+    render(
+      <RatingInput
+        rating={2}
+        linguistEmail="test@example.com"
+        onRatingChange={onChange}
+      />
+    );
+
+    const stars = screen.getAllByRole("button");
+    await user.click(stars[3]); // Click 4th star
+
+    await waitFor(() => {
+      expect(axios.patch).toHaveBeenCalledWith(
+        expect.stringContaining("/api/linguists/test@example.com/rating"),
+        { rating: 4 }
+      );
+    });
+  });
+});
+```
+
 ## Coverage
 
 ### Running Tests with Coverage
 
 ```bash
 # Client
-pnpm --filter client test -- --coverage
+pnpm --filter ./client test -- --coverage
 
 # Server
-pnpm --filter server test -- --coverage
+pnpm --filter ./server test -- --coverage
 ```
 
 ### Coverage Goals
 
-- **Statements**: > 80%
-- **Branches**: > 75%
-- **Functions**: > 80%
-- **Lines**: > 80%
+**Client:**
+
+- **Statements**: ≥ 80%
+- **Branches**: ≥ 80%
+- **Functions**: ≥ 70%
+- **Lines**: ≥ 80%
+
+**Server:**
+
+- **Statements**: ≥ 90%
+- **Branches**: ≥ 75%
+- **Functions**: ≥ 80%
+- **Lines**: ≥ 90%
 
 ### Excluding Files from Coverage
 
-Add to `vitest.config.ts`:
-
-```typescript
-test: {
-  coverage: {
-    exclude: [
-      '**/*.test.ts',
-      '**/*.spec.ts',
-      '**/test/**',
-    ],
-  },
-}
-```
+Coverage exclusions are configured in `vitest.config.ts` for each package. The client excludes test files, config files, pages, and complex components that are tested via integration tests. The server excludes test files, config files, and entry points that are tested via integration.
 
 ## Best Practices
 
@@ -326,26 +539,26 @@ afterEach(() => {
 
 ```bash
 # Client
-pnpm --filter client test
+pnpm --filter ./client test
 
 # Server
-pnpm --filter server test
+pnpm --filter ./server test
 ```
 
 ### Single Run (CI)
 
 ```bash
 # Client
-pnpm --filter client test run
+pnpm --filter ./client test:run
 
 # Server
-pnpm --filter server test run
+pnpm --filter ./server test:run
 ```
 
 ### Specific Test File
 
 ```bash
-pnpm --filter client test Button.test.tsx
+pnpm --filter ./client test Button.test.tsx
 ```
 
 ## Related Documentation

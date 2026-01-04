@@ -57,11 +57,13 @@ While Google Calendar integration is now handled directly in Express, n8n remain
 
 Located at `n8n/Token_Refresh_Schedule.json`
 
-This workflow runs on a cron schedule to refresh Google OAuth tokens before they expire.
+This workflow runs monthly to refresh Google OAuth **refresh tokens**, preventing them from expiring after 6 months of inactivity.
+
+**Important**: This workflow does NOT handle **access token expiration** (which happens every hour). Access tokens are automatically refreshed on-demand by the Express server during API calls. See [Automatic Token Refresh](#automatic-token-refresh) below.
 
 ```mermaid
 graph TD
-    A[Cron Trigger<br/>Every 45 minutes] --> B[Call Express API<br/>POST /api/tokens/refresh-all]
+    A[Cron Trigger<br/>Monthly: 3 AM on 1st] --> B[Call Express API<br/>POST /api/tokens/refresh-all]
     B --> C{Success?}
     C -->|Yes| D[Log: Tokens refreshed]
     C -->|No| E[Send Alert<br/>Email/Slack/etc.]
@@ -72,6 +74,8 @@ graph TD
     style E fill:#ff6d5a
 ```
 
+**Note**: This workflow prevents **refresh token expiration** (6 months of inactivity). For **access token expiration** (1 hour), the Express server automatically refreshes tokens on-demand during API calls. See [Automatic Token Refresh](#automatic-token-refresh) below.
+
 ### Configuration
 
 1. Import the workflow from `n8n/Token_Refresh_Schedule.json`
@@ -80,6 +84,76 @@ graph TD
    - Production: `https://api.yourdomain.com/api/tokens/refresh-all`
 3. (Optional) Configure alert notifications for failures
 4. Activate the workflow
+
+### Automatic Token Refresh
+
+The Express server includes automatic token refresh that handles **access token expiration** (every hour):
+
+- **Proactive**: Validates tokens before API calls and refreshes if expired
+- **Reactive**: Automatically retries failed API calls with a refreshed token
+- **Transparent**: Users never see token expiration errors
+- **DRY Principle**: Token refreshed once in Vault, shared between PM dashboard and linguist settings pages
+
+**User Impact:**
+
+**PM Dashboard:**
+
+- PMs see accurate linguist availability even if access tokens expired
+- No interruption to availability checking workflow
+- Availability status remains consistent
+
+**Linguist Settings Page:**
+
+- Linguists can access calendar selector without "session expired" errors
+- Calendar list loads successfully even after access token expiration
+- Field remains visible (greyed out) with error message only if refresh token is invalid
+
+**Implementation:**
+
+- `server/utils/tokenRefresh.ts` provides `getValidAccessToken()` and `withAutoRefresh()` utilities
+- Both `calendarController.listCalendars()` and `linguistsController.checkLinguistAvailability()` use these utilities
+- Tokens are validated before use and automatically refreshed if expired
+- Refreshed tokens are immediately saved to Vault for reuse by other endpoints
+
+**Token Refresh Flow:**
+
+```mermaid
+sequenceDiagram
+    participant PM as PM Dashboard
+    participant LS as Linguist Settings
+    participant Server as Express Server
+    participant Vault as HashiCorp Vault
+    participant Google as Google OAuth API
+
+    Note over PM,Google: Access token expired (1 hour)
+
+    PM->>Server: GET /api/linguists/search
+    Server->>Vault: Read tokens
+    Vault->>Server: { accessToken (expired), refreshToken }
+    Server->>Server: Validate & Refresh Token
+    Server->>Google: Refresh access token
+    Google->>Server: New accessToken
+    Server->>Vault: Write updated tokens
+    Server->>Google: Check availability
+    Google->>Server: Availability data
+    Server->>PM: Search results ✅
+
+    Note over LS,Google: Same user, token already refreshed
+
+    LS->>Server: GET /api/calendars/list/:email
+    Server->>Vault: Read tokens
+    Vault->>Server: { accessToken (fresh), refreshToken }
+    Server->>Google: Fetch calendars
+    Google->>Server: Calendar list
+    Server->>LS: Calendar list ✅
+```
+
+This complements the n8n workflow:
+
+- **n8n workflow**: Prevents refresh token expiration (6 months) - runs monthly
+- **Automatic refresh**: Handles access token expiration (1 hour) - happens on-demand
+
+Both mechanisms work together to ensure uninterrupted service.
 
 ---
 

@@ -30,6 +30,17 @@ Note: Don't mind the Google warnings during sign-in, app approval is still in 
 
 ![Project Manager Dashboard](https://github.com/nicmart-dev/linguistnow/assets/10499747/5d5d69d3-9bec-4e95-b06f-9d4fa1cb4335)
 
+**📋 For detailed technical documentation, see [Dashboard Design Document](./dashboard-design.md)**
+
+The dashboard provides a comprehensive interface for project managers to:
+
+- **Search and filter linguists** by languages, specialization, rates, ratings, and availability
+- **Select date ranges** for future project planning with locale-aware calendar picker
+- **View results** in list (table) or card (grid) format
+- **Book linguists** directly with calendar invite generation
+
+Key features include real-time availability checking via Google Calendar integration, advanced filtering options, and a booking workflow that generates ICS files for calendar integration.
+
 ## Linguist Settings
 
 ### Connect with Google Calendar (Linguist only)

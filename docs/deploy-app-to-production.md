@@ -6,6 +6,7 @@ The LinguistNow stack includes:
 
 - **Frontend**: React application served by Nginx
 - **Backend**: Node.js Express API server
+- **Shared Package**: TypeScript library (built and bundled into frontend/backend, not a separate container)
 
 ## Prerequisites
 
@@ -14,7 +15,7 @@ Before deploying LinguistNow, ensure the following are set up:
 1. **Docker host** (Synology NAS, Linux server, cloud VM, etc.)
 2. **Docker** and **Docker Compose** installed
 3. **Portainer** installed for container management (recommended)
-4. **Google OAuth credentials** configured (see [Set up OAuth in Google Cloud](./set-up-oauth-in-google-cloud.md))
+4. **Google OAuth credentials** configured (see [Google Authentication Setup](./google-authentication.md#setup-google-oauth-configuration))
 5. **Airtable database** set up (see [Install Instructions](./install-instructions.md#airtable-database))
 
 ### Shared Infrastructure (Deploy First)
@@ -25,8 +26,6 @@ LinguistNow requires these shared services to be running:
 | ------------------- | ------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **HashiCorp Vault** | Secure OAuth token storage     | [Vault Integration Guide](./vault-integration-guide.md#deploy-vault) (deploy), then [Production Mode](./vault-integration-guide.md#production-mode) (configure) |
 | **n8n**             | Calendar availability workflow | [n8n Workflow Integration](./n8n-workflow-integration.md#3-deploy-n8n)                                                                                          |
-
-> **For local development**, see [Deploy Locally with Docker](./deploy-local-docker.md) which includes all services in one stack.
 
 ---
 
@@ -42,6 +41,7 @@ LinguistNow requires these shared services to be running:
 - [Troubleshooting](#troubleshooting)
 - [Maintenance](#maintenance)
 - [Security Recommendations](#security-recommendations)
+- [Appendix: Local Development with Docker](#appendix-local-development-with-docker)
 
 ---
 
@@ -55,8 +55,8 @@ flowchart TB
             N8N["🔄 n8n<br/>(separate stack)<br/>:5678"]
         end
         subgraph LinguistNow["📦 LinguistNow Stack"]
-            Frontend["🌐 Frontend<br/>:3000"]
-            Backend["⚙️ Backend<br/>:5000"]
+            Frontend["🌐 Frontend<br/>(Nginx)<br/>:3000<br/><br/>Includes:<br/>- React app<br/>- Shared types<br/>(bundled)"]
+            Backend["⚙️ Backend<br/>(Node.js)<br/>:5000<br/><br/>Includes:<br/>- Express API<br/>- Shared types<br/>(built)"]
         end
     end
 
@@ -65,6 +65,13 @@ flowchart TB
     Backend -->|Write Tokens| Vault
     N8N -->|Read Tokens<br/>via Community Node| Vault
 ```
+
+**Note**: The `@linguistnow/shared` package is a TypeScript library containing shared types and utilities. It is:
+
+- **Built during the Docker build process** (compiled to JavaScript)
+- **Bundled into the frontend** static files by Vite
+- **Included in the backend** container as a dependency
+- **Not a separate service** - no container needed, just a build-time dependency
 
 ---
 
@@ -190,6 +197,13 @@ This deploys LinguistNow connecting to external Vault and n8n (deployed as prere
 Use this method if you need to build images from source with custom frontend URLs.
 
 > **Note**: This uses `docker-compose.yml` which includes ALL services (n8n, Vault). Use this for self-contained deployments.
+>
+> **Build Process**: During the Docker build:
+>
+> - The `@linguistnow/shared` package is compiled (TypeScript → JavaScript)
+> - Frontend build bundles the shared package into static files
+> - Backend build includes the shared package as a dependency
+> - No separate container is needed for the shared package
 
 1. In Portainer, go to **Stacks** → **Add Stack**
 
@@ -420,3 +434,59 @@ docker-compose logs -f backend
 3. **Restrict external access** to n8n and Vault if only used internally
 4. **Regular updates**: Keep Docker images and host OS updated
 5. **Firewall rules**: Only expose necessary ports (3000, 5000)
+
+---
+
+## Appendix: Local Development with Docker
+
+> **Note**: This section is for local testing and development. For production deployment, follow the main guide above.
+
+### Quick Start
+
+For local testing, `docker-compose.yml` includes all services (Frontend, Backend, n8n, Vault) in one stack:
+
+```bash
+# Clone and setup
+git clone https://github.com/nicmart-dev/linguistnow.git
+cd linguistnow
+cp example.env .env
+cp server/example.env server/.env
+cp client/example.env client/.env
+
+# Edit .env with your credentials, then:
+docker-compose up -d --build
+docker-compose logs -f
+```
+
+Access at:
+
+- **Frontend**: http://localhost:3000
+- **Backend API**: http://localhost:5000
+- **n8n**: http://localhost:5678
+- **Vault**: http://localhost:8200
+
+### Docker Compose Files
+
+| File                       | Purpose                                         |
+| -------------------------- | ----------------------------------------------- |
+| `docker-compose.yml`       | Full stack for local development (all services) |
+| `docker-compose.prod.yml`  | Production (pre-built images, external network) |
+| `docker-compose.vault.yml` | Vault only (shared infrastructure)              |
+
+**Note**: The `@linguistnow/shared` package is not a separate service. It's a library dependency that:
+
+- Gets built during the Docker build process
+- Is bundled into the frontend static files
+- Is included in the backend container
+- Does not require its own container or service definition
+
+### Environment Variables
+
+For local development, configure environment variables in `.env` files. Required variables include:
+
+- `FRONTEND_URL`, `BACKEND_URL`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`
+- `AIRTABLE_PERSONAL_ACCESS_TOKEN`, `AIRTABLE_BASE_ID`
+- `N8N_BASE_URL`, `VAULT_ADDR`, `VAULT_TOKEN`
+- `VITE_API_URL`, `VITE_BASE_URL`, `VITE_GOOGLE_CLIENT_ID` (build-time)
+
+**Key difference**: `docker-compose.yml` builds from source, so `VITE_*` variables are used at build time. See [Step 1: Configure GitHub Repository Secrets](#step-1-configure-github-repository-secrets-for-cicd) for details on Vite build-time variables.

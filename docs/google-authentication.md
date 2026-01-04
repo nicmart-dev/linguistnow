@@ -1,12 +1,14 @@
-### Overview
+# Google Authentication
 
-This design outlines how Google Authentication, as configured [here](./set-up-oauth-in-google-cloud.md) is integrated into:
-
-- the React application (built with **Vite** and **TypeScript/TSX**) using the `@react-oauth/google` package, and Google OAuth2 authorization flow with both access and refresh tokens.
-  Considering the limited time, that package was implemented, preferring a simpler, more streamlined approach to OAuth integration which suits React application.
+This document covers both the setup and implementation of Google Authentication in LinguistNow. The React application (built with **Vite** and **TypeScript/TSX**) uses the `@react-oauth/google` package for OAuth2 authorization flow with both access and refresh tokens. This package was chosen for its simpler, more streamlined approach to OAuth integration which suits React applications.
 
 ## Table of Contents
 
+- [Setup: Google OAuth Configuration](#setup-google-oauth-configuration)
+  - [Create Project](#create-project)
+  - [Configure Consent Screen](#configure-consent-screen)
+  - [Create Credentials](#create-credentials)
+  - [Configure Application](#configure-application)
 - [Authentication Flow](#authentication-flow)
   - [Components](#components)
     - [App Component](#app-component)
@@ -24,6 +26,60 @@ This design outlines how Google Authentication, as configured [here](./set-up-oa
   - [Implementation](#implementation)
 - [DRY Principles in Authentication](#dry-principles-in-authentication)
   - [Utility Functions](#utility-functions)
+
+## Setup: Google OAuth Configuration
+
+The React app and Express server use OAuth 2.0 Client ID and secret created for Google authentication. The client ID and secret can always be accessed from Credentials in APIs & Services: https://console.cloud.google.com/apis/credentials
+
+### Create Project
+
+1. Go to https://console.cloud.google.com/apis/dashboard
+
+2. Click `CREATE PROJECT` button, choose any name
+
+### Configure Consent Screen
+
+1. Click `CONFIGURE CONSENT SCREEN` button or go to your OAuth Consent Screen https://console.cloud.google.com/apis/credentials/consent
+
+2. Select `External` and click `CREATE` button
+
+3. Fill in mandatory fields and click `SAVE AND CONTINUE` button, and click that button again in the `Scopes` screen
+
+4. Add your account email as test user with `ADD USERS` button, click `SAVE AND CONTINUE` button
+
+**Note:** Please set up at least 2 Google accounts to use as test users, one of which we will later [set up in Airtable](./install-instructions.md#set-up-new-users) with `Project Manager` role (the other being created automatically upon first login in the app with `Linguist` role).
+
+### Create Credentials
+
+1. Go to Credentials page https://console.cloud.google.com/apis/credentials
+
+2. Click `Create credentials` button and select `OAuth client ID`
+
+3. In the Application type dropdown, select `Web application` and give it a recognizable name like `google-auth-library`
+
+4. Under `Authorized redirect URIs`, select + ADD URI. Paste in `http://localhost:3000`.
+   **Important**: The redirect URI must be `http://localhost:3000` (the frontend URL), not the backend URL.
+   You may also want to set `http://localhost:3000`, `http://localhost:8080`, `http://localhost` in `Authorized JavaScript origins` field too.
+
+5. Select `CREATE` button
+
+6. In the OAuth client created modal that appears, click `DOWNLOAD JSON`
+
+### Configure Application
+
+**Prerequisite:** Complete [install](./install-instructions.md#install-front-end-and-backend) of React app and server.
+
+1. Download JSON from `google-auth-library` credential (which you downloaded from an earlier step, or from https://console.cloud.google.com/apis/credentials) to `server\config\oauth2.keys.json`
+
+2. Navigate to `server` and `client` directories, and copy `example.env` as `.env` file in each case
+
+3. Extract the `client_id` and `client_secret` from `oauth2.keys.json`:
+   - For `client\.env`: Set `VITE_GOOGLE_CLIENT_ID` to the `client_id` value
+   - For `server\.env`: Set `GOOGLE_CLIENT_ID` to the `client_id` value and `GOOGLE_CLIENT_SECRET` to the `client_secret` value
+   - For `server\.env`: Set `FRONTEND_URL=http://localhost:3000` (this must match the redirect URI configured in Google Cloud Console)
+   - For `server\.env`: Set `GOOGLE_REDIRECT_URI=${FRONTEND_URL}` or `GOOGLE_REDIRECT_URI=http://localhost:3000`
+
+**Important**: The `GOOGLE_REDIRECT_URI` in the server `.env` file must match the `Authorized redirect URIs` configured in Google Cloud Console (which should be `http://localhost:3000`, the frontend URL).
 
 ## Authentication Flow
 
@@ -101,7 +157,7 @@ Ultimately, the best choice depends on your project's specific needs, your team'
 ### App Component
 
 - Manages access and refresh OAuth tokens in `userDetails` state and route redirection.
-- Uses `GoogleOAuthProvider` to wrap the app around [Google client id](./set-up-oauth-in-google-cloud.md#google-api-client-id-setup-instructions) stored in `.env` variable.
+- Uses `GoogleOAuthProvider` to wrap the app around Google client ID (configured in [Setup](#setup-google-oauth-configuration)) stored in `.env` variable.
 - **Authentication Persistence**: On app mount, checks `localStorage` for stored user email and automatically restores authentication state by fetching user details from the API. This allows users to remain logged in across page refreshes.
 - Implements `isRestoringAuth` state to show a loading indicator while authentication is being restored, preventing premature route navigation.
 - Implements `PrivateRoute` for protecting routes that require login (ie. account settings, and dashboard pages)
@@ -118,35 +174,73 @@ Ultimately, the best choice depends on your project's specific needs, your team'
 ### Dashboard page
 
 - Get list of linguists at page load from Airtable
-- For each linguist, check their availability using n8n workflow, sending `Calendar IDs` and `userEmail`
-- n8n workflow reads access token from Vault using `userEmail` and uses it in [Check when busy](./n8n-workflow-integration.md#check-when-busy) action node
-- Token refresh is handled automatically by background service (no client-side refresh needed)
+- For each linguist, check their availability using Express server's direct Google Calendar API integration
+- Express server automatically refreshes expired access tokens before making API calls
+- Token refresh is transparent to users - no session expiration errors for access token expiry
+
+### Linguist Settings page
+
+- Linguists can view and select their Google Calendars for availability checking
+- Express server automatically refreshes expired access tokens when fetching calendar lists
+- Token refresh is transparent to users - calendar selector remains functional even after access token expiration
+- Users only need to re-authenticate if their refresh token is invalid/expired (6 months of inactivity)
 
 ## Token Refresh Flow
 
-### On-Demand Refresh (when needed)
+### Automatic Access Token Refresh (On-Demand)
+
+The Express server automatically refreshes expired access tokens during API calls, ensuring uninterrupted service for both PM dashboard and linguist settings pages.
 
 ```mermaid
 sequenceDiagram
-    participant Component
+    participant PM as PM Dashboard
+    participant LS as Linguist Settings
     participant Server as Express Server
     participant Vault as HashiCorp Vault
     participant Google as Google OAuth API
 
-    Note over Component,Google: Token refresh needed
+    Note over PM,Google: Access token expired (1 hour)
 
-    Component->>Server: POST /api/auth/google/refresh<br/>{ userEmail }
-    Server->>Vault: Read tokens
-    Vault->>Server: { accessToken, refreshToken }
-    Server->>Google: Refresh access token<br/>(with client secret)
+    PM->>Server: GET /api/linguists/search
+    Server->>Vault: Read tokens for linguist
+    Vault->>Server: { accessToken (expired), refreshToken }
+    Server->>Server: Validate access token
+    Server->>Google: Refresh access token<br/>(using refresh token)
     Google->>Server: New accessToken
     Server->>Vault: Write updated tokens
-    Server->>Component: { accessToken }
+    Server->>Google: Check availability<br/>(using new token)
+    Google->>Server: Availability data
+    Server->>PM: Search results ✅
+
+    Note over LS,Google: Same user, token already refreshed
+
+    LS->>Server: GET /api/calendars/list/:email
+    Server->>Vault: Read tokens
+    Vault->>Server: { accessToken (fresh), refreshToken }
+    Server->>Google: Fetch calendars<br/>(using fresh token)
+    Google->>Server: Calendar list
+    Server->>LS: Calendar list ✅
 ```
 
-### Background Refresh (preventive)
+**Key Benefits:**
 
-A scheduled n8n workflow calls `POST /api/tokens/refresh-all` monthly to refresh all tokens proactively, preventing 6-month inactivity expiration.
+- ✅ **Transparent to users**: No "session expired" errors for access token expiration
+- ✅ **DRY principle**: Token refreshed once in Vault, both endpoints benefit
+- ✅ **Efficient**: Only refreshes when needed (token expired or about to expire)
+- ✅ **Consistent**: Same refresh logic used for dashboard and settings pages
+
+**Implementation:**
+
+- `server/utils/tokenRefresh.ts` provides `getValidAccessToken()` and `withAutoRefresh()` utilities
+- Both `calendarController.listCalendars()` and `linguistsController.checkLinguistAvailability()` use these utilities
+- Tokens are validated before use and automatically refreshed if expired
+- Refreshed tokens are immediately saved to Vault for reuse
+
+### Background Refresh (Preventive)
+
+A scheduled n8n workflow calls `POST /api/tokens/refresh-all` monthly to refresh all **refresh tokens** proactively, preventing 6-month inactivity expiration.
+
+**Important**: This workflow prevents **refresh token expiration** (6 months of inactivity). For **access token expiration** (every hour), the Express server automatically refreshes tokens on-demand during API calls. See `server/utils/tokenRefresh.ts` for implementation details.
 
 ## Security Improvements
 
@@ -160,9 +254,9 @@ A scheduled n8n workflow calls `POST /api/tokens/refresh-all` monthly to refresh
 **Current Implementation:**
 
 - Client secret stored securely on server
-- Token refresh endpoint: `POST /api/auth/google/refresh`
-- Frontend calls server endpoint with refresh token
+- Automatic token refresh handled server-side during API calls
 - Server uses `google-auth-library` to refresh tokens securely
+- Tokens stored in HashiCorp Vault for centralized management
 
 **Benefits:**
 
@@ -183,36 +277,42 @@ graph TB
     subgraph "Backend (Secure)"
         C[Express Server]
         D[Client Secret]
-        E[Token Refresh Endpoint]
+        E[Automatic Token Refresh]
+        F[Vault Integration]
     end
 
     subgraph "Google OAuth"
-        F[OAuth2 API]
+        G[OAuth2 API]
     end
 
     A -->|Uses| B
-    A -->|Calls| E
+    A -->|API Calls| C
+    C -->|Auto-Refreshes| E
     E -->|Uses| D
-    E -->|Authenticates| F
+    E -->|Stores| F
+    E -->|Authenticates| G
 
     style B fill:#90ee90
     style D fill:#ff6d5a
     style E fill:#ffd700
+    style F fill:#61dafb
 ```
 
 ### Implementation Details
 
-**Server Endpoint** (`server/controllers/authController.js`):
+**Automatic Token Refresh** (`server/utils/tokenRefresh.ts`):
 
-```javascript
-const refreshAccessToken = async (req, res) => {
-  const { refreshToken } = req.body;
-  // Uses server-side google-auth-library
-  // Keeps client secret secure
-};
+```typescript
+export async function getValidAccessToken(userEmail: string): Promise<string> {
+  // Read tokens from Vault
+  // Validate access token
+  // If expired, refresh automatically
+  // Save refreshed token to Vault
+  // Return valid token
+}
 ```
 
-**Note**: Token refresh is now handled entirely server-side. The client no longer manages tokens directly - they are stored in HashiCorp Vault and accessed by the backend and n8n workflow.
+**Note**: Token refresh is handled entirely server-side during API calls. The client never manages tokens directly - they are stored in HashiCorp Vault and automatically refreshed by the Express server when needed.
 
 ### Environment Variables
 
@@ -305,4 +405,5 @@ All authentication logic is centralized in `client/src/auth-users/utils.ts`:
 
 ## Related Documentation
 
+- [Integration of Google Calendar API](./integration-of-google-calendar-api.md) - How authentication tokens are used for calendar availability checks
 - [PWA Installation Guide](./PWA-Installation.md) - Information about installing LinguistNow as a Progressive Web App
