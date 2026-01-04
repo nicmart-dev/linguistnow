@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0](https://github.com/nicmart-dev/linguistnow/compare/v1.2.0...v1.3.0) (2026-01-04)
+
+### ✨ Features
+
+- **client,server:** overhaul PM dashboard with advanced filtering and booking ([70e1d46](https://github.com/nicmart-dev/linguistnow/commit/70e1d461f087ca583db349c960ef0574c2eed567))
+- **client:** add currency support with multi-currency display ([d1e4853](https://github.com/nicmart-dev/linguistnow/commit/d1e4853634124511ab1a4fea296b81cb3d5816c4))
+- **client:** add date preset utilities for quick date range selection ([9777cee](https://github.com/nicmart-dev/linguistnow/commit/9777cee0af57baa985933b249701938ee202d228))
+- **client:** add linguist settings components for profile management ([b39655e](https://github.com/nicmart-dev/linguistnow/commit/b39655ec50e1e5f6411055ca1483bccb61c82b2f))
+- **server:** add automatic token refresh for Google Calendar API ([c3ccd3c](https://github.com/nicmart-dev/linguistnow/commit/c3ccd3c5b5d7096d87473e1af752bd2da0f56646))
+- **server:** add linguists API with profile management ([b1581d7](https://github.com/nicmart-dev/linguistnow/commit/b1581d7ec5e1c35e1bdc681e83e7f6db7c11df76))
+- **shared:** enhance API types and add date locale utilities ([a3fe9c6](https://github.com/nicmart-dev/linguistnow/commit/a3fe9c650e8db2956e2988bea8679f284e5e01bb))
+
 ## [1.2.0](https://github.com/nicmart-dev/linguistnow/compare/v1.1.0...v1.2.0) (2026-01-03)
 
 ### ✨ Features
