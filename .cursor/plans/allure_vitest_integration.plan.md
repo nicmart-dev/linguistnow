@@ -46,15 +46,7 @@ flowchart LR
 
 ## Key Files to Modify
 
-| File                      | Change                                 |
-| ------------------------- | -------------------------------------- |
-| `client/package.json`     | Add `allure-vitest` dev dependency     |
-| `server/package.json`     | Add `allure-vitest` dev dependency     |
-| `shared/package.json`     | Add `allure-vitest` dev dependency     |
-| `client/vitest.config.ts` | Add Allure reporter configuration      |
-| `server/vitest.config.ts` | Add Allure reporter configuration      |
-| `shared/vitest.config.ts` | Add Allure reporter configuration      |
-| `package.json`            | Add monorepo-level test report scripts |
+| File | Change || ------------------------- | -------------------------------------- || `client/package.json` | Add `allure-vitest` dev dependency || `server/package.json` | Add `allure-vitest` dev dependency || `shared/package.json` | Add `allure-vitest` dev dependency || `client/vitest.config.ts` | Add Allure reporter configuration || `server/vitest.config.ts` | Add Allure reporter configuration || `shared/vitest.config.ts` | Add Allure reporter configuration || `package.json` | Add monorepo-level test report scripts |
 
 ## Implementation Details
 
@@ -76,9 +68,7 @@ pnpm add -D allure-commandline
 
 ### 2. Configure Vitest Reporters
 
-Add Allure reporter to each vitest config.
-
-**client/vitest.config.ts:**
+Add Allure reporter to each vitest config.**client/vitest.config.ts:**
 
 ```typescript
 import { defineConfig } from "vitest/config";
@@ -173,7 +163,7 @@ Add to root `package.json`:
 
 Add to root `.gitignore`:
 
-```
+```javascript
 # Allure test reports
 allure-results/
 allure-report/
@@ -196,11 +186,7 @@ For GitHub Actions, add a workflow step to upload Allure reports as artifacts:
 
 ## Usage
 
-| Command                  | Description                                     |
-| ------------------------ | ----------------------------------------------- |
-| `pnpm test:report:serve` | Run tests and open interactive Allure dashboard |
-| `pnpm test:report`       | Run tests and generate static HTML report       |
-| `pnpm test:report:open`  | Open previously generated report                |
+| Command | Description || ------------------------ | ----------------------------------------------- || `pnpm test:report:serve` | Run tests and open interactive Allure dashboard || `pnpm test:report` | Run tests and generate static HTML report || `pnpm test:report:open` | Open previously generated report |
 
 ## Cost
 
@@ -214,5 +200,3 @@ Note: "Allure TestOps" is a separate paid product - this plan uses only the free
 ## Notes
 
 - Allure results from all packages merge into a single unified report
-- Coverage HTML reports remain separate (Allure focuses on test cases, not line-level coverage)
-- For combined coverage + test view, you can add links from Allure report to coverage HTML reports

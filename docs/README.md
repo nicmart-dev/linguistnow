@@ -74,8 +74,7 @@ If Mermaid diagrams don't render in your local markdown preview:
 
 ### Plans
 
-- [Allure Vitest Integration](./plans/allure-vitest-integration.md) - Test reporting integration plan
-- [Oxlint Hybrid Setup](./plans/oxlint-hybrid-setup.md) - Linting configuration plan
+Feature and improvement plans are managed as Cursor plans with task tracking in [`.cursor/plans/`](../.cursor/plans/).
 
 ### Docker
 

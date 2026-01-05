@@ -1,3 +1,30 @@
+---
+name: Oxlint Hybrid Setup
+overview: Add Oxlint as a fast first-pass linter while keeping ESLint for type-checked rules, providing 50-100x faster initial linting feedback with preserved type safety.
+todos:
+  - id: install-deps
+    content: Install oxlint and eslint-plugin-oxlint dev dependencies
+    status: pending
+  - id: create-oxlint-config
+    content: Create oxlint.json configuration file in project root
+    status: pending
+  - id: update-eslint-config
+    content: Update eslint.config.mjs to import oxlint plugin and auto-disable rules
+    status: pending
+  - id: add-package-scripts
+    content: Add lint:ox, lint:eslint, and updated lint/lint:fix scripts to package.json
+    status: pending
+  - id: update-lint-staged
+    content: Update .lintstagedrc.js to run oxlint before eslint in pre-commit hooks
+    status: pending
+  - id: update-ci-workflow
+    content: Update GitHub Actions workflow to run oxlint first for fast feedback
+    status: pending
+  - id: update-gitignore
+    content: Add .oxlint-cache to .gitignore
+    status: pending
+---
+
 # Oxlint Hybrid Setup: Running Oxlint Alongside ESLint
 
 ## Overview
@@ -42,26 +69,11 @@ flowchart LR
 
 ## Why Hybrid Instead of Full Migration?
 
-| Current Rule                              | Oxlint Support    | Action            |
-| ----------------------------------------- | ----------------- | ----------------- |
-| `@eslint/recommended`                     | ✅ 90%+ covered   | Disable in ESLint |
-| `strictTypeChecked`                       | ❌ Not supported  | Keep in ESLint    |
-| `@typescript-eslint/no-floating-promises` | ❌ Requires types | Keep in ESLint    |
-| `@typescript-eslint/no-unsafe-*`          | ❌ Requires types | Keep in ESLint    |
-| Basic syntax rules                        | ✅ Covered        | Disable in ESLint |
-| Import/export rules                       | ✅ Covered        | Disable in ESLint |
-
-**Key insight**: Type-checked rules like `no-floating-promises` and `no-unsafe-*` require TypeScript's type information—oxlint cannot replicate these.
+| Current Rule | Oxlint Support | Action || ----------------------------------------- | ----------------- | ----------------- || `@eslint/recommended` | ✅ 90%+ covered | Disable in ESLint || `strictTypeChecked` | ❌ Not supported | Keep in ESLint || `@typescript-eslint/no-floating-promises` | ❌ Requires types | Keep in ESLint || `@typescript-eslint/no-unsafe-*` | ❌ Requires types | Keep in ESLint || Basic syntax rules | ✅ Covered | Disable in ESLint || Import/export rules | ✅ Covered | Disable in ESLint |**Key insight**: Type-checked rules like `no-floating-promises` and `no-unsafe-*` require TypeScript's type information—oxlint cannot replicate these.
 
 ## Key Files to Modify
 
-| File                      | Change                                                          |
-| ------------------------- | --------------------------------------------------------------- |
-| `package.json`            | Add `oxlint` and `eslint-plugin-oxlint` dependencies            |
-| `eslint.config.mjs`       | Import `eslint-plugin-oxlint` to auto-disable overlapping rules |
-| `.github/workflows/*.yml` | Update CI to run oxlint first (optional)                        |
-| `.lintstagedrc.js`        | Add oxlint to pre-commit hooks                                  |
-| `oxlint.json`             | (New) Oxlint configuration file                                 |
+| File | Change || ------------------------- | --------------------------------------------------------------- || `package.json` | Add `oxlint` and `eslint-plugin-oxlint` dependencies || `eslint.config.mjs` | Import `eslint-plugin-oxlint` to auto-disable overlapping rules || `.github/workflows/*.yml` | Update CI to run oxlint first (optional) || `.lintstagedrc.js` | Add oxlint to pre-commit hooks || `oxlint.json` | (New) Oxlint configuration file |
 
 ## Implementation Details
 
@@ -166,20 +178,20 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v2
-      - uses: actions/setup-node@v4
+    - uses: actions/checkout@v4
+    - uses: pnpm/action-setup@v2
+    - uses: actions/setup-node@v4
         with:
           node-version: "20"
           cache: "pnpm"
-      - run: pnpm install
+    - run: pnpm install
 
       # Fast oxlint check first - fails fast on obvious issues
-      - name: Oxlint (fast pass)
+    - name: Oxlint (fast pass)
         run: pnpm lint:ox
 
       # Full ESLint with type checking
-      - name: ESLint (type-aware)
+    - name: ESLint (type-aware)
         run: pnpm lint:eslint
 ```
 
@@ -187,30 +199,18 @@ jobs:
 
 Add oxlint cache (if using):
 
-```
+```javascript
 # Oxlint cache
 .oxlint-cache
 ```
 
 ## Usage
 
-| Command            | Description                            |
-| ------------------ | -------------------------------------- |
-| `pnpm lint`        | Run both oxlint and ESLint in sequence |
-| `pnpm lint:ox`     | Run oxlint only (fast feedback)        |
-| `pnpm lint:eslint` | Run ESLint only (type-aware checks)    |
-| `pnpm lint:fix`    | Auto-fix issues with both linters      |
+| Command | Description || ------------------ | -------------------------------------- || `pnpm lint` | Run both oxlint and ESLint in sequence || `pnpm lint:ox` | Run oxlint only (fast feedback) || `pnpm lint:eslint` | Run ESLint only (type-aware checks) || `pnpm lint:fix` | Auto-fix issues with both linters |
 
 ## Expected Performance Improvement
 
-| Metric                | Before (ESLint only) | After (Hybrid)      |
-| --------------------- | -------------------- | ------------------- |
-| Initial syntax errors | ~5-15s               | ~0.1-0.3s (oxlint)  |
-| Full lint pass        | ~5-15s               | ~0.3s + ~3-8s       |
-| Pre-commit hooks      | ~5-15s               | Fast fail on syntax |
-| CI lint step          | ~15-30s              | Parallel stages     |
-
-> Note: Actual times depend on codebase size. Your project is small enough that ESLint is likely fast already, but oxlint provides instant feedback during development.
+| Metric | Before (ESLint only) | After (Hybrid) || --------------------- | -------------------- | ------------------- || Initial syntax errors | ~5-15s | ~0.1-0.3s (oxlint) || Full lint pass | ~5-15s | ~0.3s + ~3-8s || Pre-commit hooks | ~5-15s | Fast fail on syntax || CI lint step | ~15-30s | Parallel stages |> Note: Actual times depend on codebase size. Your project is small enough that ESLint is likely fast already, but oxlint provides instant feedback during development.
 
 ## Rule Coverage Comparison
 
@@ -274,7 +274,7 @@ pnpm add -D oxc
 
 If issues arise, reverting is simple:
 
-1. Remove `oxlint.configs['flat/recommended']` from `eslint.config.mjs`
+1. Remove `oxlint.configs['flat/recommended'] `from `eslint.config.mjs`
 2. Change `"lint"` script back to `"eslint ."`
 3. Optionally remove `oxlint` dependency
 
@@ -286,4 +286,3 @@ The hybrid approach is non-breaking—ESLint continues to work as before, just f
 - The plugin auto-disables ESLint rules to avoid duplicate warnings
 - Oxlint runs in parallel by default (uses all CPU cores)
 - No configuration required for basic usage—sensible defaults work well
-- TypeScript support is built-in (no separate parser needed)
