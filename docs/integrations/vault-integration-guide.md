@@ -420,6 +420,6 @@ The `/api/tokens/list` endpoint automatically removes tokens from Vault for user
 
 ## Related Documentation
 
-- [Deploy to Production](./deploy-app-to-production.md)
+- [Deploy to Production](../deployment/deploy-app-to-production.md)
 - [n8n Workflow Integration](./n8n-workflow-integration.md) - For optional token refresh scheduling
 - [Integration of Google Calendar API](./integration-of-google-calendar-api.md)

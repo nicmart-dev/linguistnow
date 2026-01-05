@@ -305,5 +305,5 @@ See API documentation at `/api-docs` for full details.
 
 - [Integration of Google Calendar API](./integration-of-google-calendar-api.md) - How availability checks work
 - [Vault Integration Guide](./vault-integration-guide.md) - HashiCorp Vault setup and token storage
-- [Deploy to Production](./deploy-app-to-production.md) - Production deployment with Portainer
-- [Install Instructions](./install-instructions.md) - Local development setup
+- [Deploy to Production](../deployment/deploy-app-to-production.md) - Production deployment with Portainer
+- [Install Instructions](../getting-started/install-instructions.md) - Local development setup

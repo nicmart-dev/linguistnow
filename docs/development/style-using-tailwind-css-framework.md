@@ -2,11 +2,11 @@
 
 The app was styled using **Tailwind CSS v4**, a utility-first framework with a comprehensive [documentation](https://tailwindcss.com/docs/installation) that reduces time to create CSS. The application has been upgraded from Tailwind CSS v3 to v4, and migrated from Create React App to Vite for improved performance and developer experience.
 
-
 <details>
   <summary>Why using Tailwind CSS?</summary>
 
 Using Tailwind CSS for a web development capstone project can offer several advantages, particularly if you're looking to create a modern, responsive, and visually appealing user interface. Here are some compelling reasons to consider Tailwind CSS for your project:
+
 1. Utility-First Framework: Tailwind CSS is a utility-first framework, meaning it provides low-level utility classes to build custom designs without leaving your HTML. This approach can be more efficient than using traditional CSS frameworks, where you often have to override existing styles.
 2. Customizability: Tailwind allows you to customize every aspect of your design system. You can easily configure colors, spacing, fonts, and more to match the specific requirements of your project. This is particularly useful in a capstone project where you might want to showcase unique and personalized designs.
 3. Responsive Design: Tailwind includes responsive design classes out of the box, making it straightforward to create layouts that work well on different screen sizes. This ensures that your project will be accessible and usable on various devices.
@@ -16,7 +16,7 @@ Using Tailwind CSS for a web development capstone project can offer several adva
 7. Community and Ecosystem: Tailwind CSS has a large and active community, which means you can find plenty of resources, tutorials, and plugins to help you with your project. This community support can be invaluable, especially if you encounter issues or need inspiration.
 8. Integration with Modern Tools: Tailwind CSS integrates well with modern JavaScript frameworks and build tools like React, Vue, Angular, and Next.js. This makes it easier to incorporate into a variety of tech stacks you might be using for your capstone project.
 9. Best Practices: By using Tailwind CSS, you can learn and adhere to modern best practices in CSS design and architecture. This experience can be beneficial for your future career as it reflects current trends in front-end development.
-Documentation: Tailwind CSS has comprehensive and well-organized documentation. This makes it easier to learn and implement, ensuring that you can effectively use its features in your project.
+   Documentation: Tailwind CSS has comprehensive and well-organized documentation. This makes it easier to learn and implement, ensuring that you can effectively use its features in your project.
 
 </details>
 
@@ -35,26 +35,26 @@ Images come almost exclusively from [Unsplash](https://unsplash.com/). It's a gr
 The app is using the below components, to speed development process and get a polished look and feel.
 
 ### Navbar
-* Header, using Nordic store minimal design starter template https://github.com/tailwindtoolbox/Nordic-Store
+
+- Header, using Nordic store minimal design starter template https://github.com/tailwindtoolbox/Nordic-Store
 
   <img alt="image" src="https://github.com/nicmart-dev/linguistnow/assets/10499747/d854fd22-457a-4486-bf3c-bfd823bb7e78">
 
 ### Hero component
 
-* Hero with Background Image - Tailwind Component: https://kopi.dev/tailwind/hero-with-background-image/
+- Hero with Background Image - Tailwind Component: https://kopi.dev/tailwind/hero-with-background-image/
 
   <img width="465" alt="image" src="https://github.com/nicmart-dev/linguistnow/assets/10499747/9c03a0b0-de07-4b7f-921f-c38cd28695c3">
 
 ### Settings
 
-*  HyperUI Checkboxes grouped with highlight component: https://www.hyperui.dev/components/application-ui/checkboxes#component-6
+- HyperUI Checkboxes grouped with highlight component: https://www.hyperui.dev/components/application-ui/checkboxes#component-6
 
   <img width="157" alt="image" src="https://github.com/nicmart-dev/linguistnow/assets/10499747/961ab0e0-fa8b-4e10-8348-b9749e5195d1">
 
-
 ### Dashboard page
 
-* Responsive table: implemented using [shadcn/ui DataTable](https://ui.shadcn.com/docs/components/data-table) built on [TanStack Table](https://tanstack.com/table), with [Button](https://ui.shadcn.com/docs/components/button) and [Input](https://ui.shadcn.com/docs/components/input) components.
+- Responsive table: implemented using [shadcn/ui DataTable](https://ui.shadcn.com/docs/components/data-table) built on [TanStack Table](https://tanstack.com/table), with [Button](https://ui.shadcn.com/docs/components/button) and [Input](https://ui.shadcn.com/docs/components/input) components.
 
   <img width="494" alt="image" src="https://github.com/nicmart-dev/linguistnow/assets/10499747/1586572f-545a-4b22-8a9a-7fb7f1b0a286">
 
@@ -73,6 +73,7 @@ The app is using the below components, to speed development process and get a po
 The application uses [shadcn/ui](https://ui.shadcn.com/), a collection of re-usable components built with Radix UI and Tailwind CSS.
 
 **Installed Components:**
+
 - `Button` - Variant-based button component
 - `Input` - Form input with consistent styling
 - `Table` - Table primitives (TableHeader, TableBody, TableRow, etc.)
@@ -81,6 +82,7 @@ The application uses [shadcn/ui](https://ui.shadcn.com/), a collection of re-usa
 **Location:** `client/src/components/`
 
 **Benefits:**
+
 - ✅ Copy-paste components (not a dependency)
 - ✅ Fully customizable
 - ✅ Accessible by default (Radix UI)
@@ -99,28 +101,26 @@ All UI components follow DRY principles:
 ### Tailwind CSS v4 Changes
 
 **Migration from v3 to v4:**
+
 - Uses `@tailwindcss/postcss` plugin
 - CSS-first configuration
 - Improved performance
 - Better tree-shaking
 
 **Configuration:**
+
 - `tailwind.config.js` - Theme customization
 - `postcss.config.js` - PostCSS configuration
 - `src/tailwind.css` - Main stylesheet with `@import` directives
 
-
 ### Footer
 
-* Footer from Nordic store minimal design starter template https://github.com/tailwindtoolbox/Nordic-Store
+- Footer from Nordic store minimal design starter template https://github.com/tailwindtoolbox/Nordic-Store
 
   <img width="508" alt="image" src="https://github.com/nicmart-dev/linguistnow/assets/10499747/7c6aedd9-7ffb-42d7-a2cd-2f81c897b585">
 
+### Global
 
-### Global 
+- Skeleton loading: https://flowbite.com/docs/components/skeleton/
 
-* Skeleton loading: https://flowbite.com/docs/components/skeleton/
-  
   ![chrome-capture-2024-6-9](https://github.com/nicmart-dev/linguistnow/assets/10499747/04885b87-fc0d-401b-b8a5-0aeed3d67bb2)
-
-

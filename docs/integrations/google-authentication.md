@@ -47,7 +47,7 @@ The React app and Express server use OAuth 2.0 Client ID and secret created for 
 
 4. Add your account email as test user with `ADD USERS` button, click `SAVE AND CONTINUE` button
 
-**Note:** Please set up at least 2 Google accounts to use as test users, one of which we will later [set up in Airtable](./install-instructions.md#set-up-new-users) with `Project Manager` role (the other being created automatically upon first login in the app with `Linguist` role).
+**Note:** Please set up at least 2 Google accounts to use as test users, one of which we will later [set up in Airtable](../getting-started/install-instructions.md#set-up-new-users) with `Project Manager` role (the other being created automatically upon first login in the app with `Linguist` role).
 
 ### Create Credentials
 
@@ -67,7 +67,7 @@ The React app and Express server use OAuth 2.0 Client ID and secret created for 
 
 ### Configure Application
 
-**Prerequisite:** Complete [install](./install-instructions.md#install-front-end-and-backend) of React app and server.
+**Prerequisite:** Complete [install](../getting-started/install-instructions.md#install-front-end-and-backend) of React app and server.
 
 1. Download JSON from `google-auth-library` credential (which you downloaded from an earlier step, or from https://console.cloud.google.com/apis/credentials) to `server\config\oauth2.keys.json`
 
@@ -150,7 +150,7 @@ Ultimately, the best choice depends on your project's specific needs, your team'
 
   </details>
 
-- the [n8n workflow](./n8n-workflow-integration.md#check-when-busy) when checking for availability.
+- the [n8n workflow](../integrations/n8n-workflow-integration.md#check-when-busy) when checking for availability.
 
 ### Components
 
@@ -405,5 +405,5 @@ All authentication logic is centralized in `client/src/auth-users/utils.ts`:
 
 ## Related Documentation
 
-- [Integration of Google Calendar API](./integration-of-google-calendar-api.md) - How authentication tokens are used for calendar availability checks
-- [PWA Installation Guide](./PWA-Installation.md) - Information about installing LinguistNow as a Progressive Web App
+- [Integration of Google Calendar API](../integrations/integration-of-google-calendar-api.md) - How authentication tokens are used for calendar availability checks
+- [PWA Installation Guide](../deployment/PWA-Installation.md) - Information about installing LinguistNow as a Progressive Web App

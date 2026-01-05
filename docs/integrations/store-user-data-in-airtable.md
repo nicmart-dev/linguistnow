@@ -17,7 +17,7 @@
 
 Airtable is used in the app to store and manage user data efficiently and effortlessly.
 
-Access the base at https://airtable.com/ after [creating it](./install-instructions.md#airtable-database).
+Access the base at https://airtable.com/ after [creating it](../getting-started/install-instructions.md#airtable-database).
 
 > **Note**: OAuth tokens (Access Token and Refresh Token) are stored in **HashiCorp Vault**, not Airtable. See [Vault Integration Guide](./vault-integration-guide.md) for details.
 

@@ -334,7 +334,7 @@ POST /api/currency/convert
 
 - [Dashboard Design](./dashboard-design.md) - PM dashboard architecture
 - [Linguist Settings Design](./linguist-settings-design.md) - Linguist profile settings
-- [Store User Data in Airtable](./store-user-data-in-airtable.md) - Airtable schema
+- [Store User Data in Airtable](../integrations/store-user-data-in-airtable.md) - Airtable schema
 
 ## References
 

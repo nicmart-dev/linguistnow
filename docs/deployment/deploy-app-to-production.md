@@ -15,17 +15,17 @@ Before deploying LinguistNow, ensure the following are set up:
 1. **Docker host** (Synology NAS, Linux server, cloud VM, etc.)
 2. **Docker** and **Docker Compose** installed
 3. **Portainer** installed for container management (recommended)
-4. **Google OAuth credentials** configured (see [Google Authentication Setup](./google-authentication.md#setup-google-oauth-configuration))
-5. **Airtable database** set up (see [Install Instructions](./install-instructions.md#airtable-database))
+4. **Google OAuth credentials** configured (see [Google Authentication Setup](../integrations/google-authentication.md#setup-google-oauth-configuration))
+5. **Airtable database** set up (see [Install Instructions](../getting-started/install-instructions.md#airtable-database))
 
 ### Shared Infrastructure (Deploy First)
 
 LinguistNow requires these shared services to be running:
 
-| Service             | Purpose                        | Deployment Guide                                                                                                                                                |
-| ------------------- | ------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **HashiCorp Vault** | Secure OAuth token storage     | [Vault Integration Guide](./vault-integration-guide.md#deploy-vault) (deploy), then [Production Mode](./vault-integration-guide.md#production-mode) (configure) |
-| **n8n**             | Calendar availability workflow | [n8n Workflow Integration](./n8n-workflow-integration.md#3-deploy-n8n)                                                                                          |
+| Service             | Purpose                        | Deployment Guide                                                                                                                                                                            |
+| ------------------- | ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **HashiCorp Vault** | Secure OAuth token storage     | [Vault Integration Guide](../integrations/vault-integration-guide.md#deploy-vault) (deploy), then [Production Mode](../integrations/vault-integration-guide.md#production-mode) (configure) |
+| **n8n**             | Calendar availability workflow | [n8n Workflow Integration](../integrations/n8n-workflow-integration.md#3-deploy-n8n)                                                                                                        |
 
 ---
 
@@ -150,8 +150,8 @@ Access Portainer at `https://your-docker-host:9443`
 This deploys LinguistNow connecting to external Vault and n8n (deployed as prerequisites).
 
 1. **Ensure shared infrastructure is running:**
-   - Vault: Deploy via [Vault Integration Guide](./vault-integration-guide.md#deploy-vault), then configure for [Production Mode](./vault-integration-guide.md#production-mode)
-   - n8n: See [n8n Workflow Integration - Deploy n8n](./n8n-workflow-integration.md#3-deploy-n8n)
+   - Vault: Deploy via [Vault Integration Guide](../integrations/vault-integration-guide.md#deploy-vault), then configure for [Production Mode](../integrations/vault-integration-guide.md#production-mode)
+   - n8n: See [n8n Workflow Integration - Deploy n8n](../integrations/n8n-workflow-integration.md#3-deploy-n8n)
 
 2. In Portainer, go to **Stacks** → **Add Stack**
 
@@ -274,7 +274,7 @@ In Portainer, verify all containers show as **healthy**:
 1. Click **Sign in with Google** on the frontend
 2. Complete the Google authentication
 3. Verify you're redirected back and logged in
-4. Check Vault for stored tokens (see [Vault Integration Guide](./vault-integration-guide.md#troubleshooting))
+4. Check Vault for stored tokens (see [Vault Integration Guide](../integrations/vault-integration-guide.md#troubleshooting))
 
 ---
 

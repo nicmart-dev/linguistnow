@@ -38,5 +38,5 @@ The Swagger UI updates automatically when the server restarts.
 
 ## Related
 
-- [Google Authentication](./google-authentication.md) - How to obtain tokens
-- [Integration of Google Calendar API](./integration-of-google-calendar-api.md) - Availability endpoint details
+- [Google Authentication](../integrations/google-authentication.md) - How to obtain tokens
+- [Integration of Google Calendar API](../integrations/integration-of-google-calendar-api.md) - Availability endpoint details

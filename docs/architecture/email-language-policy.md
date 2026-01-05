@@ -93,4 +93,4 @@ The policy may be reviewed, but **English should remain the default** unless bot
 ## Related Documentation
 
 - [Dashboard Design](./dashboard-design.md) - Booking workflow and email generation
-- [Internationalization](./internationalization-using-react-intl-package.md) - i18n implementation details
+- [Internationalization](../development/internationalization-using-i18next.md) - i18n implementation details

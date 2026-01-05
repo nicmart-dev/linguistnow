@@ -231,7 +231,7 @@ PRs with these title keywords are not reviewed:
 
 ## Related Documentation
 
-- [Testing and TDD](./testing-and-tdd.md) - Testing guidelines enforced by CodeRabbit
-- [TypeScript Guidelines](./typescript-guidelines.md) - Type safety rules
-- [Internationalization](./internationalization-using-i18next.md) - i18n requirements
-- [API Documentation](./api-documentation.md) - Swagger documentation standards
+- [Testing and TDD](../development/testing-and-tdd.md) - Testing guidelines enforced by CodeRabbit
+- [TypeScript Guidelines](../development/typescript-guidelines.md) - Type safety rules
+- [Internationalization](../development/internationalization-using-i18next.md) - i18n requirements
+- [API Documentation](../api/api-documentation.md) - Swagger documentation standards

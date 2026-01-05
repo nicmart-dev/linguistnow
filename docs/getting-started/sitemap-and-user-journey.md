@@ -30,7 +30,7 @@ Note: Don't mind the Google warnings during sign-in, app approval is still in 
 
 ![Project Manager Dashboard](https://github.com/nicmart-dev/linguistnow/assets/10499747/5d5d69d3-9bec-4e95-b06f-9d4fa1cb4335)
 
-**📋 For detailed technical documentation, see [Dashboard Design Document](./dashboard-design.md)**
+**📋 For detailed technical documentation, see [Dashboard Design Document](../architecture/dashboard-design.md)**
 
 The dashboard provides a comprehensive interface for project managers to:
 

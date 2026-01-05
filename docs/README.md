@@ -36,55 +36,46 @@ If Mermaid diagrams don't render in your local markdown preview:
 
 ### Getting Started
 
-- [Install Instructions](./install-instructions.md) - Setup guide for local development
-- [Google Authentication](./google-authentication.md#setup-google-oauth-configuration) - Google OAuth setup and implementation
+- [Install Instructions](./getting-started/install-instructions.md) - Setup guide for local development
+- [Sitemap and User Journey](./getting-started/sitemap-and-user-journey.md) - User flows and screenshots
 
-### Software Design Documents
+### Architecture
 
-#### Architecture
+- [Architecture Overview](./architecture/architecture-overview.md) - Component-based design, DRY principles, and modern architecture
+- [Dashboard Design](./architecture/dashboard-design.md) - Comprehensive design document for the Project Manager Dashboard
+- [Linguist Settings Design](./architecture/linguist-settings-design.md) - Comprehensive design document for the Linguist Settings Page
+- [Currency Support](./architecture/currency-support.md) - Multi-currency support and future exchange rate integration
+- [Email Language Policy](./architecture/email-language-policy.md) - English-only email policy and rationale
 
-- [Architecture Overview](./architecture-overview.md) - Component-based design, DRY principles, and modern architecture
-- [Dashboard Design](./dashboard-design.md) - Comprehensive design document for the Project Manager Dashboard
-- [Linguist Settings Design](./linguist-settings-design.md) - Comprehensive design document for the Linguist Settings Page
-- [Currency Support](./currency-support.md) - Multi-currency support and future exchange rate integration
+### API
 
-#### API
+- [API Documentation](./api/api-documentation.md) - Interactive OpenAPI/Swagger documentation
 
-- [API Documentation](./api-documentation.md) - Interactive OpenAPI/Swagger documentation
+### Integrations
 
-#### Authentication and Google APIs
+- [Google Authentication](./integrations/google-authentication.md) - Google OAuth setup, authentication implementation, and token management
+- [Integration of Google Calendar API](./integrations/integration-of-google-calendar-api.md) - Calendar API integration
+- [n8n Workflow Integration](./integrations/n8n-workflow-integration.md) - Workflow automation setup
+- [Vault Integration Guide](./integrations/vault-integration-guide.md) - HashiCorp Vault setup and token storage
+- [Store User Data in Airtable](./integrations/store-user-data-in-airtable.md) - Database structure and usage (includes manual field creation appendix)
 
-- [Google Authentication](./google-authentication.md) - OAuth setup, authentication implementation, and token management
-- [Integration of Google Calendar API](./integration-of-google-calendar-api.md) - Calendar API integration
+### Development
 
-#### Localization
-
-- [Internationalization using react-intl package](./internationalization-using-react-intl-package.md) - i18n implementation
-- [Email Language Policy](./email-language-policy.md) - English-only email policy and rationale
-
-#### n8n Workflow
-
-- [n8n workflow integration](./n8n-workflow-integration.md) - Workflow automation setup
-
-#### Database
-
-- [Store user data in Airtable](./store-user-data-in-airtable.md) - Database structure and usage (includes manual field creation appendix)
-
-#### UI
-
-- [Style using Tailwind CSS framework](./style-using-tailwind-css-framework.md) - UI styling approach
-
-#### Testing
-
-- [Testing and TDD](./testing-and-tdd.md) - Test-driven development workflow, Vitest configuration, and test examples
-
-### User Experience
-
-- [Sitemap and user journey](./sitemap-and-user-journey.md) - User flows and screenshots
+- [TypeScript Guidelines](./development/typescript-guidelines.md) - TypeScript best practices
+- [Testing and TDD](./development/testing-and-tdd.md) - Test-driven development workflow, Vitest configuration, and test examples
+- [Style using Tailwind CSS Framework](./development/style-using-tailwind-css-framework.md) - UI styling approach and implementation
+- [Internationalization using i18next](./development/internationalization-using-i18next.md) - i18n implementation
+- [Automated Code Reviews using CodeRabbit](./development/automated-code-reviews-using-coderabbit.md) - Code review automation setup
 
 ### Deployment
 
-- [Deploy app to production](./deploy-app-to-production.md) - Production deployment guide for Synology NAS with Portainer
+- [Deploy App to Production](./deployment/deploy-app-to-production.md) - Production deployment guide for Synology NAS with Portainer
+- [PWA Installation](./deployment/PWA-Installation.md) - Progressive Web App installation guide
+
+### Plans
+
+- [Allure Vitest Integration](./plans/allure-vitest-integration.md) - Test reporting integration plan
+- [Oxlint Hybrid Setup](./plans/oxlint-hybrid-setup.md) - Linting configuration plan
 
 ### Docker
 
@@ -92,4 +83,4 @@ The application is fully containerized with Docker:
 
 - `docker-compose.yml` - Complete stack configuration
 - `example.env` - Environment variables template for Docker deployment
-- See the [deployment guide](./deploy-app-to-production.md) for detailed instructions
+- See the [deployment guide](./deployment/deploy-app-to-production.md) for detailed instructions

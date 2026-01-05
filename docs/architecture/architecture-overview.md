@@ -556,7 +556,7 @@ The project uses TypeScript with strict mode enabled for both client and server:
 - **Runtime Validation**: Zod validates environment variables and API responses
 - **Type Safety**: Full type coverage prevents runtime errors
 
-See [TypeScript Guidelines](./typescript-guidelines.md) for detailed information.
+See [TypeScript Guidelines](../development/typescript-guidelines.md) for detailed information.
 
 ## Testing
 
@@ -568,12 +568,12 @@ We follow Test-Driven Development (TDD) with Vitest 4.0.16:
   - Client: ≥80% statements/branches/lines, ≥70% functions
   - Server: ≥90% statements/lines, ≥75% branches, ≥80% functions
 
-See [Testing and TDD](./testing-and-tdd.md) for workflow and examples.
+See [Testing and TDD](../development/testing-and-tdd.md) for workflow and examples.
 
 ## Related Documentation
 
-- [TypeScript Guidelines](./typescript-guidelines.md) - TypeScript best practices
-- [Testing and TDD](./testing-and-tdd.md) - Test-driven development workflow
-- [Component Design](./style-using-tailwind-css-framework.md) - UI components and styling
-- [Authentication](./google-authentication.md) - OAuth2 implementation
-- [Install Instructions](./install-instructions.md) - Setup guide
+- [TypeScript Guidelines](../development/typescript-guidelines.md) - TypeScript best practices
+- [Testing and TDD](../development/testing-and-tdd.md) - Test-driven development workflow
+- [Component Design](../development/style-using-tailwind-css-framework.md) - UI components and styling
+- [Authentication](../integrations/google-authentication.md) - OAuth2 implementation
+- [Install Instructions](../getting-started/install-instructions.md) - Setup guide

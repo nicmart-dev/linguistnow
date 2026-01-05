@@ -109,7 +109,7 @@ VAULT_TOKEN=your-vault-token
 
 For dev/testing, you can use `dev-token` (the root token). For production, create a scoped token with minimal permissions.
 
-> **For detailed Vault setup and production configuration**, see [Vault Integration Guide](./vault-integration-guide.md).
+> **For detailed Vault setup and production configuration**, see [Vault Integration Guide](../integrations/vault-integration-guide.md).
 
 ### n8n
 
@@ -143,7 +143,7 @@ For development without Docker:
    N8N_BASE_URL=http://localhost:5678
    ```
 
-> **For production deployment**, see [n8n Workflow Integration - Deploy n8n](./n8n-workflow-integration.md#3-deploy-n8n).
+> **For production deployment**, see [n8n Workflow Integration - Deploy n8n](../integrations/n8n-workflow-integration.md#3-deploy-n8n).
 
 #### Configure workflow
 
@@ -175,11 +175,11 @@ For development without Docker:
 
 6. **Activate the workflow** using the toggle in the top right
 
-> **For detailed Vault setup and production configuration**, see [Vault Integration Guide](./vault-integration-guide.md).
+> **For detailed Vault setup and production configuration**, see [Vault Integration Guide](../integrations/vault-integration-guide.md).
 
 ## Google OAuth setup
 
-Follow steps in [Google Authentication Setup](./google-authentication.md#setup-google-oauth-configuration)
+Follow steps in [Google Authentication Setup](../integrations/google-authentication.md#setup-google-oauth-configuration)
 
 ## Start our app
 
@@ -224,7 +224,7 @@ To do this:
 
 1. Log in to the app with each Google, account, so the corresponding user row is created in Airtable.
 
-2. Change one of the accounts to have Project Manager role, by logging in to [Airtable](./store-user-data-in-airtable.md) and then changing role for corresponding user from `Linguist` to `Project Manager`.
+2. Change one of the accounts to have Project Manager role, by logging in to [Airtable](../integrations/store-user-data-in-airtable.md) and then changing role for corresponding user from `Linguist` to `Project Manager`.
 
 ---
 
@@ -235,7 +235,7 @@ For a containerized setup using Docker Compose:
 ### Prerequisites
 
 - [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/) installed
-- Google OAuth credentials (see [Google Authentication Setup](./google-authentication.md#setup-google-oauth-configuration))
+- Google OAuth credentials (see [Google Authentication Setup](../integrations/google-authentication.md#setup-google-oauth-configuration))
 - Airtable database set up (see [Airtable Database](#airtable-database) above)
 
 ### Steps
@@ -303,4 +303,4 @@ docker-compose up -d --build
 docker-compose ps
 ```
 
-For production deployment on a NAS or server, see [Deploy app to production](./deploy-app-to-production.md).
+For production deployment on a NAS or server, see [Deploy app to production](../deployment/deploy-app-to-production.md).

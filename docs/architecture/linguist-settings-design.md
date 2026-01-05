@@ -604,8 +604,8 @@ All user-facing strings are externalized to i18n locale files:
 ## Related Documentation
 
 - [Architecture Overview](./architecture-overview.md) - Overall system architecture
-- [API Documentation](./api-documentation.md) - API endpoint details
-- [Google Calendar Integration](./integration-of-google-calendar-api.md) - Calendar API implementation
-- [Internationalization](./internationalization-using-i18next.md) - i18n implementation
+- [API Documentation](../api/api-documentation.md) - API endpoint details
+- [Google Calendar Integration](../integrations/integration-of-google-calendar-api.md) - Calendar API implementation
+- [Internationalization](../development/internationalization-using-i18next.md) - i18n implementation
 - [Dashboard Design](./dashboard-design.md) - How PMs view linguist availability
-- [Testing and TDD](./testing-and-tdd.md) - Testing approach
+- [Testing and TDD](../development/testing-and-tdd.md) - Testing approach

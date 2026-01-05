@@ -54,7 +54,7 @@ sequenceDiagram
 
 ## Availability Calculation
 
-For detailed information about availability calculation logic, including timezone conversion, working hours application, and off-days filtering, see [Dashboard Design](./dashboard-design.md#timezone-conversion-and-availability-calculation).
+For detailed information about availability calculation logic, including timezone conversion, working hours application, and off-days filtering, see [Dashboard Design](../architecture/dashboard-design.md#timezone-conversion-and-availability-calculation).
 
 **Quick Reference:**
 

@@ -564,4 +564,4 @@ pnpm --filter ./client test Button.test.tsx
 ## Related Documentation
 
 - [TypeScript Guidelines](./typescript-guidelines.md) - TypeScript best practices
-- [Architecture Overview](./architecture-overview.md) - Project architecture
+- [Architecture Overview](../architecture/architecture-overview.md) - Project architecture
