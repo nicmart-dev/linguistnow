@@ -1,37 +1,95 @@
 # Development Principles
 
+## Tech Stack
+
+| Layer      | Technology                                                     |
+| ---------- | -------------------------------------------------------------- |
+| Frontend   | React 19, TypeScript 5, Tailwind CSS 4, Vite 7, React Router 7 |
+| Backend    | Express 5, TypeScript 5, tsx (runtime)                         |
+| UI         | Radix UI primitives, shadcn/ui patterns, Lucide icons          |
+| Validation | Zod 4 (client + server)                                        |
+| Testing    | Vitest 4, React Testing Library, happy-dom                     |
+| API Docs   | Swagger/OpenAPI via swagger-jsdoc                              |
+| Database   | Airtable (REST API)                                            |
+| Auth       | Google OAuth 2.0                                               |
+| Secrets    | HashiCorp Vault                                                |
+| Monorepo   | pnpm workspaces                                                |
+
 ## Core Principles
 
-1. **API First**: Define types, interfaces, and API contracts before implementation
+1. **API First**: Define types in `shared/` package before implementation
 2. **TDD**: Write failing tests first, then implement to make them pass
 3. **DRY**: Extract reusable code into shared modules
 4. **Modular**: Keep services, controllers, and utilities in separate files
 5. **Docs as Code**: Update documentation alongside implementation
+6. **Type Safety**: Use Zod for runtime validation, TypeScript for static types
 
 ## Development Workflow
 
-1. Define types in `shared/` package (API contract)
-2. Write failing tests (TDD red phase)
-3. Implement to make tests pass (TDD green phase)
-4. Refactor if needed (TDD refactor phase)
-5. Update docs and Swagger alongside code changes
+1. Define types in `shared/src/` package (API contract)
+2. Export from `shared/src/index.ts` and run `pnpm --filter @linguistnow/shared build`
+3. Write failing tests (TDD red phase)
+4. Implement to make tests pass (TDD green phase)
+5. Refactor if needed (TDD refactor phase)
+6. Add Swagger JSDoc annotations for new API routes
+7. Update docs alongside code changes
 
 ## Code Organization
 
-| Path                       | Purpose                                    |
-| -------------------------- | ------------------------------------------ |
-| `shared/src/`              | Types shared between client and server     |
-| `server/services/`         | Business logic (testable, reusable)        |
-| `server/controllers/`      | HTTP request/response handling             |
-| `server/routes/`           | Route definitions with Swagger docs        |
-| `client/src/components/`   | React components                           |
-| `client/src/i18n/locales/` | Internationalization strings               |
-| `docs/`                    | Architecture and integration documentation |
+| Path                        | Purpose                                    |
+| --------------------------- | ------------------------------------------ |
+| `shared/src/`               | Types shared between client and server     |
+| `server/services/`          | Business logic (testable, reusable)        |
+| `server/controllers/`       | HTTP request/response handling             |
+| `server/routes/`            | Route definitions with Swagger docs        |
+| `server/utils/`             | Server utilities (Vault, token refresh)    |
+| `client/src/components/`    | React components                           |
+| `client/src/components/ui/` | Radix UI primitives (shadcn/ui pattern)    |
+| `client/src/utils/`         | Client utilities                           |
+| `client/src/i18n/locales/`  | Internationalization strings               |
+| `docs/`                     | Architecture and integration documentation |
 
-## Documentation Standards
+---
 
-- Use **Mermaid diagrams** for visual representations (`graph`, `flowchart`, `sequenceDiagram`, `classDiagram`)
-- Prefer Mermaid over ASCII art for better maintainability
+## Component Patterns
+
+```tsx
+// Use named exports, not default exports
+export const MyComponent = ({ prop }: Props) => { ... }
+
+// Import shared types from @linguistnow/shared
+import { User, ApiResponse } from '@linguistnow/shared'
+
+// Use cn() from lib/utils for conditional classes
+import { cn } from '@/lib/utils'
+className={cn('base-class', condition && 'conditional-class')}
+```
+
+- UI primitives in `client/src/components/ui/` wrap Radix UI
+- Use `cva` (class-variance-authority) for variant props
+
+---
+
+## API Patterns
+
+Controllers: validate input FIRST, then business logic, then response.
+See `server/controllers/authController.ts` for reference pattern.
+
+Swagger: Add `@openapi` JSDoc above route definitions in `server/routes/*.ts`.
+
+---
+
+## Testing Patterns
+
+| Package | Statements | Branches | Functions | Lines |
+| ------- | ---------- | -------- | --------- | ----- |
+| Client  | 80%        | 80%      | 70%       | 80%   |
+| Server  | 90%        | 75%      | 80%       | 90%   |
+
+Use Arrange-Act-Assert pattern. Mock with `vi.doMock()` before dynamic imports.
+See `docs/development/testing-and-tdd.md` for examples.
+
+---
 
 ## Internationalization (i18n)
 
@@ -43,11 +101,27 @@
 
 ---
 
+## Zod Validation
+
+```typescript
+import { z } from "zod";
+
+const UserSchema = z.object({
+  email: z.string().email().max(254),
+  name: z.string().min(1).max(100),
+  role: z.enum(["Project Manager", "Linguist"]),
+});
+
+const result = UserSchema.safeParse(input);
+if (!result.success)
+  return res.status(400).json({ error: result.error.message });
+```
+
+---
+
 ## Security Best Practices
 
 **CRITICAL**: All user input must be validated before use. CodeQL flags unvalidated input.
-
-### Input Validation Rules
 
 | Rule                             | Implementation                                         |
 | -------------------------------- | ------------------------------------------------------ |
@@ -58,137 +132,43 @@
 | Path traversal                   | Reject paths containing `..`, `/`, `\`                 |
 | Formula injection                | Escape `'` → `''` for Airtable formulas                |
 
-### Code Examples
+---
 
-```typescript
-// ✅ Request validation
-const { code } = req.body;
-if (!code || typeof code !== "string" || code.trim().length === 0) {
-  return res.status(400).json({ error: "Invalid authorization code" });
-}
+## Commits & PRs
 
-// ✅ Type validation before string operations
-if (typeof startDate !== "string")
-  throw new Error("startDate must be a string");
-const parts = startDate.split("-").map(Number);
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for full guidelines.
 
-// ✅ Length check before regex (ReDoS prevention)
-if (email.trim().length > 254) return false;
-return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+**Commits**: Follow [Conventional Commits](https://www.conventionalcommits.org/).
 
-// ✅ Path traversal prevention
-if (
-  userEmail.includes("..") ||
-  userEmail.includes("/") ||
-  userEmail.includes("\\")
-) {
-  throw new Error("Invalid email: path traversal characters");
-}
+- `feat:` / `fix:` / `perf:` → trigger releases
+- `ci:` / `build:` / `docs:` / `refactor:` / `test:` → no release
+- Scopes: `client`, `server`, `shared`, `docker`, `deps`
+- Bundle related changes: one commit = one complete feature (code + tests + docs + i18n)
 
-// ✅ Airtable formula escaping
-const escapedEmail = userEmail.replace(/'/g, "''");
-const formula = `{Email} = '${escapedEmail}'`;
-```
+**PRs**: Title follows commit format. Description includes Summary, Changes, How to Test.
 
-### CodeQL Alert Quick Fixes
-
-| Alert                                      | Fix                             |
-| ------------------------------------------ | ------------------------------- |
-| Type confusion through parameter tampering | Validate type before operations |
-| Polynomial regex on uncontrolled data      | Add length limit before regex   |
-| Externally-controlled format string        | Sanitize `%` in log messages    |
-| Path traversal                             | Validate and sanitize paths     |
-| Unvalidated user input                     | Validate all request inputs     |
-
-### Security Checklist
-
-- [ ] `req.body/query/params` validated (type, format, bounds)
-- [ ] String operations preceded by type checks
-- [ ] Regex matching preceded by length limits
-- [ ] User input sanitized in log messages
-- [ ] File paths validated for traversal
-- [ ] Database/formula strings escaped
+- Branch naming: `feature/<issue-id>-<desc>`, `bugfix/<issue-id>-<desc>`
+- Keep PRs small (1-15 files ideally)
+- Checklist: tests, i18n strings (all 11 locales), no console.log, lint clean
 
 ---
 
-# Commit Message Guidelines
-
-Follow [Conventional Commits](https://www.conventionalcommits.org/). See [CONTRIBUTING.md](./CONTRIBUTING.md) for details.
-
-## Semantic Release: Choose the Right Type
-
-Ask: **"Will a user notice this change?"**
-
-### Release-Triggering Types (User-Facing)
-
-| Type   | When to Use                          | Release       |
-| ------ | ------------------------------------ | ------------- |
-| `feat` | New user-facing functionality        | Minor (1.x.0) |
-| `fix`  | Bug fix users can observe            | Patch (1.0.x) |
-| `perf` | Performance improvement users notice | Patch (1.0.x) |
-
-### Non-Release Types (Internal)
-
-| Type       | When to Use                             |
-| ---------- | --------------------------------------- |
-| `ci`       | CI/CD, GitHub Actions, workflows        |
-| `build`    | Build system, dependencies, Docker      |
-| `chore`    | Maintenance, config updates             |
-| `docs`     | Documentation changes                   |
-| `refactor` | Code restructuring (no behavior change) |
-| `test`     | Adding or updating tests                |
-| `style`    | Formatting, whitespace                  |
-
-### Decision Guide
-
-```
-CI/GitHub Actions change?     → ci:        (not fix(ci):)
-Build/Docker/deps change?     → build:     (not fix(build):)
-User-visible bug fix?         → fix:       ✅ triggers release
-User-facing new feature?      → feat:      ✅ triggers release
-```
-
-### Scopes
-
-| Scope    | Description             |
-| -------- | ----------------------- |
-| `client` | Frontend React app      |
-| `server` | Backend Express API     |
-| `shared` | Shared types package    |
-| `docker` | Docker configuration    |
-| `deps`   | Production dependencies |
-
-### Breaking Changes
+## Common Commands
 
 ```bash
-feat(server)!: remove deprecated /api/v1 endpoints
-
-# or use footer:
-BREAKING CHANGE: OAuth tokens now use JWT format.
+pnpm dev                                 # Start client + server
+pnpm test                                # Run all tests
+pnpm --filter ./client test              # Client tests (watch)
+pnpm --filter ./server test              # Server tests (watch)
+pnpm --filter @linguistnow/shared build  # Build shared types
+pnpm lint                                # ESLint all packages
+pnpm lint:fix                            # Fix ESLint issues
 ```
 
-## Commit Organization: Bundle by Feature
+---
 
-**CRITICAL**: One commit = one complete feature (code + tests + docs + i18n)
+## Environment Variables
 
-✅ **DO**: Bundle all related changes together
-
-```bash
-feat(client): add currency support with multi-currency display
-# Includes: utility, tests, docs, i18n strings, shared types
-```
-
-❌ **DON'T**: Split by file type
-
-```bash
-# Wrong: separate commits for feat/test/docs/i18n
-feat(client): add currency utility
-test(client): add currency tests
-docs: add currency documentation
-```
-
-### When to Split Commits
-
-1. **Different features** → separate commits
-2. **Unrelated changes** → config/build separate from features
-3. **Large refactors** → separate from new features
+- **Client**: `client/.env` (template: `client/example.env`)
+- **Server**: `server/.env` (template: `server/example.env`)
+- Validation via Zod in `*/env.ts` files
