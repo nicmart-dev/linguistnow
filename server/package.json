@@ -31,7 +31,7 @@
     "node-vault": "^0.10.9",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",
-    "zod": "^4.3.4"
+    "zod": "^4.3.5"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",
