@@ -18,7 +18,11 @@ import {
 import { CalendarIcon, ChevronDown, ChevronUp, Check } from 'lucide-react'
 import { getWeekStartsOn, getDateFnsLocale } from '@linguistnow/shared'
 import { Button } from '@/components/ui/button'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from '@/components/ui/popover'
 import { Calendar } from '@/components/ui/calendar'
 import { DateInput } from './DateInput'
 import {
@@ -45,6 +49,13 @@ interface DateRangePickerProps {
     ) => void
 }
 
+/**
+ * A date range picker component with calendar popover and preset options.
+ * Supports localization and various date range presets (today, this week, etc.).
+ * @param startDate - Start date as ISO string (YYYY-MM-DD)
+ * @param endDate - End date as ISO string (YYYY-MM-DD)
+ * @param onDateChange - Callback fired when date range changes
+ */
 const DateRangePicker: React.FC<DateRangePickerProps> = ({
     startDate,
     endDate,

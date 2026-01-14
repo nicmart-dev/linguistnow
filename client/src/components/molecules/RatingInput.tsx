@@ -13,6 +13,15 @@ interface RatingInputProps {
     size?: 'sm' | 'md' | 'lg'
 }
 
+/**
+ * Interactive star rating component for rating linguists.
+ * Persists ratings to the backend API and provides visual feedback.
+ * @param rating - Initial rating value (1-5)
+ * @param linguistEmail - Email of the linguist being rated
+ * @param onRatingChange - Callback fired when rating is successfully updated
+ * @param disabled - Whether the rating input is disabled
+ * @param size - Size variant: 'sm', 'md', or 'lg'
+ */
 const RatingInput: React.FC<RatingInputProps> = ({
     rating: initialRating,
     linguistEmail,

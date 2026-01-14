@@ -26,6 +26,17 @@ interface BookingModalProps {
     endDate: string
 }
 
+/**
+ * Modal dialog for booking a linguist.
+ * Generates ICS calendar files and mailto links for booking requests.
+ * @param linguist - The linguist being booked
+ * @param open - Whether the modal is open
+ * @param onOpenChange - Callback when modal open state changes
+ * @param pmEmail - Project manager's email
+ * @param pmName - Project manager's name
+ * @param startDate - Booking start date
+ * @param endDate - Booking end date
+ */
 const BookingModal: React.FC<BookingModalProps> = ({
     linguist,
     open,

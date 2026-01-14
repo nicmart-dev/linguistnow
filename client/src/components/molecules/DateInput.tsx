@@ -11,6 +11,12 @@ interface DateParts {
     year: number
 }
 
+/**
+ * A date input component with separate fields for month, day, and year.
+ * Supports keyboard navigation (arrow keys) and validation.
+ * @param value - The current date value
+ * @param onChange - Callback fired when the date changes
+ */
 const DateInput: React.FC<DateInputProps> = ({ value, onChange }) => {
     const [date, setDate] = React.useState<DateParts>(() => {
         const d = value ? new Date(value) : new Date()

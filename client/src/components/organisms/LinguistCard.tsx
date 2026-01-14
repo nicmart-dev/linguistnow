@@ -13,6 +13,12 @@ interface LinguistCardProps {
     showTimeline?: boolean
 }
 
+/**
+ * Card component displaying a linguist's profile with availability information.
+ * Shows name, languages, specializations, hourly rate, and availability status.
+ * @param linguist - The linguist data to display
+ * @param showTimeline - Whether to show the availability timeline
+ */
 const LinguistCard: React.FC<LinguistCardProps> = ({
     linguist,
     showTimeline = false,

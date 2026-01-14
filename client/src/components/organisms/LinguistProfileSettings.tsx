@@ -12,7 +12,11 @@ import {
     CommandItem,
     CommandList,
 } from '@/components/ui/command'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from '@/components/ui/popover'
 import { Input } from '@/components/ui/input'
 import {
     Select,
@@ -24,6 +28,12 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { CURRENCIES } from '@/utils/currency'
 
+/**
+ * Settings component for linguist profile information.
+ * Allows editing of hourly rate, currency, languages, and specializations.
+ * @param userDetails - Current user's profile details
+ * @param onSave - Callback when profile settings are saved
+ */
 interface LinguistProfileSettingsProps {
     userDetails: {
         Email?: string

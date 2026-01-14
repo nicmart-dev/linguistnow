@@ -13,7 +13,11 @@ import {
     CommandItem,
     CommandList,
 } from '@/components/ui/command'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from '@/components/ui/popover'
 import {
     Select,
     SelectContent,
@@ -30,6 +34,12 @@ interface AvailabilityPreferences {
     // Note: minHoursPerDay is not a linguist preference - it's a PM requirement set in availability requests
 }
 
+/**
+ * Settings component for linguist availability preferences.
+ * Allows configuration of timezone, working hours, and off days.
+ * @param userDetails - Current user's profile details
+ * @param onSave - Callback when availability settings are saved
+ */
 interface AvailabilitySettingsProps {
     userDetails: {
         email?: string

@@ -28,6 +28,12 @@ interface DataTableProps<T> {
     data: T[]
 }
 
+/**
+ * Generic data table component with sorting, filtering, and pagination.
+ * Built on TanStack Table for a powerful and flexible table experience.
+ * @param columns - Column definitions for the table
+ * @param data - Array of data rows to display
+ */
 export function DataTable<T extends Record<string, unknown>>({
     columns,
     data,

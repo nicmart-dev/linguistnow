@@ -30,7 +30,10 @@ interface LinguistRow {
     [key: string]: unknown // Allow other Airtable fields
 }
 
-// Function to get columns with translations
+/**
+ * Returns column definitions for the linguist table.
+ * @deprecated Use useColumns hook instead for proper i18n support
+ */
 export const getColumns = (): ColumnDef<LinguistRow>[] => {
     // Note: This function will be called from a component that has useTranslation
     // We'll need to pass t function as parameter or use a different approach
@@ -38,7 +41,12 @@ export const getColumns = (): ColumnDef<LinguistRow>[] => {
     return []
 }
 
-// Hook to get columns with translations
+/**
+ * React hook that returns localized column definitions for the linguist table.
+ * Provides columns for availability, picture, name, languages, specialization,
+ * hourly rate, and rating with sorting capabilities.
+ * @returns Array of TanStack Table column definitions
+ */
 export const useColumns = (): ColumnDef<LinguistRow>[] => {
     const { t } = useTranslation()
 
