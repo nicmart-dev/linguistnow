@@ -138,6 +138,14 @@ if (!result.success)
 
 See [CONTRIBUTING.md](./CONTRIBUTING.md) for full guidelines.
 
+**GitHub CLI**: Always use `gh` CLI for PR operations:
+
+- `gh pr view <number>` - View PR details
+- `gh pr checkout <number>` - Checkout PR branch
+- `gh pr view <number> --comments` - View PR comments
+- `gh api repos/{owner}/{repo}/pulls/{number}/comments` - Get review comments
+- `gh run view <run-id> --log-failed` - View failed CI logs
+
 **Commits**: Follow [Conventional Commits](https://www.conventionalcommits.org/).
 
 - `feat:` / `fix:` / `perf:` → trigger releases

@@ -9,7 +9,8 @@ vi.mock('react-i18next', () => ({
                 'dashboard.availabilityBadge.available': 'Available',
                 'dashboard.availabilityBadge.unavailable': 'Unavailable',
                 'dashboard.availabilityBadge.limited': 'Limited',
-                'dashboard.availabilityBadge.setupIncomplete': 'Setup Incomplete',
+                'dashboard.availabilityBadge.setupIncomplete':
+                    'Setup Incomplete',
             }
             return translations[key] || key
         },
@@ -98,15 +99,15 @@ describe('AvailabilityBadge', () => {
         const { container, rerender } = render(
             <AvailabilityBadge status="available" />
         )
-        expect(container.querySelector('svg')).toBeDefined()
+        expect(container.querySelector('svg')).toBeTruthy()
 
         rerender(<AvailabilityBadge status="unavailable" />)
-        expect(container.querySelector('svg')).toBeDefined()
+        expect(container.querySelector('svg')).toBeTruthy()
 
         rerender(<AvailabilityBadge status="limited" />)
-        expect(container.querySelector('svg')).toBeDefined()
+        expect(container.querySelector('svg')).toBeTruthy()
 
         rerender(<AvailabilityBadge status="setup-incomplete" />)
-        expect(container.querySelector('svg')).toBeDefined()
+        expect(container.querySelector('svg')).toBeTruthy()
     })
 })

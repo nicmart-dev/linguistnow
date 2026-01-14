@@ -25,7 +25,7 @@ Both packages use `@vitest/coverage-v8` for code coverage reporting.
 
 Tests are **co-located** with their source files following Atomic Design structure:
 
-```
+```text
 client/src/components/
 ├── ui/                         # Atoms
 │   ├── button.tsx
@@ -532,6 +532,7 @@ pnpm --filter ./server test -- --coverage
 Coverage exclusions are configured in `vitest.config.ts` for each package:
 
 **Client exclusions:**
+
 - `src/components/ui/**` - UI primitives tested implicitly through component tests
 - `src/components/**/index.ts` - Barrel exports with no logic
 - `src/pages/**` - Pages tested via E2E/integration tests
@@ -542,6 +543,7 @@ Coverage exclusions are configured in `vitest.config.ts` for each package:
   - `LinguistCard`, `LinguistProfileSettings`, `LinguistTable`
 
 **Server exclusions:**
+
 - Test files, config files, and entry points tested via integration
 
 ## Best Practices

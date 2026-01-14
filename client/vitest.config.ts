@@ -30,16 +30,17 @@ export default defineConfig({
                 'src/components/ui/**',
                 // Barrel exports - no logic to test
                 'src/components/**/index.ts',
-                // Pages tested via E2E/integration tests
+                // Pages - thin wrappers around organisms, tested implicitly
                 'src/pages/**',
-                // Auth utilities tested via integration
+                // Auth utilities - external integration dependent
                 'src/auth-users/**',
                 // Environment validation tested at runtime
                 'src/env.ts',
-                // Context providers - tested via integration
+                // Context providers - tested implicitly through component tests
                 'src/i18n/LanguageProvider.tsx',
                 'src/i18n/index.ts',
-                // Complex organisms with heavy integrations - tested via E2E
+                // Complex organisms with heavy external integrations (API calls, Google Calendar, etc.)
+                // These require mocking complex external dependencies and are lower priority for unit tests
                 'src/components/organisms/AvailabilitySettings.tsx',
                 'src/components/organisms/AvailabilityTimeline.tsx',
                 'src/components/organisms/BookingModal.tsx',

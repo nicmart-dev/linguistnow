@@ -12,7 +12,11 @@ import {
     CommandItem,
     CommandList,
 } from '@/components/ui/command'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from '@/components/ui/popover'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 // logger import removed - not currently used
@@ -72,11 +76,13 @@ const CalendarSelector = ({ userDetails, onSave }: CalendarSelectorProps) => {
 
         try {
             // Fetch calendars via backend API (token is read from Vault and auto-refreshed if expired)
-            const response = await axios.get(
+            const response = await axios.get<{
+                calendars?: Array<{ id: string; summary: string }>
+            }>(
                 `${import.meta.env.VITE_API_URL || 'http://localhost:8080'}/api/calendars/list/${encodeURIComponent(userEmail)}`
             )
 
-            setFetchedCalendars(response.data.calendars || [])
+            setFetchedCalendars(response.data.calendars ?? [])
             setError(null)
             clearSessionExpired() // Clear session expired flag on success
         } catch (err: unknown) {
@@ -86,7 +92,10 @@ const CalendarSelector = ({ userDetails, onSave }: CalendarSelectorProps) => {
             if (axios.isAxiosError(err) && err.response?.status === 401) {
                 // Only mark as expired if refresh token is invalid (not just access token)
                 // Access token expiration is now handled automatically by the server
-                const errorCode = err.response?.data?.code as string | undefined
+                const errorData = err.response.data as
+                    | { code?: string }
+                    | undefined
+                const errorCode = errorData?.code
 
                 if (
                     errorCode === 'TOKEN_EXPIRED' ||
@@ -137,7 +146,7 @@ const CalendarSelector = ({ userDetails, onSave }: CalendarSelectorProps) => {
         // Only fetch calendars if userDetails exists
         // Don't clear session expired flag here - it will be cleared on successful API call
         if (userDetails) {
-            fetchCalendars()
+            void fetchCalendars()
         } else {
             // If userDetails is null, session has expired
             markSessionExpired()
@@ -172,7 +181,7 @@ const CalendarSelector = ({ userDetails, onSave }: CalendarSelectorProps) => {
             ? selectedCalendars.filter((id) => id !== calendarId)
             : [...selectedCalendars, calendarId]
         // onSave receives array of IDs only (not display names)
-        onSave(updatedCalendars)
+        void onSave(updatedCalendars)
     }
 
     const handleRemoveCalendar = (
@@ -201,7 +210,7 @@ const CalendarSelector = ({ userDetails, onSave }: CalendarSelectorProps) => {
         const updatedCalendars = selectedCalendars.filter(
             (id: string) => id !== calendarId
         )
-        onSave(updatedCalendars)
+        void onSave(updatedCalendars)
     }
 
     const calendarIdsField = userDetails?.['Calendar IDs']
@@ -233,12 +242,12 @@ const CalendarSelector = ({ userDetails, onSave }: CalendarSelectorProps) => {
                 <div>
                     {loading ? (
                         <div className="h-10 w-auto min-w-[280px] rounded-md border bg-muted animate-pulse" />
-                    ) : fetchedCalendars && fetchedCalendars.length > 0 ? (
+                    ) : fetchedCalendars.length > 0 ? (
                         <Popover
                             open={open && !error}
-                            onOpenChange={(newOpen) =>
-                                !error && setOpen(newOpen)
-                            }
+                            onOpenChange={(newOpen) => {
+                                if (!error) setOpen(newOpen)
+                            }}
                         >
                             <PopoverTrigger asChild>
                                 <Button
