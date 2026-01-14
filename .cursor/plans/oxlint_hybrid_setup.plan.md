@@ -1,116 +1,93 @@
 ---
 name: Oxlint Hybrid Setup
-overview: Add Oxlint as a fast first-pass linter while keeping ESLint for type-checked rules, providing 50-100x faster initial linting feedback with preserved type safety.
+overview: Add Oxlint as a fast first-pass linter alongside ESLint, leveraging the hybrid approach for faster feedback while preserving type-checked rules. This plan corrects several issues in the original plan based on current project configuration and latest oxlint documentation.
 todos:
-  - id: install-deps
-    content: Install oxlint and eslint-plugin-oxlint dev dependencies
+  - id: update-plan-doc
+    content: Update plan document with corrected config filename, schema path, and ignore approach
     status: pending
-  - id: create-oxlint-config
-    content: Create oxlint.json configuration file in project root
+  - id: fix-plan-tables
+    content: Fix broken markdown tables in the plan document
     status: pending
-  - id: update-eslint-config
-    content: Update eslint.config.mjs to import oxlint plugin and auto-disable rules
+  - id: fix-mermaid
+    content: Remove <br/> tags from mermaid diagram
     status: pending
-  - id: add-package-scripts
-    content: Add lint:ox, lint:eslint, and updated lint/lint:fix scripts to package.json
+  - id: remove-ci-section
+    content: Remove or mark CI workflow section as optional (no workflows exist)
     status: pending
-  - id: update-lint-staged
-    content: Update .lintstagedrc.js to run oxlint before eslint in pre-commit hooks
-    status: pending
-  - id: update-ci-workflow
-    content: Update GitHub Actions workflow to run oxlint first for fast feedback
-    status: pending
-  - id: update-gitignore
-    content: Add .oxlint-cache to .gitignore
+  - id: add-migration-tool
+    content: Add @oxlint/migrate tool mention to the plan
     status: pending
 ---
 
-# Oxlint Hybrid Setup: Running Oxlint Alongside ESLint
+# Oxlint Hybrid Setup Plan
 
-## Overview
+## Issues Found in Original Plan
 
-Add Oxlint as a fast first-pass linter while keeping ESLint for type-checked rules. This hybrid approach provides:
+| Issue | Original | Corrected |
 
-- **50-100x faster** initial linting feedback (Rust-powered)
-- **Preserved type safety** via ESLint's `strictTypeChecked` rules
-- **Reduced ESLint workload** by disabling rules oxlint handles
-- **Better CI performance** with faster lint times
-- **Gradual adoption path** to evaluate oxlint without breaking changes
+| ------------------- | -------------------- | ------------------------------------------------------------------ |
 
-## Architecture
+| Config filename | `oxlint.json` | `.oxlintrc.json` (dot prefix) |
 
-```mermaid
-flowchart LR
-    subgraph Input
-        Source[Source Files]
-    end
+| Schema reference | Remote URL | Local: `./node_modules/oxlint/configuration_schema.json` |
 
-    subgraph Stage1[Stage 1: Fast Pass]
-        Oxlint[Oxlint<br/>Rust-powered<br/>~50-100x faster]
-    end
+| Ignore config | `ignorePatterns` key | Use `.oxlintignore` file or CLI `--ignore-pattern` |
 
-    subgraph Stage2[Stage 2: Type-Aware]
-        ESLint[ESLint + typescript-eslint<br/>Type-checked rules<br/>strictTypeChecked preset]
-    end
+| Missing tool | Not mentioned | Add `@oxlint/migrate` for easier ESLint migration |
 
-    subgraph Results
-        Errors[Combined Errors/Warnings]
-    end
+| ESLint config order | Unclear placement | Must place after strictTypeChecked, before file-specific overrides |
 
-    Source --> Oxlint
-    Oxlint --> ESLint
-    ESLint --> Errors
+| Lint-staged | Missing prettier | Preserve existing prettier integration |
 
-    subgraph RuleSplit[Rule Distribution]
-        OxRules[Oxlint Rules<br/>• Syntax errors<br/>• Style issues<br/>• Common bugs<br/>• Import checks]
-        ESRules[ESLint-Only Rules<br/>• no-floating-promises<br/>• no-unsafe-* rules<br/>• Type-aware checks<br/>• strictTypeChecked]
-    end
-```
+| CI Workflows | Section included | No `.github/workflows` exists - remove or make optional |
 
-## Why Hybrid Instead of Full Migration?
+---
 
-| Current Rule | Oxlint Support | Action || ----------------------------------------- | ----------------- | ----------------- || `@eslint/recommended` | ✅ 90%+ covered | Disable in ESLint || `strictTypeChecked` | ❌ Not supported | Keep in ESLint || `@typescript-eslint/no-floating-promises` | ❌ Requires types | Keep in ESLint || `@typescript-eslint/no-unsafe-*` | ❌ Requires types | Keep in ESLint || Basic syntax rules | ✅ Covered | Disable in ESLint || Import/export rules | ✅ Covered | Disable in ESLint |**Key insight**: Type-checked rules like `no-floating-promises` and `no-unsafe-*` require TypeScript's type information—oxlint cannot replicate these.
-
-## Key Files to Modify
-
-| File | Change || ------------------------- | --------------------------------------------------------------- || `package.json` | Add `oxlint` and `eslint-plugin-oxlint` dependencies || `eslint.config.mjs` | Import `eslint-plugin-oxlint` to auto-disable overlapping rules || `.github/workflows/*.yml` | Update CI to run oxlint first (optional) || `.lintstagedrc.js` | Add oxlint to pre-commit hooks || `oxlint.json` | (New) Oxlint configuration file |
-
-## Implementation Details
+## Corrected Implementation
 
 ### 1. Install Dependencies
 
 ```bash
-# Add oxlint and the ESLint plugin for integration
 pnpm add -D oxlint eslint-plugin-oxlint
 ```
 
-### 2. Create Oxlint Configuration
+Optional migration helper:
 
-Create `oxlint.json` in the project root:
+```bash
+npx @oxlint/migrate  # Auto-converts ESLint config to oxlint format
+```
+
+### 2. Create `.oxlintrc.json` (corrected filename)
 
 ```json
 {
-  "$schema": "https://raw.githubusercontent.com/oxc-project/oxc/main/npm/oxlint/configuration_schema.json",
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "categories": {
+    "correctness": "error",
+    "suspicious": "warn",
+    "pedantic": "off"
+  },
   "rules": {
     "no-unused-vars": "warn",
     "no-console": "off",
     "eqeqeq": "error"
   },
-  "ignorePatterns": [
-    "**/dist/**",
-    "**/dev-dist/**",
-    "**/build/**",
-    "**/node_modules/**",
-    "**/coverage/**",
-    "scripts/**"
-  ],
   "plugins": ["typescript", "import", "react", "react-hooks"]
 }
 ```
 
-### 3. Update ESLint Configuration
+### 3. Create `.oxlintignore` (separate file for ignores)
 
-Modify `eslint.config.mjs` to disable rules that oxlint handles:
+```
+**/dist/**
+**/dev-dist/**
+**/build/**
+**/node_modules/**
+**/coverage/**
+scripts/**
+```
+
+### 4. Update [`eslint.config.mjs`](<linguistnow%20(main)/eslint.config.mjs>) (corrected placement)
 
 ```javascript
 import eslint from "@eslint/js";
@@ -121,31 +98,18 @@ import oxlint from "eslint-plugin-oxlint";
 export default tseslint.config(
   eslint.configs.recommended,
   ...tseslint.configs.strictTypeChecked,
-  // Auto-disable ESLint rules covered by oxlint
+  // ADD HERE: After base configs, before file-specific overrides
   oxlint.configs["flat/recommended"],
   {
     languageOptions: {
-      parserOptions: {
-        project: [
-          "./server/tsconfig.json",
-          "./client/tsconfig.json",
-          "./shared/tsconfig.json",
-        ],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      globals: {
-        ...globals.browser,
-        ...globals.node,
-      },
+      // ... existing parserOptions
     },
-  },
-  // ... rest of existing configuration
+  }
+  // ... rest of existing file-specific configurations
 );
 ```
 
-### 4. Add Package Scripts
-
-Update root `package.json`:
+### 5. Update [`package.json`](<linguistnow%20(main)/package.json>) scripts
 
 ```json
 {
@@ -158,131 +122,58 @@ Update root `package.json`:
 }
 ```
 
-### 5. Update Pre-commit Hooks
-
-If using `lint-staged`, update `.lintstagedrc.js`:
+### 6. Update [`.lintstagedrc.js`](<linguistnow%20(main)/.lintstagedrc.js>) (preserve prettier)
 
 ```javascript
 module.exports = {
-  "*.{ts,tsx}": ["oxlint --fix", "eslint --fix"],
-  "*.{js,mjs,cjs}": ["oxlint --fix", "eslint --fix"],
+  "*.{ts,tsx}": ["oxlint --fix", "eslint --fix", "prettier --write"],
+  "*.{js,mjs,cjs}": ["oxlint --fix", "eslint --fix", "prettier --write"],
+  "*.{json,md}": ["prettier --write"],
 };
 ```
 
-### 6. Update CI Workflow (Optional)
+### 7. Update [`.gitignore`](<linguistnow%20(main)/.gitignore>)
 
-For faster CI feedback, run oxlint first:
+Add:
 
-```yaml
-jobs:
-  lint:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v4
-    - uses: pnpm/action-setup@v2
-    - uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-          cache: "pnpm"
-    - run: pnpm install
-
-      # Fast oxlint check first - fails fast on obvious issues
-    - name: Oxlint (fast pass)
-        run: pnpm lint:ox
-
-      # Full ESLint with type checking
-    - name: ESLint (type-aware)
-        run: pnpm lint:eslint
+```
+# Oxlint
+.oxlintignore
 ```
 
-### 7. Update .gitignore
+Wait - `.oxlintignore` should NOT be gitignored. Instead add cache if using:
 
-Add oxlint cache (if using):
-
-```javascript
+```
 # Oxlint cache
 .oxlint-cache
 ```
 
-## Usage
+---
 
-| Command | Description || ------------------ | -------------------------------------- || `pnpm lint` | Run both oxlint and ESLint in sequence || `pnpm lint:ox` | Run oxlint only (fast feedback) || `pnpm lint:eslint` | Run ESLint only (type-aware checks) || `pnpm lint:fix` | Auto-fix issues with both linters |
+## Sections to Remove/Update in Plan Document
 
-## Expected Performance Improvement
+1. **Remove CI Workflow Section** - No `.github/workflows` directory exists. Make this section conditional or remove entirely.
 
-| Metric | Before (ESLint only) | After (Hybrid) || --------------------- | -------------------- | ------------------- || Initial syntax errors | ~5-15s | ~0.1-0.3s (oxlint) || Full lint pass | ~5-15s | ~0.3s + ~3-8s || Pre-commit hooks | ~5-15s | Fast fail on syntax || CI lint step | ~15-30s | Parallel stages |> Note: Actual times depend on codebase size. Your project is small enough that ESLint is likely fast already, but oxlint provides instant feedback during development.
+2. **Fix Mermaid Diagram** - The diagram has `<br/>` tags which render as literal text. Replace with cleaner labels.
 
-## Rule Coverage Comparison
+3. **Update Table Formatting** - Several tables have broken markdown (missing newlines between rows).
 
-### Rules Oxlint Handles (disable in ESLint)
+---
 
-The `eslint-plugin-oxlint` automatically disables these, but for reference:
+## Summary of Changes
 
-- `no-unused-vars`
-- `no-undef`
-- `no-console`
-- `eqeqeq`
-- `no-empty`
-- `no-extra-semi`
-- `import/no-duplicates`
-- `react/jsx-key`
-- `react-hooks/rules-of-hooks`
-- [500+ more rules](https://oxc.rs/docs/guide/usage/linter/rules.html)
+| File | Action |
 
-### Rules ESLint Must Keep (type-aware)
+| ------------------- | ------------------------------------------- |
 
-These require TypeScript's type system and **cannot** be migrated:
+| `.oxlintrc.json` | Create (not `oxlint.json`) |
 
-- `@typescript-eslint/no-floating-promises`
-- `@typescript-eslint/no-misused-promises`
-- `@typescript-eslint/no-unsafe-assignment`
-- `@typescript-eslint/no-unsafe-call`
-- `@typescript-eslint/no-unsafe-member-access`
-- `@typescript-eslint/no-unsafe-argument`
-- `@typescript-eslint/no-unsafe-return`
-- `@typescript-eslint/await-thenable`
-- `@typescript-eslint/require-await`
-- `@typescript-eslint/restrict-template-expressions`
+| `.oxlintignore` | Create (for ignore patterns) |
 
-## Future Considerations
+| `eslint.config.mjs` | Add oxlint plugin import and config |
 
-### Path to Full Migration
+| `package.json` | Add `lint:ox`, update `lint` and `lint:fix` |
 
-Monitor oxlint's roadmap for type-aware rule support. When available:
+| `.lintstagedrc.js` | Add oxlint, preserve prettier |
 
-1. Evaluate type-aware rule coverage
-2. Test on a branch
-3. Remove ESLint if all critical rules are covered
-
-### oxfmt for Formatting
-
-Consider replacing Prettier with oxfmt for consistent tooling:
-
-```bash
-pnpm add -D oxc
-# Replace prettier with oxfmt in package.json scripts
-```
-
-## Cost
-
-**Free and open-source:**
-
-- `oxlint` - MIT license
-- `eslint-plugin-oxlint` - MIT license
-
-## Rollback Plan
-
-If issues arise, reverting is simple:
-
-1. Remove `oxlint.configs['flat/recommended'] `from `eslint.config.mjs`
-2. Change `"lint"` script back to `"eslint ."`
-3. Optionally remove `oxlint` dependency
-
-The hybrid approach is non-breaking—ESLint continues to work as before, just faster.
-
-## Notes
-
-- Oxlint v1.0 was released June 2025 and is production-ready
-- The plugin auto-disables ESLint rules to avoid duplicate warnings
-- Oxlint runs in parallel by default (uses all CPU cores)
-- No configuration required for basic usage—sensible defaults work well
+| `.gitignore` | Add `.oxlint-cache` |
