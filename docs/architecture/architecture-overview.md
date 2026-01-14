@@ -162,7 +162,7 @@ The application follows an **Atomic Design** architecture with emphasis on:
 
 Components are organized into three tiers following Brad Frost's Atomic Design methodology:
 
-```
+```text
 client/src/components/
 ├── index.ts              # Barrel export for all layers
 ├── ui/                   # ATOMS - Basic building blocks (shadcn/ui)
@@ -254,51 +254,51 @@ graph TD
 
 Basic building blocks - single-purpose components with no dependencies on other custom components:
 
-| Component | Purpose |
-|-----------|---------|
-| `Button` | Reusable button with variants (default, outline, ghost, etc.) |
-| `Input` | Form input component |
-| `Badge` | Status/label badges |
-| `Calendar` | Date picker calendar |
-| `Dialog` | Modal dialog primitives |
-| `Popover` | Floating content panels |
-| `Select` | Dropdown select component |
-| `Skeleton` | Loading state placeholder |
-| `Slider` | Range slider input |
-| `Table` | Table primitives (TableHeader, TableBody, TableRow, etc.) |
-| `Tabs` | Tabbed interface |
-| `Command` | Command palette/combobox |
+| Component  | Purpose                                                       |
+| ---------- | ------------------------------------------------------------- |
+| `Button`   | Reusable button with variants (default, outline, ghost, etc.) |
+| `Input`    | Form input component                                          |
+| `Badge`    | Status/label badges                                           |
+| `Calendar` | Date picker calendar                                          |
+| `Dialog`   | Modal dialog primitives                                       |
+| `Popover`  | Floating content panels                                       |
+| `Select`   | Dropdown select component                                     |
+| `Skeleton` | Loading state placeholder                                     |
+| `Slider`   | Range slider input                                            |
+| `Table`    | Table primitives (TableHeader, TableBody, TableRow, etc.)     |
+| `Tabs`     | Tabbed interface                                              |
+| `Command`  | Command palette/combobox                                      |
 
 #### Molecules (`molecules/`)
 
 Composite components combining atoms with specific functionality:
 
-| Component | Purpose | Composed of |
-|-----------|---------|-------------|
-| `AvailabilityBadge` | Displays linguist availability status | Badge + icons |
-| `DateInput` | Date input with keyboard navigation | Input fields |
-| `DateRangePicker` | Date range selection with presets | Calendar + DateInput + Popover + Button |
-| `RatingInput` | Star rating with API integration | Button + icons |
+| Component           | Purpose                               | Composed of                             |
+| ------------------- | ------------------------------------- | --------------------------------------- |
+| `AvailabilityBadge` | Displays linguist availability status | Badge + icons                           |
+| `DateInput`         | Date input with keyboard navigation   | Input fields                            |
+| `DateRangePicker`   | Date range selection with presets     | Calendar + DateInput + Popover + Button |
+| `RatingInput`       | Star rating with API integration      | Button + icons                          |
 
 #### Organisms (`organisms/`)
 
 Complex feature components with business logic:
 
-| Component | Purpose |
-|-----------|---------|
-| `Navbar` | Navigation bar with language selector |
-| `Footer` | Application footer with links |
-| `Hero` | Landing page hero section |
-| `DataTable` | Full-featured data table with sorting, filtering, pagination |
-| `FilterBar` | Search filters for linguist search |
-| `LinguistTable` | Specialized table for linguist data |
-| `LinguistCard` | Card view of linguist with availability |
-| `BookingModal` | Booking confirmation dialog |
-| `CalendarSelector` | Google Calendar selection interface |
-| `AvailabilitySettings` | Working hours configuration |
-| `AvailabilityTimeline` | Visual availability timeline |
-| `LinguistProfileSettings` | Linguist profile form |
-| `ScrollToTop` | Scroll to top button |
+| Component                 | Purpose                                                      |
+| ------------------------- | ------------------------------------------------------------ |
+| `Navbar`                  | Navigation bar with language selector                        |
+| `Footer`                  | Application footer with links                                |
+| `Hero`                    | Landing page hero section                                    |
+| `DataTable`               | Full-featured data table with sorting, filtering, pagination |
+| `FilterBar`               | Search filters for linguist search                           |
+| `LinguistTable`           | Specialized table for linguist data                          |
+| `LinguistCard`            | Card view of linguist with availability                      |
+| `BookingModal`            | Booking confirmation dialog                                  |
+| `CalendarSelector`        | Google Calendar selection interface                          |
+| `AvailabilitySettings`    | Working hours configuration                                  |
+| `AvailabilityTimeline`    | Visual availability timeline                                 |
+| `LinguistProfileSettings` | Linguist profile form                                        |
+| `ScrollToTop`             | Scroll to top button                                         |
 
 ### Component Patterns
 

@@ -90,8 +90,8 @@ export const getLocale = (): Locale => {
     return detectedLocale
 }
 
-// RTL languages
-const RTL_LANGUAGES: Locale[] = ['ar', 'he']
+// RTL languages (only Arabic is currently supported)
+const RTL_LANGUAGES: Locale[] = ['ar']
 
 /**
  * Check if a locale is a Right-to-Left (RTL) language
