@@ -1,12 +1,12 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { Mail, MapPin } from 'lucide-react'
-import { Badge } from './ui/badge'
-import AvailabilityBadge from './AvailabilityBadge'
+import { Badge } from '@/components/ui/badge'
+import AvailabilityBadge from '@/components/molecules/AvailabilityBadge'
 import AvailabilityTimeline from './AvailabilityTimeline'
-import RatingInput from './RatingInput'
+import RatingInput from '@/components/molecules/RatingInput'
 import type { LinguistWithAvailability } from '@linguistnow/shared'
-import { getCurrencySymbol } from '../utils/currency'
+import { getCurrencySymbol } from '@/utils/currency'
 
 interface LinguistCardProps {
     linguist: LinguistWithAvailability

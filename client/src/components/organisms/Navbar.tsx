@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { LanguageContext } from '../i18n/LanguageProvider'
+import { LanguageContext } from '@/i18n/LanguageProvider'
 
 interface NavbarProps {
     userDetails: { role: string } | null

@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import i18next from '../i18n'
+import i18next from '@/i18n'
 import { parseISO, format, startOfDay } from 'date-fns'
 import { enUS } from 'date-fns/locale'
 import {
@@ -10,10 +10,10 @@ import {
     DialogFooter,
     DialogHeader,
     DialogTitle,
-} from './ui/dialog'
-import { Button } from './ui/button'
-import { Input } from './Input'
-import { generateICS, generateMailtoLink } from '../utils/ics-generator'
+} from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { generateICS, generateMailtoLink } from '@/utils/ics-generator'
 import type { LinguistWithAvailability } from '@linguistnow/shared'
 
 interface BookingModalProps {

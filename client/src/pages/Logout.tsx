@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { googleLogout } from '@react-oauth/google'
 import { useNavigate } from 'react-router-dom'
-import Hero from '../components/Hero'
+import Hero from '@/components/organisms/Hero'
 import { useTranslation } from 'react-i18next'
 
 const Logout = ({ setUserDetails, userDetails }) => {

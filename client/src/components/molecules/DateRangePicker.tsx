@@ -17,9 +17,9 @@ import {
 } from 'date-fns/locale'
 import { CalendarIcon, ChevronDown, ChevronUp, Check } from 'lucide-react'
 import { getWeekStartsOn, getDateFnsLocale } from '@linguistnow/shared'
-import { Button } from './ui/button'
-import { Popover, PopoverContent, PopoverTrigger } from './ui/popover'
-import { Calendar } from './ui/calendar'
+import { Button } from '@/components/ui/button'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { Calendar } from '@/components/ui/calendar'
 import { DateInput } from './DateInput'
 import {
     Select,
@@ -27,14 +27,14 @@ import {
     SelectItem,
     SelectTrigger,
     SelectValue,
-} from './ui/select'
-import { cn } from '../lib/utils'
+} from '@/components/ui/select'
+import { cn } from '@/lib/utils'
 import {
     PRESETS,
     getPresetRange,
     getDateAdjustedForTimezone,
     type DateRange,
-} from '../utils/date-presets'
+} from '@/utils/date-presets'
 
 interface DateRangePickerProps {
     startDate?: string // ISO date string (YYYY-MM-DD)

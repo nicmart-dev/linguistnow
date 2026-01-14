@@ -5,6 +5,7 @@ This document describes the testing setup and Test-Driven Development (TDD) work
 ## Table of Contents
 
 - [Overview](#overview)
+- [Test File Organization](#test-file-organization)
 - [Vitest Configuration](#vitest-configuration)
 - [TDD Workflow](#tdd-workflow)
 - [Writing Tests](#writing-tests)
@@ -19,6 +20,42 @@ We use **Vitest 4.0.16** for testing both client and server code:
 - **Server**: Vitest with Node.js environment for API endpoints
 
 Both packages use `@vitest/coverage-v8` for code coverage reporting.
+
+## Test File Organization
+
+Tests are **co-located** with their source files following Atomic Design structure:
+
+```
+client/src/components/
+├── ui/                         # Atoms
+│   ├── button.tsx
+│   ├── button.test.tsx         ✅ Co-located
+│   ├── input.tsx
+│   ├── input.test.tsx          ✅ Co-located
+│   ├── skeleton.tsx
+│   ├── skeleton.test.tsx       ✅ Co-located
+│   ├── table.tsx
+│   └── table.test.tsx          ✅ Co-located
+├── molecules/                  # Molecules
+│   ├── DateInput.tsx
+│   ├── DateInput.test.tsx      ✅ Co-located
+│   ├── RatingInput.tsx
+│   └── RatingInput.test.tsx    ✅ Co-located
+└── organisms/                  # Organisms
+    ├── Footer.tsx
+    ├── Footer.test.tsx         ✅ Co-located
+    ├── Hero.tsx
+    ├── Hero.test.tsx           ✅ Co-located
+    ├── Navbar.tsx
+    └── Navbar.test.tsx         ✅ Co-located
+```
+
+### Benefits of Co-location
+
+1. **Discoverability** - Tests are easy to find next to their source
+2. **Maintenance** - Moving a component moves its tests automatically
+3. **Context** - Related code stays together
+4. **Import paths** - Shorter, cleaner import statements
 
 ## Vitest Configuration
 
@@ -140,21 +177,52 @@ export const Button = ({ children, variant = 'default' }: ButtonProps) => {
 
 ### React Component Tests
 
+Tests are co-located with components. Use `@/` path aliases for imports:
+
 ```typescript
+// client/src/components/ui/button.test.tsx
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import { Button } from './Button';
+import { Button } from '@/components/ui/button';
 
 describe('Button', () => {
   it('renders button with text', () => {
     render(<Button>Click me</Button>);
-    expect(screen.getByRole('button', { name: /click me/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /click me/i })).toBeDefined();
   });
 
   it('applies variant classes', () => {
     const { container } = render(<Button variant="outline">Outline</Button>);
     const button = container.querySelector('button');
-    expect(button).toHaveClass('border');
+    expect(button?.className).toContain('border');
+  });
+});
+```
+
+For components requiring i18n or routing providers:
+
+```typescript
+// client/src/components/organisms/Footer.test.tsx
+import { describe, it, expect } from 'vitest';
+import { render, screen } from '@testing-library/react';
+import { BrowserRouter } from 'react-router-dom';
+import { I18nextProvider } from 'react-i18next';
+import i18nInstance from '@/i18n';
+import { Footer } from '@/components/organisms';
+
+const renderWithProviders = (component: React.ReactNode) => {
+  return render(
+    <BrowserRouter>
+      <I18nextProvider i18n={i18nInstance}>{component}</I18nextProvider>
+    </BrowserRouter>
+  );
+};
+
+describe('Footer', () => {
+  it('renders footer element', () => {
+    renderWithProviders(<Footer />);
+    const footer = screen.getByRole('contentinfo');
+    expect(footer).toBeDefined();
   });
 });
 ```
@@ -448,8 +516,8 @@ pnpm --filter ./server test -- --coverage
 **Client:**
 
 - **Statements**: ≥ 80%
-- **Branches**: ≥ 80%
-- **Functions**: ≥ 70%
+- **Branches**: ≥ 65% (lower threshold due to complex UI component conditionals)
+- **Functions**: ≥ 75%
 - **Lines**: ≥ 80%
 
 **Server:**
@@ -461,7 +529,20 @@ pnpm --filter ./server test -- --coverage
 
 ### Excluding Files from Coverage
 
-Coverage exclusions are configured in `vitest.config.ts` for each package. The client excludes test files, config files, pages, and complex components that are tested via integration tests. The server excludes test files, config files, and entry points that are tested via integration.
+Coverage exclusions are configured in `vitest.config.ts` for each package:
+
+**Client exclusions:**
+- `src/components/ui/**` - UI primitives tested implicitly through component tests
+- `src/components/**/index.ts` - Barrel exports with no logic
+- `src/pages/**` - Pages tested via E2E/integration tests
+- `src/auth-users/**` - Auth utilities tested via integration
+- Complex organisms with heavy integrations (tested via E2E):
+  - `AvailabilitySettings`, `AvailabilityTimeline`, `BookingModal`
+  - `CalendarSelector`, `DataTable`, `FilterBar`
+  - `LinguistCard`, `LinguistProfileSettings`, `LinguistTable`
+
+**Server exclusions:**
+- Test files, config files, and entry points tested via integration
 
 ## Best Practices
 
@@ -558,7 +639,17 @@ pnpm --filter ./server test:run
 ### Specific Test File
 
 ```bash
-pnpm --filter ./client test Button.test.tsx
+# Test a specific file by name pattern
+pnpm --filter ./client test button.test.tsx
+
+# Test all tests in a directory
+pnpm --filter ./client test src/components/ui/
+
+# Test molecules
+pnpm --filter ./client test src/components/molecules/
+
+# Test organisms
+pnpm --filter ./client test src/components/organisms/
 ```
 
 ## Related Documentation

@@ -1,5 +1,5 @@
 import React from 'react'
-import Hero from '../components/Hero'
+import Hero from '@/components/organisms/Hero'
 import { useTranslation } from 'react-i18next'
 
 const PrivacyPolicy = () => {

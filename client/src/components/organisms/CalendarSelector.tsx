@@ -3,7 +3,7 @@ import axios from 'axios'
 import { useTranslation } from 'react-i18next' // to localize text strings
 import { toast } from 'sonner'
 import { Check, ChevronsUpDown, X } from 'lucide-react'
-import { Button } from './ui/button'
+import { Button } from '@/components/ui/button'
 import {
     Command,
     CommandEmpty,
@@ -11,10 +11,10 @@ import {
     CommandInput,
     CommandItem,
     CommandList,
-} from './ui/command'
-import { Popover, PopoverContent, PopoverTrigger } from './ui/popover'
-import { Badge } from './ui/badge'
-import { cn } from '../lib/utils'
+} from '@/components/ui/command'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { Badge } from '@/components/ui/badge'
+import { cn } from '@/lib/utils'
 // logger import removed - not currently used
 
 /* The CalendarSelector component fetches the user's Google Calendars 

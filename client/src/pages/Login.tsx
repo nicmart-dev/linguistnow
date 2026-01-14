@@ -2,9 +2,9 @@ import React from 'react'
 import { useGoogleLogin } from '@react-oauth/google'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
-import { fetchUserDetails, createUserIfNotFound } from '../auth-users/utils'
-import Hero from '../components/Hero'
-import { logger } from '../utils/logger'
+import { fetchUserDetails, createUserIfNotFound } from '@/auth-users/utils'
+import Hero from '@/components/organisms/Hero'
+import { logger } from '@/utils/logger'
 
 const Login = ({ setUserDetails }) => {
     const navigate = useNavigate()

@@ -1,5 +1,5 @@
 import DataTable from './DataTable'
-import { useColumns } from '../data-table/columns'
+import { useColumns } from '@/data-table/columns'
 import type { LinguistWithAvailability } from '@linguistnow/shared'
 
 /* Display table of available linguists using DataTables library 

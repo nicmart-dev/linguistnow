@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { Check, ChevronsUpDown, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { Button } from './ui/button'
+import { Button } from '@/components/ui/button'
 import {
     Command,
     CommandEmpty,
@@ -11,18 +11,18 @@ import {
     CommandInput,
     CommandItem,
     CommandList,
-} from './ui/command'
-import { Popover, PopoverContent, PopoverTrigger } from './ui/popover'
-import { Input } from './Input'
+} from '@/components/ui/command'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { Input } from '@/components/ui/input'
 import {
     Select,
     SelectContent,
     SelectItem,
     SelectTrigger,
     SelectValue,
-} from './ui/select'
-import { Badge } from './ui/badge'
-import { CURRENCIES } from '../utils/currency'
+} from '@/components/ui/select'
+import { Badge } from '@/components/ui/badge'
+import { CURRENCIES } from '@/utils/currency'
 
 interface LinguistProfileSettingsProps {
     userDetails: {

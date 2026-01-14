@@ -2,9 +2,9 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { BrowserRouter } from 'react-router-dom'
 import { I18nextProvider } from 'react-i18next'
-import { LanguageContext } from '../i18n/LanguageProvider'
-import i18nInstance from '../i18n'
-import Navbar from './Navbar'
+import { LanguageContext } from '@/i18n/LanguageProvider'
+import i18nInstance from '@/i18n'
+import { Navbar } from '@/components/organisms'
 
 const mockSwitchLanguage = vi.fn()
 

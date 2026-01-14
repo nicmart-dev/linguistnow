@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, waitFor, fireEvent, act } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import axios from 'axios'
-import RatingInput from './RatingInput'
+import { RatingInput } from '@/components/molecules'
 import { toast } from 'sonner'
 
 // Mock dependencies

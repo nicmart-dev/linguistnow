@@ -1,11 +1,9 @@
 import { useTranslation } from 'react-i18next' // To show localized strings
 import { ArrowUpDown } from 'lucide-react'
-import { Button } from '../components/Button' // used for sorting
-import AvailabilityBadge from '../components/AvailabilityBadge'
-import { Badge } from '../components/ui/badge'
-import RatingInput from '../components/RatingInput'
+import { Button, Badge } from '@/components/ui'
+import { AvailabilityBadge, RatingInput } from '@/components/molecules'
 import type { ColumnDef } from '@tanstack/react-table'
-import { getCurrencySymbol } from '../utils/currency'
+import { getCurrencySymbol } from '@/utils/currency'
 
 // Define the linguist data type based on the structure used in LinguistTable
 interface LinguistRow {

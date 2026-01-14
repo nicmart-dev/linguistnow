@@ -1,10 +1,10 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom' // Add this line for using Link
-import xIcon from '../assets/icons/socials/x.svg'
-import FacebookIcon from '../assets/icons/socials/facebook.svg'
-import InstagramIcon from '../assets/icons/socials/instagram.svg'
-import LinkedInIcon from '../assets/icons/socials/linkedin.svg'
+import xIcon from '@/assets/icons/socials/x.svg'
+import FacebookIcon from '@/assets/icons/socials/facebook.svg'
+import InstagramIcon from '@/assets/icons/socials/instagram.svg'
+import LinkedInIcon from '@/assets/icons/socials/linkedin.svg'
 
 const Footer = () => {
     const { t } = useTranslation()
