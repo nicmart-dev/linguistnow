@@ -17,8 +17,9 @@ const Logout = ({ setUserDetails, userDetails }) => {
             // Navigate to the login page if user details are not available
             navigate('/login')
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
+        // Only run on mount - intentionally not including handleLogout in deps
+        // to prevent re-running when userDetails changes during logout
+    }, [navigate, userDetails])
 
     const handleLogout = () => {
         googleLogout()

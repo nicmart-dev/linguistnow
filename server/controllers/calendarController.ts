@@ -12,7 +12,10 @@ import {
   getDefaultEndDate,
 } from "../services/availabilityService.js";
 import type { AvailabilityRequest } from "@linguistnow/shared";
-import { AVAILABILITY_DEFAULTS } from "@linguistnow/shared";
+import {
+  AVAILABILITY_DEFAULTS,
+  AirtableUserFieldsSchema,
+} from "@linguistnow/shared";
 import Airtable from "airtable";
 import { env } from "../env.js";
 
@@ -34,6 +37,7 @@ function getAirtableBase() {
 
 /**
  * Fetch user preferences from Airtable
+ * Uses Zod schema validation for type-safe parsing
  */
 async function getUserPreferences(userEmail: string): Promise<{
   timezone?: string;
@@ -54,78 +58,24 @@ async function getUserPreferences(userEmail: string): Promise<{
       return {};
     }
 
-    const fields = records[0].fields as {
-      Timezone?: string;
-      "Working Hours Start"?: string; // ISO 8601 time format (HH:mm, e.g., "08:00")
-      "Working Hours End"?: string; // ISO 8601 time format (HH:mm, e.g., "18:00")
-      "Off Days"?: string[]; // Array for dropdown field
+    // Use Zod schema for type-safe parsing of Airtable fields
+    const parseResult = AirtableUserFieldsSchema.partial().safeParse(
+      records[0].fields,
+    );
+
+    if (!parseResult.success) {
+      console.log("Error parsing user preferences:", parseResult.error);
+      return {};
+    }
+
+    const fields = parseResult.data;
+
+    return {
+      timezone: fields.Timezone ?? undefined,
+      workingHoursStart: fields["Working Hours Start"] ?? undefined,
+      workingHoursEnd: fields["Working Hours End"] ?? undefined,
+      offDays: fields["Off Days"] ?? [],
     };
-
-    const preferences: {
-      timezone?: string;
-      workingHoursStart?: string;
-      workingHoursEnd?: string;
-      offDays?: number[];
-    } = {};
-
-    if (fields.Timezone) {
-      preferences.timezone = fields.Timezone;
-    }
-    if (fields["Working Hours Start"] !== undefined) {
-      preferences.workingHoursStart = fields["Working Hours Start"];
-    }
-    if (fields["Working Hours End"] !== undefined) {
-      preferences.workingHoursEnd = fields["Working Hours End"];
-    }
-    // Handle offDays: empty array or field not set = no off-days
-    // If field exists with values → use those values
-    if (fields["Off Days"]) {
-      if (Array.isArray(fields["Off Days"])) {
-        // Empty array means no off-days
-        if (fields["Off Days"].length === 0) {
-          preferences.offDays = [];
-          return preferences;
-        }
-
-        // Map day names back to day numbers (0-6)
-        const dayNames = [
-          "Sunday",
-          "Monday",
-          "Tuesday",
-          "Wednesday",
-          "Thursday",
-          "Friday",
-          "Saturday",
-        ];
-        preferences.offDays = fields["Off Days"]
-          .map((d) => {
-            if (typeof d === "string") {
-              const index = dayNames.indexOf(d);
-              if (index !== -1) return index;
-              // Fallback: try parsing as number
-              const num = parseInt(d.trim(), 10);
-              return typeof num === "number" &&
-                !isNaN(num) &&
-                num >= 0 &&
-                num <= 6
-                ? num
-                : null;
-            }
-            return typeof d === "number" && !isNaN(d) && d >= 0 && d <= 6
-              ? d
-              : null;
-          })
-          .filter((d): d is number => d !== null);
-      }
-    } else {
-      // Field doesn't exist = no off-days
-      preferences.offDays = [];
-    }
-    if (fields["Min Hours Per Day"] !== undefined) {
-      // Note: minHoursPerDay is not a linguist preference - it's a PM requirement set in availability requests
-    }
-
-    return preferences;
   } catch (error) {
     console.log("Error fetching user preferences:", error);
     return {};

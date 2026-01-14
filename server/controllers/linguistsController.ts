@@ -16,7 +16,11 @@ import type {
   SetupStatus,
   AvailabilityRequest,
 } from "@linguistnow/shared";
-import { AVAILABILITY_DEFAULTS } from "@linguistnow/shared";
+import {
+  AVAILABILITY_DEFAULTS,
+  parseArrayField,
+  parseUserPreferences,
+} from "@linguistnow/shared";
 
 /**
  * Airtable field names used throughout the controller.
@@ -78,24 +82,7 @@ function escapeAirtableFormulaString(value: string): string {
   return value.replace(/'/g, "''");
 }
 
-/**
- * Parse an Airtable field value that may be an array, comma-separated string, or other format
- * into a string array. Handles multiple data types for backward compatibility.
- * @param field - Field value from Airtable (array, string, or unknown)
- * @returns Array of strings, empty array if field is empty or invalid
- */
-function parseArrayField(field: unknown): string[] {
-  if (Array.isArray(field)) {
-    return field as string[];
-  }
-  if (typeof field === "string") {
-    return field
-      .split(",")
-      .map((s) => s.trim())
-      .filter(Boolean);
-  }
-  return [];
-}
+// parseArrayField is now imported from @linguistnow/shared
 
 /**
  * Extract date string from ISO date string, handling various formats.
@@ -317,7 +304,7 @@ function buildFilterFormula(query: Partial<SearchLinguistsQuery>): string {
 
 /**
  * Get user preferences from Airtable fields.
- * Extracts timezone, working hours, and off days from Airtable record fields.
+ * Uses Zod schema validation from shared package for type safety.
  * @param fields - Airtable record fields
  * @returns User preferences object with timezone, working hours, and off days
  */
@@ -327,63 +314,14 @@ function getUserPreferences(fields: Record<string, unknown>): {
   workingHoursEnd?: string;
   offDays?: number[];
 } {
-  const preferences: {
-    timezone?: string;
-    workingHoursStart?: string;
-    workingHoursEnd?: string;
-    offDays?: number[];
-  } = {};
-
-  if (fields[AIRTABLE_FIELDS.TIMEZONE]) {
-    preferences.timezone = fields[AIRTABLE_FIELDS.TIMEZONE] as string;
-  }
-  if (fields[AIRTABLE_FIELDS.WORKING_HOURS_START]) {
-    preferences.workingHoursStart = fields[
-      AIRTABLE_FIELDS.WORKING_HOURS_START
-    ] as string;
-  }
-  if (fields[AIRTABLE_FIELDS.WORKING_HOURS_END]) {
-    preferences.workingHoursEnd = fields[
-      AIRTABLE_FIELDS.WORKING_HOURS_END
-    ] as string;
-  }
-  // Handle offDays: empty array or field not set = no off-days
-  // If field exists with values → use those values
-  if (fields[AIRTABLE_FIELDS.OFF_DAYS]) {
-    const offDays = fields[AIRTABLE_FIELDS.OFF_DAYS];
-    if (Array.isArray(offDays)) {
-      // Empty array means no off-days
-      if (offDays.length === 0) {
-        preferences.offDays = [];
-        return preferences;
-      }
-
-      // Map day names to numbers
-      const dayNames = [
-        "Sunday",
-        "Monday",
-        "Tuesday",
-        "Wednesday",
-        "Thursday",
-        "Friday",
-        "Saturday",
-      ];
-      preferences.offDays = offDays
-        .map((d) => {
-          if (typeof d === "string") {
-            const index = dayNames.indexOf(d);
-            return index !== -1 ? index : parseInt(d.trim(), 10);
-          }
-          return typeof d === "number" ? d : parseInt(String(d), 10);
-        })
-        .filter((d) => !isNaN(d) && d >= 0 && d <= 6);
-    }
-  } else {
-    // Field doesn't exist = no off-days
-    preferences.offDays = [];
-  }
-
-  return preferences;
+  // Use shared Zod validation for type-safe parsing
+  const parsed = parseUserPreferences(fields);
+  return {
+    timezone: parsed.timezone,
+    workingHoursStart: parsed.workingHoursStart,
+    workingHoursEnd: parsed.workingHoursEnd,
+    offDays: parsed.offDays,
+  };
 }
 
 /**

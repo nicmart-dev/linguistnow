@@ -299,12 +299,14 @@ const CalendarSelector = ({ userDetails, onSave }: CalendarSelectorProps) => {
                                                                     e.preventDefault()
                                                                     e.stopPropagation()
                                                                 }}
-                                                                onClick={(e) =>
+                                                                onClick={(
+                                                                    e
+                                                                ) => {
                                                                     handleRemoveCalendar(
                                                                         calendar.id,
                                                                         e
                                                                     )
-                                                                }
+                                                                }}
                                                             >
                                                                 <X className="h-3 w-3 text-muted-foreground hover:text-foreground" />
                                                             </span>
@@ -347,11 +349,11 @@ const CalendarSelector = ({ userDetails, onSave }: CalendarSelectorProps) => {
                                                             value={
                                                                 calendar.summary
                                                             }
-                                                            onSelect={() =>
+                                                            onSelect={() => {
                                                                 handleSelectCalendar(
                                                                     calendar.id
                                                                 )
-                                                            }
+                                                            }}
                                                         >
                                                             <Check
                                                                 className={cn(

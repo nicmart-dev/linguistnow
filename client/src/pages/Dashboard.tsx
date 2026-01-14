@@ -261,9 +261,9 @@ const Dashboard = ({ userName }) => {
                         </div>
                         <Tabs
                             value={viewMode}
-                            onValueChange={(v) =>
+                            onValueChange={(v) => {
                                 setViewMode(v as 'list' | 'card')
-                            }
+                            }}
                         >
                             <TabsList>
                                 <TabsTrigger value="list">
@@ -321,11 +321,11 @@ const Dashboard = ({ userName }) => {
                                                         <div className="mt-2">
                                                             <Button
                                                                 size="sm"
-                                                                onClick={() =>
+                                                                onClick={() => {
                                                                     handleBookLinguist(
                                                                         linguist
                                                                     )
-                                                                }
+                                                                }}
                                                                 className="w-full"
                                                             >
                                                                 {t(

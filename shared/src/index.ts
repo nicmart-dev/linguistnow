@@ -9,3 +9,4 @@ export * from "./api";
 export * from "./user";
 export * from "./calendar";
 export * from "./date-locale";
+export * from "./airtable-schemas";

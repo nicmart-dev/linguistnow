@@ -35,7 +35,7 @@ const AccountSettings = ({ userDetails, setUserDetails }) => {
             }
 
             // Get email from userDetails - use lowercase 'email' from User type, or fallback to uppercase 'Email' for Airtable compatibility
-            const userEmail = userDetails?.email || (userDetails as any)?.Email
+            const userEmail = userDetails?.email || userDetails?.Email
             if (!userEmail) {
                 console.error(
                     'User email not found in userDetails:',
@@ -96,7 +96,7 @@ const AccountSettings = ({ userDetails, setUserDetails }) => {
     const handleSaveAvailabilityPreferences = async (preferences) => {
         try {
             // Get email from userDetails - use lowercase 'email' from User type, or fallback to uppercase 'Email' for Airtable compatibility
-            const userEmail = userDetails?.email || (userDetails as any)?.Email
+            const userEmail = userDetails?.email || userDetails?.Email
             if (!userEmail) {
                 console.error(
                     'User email not found in userDetails:',
@@ -163,7 +163,7 @@ const AccountSettings = ({ userDetails, setUserDetails }) => {
     const handleSaveProfile = async (profile) => {
         try {
             // Get email from userDetails - use lowercase 'email' from User type, or fallback to uppercase 'Email' for Airtable compatibility
-            const userEmail = userDetails?.email || (userDetails as any)?.Email
+            const userEmail = userDetails?.email || userDetails?.Email
             if (!userEmail) {
                 console.error(
                     'User email not found in userDetails:',
@@ -242,7 +242,7 @@ const AccountSettings = ({ userDetails, setUserDetails }) => {
         setIsDeleting(true)
         try {
             // Get email from userDetails - use lowercase 'email' from User type, or fallback to uppercase 'Email' for Airtable compatibility
-            const userEmail = userDetails?.email || (userDetails as any)?.Email
+            const userEmail = userDetails?.email || userDetails?.Email
             if (!userEmail) {
                 console.error(
                     'User email not found in userDetails:',
@@ -426,9 +426,9 @@ const AccountSettings = ({ userDetails, setUserDetails }) => {
                                                       )}
                                             </button>
                                             <button
-                                                onClick={() =>
+                                                onClick={() => {
                                                     setShowConfirmDelete(false)
-                                                }
+                                                }}
                                                 disabled={isDeleting}
                                                 className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-4 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                             >

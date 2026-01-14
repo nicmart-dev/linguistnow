@@ -22,23 +22,14 @@ export default defineConfig({
                 '**/*.spec.{ts,tsx}',
                 'src/index.tsx',
                 'src/App.tsx',
-                'src/pages/**',
                 'src/data-table/**',
                 'src/assets/**',
                 'src/**/*.css',
                 'src/**/*.json',
-                // Complex UI components excluded - tested via integration
-                'src/components/CalendarSelector.tsx',
-                'src/components/DataTable.tsx',
-                'src/components/DateRangePicker.tsx',
-                'src/components/DateInput.tsx',
-                'src/components/LinguistTable.tsx',
                 // UI primitives excluded - tested implicitly through component tests
                 'src/components/ui/**',
                 // Environment validation tested at runtime
                 'src/env.ts',
-                // Auth utils have complex import.meta.env mocking
-                'src/auth-users/utils.ts',
                 // Context providers - tested via integration
                 'src/i18n/LanguageProvider.tsx',
                 'src/i18n/index.ts',
@@ -46,7 +37,7 @@ export default defineConfig({
             thresholds: {
                 statements: 80,
                 branches: 80,
-                functions: 70,
+                functions: 75,
                 lines: 80,
             },
         },

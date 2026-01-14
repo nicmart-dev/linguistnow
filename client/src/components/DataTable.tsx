@@ -129,7 +129,9 @@ export function DataTable<T extends Record<string, unknown>>({
                     <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => table.previousPage()}
+                        onClick={() => {
+                            table.previousPage()
+                        }}
                         disabled={!table.getCanPreviousPage()}
                     >
                         {t('dashboard.previous', 'Previous')}
@@ -137,7 +139,9 @@ export function DataTable<T extends Record<string, unknown>>({
                     <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => table.nextPage()}
+                        onClick={() => {
+                            table.nextPage()
+                        }}
                         disabled={!table.getCanNextPage()}
                     >
                         {t('dashboard.next', 'Next')}

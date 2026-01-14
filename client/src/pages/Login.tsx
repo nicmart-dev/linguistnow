@@ -92,7 +92,9 @@ const Login = ({ setUserDetails }) => {
 
     const login = useGoogleLogin({
         onSuccess: handleGoogleLoginSuccess,
-        onError: (error) => logger.log('Login Failed:', error),
+        onError: (error) => {
+            logger.log('Login Failed:', error)
+        },
         flow: 'auth-code',
         scope: [
             'https://www.googleapis.com/auth/userinfo.profile',
