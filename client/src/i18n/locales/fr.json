@@ -11,7 +11,8 @@
         "fetchError": "Impossible de récupérer les calendriers. Veuillez réessayer.",
         "saveSuccess": "Calendriers enregistrés",
         "saveError": "Échec de l'enregistrement des calendriers",
-        "atLeastOneRequired": "Au moins un calendrier doit être sélectionné"
+        "atLeastOneRequired": "Au moins un calendrier doit être sélectionné",
+        "removeCalendar": "Supprimer {{calendar}}"
     },
     "accountSettings": {
         "accountSettings": "Paramètres du compte",

@@ -11,7 +11,8 @@
         "fetchError": "Kalender konnten nicht abgerufen werden. Bitte versuchen Sie es erneut.",
         "saveSuccess": "Kalender gespeichert",
         "saveError": "Fehler beim Speichern der Kalender",
-        "atLeastOneRequired": "Mindestens ein Kalender muss ausgewählt werden"
+        "atLeastOneRequired": "Mindestens ein Kalender muss ausgewählt werden",
+        "removeCalendar": "{{calendar}} entfernen"
     },
     "accountSettings": {
         "accountSettings": "Kontoeinstellungen",

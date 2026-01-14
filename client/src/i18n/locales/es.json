@@ -11,7 +11,8 @@
         "fetchError": "No se pudieron obtener los calendarios. Por favor, inténtalo de nuevo.",
         "saveSuccess": "Calendarios guardados",
         "saveError": "Error al guardar los calendarios",
-        "atLeastOneRequired": "Debe seleccionarse al menos un calendario"
+        "atLeastOneRequired": "Debe seleccionarse al menos un calendario",
+        "removeCalendar": "Eliminar {{calendar}}"
     },
     "accountSettings": {
         "accountSettings": "Configuración de cuenta",

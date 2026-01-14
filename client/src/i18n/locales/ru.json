@@ -11,7 +11,8 @@
         "fetchError": "Не удалось загрузить календари. Пожалуйста, попробуйте снова.",
         "saveSuccess": "Календари сохранены",
         "saveError": "Не удалось сохранить календари",
-        "atLeastOneRequired": "Необходимо выбрать хотя бы один календарь"
+        "atLeastOneRequired": "Необходимо выбрать хотя бы один календарь",
+        "removeCalendar": "Удалить {{calendar}}"
     },
     "accountSettings": {
         "accountSettings": "Настройки аккаунта",

@@ -6,22 +6,16 @@ interface LinguistTableProps {
     linguists: LinguistWithAvailability[]
 }
 
-// Legacy availability format for backwards compatibility
-interface LegacyAvailability {
-    result?: boolean
-}
-
 /**
  * Displays a table of linguists with their availability status.
- * Handles legacy availability format compatibility and maps data to table columns.
+ * Maps linguist data to table format with availability status indicators.
  * @param linguists - Array of linguist data with availability information
  */
 const LinguistTable = ({ linguists }: LinguistTableProps) => {
     const columns = useColumns()
 
-    // Map linguists to table format
+    // Map linguists to table format with computed availability status
     const tableData = linguists.map((linguist) => {
-        // Handle legacy format compatibility
         let availabilityStatus:
             | 'available'
             | 'unavailable'
@@ -32,27 +26,14 @@ const LinguistTable = ({ linguists }: LinguistTableProps) => {
         if (!linguist.setupStatus.isComplete) {
             availabilityStatus = 'setup-incomplete'
         } else if (linguist.availability) {
-            const availability = linguist.availability
-            if ('isAvailable' in availability) {
-                // New format from search API
-                if (availability.isAvailable) {
-                    availabilityStatus = 'available'
-                } else if (availability.totalFreeHours > 0) {
-                    availabilityStatus = 'limited'
-                } else {
-                    availabilityStatus = 'unavailable'
-                }
-                freeHours = availability.totalFreeHours
-            } else if (Array.isArray(availability)) {
-                // Legacy format
-                const legacyAvailability =
-                    availability as unknown as LegacyAvailability[]
-                if (legacyAvailability[0]?.result !== undefined) {
-                    availabilityStatus = legacyAvailability[0].result
-                        ? 'available'
-                        : 'unavailable'
-                }
+            if (linguist.availability.isAvailable) {
+                availabilityStatus = 'available'
+            } else if (linguist.availability.totalFreeHours > 0) {
+                availabilityStatus = 'limited'
+            } else {
+                availabilityStatus = 'unavailable'
             }
+            freeHours = linguist.availability.totalFreeHours
         }
 
         return {
