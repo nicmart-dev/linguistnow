@@ -11,7 +11,8 @@
         "fetchError": "カレンダーを取得できませんでした。もう一度お試しください。",
         "saveSuccess": "カレンダーを保存しました",
         "saveError": "カレンダーの保存に失敗しました",
-        "atLeastOneRequired": "少なくとも1つのカレンダーを選択する必要があります"
+        "atLeastOneRequired": "少なくとも1つのカレンダーを選択する必要があります",
+        "removeCalendar": "{{calendar}} を削除"
     },
     "accountSettings": {
         "accountSettings": "アカウント設定",

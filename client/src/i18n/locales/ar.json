@@ -11,7 +11,8 @@
         "fetchError": "تعذر جلب التقويمات. يرجى المحاولة مرة أخرى.",
         "saveSuccess": "تم حفظ التقويمات",
         "saveError": "فشل حفظ التقويمات",
-        "atLeastOneRequired": "يجب اختيار تقويم واحد على الأقل"
+        "atLeastOneRequired": "يجب اختيار تقويم واحد على الأقل",
+        "removeCalendar": "إزالة {{calendar}}"
     },
     "accountSettings": {
         "accountSettings": "إعدادات الحساب",

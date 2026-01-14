@@ -280,6 +280,15 @@ const CalendarSelector = ({ userDetails, onSave }: CalendarSelectorProps) => {
                                                             <span
                                                                 role="button"
                                                                 tabIndex={0}
+                                                                aria-label={t(
+                                                                    'calendarSelector.removeCalendar',
+                                                                    {
+                                                                        calendar:
+                                                                            calendar.summary,
+                                                                        defaultValue:
+                                                                            'Remove {{calendar}}',
+                                                                    }
+                                                                )}
                                                                 className="ml-1 ring-offset-background rounded-full outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 cursor-pointer"
                                                                 onKeyDown={(
                                                                     e

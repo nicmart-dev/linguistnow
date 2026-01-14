@@ -11,7 +11,8 @@
         "fetchError": "Não foi possível buscar os calendários. Por favor, tente novamente.",
         "saveSuccess": "Calendários salvos",
         "saveError": "Erro ao salvar os calendários",
-        "atLeastOneRequired": "Pelo menos um calendário deve ser selecionado"
+        "atLeastOneRequired": "Pelo menos um calendário deve ser selecionado",
+        "removeCalendar": "Remover {{calendar}}"
     },
     "accountSettings": {
         "accountSettings": "Configurações da conta",

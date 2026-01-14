@@ -35,7 +35,8 @@
         "fetchError": "Unable to fetch calendars. Please try again.",
         "saveSuccess": "Calendars saved",
         "saveError": "Failed to save calendars",
-        "atLeastOneRequired": "At least one calendar must be selected"
+        "atLeastOneRequired": "At least one calendar must be selected",
+        "removeCalendar": "Remove {{calendar}}"
     },
     "accountSettings": {
         "accountSettings": "Account Settings",
