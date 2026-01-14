@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.4](https://github.com/nicmart-dev/linguistnow/compare/v1.3.3...v1.3.4) (2026-01-14)
+
+### ⚠ BREAKING CHANGES
+
+- **client:** Component imports changed from
+  '@/components/ComponentName' to '@/components/[layer]/ComponentName'
+  or via barrel exports '@/components/[layer]'
+
+### 🐛 Bug Fixes
+
+- **client:** address CodeRabbit accessibility and code quality feedback ([e954fa4](https://github.com/nicmart-dev/linguistnow/commit/e954fa4237281e52a07eb800455011436fdd8525))
+- **client:** resolve lint errors and CodeRabbit feedback ([5d0acff](https://github.com/nicmart-dev/linguistnow/commit/5d0acff92c124762f1b1a3d4d6ed404a5a354702))
+
+### ♻️ Code Refactoring
+
+- **client:** reorganize components using Atomic Design pattern ([981815e](https://github.com/nicmart-dev/linguistnow/commit/981815e8919936832c57f7aa8105f0b7aaab14e2))
+
 ## [1.3.3](https://github.com/nicmart-dev/linguistnow/compare/v1.3.2...v1.3.3) (2026-01-14)
 
 ### 🐛 Bug Fixes
