@@ -19,7 +19,11 @@ import type {
     LinguistWithAvailability,
 } from '@linguistnow/shared'
 
-const Dashboard = ({ userName }) => {
+interface DashboardProps {
+    userName?: string
+}
+
+const Dashboard = ({ userName }: DashboardProps) => {
     const { t } = useTranslation()
     // Use English for email content regardless of PM's UI language
     const tEmail = i18next.getFixedT('en')
@@ -282,21 +286,7 @@ const Dashboard = ({ userName }) => {
                     ) : (
                         <Tabs value={viewMode} className="w-full">
                             <TabsContent value="list">
-                                <LinguistTable
-                                    linguists={linguists.map((l) => ({
-                                        ...l,
-                                        // Map to old format for compatibility
-                                        availability: l.availability
-                                            ? [
-                                                  {
-                                                      result: l.availability
-                                                          .isAvailable,
-                                                  },
-                                              ]
-                                            : [{ result: false }],
-                                    }))}
-                                    errors={[]}
-                                />
+                                <LinguistTable linguists={linguists} />
                             </TabsContent>
                             <TabsContent value="card">
                                 {linguists.length === 0 ? (
@@ -402,8 +392,10 @@ const Dashboard = ({ userName }) => {
                             onOpenChange={setBookingModalOpen}
                             pmEmail={pmEmail}
                             pmName={pmName}
-                            startDate={filters.startDate}
-                            endDate={filters.endDate}
+                            startDate={
+                                filters.startDate ?? getDefaultStartDate()
+                            }
+                            endDate={filters.endDate ?? getDefaultEndDate()}
                         />
                     )}
                 </div>
