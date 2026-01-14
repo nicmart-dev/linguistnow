@@ -61,6 +61,7 @@ If Mermaid diagrams don't render in your local markdown preview:
 
 ### Development
 
+- [AI IDE Setup](./development/ai-ide-setup.md) - Use Cursor, VS Code + Gemini Code Assist, or both
 - [TypeScript Guidelines](./development/typescript-guidelines.md) - TypeScript best practices
 - [Testing and TDD](./development/testing-and-tdd.md) - Test-driven development workflow, Vitest configuration, and test examples
 - [Style using Tailwind CSS Framework](./development/style-using-tailwind-css-framework.md) - UI styling approach and implementation

@@ -139,3 +139,6 @@ config/oauth2.keys.json
 client/build
 client/dist
 client/dev-dist
+
+# Cursor internal files
+.cursor/debug.log
