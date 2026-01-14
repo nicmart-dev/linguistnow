@@ -9,6 +9,7 @@
 | UI         | Radix UI primitives, shadcn/ui patterns, Lucide icons          |
 | Validation | Zod 4 (client + server)                                        |
 | Testing    | Vitest 4, React Testing Library, happy-dom                     |
+| Linting    | Oxlint (fast) + ESLint (type-aware), Prettier                  |
 | API Docs   | Swagger/OpenAPI via swagger-jsdoc                              |
 | Database   | Airtable (REST API)                                            |
 | Auth       | Google OAuth 2.0                                               |
@@ -188,8 +189,10 @@ pnpm test                                # Run all tests
 pnpm --filter ./client test              # Client tests (watch)
 pnpm --filter ./server test              # Server tests (watch)
 pnpm --filter @linguistnow/shared build  # Build shared types
-pnpm lint                                # ESLint all packages
-pnpm lint:fix                            # Fix ESLint issues
+pnpm lint                                # Oxlint + ESLint (full check)
+pnpm lint:ox                             # Oxlint only (fast, 1.6s)
+pnpm lint:eslint                         # ESLint only (type-aware)
+pnpm lint:fix                            # Fix issues with both linters
 ```
 
 ---

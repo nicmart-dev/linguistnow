@@ -273,8 +273,13 @@ export async function validateSchema(): Promise<ValidationReport> {
           const records = await table.select({ maxRecords: 10 }).firstPage();
           let actualValue: unknown = null;
           for (const record of records) {
-            if (field in record.fields && record.fields[field] != null) {
-              actualValue = record.fields[field];
+            const fieldValue = record.fields[field];
+            if (
+              field in record.fields &&
+              fieldValue !== null &&
+              fieldValue !== undefined
+            ) {
+              actualValue = fieldValue;
               break;
             }
           }
@@ -399,7 +404,7 @@ export async function validateSchema(): Promise<ValidationReport> {
               const value = record.fields[field];
               if (Array.isArray(value)) {
                 value.forEach((v) => foundOptions.add(String(v)));
-              } else if (value != null) {
+              } else if (value !== null && value !== undefined) {
                 foundOptions.add(String(value));
               }
             }

@@ -7,8 +7,10 @@ describe('cn', () => {
     })
 
     it('should handle conditional classes', () => {
-        expect(cn('foo', true && 'bar', 'baz')).toBe('foo bar baz')
-        expect(cn('foo', false && 'bar', 'baz')).toBe('foo baz')
+        const showBar = true
+        const hideBar = false
+        expect(cn('foo', showBar && 'bar', 'baz')).toBe('foo bar baz')
+        expect(cn('foo', hideBar && 'bar', 'baz')).toBe('foo baz')
     })
 
     it('should merge Tailwind classes correctly', () => {

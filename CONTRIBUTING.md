@@ -214,58 +214,30 @@ Following these conventions helps everyone understand the purpose of each branch
 
 ## Git Hooks with Husky
 
-This project uses [Husky](https://typicode.github.io/husky/) to automatically run quality checks before commits and pushes. This ensures code quality and prevents CI failures.
+This project uses [Husky](https://typicode.github.io/husky/) to automatically run quality checks before commits and pushes.
 
-### Pre-commit Hook
+| Hook           | When         | What Runs                                                                 |
+| -------------- | ------------ | ------------------------------------------------------------------------- |
+| **Pre-commit** | `git commit` | Oxlint (1.6s) → ESLint (6.3s) → Prettier → TypeScript (staged files only) |
+| **Pre-push**   | `git push`   | Full lint + TypeScript + Tests (entire codebase)                          |
 
-The pre-commit hook runs automatically when you run `git commit`. It performs:
+**Fast failure**: If Oxlint finds errors, the commit is blocked immediately (1.6s) without waiting for ESLint.
 
-1. **Lint-staged**: Runs ESLint with auto-fix and Prettier formatting on staged files only
-   - Lints TypeScript/TSX files (`*.ts`, `*.tsx`)
-   - Formats JSON, Markdown, and JavaScript files
-   - Auto-fixes ESLint issues where possible
-
-2. **TypeScript type checking**: Validates types for client and server packages
-   - `pnpm --filter client exec tsc --noEmit`
-   - `pnpm --filter server exec tsc --noEmit`
-
-This hook is fast because it only checks files you've actually changed.
-
-### Pre-push Hook
-
-The pre-push hook runs automatically when you run `git push`. It performs the same checks as CI:
-
-1. **Full lint**: Runs ESLint on the entire codebase (`pnpm lint`)
-2. **TypeScript type checking**: Validates types for client and server packages
-3. **Tests**: Runs all tests for client and server packages
-   - `pnpm --filter client test -- --run`
-   - `pnpm --filter server test -- --run`
-
-This hook ensures that code pushed to the repository will pass CI checks. If any check fails, the push is blocked until issues are resolved.
-
-### Bypassing Hooks (Not Recommended)
-
-If you need to bypass hooks in an emergency, you can use:
+### Quick Reference
 
 ```bash
-# Skip pre-commit hook
-git commit --no-verify -m "your message"
-
-# Skip pre-push hook
-git push --no-verify
+pnpm lint:ox      # Quick syntax check (1.6s)
+pnpm lint         # Full check before commit/push
+pnpm lint:fix     # Auto-fix all issues
 ```
 
-**Warning**: Only bypass hooks when absolutely necessary. Code that bypasses hooks will likely fail in CI and block PRs.
+### Bypassing Hooks (Emergency Only)
 
-### Troubleshooting
+```bash
+git commit --no-verify -m "message"  # Skip pre-commit
+git push --no-verify                  # Skip pre-push
+```
 
-If hooks aren't running:
+**Warning**: Code that bypasses hooks will likely fail CI.
 
-1. Ensure Husky is installed: `pnpm install`
-2. Verify hooks are executable: `ls -la .husky/`
-3. Check that the `prepare` script ran: `pnpm prepare`
-
-If lint-staged fails:
-
-- Check that prettier is installed at root: `pnpm list prettier`
-- Ensure your staged files match the patterns in `.lintstagedrc.js`
+📖 **Full documentation**: [docs/development/git-hooks.md](./docs/development/git-hooks.md)

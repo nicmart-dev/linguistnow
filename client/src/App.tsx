@@ -8,7 +8,7 @@ import Dashboard from '@/pages/Dashboard'
 import Navbar from '@/components/organisms/Navbar'
 import { GoogleOAuthProvider } from '@react-oauth/google' // Package used to manage Google OAuth
 import LanguageProvider from '@/i18n/LanguageProvider' // Package used to manage translations
-import Logout from '@/pages/Logout'
+import { Logout } from '@/pages/Logout'
 import Footer from '@/components/organisms/Footer'
 import PrivacyPolicy from '@/pages/PrivacyPolicy'
 import ScrollToTop from '@/components/organisms/ScrollToTop'

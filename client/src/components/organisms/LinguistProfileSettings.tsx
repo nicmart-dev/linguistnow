@@ -95,11 +95,6 @@ const LinguistProfileSettings: React.FC<LinguistProfileSettingsProps> = ({
 }) => {
     const { t } = useTranslation()
 
-    // Only show for linguists
-    if (userDetails.Role !== 'Linguist') {
-        return null
-    }
-
     // Parse initial values
     const languagesField = userDetails.Languages
     const initialLanguages = Array.isArray(languagesField)
@@ -136,39 +131,45 @@ const LinguistProfileSettings: React.FC<LinguistProfileSettingsProps> = ({
     const [specializationsOpen, setSpecializationsOpen] = useState(false)
     const [isSaving, setIsSaving] = useState(false)
 
+    // Extract userDetails fields to avoid complex expressions in dependency array
+    const userDetailsLanguages = userDetails.Languages
+    const userDetailsSpecialization = userDetails.Specialization
+    const userDetailsHourlyRate = userDetails['Hourly Rate']
+    const userDetailsCurrency = userDetails.Currency
+
     // Sync state with userDetails when it changes (e.g., after save)
+    // Note: Local state vars (languages, specializations, etc.) are intentionally excluded
+    // from deps to prevent infinite loops - this effect syncs FROM userDetails TO local state
     useEffect(() => {
-        const languagesField = userDetails.Languages
-        const updatedLanguages = Array.isArray(languagesField)
-            ? languagesField
-            : typeof languagesField === 'string'
-              ? languagesField
+        const updatedLanguages = Array.isArray(userDetailsLanguages)
+            ? userDetailsLanguages
+            : typeof userDetailsLanguages === 'string'
+              ? userDetailsLanguages
                     .split(',')
                     .map((s) => s.trim())
                     .filter(Boolean)
               : []
 
-        const specializationField = userDetails.Specialization
-        const updatedSpecializations = Array.isArray(specializationField)
-            ? specializationField
-            : typeof specializationField === 'string'
-              ? specializationField
+        const updatedSpecializations = Array.isArray(userDetailsSpecialization)
+            ? userDetailsSpecialization
+            : typeof userDetailsSpecialization === 'string'
+              ? userDetailsSpecialization
                     .split(',')
                     .map((s) => s.trim())
                     .filter(Boolean)
               : []
 
-        const updatedHourlyRate = userDetails['Hourly Rate']?.toString() || ''
+        const updatedHourlyRate = userDetailsHourlyRate?.toString() || ''
         // Normalize currency to uppercase (Airtable singleSelect values are uppercase)
-        const updatedCurrency = (userDetails.Currency || 'USD').toUpperCase()
+        const updatedCurrency = (userDetailsCurrency || 'USD').toUpperCase()
 
         // Only update if values actually changed to avoid unnecessary re-renders
         const languagesChanged =
-            JSON.stringify(updatedLanguages.sort()) !==
-            JSON.stringify(languages.sort())
+            JSON.stringify([...updatedLanguages].sort()) !==
+            JSON.stringify([...languages].sort())
         const specializationsChanged =
-            JSON.stringify(updatedSpecializations.sort()) !==
-            JSON.stringify(specializations.sort())
+            JSON.stringify([...updatedSpecializations].sort()) !==
+            JSON.stringify([...specializations].sort())
         const hourlyRateChanged = updatedHourlyRate !== hourlyRate
         const currencyChanged = updatedCurrency !== currency
 
@@ -184,14 +185,17 @@ const LinguistProfileSettings: React.FC<LinguistProfileSettingsProps> = ({
         if (currencyChanged) {
             setCurrency(updatedCurrency)
         }
+        // oxlint-disable-next-line react-hooks/exhaustive-deps -- sync FROM userDetails TO local state
     }, [
-        userDetails.Languages,
-        userDetails.Specialization,
-        userDetails['Hourly Rate'],
-        userDetails.Currency,
+        userDetailsLanguages,
+        userDetailsSpecialization,
+        userDetailsHourlyRate,
+        userDetailsCurrency,
     ])
 
     // Debounced save
+    // Note: handleSave is intentionally excluded from deps - we only want to trigger on data changes,
+    // not on function reference changes. Including it would cause infinite loops.
     useEffect(() => {
         // Get current values from userDetails for comparison
         const currentLanguagesField = userDetails.Languages
@@ -220,10 +224,10 @@ const LinguistProfileSettings: React.FC<LinguistProfileSettingsProps> = ({
             // Currency is read-only, so don't check for currency changes
             if (
                 hourlyRate !== currentHourlyRate ||
-                JSON.stringify(languages.sort()) !==
-                    JSON.stringify(currentLanguages.sort()) ||
-                JSON.stringify(specializations.sort()) !==
-                    JSON.stringify(currentSpecializations.sort())
+                JSON.stringify([...languages].sort()) !==
+                    JSON.stringify([...currentLanguages].sort()) ||
+                JSON.stringify([...specializations].sort()) !==
+                    JSON.stringify([...currentSpecializations].sort())
             ) {
                 void handleSave()
             }
@@ -232,6 +236,7 @@ const LinguistProfileSettings: React.FC<LinguistProfileSettingsProps> = ({
         return () => {
             clearTimeout(timer)
         }
+        // oxlint-disable-next-line eslint-plugin-react-hooks(exhaustive-deps) -- handleSave is intentionally excluded
     }, [hourlyRate, languages, specializations, userDetails])
 
     const handleSave = async () => {
@@ -306,16 +311,16 @@ const LinguistProfileSettings: React.FC<LinguistProfileSettingsProps> = ({
 
             // Languages: include if changed (compare sorted arrays)
             const languagesChanged =
-                JSON.stringify(languages.sort()) !==
-                JSON.stringify(currentLanguages.sort())
+                JSON.stringify([...languages].sort()) !==
+                JSON.stringify([...currentLanguages].sort())
             if (languagesChanged) {
                 profile.languages = languages.length > 0 ? languages : []
             }
 
             // Specialization: include if changed (compare sorted arrays)
             const specializationsChanged =
-                JSON.stringify(specializations.sort()) !==
-                JSON.stringify(currentSpecializations.sort())
+                JSON.stringify([...specializations].sort()) !==
+                JSON.stringify([...currentSpecializations].sort())
             if (specializationsChanged) {
                 profile.specialization =
                     specializations.length > 0 ? specializations : []
@@ -350,6 +355,11 @@ const LinguistProfileSettings: React.FC<LinguistProfileSettingsProps> = ({
         } finally {
             setIsSaving(false)
         }
+    }
+
+    // Only show for linguists - after all hooks
+    if (userDetails.Role !== 'Linguist') {
+        return null
     }
 
     const selectedCurrency = CURRENCIES.find((c) => c.code === currency)
@@ -655,4 +665,4 @@ const LinguistProfileSettings: React.FC<LinguistProfileSettingsProps> = ({
     )
 }
 
-export default LinguistProfileSettings
+export { LinguistProfileSettings }

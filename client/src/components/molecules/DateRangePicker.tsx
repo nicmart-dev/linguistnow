@@ -153,12 +153,6 @@ const DateRangePicker: React.FC<DateRangePickerProps> = ({
         checkPreset()
     }, [range, calculatePresetRange])
 
-    useEffect(() => {
-        if (isOpen) {
-            openedRangeRef.current = range
-        }
-    }, [isOpen])
-
     const resetValues = (): void => {
         setRange({
             from: initialFrom,
@@ -231,7 +225,10 @@ const DateRangePicker: React.FC<DateRangePickerProps> = ({
             modal={true}
             open={isOpen}
             onOpenChange={(open: boolean) => {
-                if (!open) {
+                if (open) {
+                    // Capture range snapshot when opening for comparison
+                    openedRangeRef.current = range
+                } else {
                     resetValues()
                 }
                 setIsOpen(open)
@@ -272,7 +269,7 @@ const DateRangePicker: React.FC<DateRangePickerProps> = ({
                                             value={range.from}
                                             onChange={(date) => {
                                                 const toDate =
-                                                    range.to == null ||
+                                                    range.to === undefined ||
                                                     date > range.to
                                                         ? date
                                                         : range.to
@@ -338,7 +335,7 @@ const DateRangePicker: React.FC<DateRangePickerProps> = ({
                                             | { from?: Date; to?: Date }
                                             | undefined
                                     ) => {
-                                        if (value?.from != null) {
+                                        if (value?.from !== undefined) {
                                             setRange({
                                                 from: value.from,
                                                 to: value.to,
@@ -413,4 +410,4 @@ const DateRangePicker: React.FC<DateRangePickerProps> = ({
     )
 }
 
-export default DateRangePicker
+export { DateRangePicker }
