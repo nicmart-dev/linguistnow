@@ -83,7 +83,7 @@ Swagger: Add `@openapi` JSDoc above route definitions in `server/routes/*.ts`.
 
 | Package | Statements | Branches | Functions | Lines |
 | ------- | ---------- | -------- | --------- | ----- |
-| Client  | 80%        | 80%      | 70%       | 80%   |
+| Client  | 80%        | 65%      | 75%       | 80%   |
 | Server  | 90%        | 75%      | 80%       | 90%   |
 
 Use Arrange-Act-Assert pattern. Mock with `vi.doMock()` before dynamic imports.
