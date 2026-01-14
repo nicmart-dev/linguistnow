@@ -7,6 +7,11 @@ interface NavbarProps {
     userDetails: { role: string } | null
 }
 
+/**
+ * Main navigation bar component with responsive mobile menu and language selector.
+ * Displays different navigation options based on user role and authentication status.
+ * @param userDetails - Current user details including role, or null if not authenticated
+ */
 const Navbar = ({ userDetails }: NavbarProps) => {
     const { t } = useTranslation()
     const languageContext = useContext(LanguageContext)

@@ -12,6 +12,12 @@ interface HeroProps {
     userName?: string
 }
 
+/**
+ * Hero banner component that displays route-specific content.
+ * Shows different backgrounds, titles, and CTAs based on current route.
+ * @param cta - Optional click handler for the call-to-action button
+ * @param userName - Optional user name to display in personalized greetings
+ */
 const Hero = ({ cta, userName }: HeroProps) => {
     const { t } = useTranslation()
     const location = useLocation()

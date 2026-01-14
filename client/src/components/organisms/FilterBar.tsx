@@ -29,6 +29,14 @@ interface FilterBarProps {
     ) => void
 }
 
+/**
+ * Filter bar component for searching and filtering linguists.
+ * Provides language, specialization, timezone, rating, and rate filters.
+ * @param filters - Current filter values
+ * @param onFiltersChange - Callback when filters change
+ * @param onClearFilters - Callback to clear all filters
+ * @param onDateChange - Callback when date range changes
+ */
 const FilterBar: React.FC<FilterBarProps> = ({
     filters,
     onFiltersChange,

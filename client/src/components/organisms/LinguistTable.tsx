@@ -2,8 +2,6 @@ import DataTable from './DataTable'
 import { useColumns } from '@/data-table/columns'
 import type { LinguistWithAvailability } from '@linguistnow/shared'
 
-/* Display table of available linguists using DataTables library 
-and handle localization of columns and availability field. */
 interface LinguistTableProps {
     linguists: LinguistWithAvailability[]
 }
@@ -13,6 +11,11 @@ interface LegacyAvailability {
     result?: boolean
 }
 
+/**
+ * Displays a table of linguists with their availability status.
+ * Handles legacy availability format compatibility and maps data to table columns.
+ * @param linguists - Array of linguist data with availability information
+ */
 const LinguistTable = ({ linguists }: LinguistTableProps) => {
     const columns = useColumns()
 

@@ -14,6 +14,14 @@ interface AvailabilityTimelineProps {
     timezone?: string
 }
 
+/**
+ * Visual timeline component showing a linguist's free time slots.
+ * Displays availability as colored segments across days in the date range.
+ * @param freeSlots - Array of available time slots with start/end times
+ * @param startDate - Start of the date range to display (ISO string)
+ * @param endDate - End of the date range to display (ISO string)
+ * @param timezone - Optional timezone for display
+ */
 const AvailabilityTimeline: React.FC<AvailabilityTimelineProps> = ({
     freeSlots,
     startDate,

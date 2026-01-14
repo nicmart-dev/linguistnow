@@ -7,6 +7,13 @@ interface AvailabilityBadgeProps {
     setupMessage?: string
 }
 
+/**
+ * Displays a linguist's availability status as a colored badge.
+ * Shows different visual states for available, unavailable, limited, and setup-incomplete.
+ * @param status - The availability status to display
+ * @param freeHours - Optional number of free hours to show for available/limited states
+ * @param setupMessage - Optional tooltip message for setup-incomplete state
+ */
 const AvailabilityBadge: React.FC<AvailabilityBadgeProps> = ({
     status,
     freeHours,

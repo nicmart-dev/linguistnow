@@ -21,20 +21,20 @@ import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 // logger import removed - not currently used
 
-/* The CalendarSelector component fetches the user's Google Calendars 
-via the backend API (which reads the access token from Vault),
-and allows the user to select and save their calendars.
-
-IMPORTANT: We ONLY store calendar IDs (not display names/summaries) for privacy.
-- Calendar IDs can be email addresses (for primary calendars) or alphanumeric strings (for secondary calendars)
-- Display names (summary) are fetched from Google API when needed for UI display only
-- Never stored in database to protect user privacy
- */
 interface CalendarSelectorProps {
     userDetails: Record<string, unknown> | null
     onSave: (calendars: string[]) => Promise<void>
 }
 
+/**
+ * Component for selecting Google Calendars to monitor for availability.
+ * Fetches calendars via backend API and stores only calendar IDs for privacy.
+ *
+ * Note: Calendar IDs may be emails or alphanumeric strings.
+ * Display names are fetched from Google API for UI only, never stored.
+ * @param userDetails - Current user's profile details
+ * @param onSave - Callback when calendar selection is saved
+ */
 const CalendarSelector = ({ userDetails, onSave }: CalendarSelectorProps) => {
     const [fetchedCalendars, setFetchedCalendars] = useState<
         Array<{ id: string; summary: string }>
