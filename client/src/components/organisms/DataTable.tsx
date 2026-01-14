@@ -16,10 +16,10 @@ import {
     TableHead,
     TableHeader,
     TableRow,
-} from './Table'
+} from '@/components/ui/table'
 
-import { Button } from './Button'
-import { Input } from './Input'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 
 import { useTranslation } from 'react-i18next' // To show localized strings
 

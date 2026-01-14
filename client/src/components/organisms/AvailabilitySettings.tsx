@@ -2,9 +2,9 @@ import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { Check, ChevronsUpDown } from 'lucide-react'
-import { cn } from '../lib/utils'
+import { cn } from '@/lib/utils'
 import { getWeekStartsOn } from '@linguistnow/shared'
-import { Button } from './ui/button'
+import { Button } from '@/components/ui/button'
 import {
     Command,
     CommandEmpty,
@@ -12,15 +12,15 @@ import {
     CommandInput,
     CommandItem,
     CommandList,
-} from './ui/command'
-import { Popover, PopoverContent, PopoverTrigger } from './ui/popover'
+} from '@/components/ui/command'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import {
     Select,
     SelectContent,
     SelectItem,
     SelectTrigger,
     SelectValue,
-} from './ui/select'
+} from '@/components/ui/select'
 
 interface AvailabilityPreferences {
     timezone?: string

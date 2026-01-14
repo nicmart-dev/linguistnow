@@ -2,8 +2,8 @@ import { describe, it, expect, vi } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { I18nextProvider } from 'react-i18next'
-import i18nInstance from '../i18n'
-import Hero from './Hero'
+import i18nInstance from '@/i18n'
+import { Hero } from '@/components/organisms'
 
 const renderWithProviders = (
     component: React.ReactNode,

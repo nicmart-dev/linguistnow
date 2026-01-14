@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { DateInput } from './DateInput'
+import { DateInput } from '@/components/molecules/DateInput'
 
 describe('DateInput', () => {
     it('should render with initial value', () => {

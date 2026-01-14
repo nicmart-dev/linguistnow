@@ -2,18 +2,18 @@ import React, { useState, useEffect } from 'react'
 import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Toaster } from 'sonner'
-import Login from './pages/Login'
-import AccountSettings from './pages/AccountSettings'
-import Dashboard from './pages/Dashboard'
-import Navbar from './components/Navbar'
+import Login from '@/pages/Login'
+import AccountSettings from '@/pages/AccountSettings'
+import Dashboard from '@/pages/Dashboard'
+import Navbar from '@/components/organisms/Navbar'
 import { GoogleOAuthProvider } from '@react-oauth/google' // Package used to manage Google OAuth
-import LanguageProvider from './i18n/LanguageProvider' // Package used to manage translations
-import Logout from './pages/Logout'
-import Footer from './components/Footer'
-import PrivacyPolicy from './pages/PrivacyPolicy'
-import ScrollToTop from './components/ScrollToTop'
+import LanguageProvider from '@/i18n/LanguageProvider' // Package used to manage translations
+import Logout from '@/pages/Logout'
+import Footer from '@/components/organisms/Footer'
+import PrivacyPolicy from '@/pages/PrivacyPolicy'
+import ScrollToTop from '@/components/organisms/ScrollToTop'
 import type { User } from '@linguistnow/shared'
-import { fetchUserDetails } from './auth-users/utils'
+import { fetchUserDetails } from '@/auth-users/utils'
 
 const App = () => {
     const { t } = useTranslation()

@@ -1,8 +1,8 @@
 import { describe, it, expect } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import { I18nextProvider } from 'react-i18next'
-import i18nInstance from '../i18n'
-import Skeleton from './Skeleton'
+import i18nInstance from '@/i18n'
+import { Skeleton } from '@/components/ui'
 
 const renderWithI18n = (component: React.ReactElement) => {
     return render(

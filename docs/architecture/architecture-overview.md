@@ -50,11 +50,25 @@ This document provides a comprehensive overview of the LinguistNow application a
 linguistnow/
 ├── client/                 # React frontend application (TypeScript)
 │   ├── src/
-│   │   ├── components/     # Reusable UI components (.tsx)
+│   │   ├── components/     # Atomic Design component structure
+│   │   │   ├── ui/         # Atoms - shadcn/ui primitives
+│   │   │   │   ├── button.tsx
+│   │   │   │   ├── button.test.tsx  # Co-located tests
+│   │   │   │   └── ...
+│   │   │   ├── molecules/  # Molecules - composite components
+│   │   │   │   ├── DateInput.tsx
+│   │   │   │   ├── DateInput.test.tsx
+│   │   │   │   └── ...
+│   │   │   ├── organisms/  # Organisms - feature components
+│   │   │   │   ├── Navbar.tsx
+│   │   │   │   ├── Navbar.test.tsx
+│   │   │   │   └── ...
+│   │   │   └── index.ts    # Barrel export for all layers
 │   │   ├── pages/          # Route components (.tsx)
 │   │   ├── auth-users/     # Authentication utilities (.ts)
 │   │   ├── i18n/           # Internationalization (.ts/.tsx)
 │   │   ├── lib/            # Shared utilities (.ts)
+│   │   ├── utils/          # Application utilities (.ts)
 │   │   ├── test/           # Test setup files
 │   │   └── assets/         # Static assets
 │   ├── public/             # Public assets
@@ -136,12 +150,54 @@ graph TB
 
 ### Design Philosophy
 
-The application follows a **component-based architecture** with emphasis on:
+The application follows an **Atomic Design** architecture with emphasis on:
 
 1. **Reusability** - Components are designed to be reused across the application
 2. **Composability** - Small, focused components that can be combined
 3. **Separation of Concerns** - Clear boundaries between UI, logic, and data
 4. **Maintainability** - Easy to understand and modify
+5. **Atomic Design** - Components organized into atoms, molecules, and organisms
+
+### Atomic Design Structure
+
+Components are organized into three tiers following Brad Frost's Atomic Design methodology:
+
+```
+client/src/components/
+├── index.ts              # Barrel export for all layers
+├── ui/                   # ATOMS - Basic building blocks (shadcn/ui)
+│   ├── button.tsx
+│   ├── input.tsx
+│   ├── badge.tsx
+│   ├── calendar.tsx
+│   ├── dialog.tsx
+│   ├── popover.tsx
+│   ├── select.tsx
+│   ├── skeleton.tsx
+│   ├── slider.tsx
+│   ├── table.tsx
+│   ├── tabs.tsx
+│   └── command.tsx
+├── molecules/            # MOLECULES - Composite components
+│   ├── AvailabilityBadge.tsx
+│   ├── DateInput.tsx
+│   ├── DateRangePicker.tsx
+│   └── RatingInput.tsx
+└── organisms/            # ORGANISMS - Complex feature components
+    ├── AvailabilitySettings.tsx
+    ├── AvailabilityTimeline.tsx
+    ├── BookingModal.tsx
+    ├── CalendarSelector.tsx
+    ├── DataTable.tsx
+    ├── FilterBar.tsx
+    ├── Footer.tsx
+    ├── Hero.tsx
+    ├── LinguistCard.tsx
+    ├── LinguistProfileSettings.tsx
+    ├── LinguistTable.tsx
+    ├── Navbar.tsx
+    └── ScrollToTop.tsx
+```
 
 ### Component Hierarchy
 
@@ -151,57 +207,98 @@ graph TD
     A --> C[LanguageProvider]
     A --> D[BrowserRouter]
 
-    D --> E[Navbar]
+    D --> E[Navbar - Organism]
     D --> F[Routes]
-    D --> Z[Footer]
+    D --> Z[Footer - Organism]
 
     F --> G[Login Page]
     F --> H[Dashboard Page]
     F --> I[Account Settings]
     F --> J[Privacy Policy]
 
-    H --> K[Hero Component]
-    H --> L[LinguistTable]
+    H --> K[Hero - Organism]
+    H --> L[FilterBar - Organism]
+    H --> M[LinguistTable - Organism]
+    H --> N[LinguistCard - Organism]
 
-    L --> M[DataTable]
-    M --> N[Table Components]
-    M --> O[Button Component]
-    M --> P[Input Component]
+    M --> O[DataTable - Organism]
+    O --> P[Table - Atom]
+    O --> Q[Button - Atom]
+    O --> R[Input - Atom]
 
-    I --> Q[CalendarSelector]
+    L --> S[DateRangePicker - Molecule]
+    S --> T[DateInput - Molecule]
+    S --> U[Calendar - Atom]
+
+    N --> V[AvailabilityBadge - Molecule]
+    N --> W[RatingInput - Molecule]
+
+    I --> X[CalendarSelector - Organism]
+    I --> Y[AvailabilitySettings - Organism]
 
     style A fill:#61dafb
     style B fill:#4285f4
     style C fill:#ff6d5a
-    style M fill:#8b5cf6
-    style N fill:#8b5cf6
-    style O fill:#8b5cf6
-    style P fill:#8b5cf6
+    style P fill:#10b981
+    style Q fill:#10b981
+    style R fill:#10b981
+    style T fill:#f59e0b
+    style S fill:#f59e0b
+    style V fill:#f59e0b
+    style W fill:#f59e0b
 ```
 
-### Core Components
+### Component Layers
 
-#### UI Components (shadcn/ui)
+#### Atoms (`ui/`)
 
-Located in `client/src/components/`:
+Basic building blocks - single-purpose components with no dependencies on other custom components:
 
-- **Button** - Reusable button with variants (default, outline, ghost, etc.)
-- **Input** - Form input component
-- **Table** - Table primitives (TableHeader, TableBody, TableRow, etc.)
-- **DataTable** - Full-featured data table with sorting, filtering, pagination
+| Component | Purpose |
+|-----------|---------|
+| `Button` | Reusable button with variants (default, outline, ghost, etc.) |
+| `Input` | Form input component |
+| `Badge` | Status/label badges |
+| `Calendar` | Date picker calendar |
+| `Dialog` | Modal dialog primitives |
+| `Popover` | Floating content panels |
+| `Select` | Dropdown select component |
+| `Skeleton` | Loading state placeholder |
+| `Slider` | Range slider input |
+| `Table` | Table primitives (TableHeader, TableBody, TableRow, etc.) |
+| `Tabs` | Tabbed interface |
+| `Command` | Command palette/combobox |
 
-#### Application Components
+#### Molecules (`molecules/`)
 
-- **Navbar** - Navigation bar with language selector
-- **Hero** - Landing page hero section
-- **Footer** - Application footer
-- **Skeleton** - Loading state component
-- **CalendarSelector** - Calendar selection interface
-- **LinguistTable** - Specialized table for linguist data
-- **DateInput** - Date input component with keyboard navigation
-- **DateRangePicker** - Date range picker with presets and calendar
-- **RatingInput** - Star rating input component with API integration
-- **LinguistProfileSettings** - Linguist profile settings form with currency and language selection
+Composite components combining atoms with specific functionality:
+
+| Component | Purpose | Composed of |
+|-----------|---------|-------------|
+| `AvailabilityBadge` | Displays linguist availability status | Badge + icons |
+| `DateInput` | Date input with keyboard navigation | Input fields |
+| `DateRangePicker` | Date range selection with presets | Calendar + DateInput + Popover + Button |
+| `RatingInput` | Star rating with API integration | Button + icons |
+
+#### Organisms (`organisms/`)
+
+Complex feature components with business logic:
+
+| Component | Purpose |
+|-----------|---------|
+| `Navbar` | Navigation bar with language selector |
+| `Footer` | Application footer with links |
+| `Hero` | Landing page hero section |
+| `DataTable` | Full-featured data table with sorting, filtering, pagination |
+| `FilterBar` | Search filters for linguist search |
+| `LinguistTable` | Specialized table for linguist data |
+| `LinguistCard` | Card view of linguist with availability |
+| `BookingModal` | Booking confirmation dialog |
+| `CalendarSelector` | Google Calendar selection interface |
+| `AvailabilitySettings` | Working hours configuration |
+| `AvailabilityTimeline` | Visual availability timeline |
+| `LinguistProfileSettings` | Linguist profile form |
+| `ScrollToTop` | Scroll to top button |
 
 ### Component Patterns
 

@@ -2,18 +2,18 @@ import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import { useTranslation } from 'react-i18next'
 import { X, Info } from 'lucide-react'
-import { Button } from './ui/button'
-import DateRangePicker from './DateRangePicker'
+import { Button } from '@/components/ui/button'
+import DateRangePicker from '@/components/molecules/DateRangePicker'
 import {
     Select,
     SelectContent,
     SelectItem,
     SelectTrigger,
     SelectValue,
-} from './ui/select'
-import { Slider } from './ui/slider'
-import { Badge } from './ui/badge'
-import { logger } from '../utils/logger'
+} from '@/components/ui/select'
+import { Slider } from '@/components/ui/slider'
+import { Badge } from '@/components/ui/badge'
+import { logger } from '@/utils/logger'
 import type {
     SearchLinguistsQuery,
     FilterOptionsResponse,

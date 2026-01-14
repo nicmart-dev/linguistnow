@@ -2,8 +2,8 @@ import { describe, it, expect } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import { BrowserRouter } from 'react-router-dom'
 import { I18nextProvider } from 'react-i18next'
-import i18nInstance from '../i18n'
-import Footer from './Footer'
+import i18nInstance from '@/i18n'
+import { Footer } from '@/components/organisms'
 
 const renderWithProviders = (component: React.ReactNode) => {
     return render(
