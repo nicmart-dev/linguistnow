@@ -9,7 +9,10 @@ interface LinguistTableProps {
     errors?: unknown[]
 }
 
-const LinguistTable = ({ linguists, errors = [] }: LinguistTableProps) => {
+const LinguistTable = ({
+    linguists,
+    errors: _errors = [],
+}: LinguistTableProps) => {
     const columns = useColumns()
 
     // Map linguists to table format

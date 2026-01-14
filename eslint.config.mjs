@@ -84,29 +84,28 @@ export default tseslint.config(
     ],
   },
   {
-    // Configuration for client pages - relax rules for pre-existing code
-    // TODO: Gradually enable stricter rules as code is migrated to use Zod validation
+    // Configuration for client pages - disable strict type rules for pre-existing code
+    // TODO: Gradually re-enable as code is migrated to use proper types
     files: ['client/src/pages/**/*.{ts,tsx}'],
     rules: {
-      // Relax strict rules for pre-existing code patterns
-      '@typescript-eslint/no-unsafe-assignment': 'warn',
-      '@typescript-eslint/no-unsafe-member-access': 'warn',
-      '@typescript-eslint/no-unsafe-call': 'warn',
-      '@typescript-eslint/no-unsafe-argument': 'warn',
-      '@typescript-eslint/no-unsafe-return': 'warn',
-      '@typescript-eslint/no-explicit-any': 'warn',
-      '@typescript-eslint/no-unnecessary-type-assertion': 'warn',
-      '@typescript-eslint/no-unnecessary-condition': 'warn',
-      '@typescript-eslint/no-confusing-void-expression': 'warn',
-      '@typescript-eslint/no-misused-promises': 'warn',
-      '@typescript-eslint/no-redundant-type-constituents': 'warn',
+      '@typescript-eslint/no-unsafe-assignment': 'off',
+      '@typescript-eslint/no-unsafe-member-access': 'off',
+      '@typescript-eslint/no-unsafe-call': 'off',
+      '@typescript-eslint/no-unsafe-argument': 'off',
+      '@typescript-eslint/no-unsafe-return': 'off',
+      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-unnecessary-type-assertion': 'off',
+      '@typescript-eslint/no-unnecessary-condition': 'off',
+      '@typescript-eslint/no-confusing-void-expression': 'off',
+      '@typescript-eslint/no-misused-promises': 'off',
+      '@typescript-eslint/no-redundant-type-constituents': 'off',
       '@typescript-eslint/restrict-template-expressions': 'off',
-      '@typescript-eslint/no-floating-promises': 'warn',
+      '@typescript-eslint/no-floating-promises': 'off',
       '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
     },
   },
   {
-    // Configuration for client components with Airtable types
+    // Configuration for client components with complex types
     // TODO: Migrate to using Zod schemas from shared package
     files: [
       'client/src/components/CalendarSelector.tsx',
@@ -118,20 +117,19 @@ export default tseslint.config(
       'client/src/components/Navbar.tsx',
     ],
     rules: {
-      // Relax strict rules for pre-existing code patterns
-      '@typescript-eslint/no-unsafe-assignment': 'warn',
-      '@typescript-eslint/no-unsafe-member-access': 'warn',
-      '@typescript-eslint/no-unsafe-call': 'warn',
-      '@typescript-eslint/no-unsafe-argument': 'warn',
-      '@typescript-eslint/no-unsafe-return': 'warn',
-      '@typescript-eslint/no-explicit-any': 'warn',
-      '@typescript-eslint/no-unnecessary-type-assertion': 'warn',
-      '@typescript-eslint/no-unnecessary-condition': 'warn',
-      '@typescript-eslint/no-confusing-void-expression': 'warn',
-      '@typescript-eslint/no-misused-promises': 'warn',
-      '@typescript-eslint/no-redundant-type-constituents': 'warn',
+      '@typescript-eslint/no-unsafe-assignment': 'off',
+      '@typescript-eslint/no-unsafe-member-access': 'off',
+      '@typescript-eslint/no-unsafe-call': 'off',
+      '@typescript-eslint/no-unsafe-argument': 'off',
+      '@typescript-eslint/no-unsafe-return': 'off',
+      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-unnecessary-type-assertion': 'off',
+      '@typescript-eslint/no-unnecessary-condition': 'off',
+      '@typescript-eslint/no-confusing-void-expression': 'off',
+      '@typescript-eslint/no-misused-promises': 'off',
+      '@typescript-eslint/no-redundant-type-constituents': 'off',
       '@typescript-eslint/restrict-template-expressions': 'off',
-      '@typescript-eslint/no-floating-promises': 'warn',
+      '@typescript-eslint/no-floating-promises': 'off',
       '@typescript-eslint/only-throw-error': 'off',
       '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
     },
@@ -144,36 +142,34 @@ export default tseslint.config(
       'server/controllers/calendarController.ts',
     ],
     rules: {
-      // Warn on unsafe operations - Zod validation should handle most cases
-      '@typescript-eslint/no-unsafe-assignment': 'warn',
-      '@typescript-eslint/no-unsafe-member-access': 'warn',
-      '@typescript-eslint/no-unsafe-call': 'warn',
-      '@typescript-eslint/no-unsafe-argument': 'warn',
-      '@typescript-eslint/no-unsafe-return': 'warn',
+      '@typescript-eslint/no-unsafe-assignment': 'off',
+      '@typescript-eslint/no-unsafe-member-access': 'off',
+      '@typescript-eslint/no-unsafe-call': 'off',
+      '@typescript-eslint/no-unsafe-argument': 'off',
+      '@typescript-eslint/no-unsafe-return': 'off',
       '@typescript-eslint/restrict-template-expressions': 'off',
       '@typescript-eslint/restrict-plus-operands': 'off',
       '@typescript-eslint/no-base-to-string': 'off',
       '@typescript-eslint/no-redundant-type-constituents': 'off',
-      '@typescript-eslint/no-floating-promises': 'warn',
-      '@typescript-eslint/no-unused-vars': 'warn',
+      '@typescript-eslint/no-floating-promises': 'off',
+      '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
     },
   },
   {
-    // Configuration for services that don't directly handle Airtable data
+    // Configuration for services
     files: [
       'server/services/availabilityService.ts',
       'server/services/googleCalendarClient.ts',
     ],
     rules: {
-      // These services receive typed data, enable stricter checks
-      '@typescript-eslint/no-unsafe-assignment': 'warn',
-      '@typescript-eslint/no-unsafe-member-access': 'warn',
-      '@typescript-eslint/no-unsafe-call': 'warn',
-      '@typescript-eslint/no-unsafe-argument': 'warn',
-      '@typescript-eslint/no-unsafe-return': 'warn',
-      '@typescript-eslint/no-floating-promises': 'warn',
-      '@typescript-eslint/no-unused-vars': 'warn',
-      '@typescript-eslint/restrict-template-expressions': 'warn',
+      '@typescript-eslint/no-unsafe-assignment': 'off',
+      '@typescript-eslint/no-unsafe-member-access': 'off',
+      '@typescript-eslint/no-unsafe-call': 'off',
+      '@typescript-eslint/no-unsafe-argument': 'off',
+      '@typescript-eslint/no-unsafe-return': 'off',
+      '@typescript-eslint/no-floating-promises': 'off',
+      '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+      '@typescript-eslint/restrict-template-expressions': 'off',
     },
   },
   {

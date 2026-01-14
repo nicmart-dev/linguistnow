@@ -15,7 +15,7 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover'
 import { Badge } from './ui/badge'
 import { cn } from '../lib/utils'
-import { logger } from '../utils/logger'
+// logger import removed - not currently used
 
 /* The CalendarSelector component fetches the user's Google Calendars 
 via the backend API (which reads the access token from Vault),
@@ -39,11 +39,6 @@ const CalendarSelector = ({ userDetails, onSave }: CalendarSelectorProps) => {
     const [error, setError] = useState<string | null>(null) // state to track error
     const [open, setOpen] = useState(false) // state for popover open/close
     const { t } = useTranslation()
-
-    // Check localStorage for session expiration flag on mount
-    const checkSessionExpired = useCallback(() => {
-        return localStorage.getItem('calendarSessionExpired') === 'true'
-    }, [])
 
     const markSessionExpired = useCallback(() => {
         localStorage.setItem('calendarSessionExpired', 'true')
