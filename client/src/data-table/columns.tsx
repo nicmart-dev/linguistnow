@@ -3,7 +3,7 @@ import { ArrowUpDown } from 'lucide-react'
 import { Button, Badge } from '@/components/ui'
 import { AvailabilityBadge, RatingInput } from '@/components/molecules'
 import type { ColumnDef } from '@tanstack/react-table'
-import { getCurrencySymbol } from '@/utils/currency'
+import { getCurrencySymbol } from '@linguistnow/shared'
 
 // Define the linguist data type based on the structure used in LinguistTable
 interface LinguistRow {

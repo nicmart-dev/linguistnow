@@ -1,4 +1,4 @@
-import axios from 'axios'
+import axios, { isAxiosError } from 'axios'
 import type { User } from '@linguistnow/shared'
 
 /* Utility function to get user details from Airtable after a successful login, 
@@ -66,7 +66,7 @@ export const fetchUserDetails = async (
         setUserDetails(userWithAirtableFields)
         return user
     } catch (error: unknown) {
-        if (axios.isAxiosError(error) && error.response?.status === 404) {
+        if (isAxiosError(error) && error.response?.status === 404) {
             throw { response: { status: 404 } }
         } else {
             throw error
@@ -91,7 +91,9 @@ export const fetchUserList = async (): Promise<User[]> => {
     } catch (error: unknown) {
         const errorMessage =
             error instanceof Error ? error.message : 'Unknown error'
-        throw new Error('Error fetching user list: ' + errorMessage)
+        throw new Error('Error fetching user list: ' + errorMessage, {
+            cause: error,
+        })
     }
 }
 

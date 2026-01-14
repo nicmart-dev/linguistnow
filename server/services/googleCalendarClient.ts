@@ -7,7 +7,7 @@
 
 /* eslint-disable @typescript-eslint/no-unnecessary-condition */
 
-import axios from "axios";
+import axios, { isAxiosError } from "axios";
 import type { BusySlot, GoogleFreeBusyResponse } from "@linguistnow/shared";
 
 const GOOGLE_FREEBUSY_URL = "https://www.googleapis.com/calendar/v3/freeBusy";
@@ -90,7 +90,7 @@ export async function getFreeBusy(
     );
   } catch (error: unknown) {
     // Handle axios errors
-    if (axios.isAxiosError(error)) {
+    if (isAxiosError(error)) {
       const status = error.response?.status;
       const responseData = error.response?.data as
         | { error?: { message?: string } }

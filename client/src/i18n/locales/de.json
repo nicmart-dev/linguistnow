@@ -115,7 +115,9 @@
             "useEstimatedHours": "Klicken Sie, um die geschätzten {{hours}} Stunden basierend auf dem ausgewählten Datumsbereich zu verwenden (40h/Woche Berechnung)",
             "availability": "Verfügbarkeit",
             "all": "Alle",
-            "availableOnly": "Nur verfügbare"
+            "availableOnly": "Nur verfügbare",
+            "displayCurrency": "Anzeigewährung",
+            "ratesConvertedTo": "Tarife umgerechnet in {{currency}}"
         },
         "availabilityBadge": {
             "available": "Verfügbar",
@@ -172,6 +174,13 @@
             "networkError": "Der Verfügbarkeitsservice kann nicht erreicht werden. Der Service könnte ausgefallen sein.",
             "authenticationError": "Authentifizierung fehlgeschlagen. Bitte überprüfe deine API-Konfiguration.",
             "unknownError": "Beim Überprüfen der Verfügbarkeit ist ein Fehler aufgetreten.",
+            "currencyConversionFailed": "Währungsumrechnung nicht verfügbar",
+            "currencyConversionFailedDescription": "Die Tarife konnten nicht in {{currency}} umgerechnet werden. Der Währungsservice (Redis/Frankfurter) ist möglicherweise nicht verfügbar. Die Tarife werden in ihren ursprünglichen Währungen angezeigt.",
+            "currencyServiceError": "Währungsservice-Fehler",
+            "searchError": "Suche nach Linguisten fehlgeschlagen",
+            "serverError": "Serverfehler",
+            "serverErrorDescription": "Auf dem Server ist ein Fehler aufgetreten. Bitte versuche es später erneut.",
+            "networkErrorDescription": "Es kann keine Verbindung zum Server hergestellt werden. Bitte überprüfe deine Internetverbindung.",
             "vaultPermissionDenied": "Authentifizierungstoken können nicht abgerufen werden. Der Zugriff des Servers auf den Token-Speicher ist abgelaufen. Bitte kontaktiere deinen Administrator.",
             "vaultError": "Es kann keine Verbindung zum Token-Speicher hergestellt werden. Bitte versuche es später erneut oder kontaktiere deinen Administrator.",
             "tokenNotFound_one": "Kein Kalenderzugriffstoken für {{count}} Linguisten ({{emails}}) gefunden. Sie müssen sich erneut mit ihrem Google-Konto anmelden.",

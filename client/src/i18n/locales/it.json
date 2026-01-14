@@ -115,7 +115,9 @@
             "useEstimatedHours": "Clicca per usare le {{hours}} ore stimate basate sull'intervallo di date selezionato (calcolo 40h/settimana)",
             "availability": "Disponibilità",
             "all": "Tutti",
-            "availableOnly": "Solo disponibili"
+            "availableOnly": "Solo disponibili",
+            "displayCurrency": "Valuta di visualizzazione",
+            "ratesConvertedTo": "Tariffe convertite in {{currency}}"
         },
         "availabilityBadge": {
             "available": "Disponibile",
@@ -172,6 +174,13 @@
             "networkError": "Impossibile raggiungere il servizio di disponibilità. Il servizio potrebbe essere spento.",
             "authenticationError": "Autenticazione fallita. Controlla la configurazione API.",
             "unknownError": "Si è verificato un errore durante il controllo della disponibilità.",
+            "currencyConversionFailed": "Conversione valuta non disponibile",
+            "currencyConversionFailedDescription": "Le tariffe non possono essere convertite in {{currency}}. Il servizio di conversione (Redis/Frankfurter) potrebbe non essere disponibile. Le tariffe sono mostrate nelle loro valute originali.",
+            "currencyServiceError": "Errore del servizio di conversione",
+            "searchError": "Ricerca linguisti fallita",
+            "serverError": "Errore del server",
+            "serverErrorDescription": "Si è verificato un errore sul server. Riprova più tardi.",
+            "networkErrorDescription": "Impossibile connettersi al server. Controlla la tua connessione Internet.",
             "vaultPermissionDenied": "Impossibile recuperare i token di autenticazione. L'accesso del server al deposito token è scaduto. Contatta il tuo amministratore.",
             "vaultError": "Impossibile connettersi al deposito token. Riprova più tardi o contatta il tuo amministratore.",
             "tokenNotFound_one": "Nessun token di accesso al calendario trovato per {{count}} linguista ({{emails}}). Deve accedere nuovamente con il suo account Google.",

@@ -14,6 +14,7 @@ import {
 import { Slider } from '@/components/ui/slider'
 import { Badge } from '@/components/ui/badge'
 import { logger } from '@/utils/logger'
+import { SUPPORTED_CURRENCIES, CURRENCY_SYMBOLS } from '@linguistnow/shared'
 import type {
     SearchLinguistsQuery,
     FilterOptionsResponse,
@@ -81,7 +82,8 @@ const FilterBar: React.FC<FilterBarProps> = ({
         filters.maxRate !== undefined ||
         filters.minRating !== undefined ||
         filters.availableOnly ||
-        filters.requiredHours !== undefined
+        filters.requiredHours !== undefined ||
+        filters.displayCurrency !== undefined
 
     if (loading) {
         return (
@@ -210,6 +212,40 @@ const FilterBar: React.FC<FilterBarProps> = ({
                     )}
                 </div>
 
+                {/* Currency Selector */}
+                <div>
+                    <label className="text-sm font-medium mb-2 block">
+                        {t('dashboard.filters.displayCurrency')}
+                    </label>
+                    <Select
+                        value={filters.displayCurrency || 'USD'}
+                        onValueChange={(value) => {
+                            updateFilter(
+                                'displayCurrency',
+                                value === 'USD' ? undefined : value.toUpperCase()
+                            )
+                        }}
+                    >
+                        <SelectTrigger>
+                            <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {SUPPORTED_CURRENCIES.map((currency) => (
+                                <SelectItem key={currency} value={currency}>
+                                    {currency} ({CURRENCY_SYMBOLS[currency]})
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                    {filters.displayCurrency && filters.displayCurrency !== 'USD' && (
+                        <p className="text-xs text-gray-500 mt-1">
+                            {t('dashboard.filters.ratesConvertedTo', {
+                                currency: filters.displayCurrency
+                            })}
+                        </p>
+                    )}
+                </div>
+
                 {/* Rate Range Filter */}
                 {filterOptions && (
                     <div>
@@ -245,12 +281,12 @@ const FilterBar: React.FC<FilterBarProps> = ({
                             />
                             <div className="flex justify-between text-xs text-gray-500 mt-1">
                                 <span>
-                                    $
+                                    {CURRENCY_SYMBOLS[(filters.displayCurrency || 'USD') as keyof typeof CURRENCY_SYMBOLS] || '$'}
                                     {filters.minRate ??
                                         filterOptions.rateRange.min}
                                 </span>
                                 <span>
-                                    $
+                                    {CURRENCY_SYMBOLS[(filters.displayCurrency || 'USD') as keyof typeof CURRENCY_SYMBOLS] || '$'}
                                     {filters.maxRate ??
                                         filterOptions.rateRange.max}
                                 </span>

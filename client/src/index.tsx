@@ -1,6 +1,6 @@
 import React from 'react'
 import { createRoot } from 'react-dom/client'
-import App from './App'
+import AppWrapper from './App'
 import './i18n' // Initialize i18n
 import './tailwind.css'
 import './index.css'
@@ -59,5 +59,5 @@ if (!container) {
 const root = createRoot(container)
 
 root.render(
-    <App />
+    <AppWrapper />
 )

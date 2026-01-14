@@ -131,7 +131,6 @@ export const UsersTableSchema: AirtableTableSchema = {
         "BRL",
         "MXN",
         "KRW",
-        "RUB",
         "ZAR",
         "SGD",
       ],

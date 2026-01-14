@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import axios from 'axios'
+import axios, { isAxiosError } from 'axios'
 import { Star } from 'lucide-react'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
@@ -77,7 +77,7 @@ const RatingInput: React.FC<RatingInputProps> = ({
                 'Failed to update rating. Please try again.'
             )
 
-            if (axios.isAxiosError(error)) {
+            if (isAxiosError(error)) {
                 const responseData: unknown = error.response?.data
                 if (responseData && typeof responseData === 'object') {
                     const errorData = responseData as {

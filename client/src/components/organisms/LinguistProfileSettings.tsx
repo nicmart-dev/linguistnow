@@ -26,7 +26,9 @@ import {
     SelectValue,
 } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
-import { CURRENCIES } from '@/utils/currency'
+import { getCurrencies } from '@linguistnow/shared'
+
+const CURRENCIES = getCurrencies()
 
 /**
  * Settings component for linguist profile information.

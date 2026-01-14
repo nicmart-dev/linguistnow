@@ -36,6 +36,7 @@ export interface SearchLinguistsQuery {
   endDate?: string; // ISO date
   requiredHours?: number; // Project size in hours
   timezone?: string; // IANA timezone
+  displayCurrency?: string; // Currency code for rate conversion (ISO 4217)
   page?: number;
   limit?: number;
 }
@@ -60,6 +61,7 @@ export interface LinguistWithAvailability {
   specialization?: string[];
   hourlyRate?: number;
   currency?: string;
+  hourlyRateConverted?: number; // Rate converted to displayCurrency
   timezone?: string;
   rating?: number;
   setupStatus: SetupStatus;

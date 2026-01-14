@@ -6,7 +6,7 @@ import AvailabilityBadge from '@/components/molecules/AvailabilityBadge'
 import AvailabilityTimeline from './AvailabilityTimeline'
 import RatingInput from '@/components/molecules/RatingInput'
 import type { LinguistWithAvailability } from '@linguistnow/shared'
-import { getCurrencySymbol } from '@/utils/currency'
+import { getCurrencySymbol } from '@linguistnow/shared'
 
 interface LinguistCardProps {
     linguist: LinguistWithAvailability

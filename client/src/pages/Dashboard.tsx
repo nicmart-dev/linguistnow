@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
-import axios from 'axios'
+import axios, { isAxiosError } from 'axios'
 import { useTranslation } from 'react-i18next'
+import { toast } from 'sonner'
 import i18next from '@/i18n'
 import { format, addDays, startOfDay } from 'date-fns'
 import Hero from '@/components/organisms/Hero'
@@ -94,14 +95,96 @@ const Dashboard = ({ userName }: DashboardProps) => {
                 if (filters.limit)
                     params.append('limit', filters.limit.toString())
 
+                if (filters.displayCurrency) {
+                    params.append('displayCurrency', filters.displayCurrency)
+                }
+
                 const response = await axios.get<SearchLinguistsResponse>(
                     `${import.meta.env.VITE_API_URL}/api/linguists/search?${params.toString()}`
                 )
 
                 logger.log('Search results:', response.data)
                 setLinguists(response.data.linguists)
+
+                // Check if currency conversion was requested but rates weren't converted
+                if (filters.displayCurrency) {
+                    const hasConvertedRates = response.data.linguists.some(
+                        (l) => l.hourlyRateConverted !== undefined
+                    )
+                    const hasRatesToConvert = response.data.linguists.some(
+                        (l) => l.hourlyRate && l.currency
+                    )
+
+                    if (hasRatesToConvert && !hasConvertedRates) {
+                        // Currency conversion failed - likely Redis/Frankfurter issue
+                        toast.warning(
+                            t('dashboard.errors.currencyConversionFailed', {
+                                currency: filters.displayCurrency,
+                            }),
+                            {
+                                description: t(
+                                    'dashboard.errors.currencyConversionFailedDescription'
+                                ),
+                                duration: 8000,
+                            }
+                        )
+                    }
+                }
             } catch (error) {
                 console.error('Error searching linguists:', error)
+                
+                // Check for specific error types
+                if (isAxiosError(error)) {
+                    const errorMessage = error.response?.data?.error || error.message
+                    
+                    // Check if it's a currency-related error
+                    if (
+                        errorMessage?.includes('currency') ||
+                        errorMessage?.includes('Frankfurter') ||
+                        errorMessage?.includes('Redis')
+                    ) {
+                        toast.error(
+                            t('dashboard.errors.currencyServiceError'),
+                            {
+                                description: errorMessage,
+                                duration: 10000,
+                            }
+                        )
+                    } else if (error.response?.status === 500) {
+                        toast.error(
+                            t('dashboard.errors.serverError'),
+                            {
+                                description: t('dashboard.errors.serverErrorDescription'),
+                                duration: 8000,
+                            }
+                        )
+                    } else if (error.response?.status === 0 || !error.response) {
+                        toast.error(
+                            t('dashboard.errors.networkError'),
+                            {
+                                description: t('dashboard.errors.networkErrorDescription'),
+                                duration: 8000,
+                            }
+                        )
+                    } else {
+                        toast.error(
+                            t('dashboard.errors.searchError'),
+                            {
+                                description: errorMessage,
+                                duration: 8000,
+                            }
+                        )
+                    }
+                } else {
+                    toast.error(
+                        t('dashboard.errors.searchError'),
+                        {
+                            description: error instanceof Error ? error.message : String(error),
+                            duration: 8000,
+                        }
+                    )
+                }
+                
                 setLinguists([])
             } finally {
                 setLoading(false)

@@ -8,6 +8,7 @@ import {
   getDefaultStartDate,
   getDefaultEndDate,
 } from "../services/availabilityService.js";
+import { convert } from "../services/currencyService.js";
 import type {
   SearchLinguistsQuery,
   SearchLinguistsResponse,
@@ -214,6 +215,7 @@ function parseCommaSeparated(value?: string): string[] {
  * Build Airtable filter formula from query parameters.
  * Constructs a filter formula using AND() function for compatibility with multiple select fields.
  * Validates and sanitizes numeric inputs before including them in the formula.
+ * Note: Rate filtering is done in JavaScript when displayCurrency is set (not in Airtable formula).
  * @param query - Search query parameters
  * @returns Airtable filter formula string
  */
@@ -257,26 +259,29 @@ function buildFilterFormula(query: Partial<SearchLinguistsQuery>): string {
     }
   }
 
-  // Rate range filter with validation
-  if (
-    query.minRate !== undefined &&
-    typeof query.minRate === "number" &&
-    !isNaN(query.minRate) &&
-    query.minRate >= 0
-  ) {
-    conditions.push(
-      `{${AIRTABLE_FIELDS.HOURLY_RATE}} >= ${String(query.minRate)}`,
-    );
-  }
-  if (
-    query.maxRate !== undefined &&
-    typeof query.maxRate === "number" &&
-    !isNaN(query.maxRate) &&
-    query.maxRate >= 0
-  ) {
-    conditions.push(
-      `{${AIRTABLE_FIELDS.HOURLY_RATE}} <= ${String(query.maxRate)}`,
-    );
+  // Rate range filter - only apply in Airtable if displayCurrency is NOT set
+  // When displayCurrency is set, we'll filter in JavaScript after conversion
+  if (!query.displayCurrency) {
+    if (
+      query.minRate !== undefined &&
+      typeof query.minRate === "number" &&
+      !isNaN(query.minRate) &&
+      query.minRate >= 0
+    ) {
+      conditions.push(
+        `{${AIRTABLE_FIELDS.HOURLY_RATE}} >= ${String(query.minRate)}`,
+      );
+    }
+    if (
+      query.maxRate !== undefined &&
+      typeof query.maxRate === "number" &&
+      !isNaN(query.maxRate) &&
+      query.maxRate >= 0
+    ) {
+      conditions.push(
+        `{${AIRTABLE_FIELDS.HOURLY_RATE}} <= ${String(query.maxRate)}`,
+      );
+    }
   }
 
   // Rating filter with validation
@@ -491,6 +496,11 @@ export const searchLinguists = async (
         queryParams.timezone && typeof queryParams.timezone === "string"
           ? queryParams.timezone.trim()
           : undefined,
+      displayCurrency:
+        queryParams.displayCurrency &&
+        typeof queryParams.displayCurrency === "string"
+          ? queryParams.displayCurrency.trim().toUpperCase()
+          : undefined,
       page: queryParams.page ? Math.max(1, Number(queryParams.page)) : 1,
       limit: queryParams.limit
         ? Math.max(1, Math.min(100, Number(queryParams.limit)))
@@ -523,6 +533,7 @@ export const searchLinguists = async (
           : String(airtableError);
       throw new Error(
         `Airtable query failed: ${errorMessage}. Formula: ${filterFormula}`,
+        { cause: airtableError },
       );
     }
 
@@ -595,6 +606,70 @@ export const searchLinguists = async (
           return null;
         }
 
+        const hourlyRate = fields[AIRTABLE_FIELDS.HOURLY_RATE] as
+          | number
+          | undefined;
+        const currency = fields[AIRTABLE_FIELDS.CURRENCY] as
+          | string
+          | undefined;
+
+        // Convert rate if displayCurrency is specified
+        let hourlyRateConverted: number | undefined;
+        if (
+          query.displayCurrency &&
+          hourlyRate !== undefined &&
+          currency &&
+          currency.toUpperCase() !== query.displayCurrency.toUpperCase()
+        ) {
+          try {
+            hourlyRateConverted = await convert(
+              hourlyRate,
+              currency.toUpperCase(),
+              query.displayCurrency.toUpperCase(),
+            );
+            // Round to 2 decimal places
+            hourlyRateConverted = Math.round(hourlyRateConverted * 100) / 100;
+          } catch (error) {
+            // Log error but don't fail the request
+            logError(
+              `converting rate for ${fields[AIRTABLE_FIELDS.EMAIL] as string}`,
+              error,
+              {
+                from: currency,
+                to: query.displayCurrency,
+                amount: hourlyRate,
+              },
+            );
+            // Continue without converted rate
+          }
+        } else if (
+          query.displayCurrency &&
+          hourlyRate !== undefined &&
+          currency &&
+          currency.toUpperCase() === query.displayCurrency.toUpperCase()
+        ) {
+          // Same currency, no conversion needed
+          hourlyRateConverted = hourlyRate;
+        }
+
+        // Filter by rate range in JavaScript if displayCurrency is set
+        // Only filter if conversion succeeded (hourlyRateConverted is defined)
+        // Skip filtering if conversion failed to avoid comparing different currencies
+        if (query.displayCurrency && hourlyRateConverted !== undefined) {
+          if (
+            query.minRate !== undefined &&
+            hourlyRateConverted < query.minRate
+          ) {
+            return null;
+          }
+          if (
+            query.maxRate !== undefined &&
+            hourlyRateConverted > query.maxRate
+          ) {
+            return null;
+          }
+        }
+
         return {
           id: record.id,
           email: fields[AIRTABLE_FIELDS.EMAIL] as string,
@@ -602,8 +677,9 @@ export const searchLinguists = async (
           picture: fields[AIRTABLE_FIELDS.PICTURE] as string | undefined,
           languages,
           specialization,
-          hourlyRate: fields[AIRTABLE_FIELDS.HOURLY_RATE] as number | undefined,
-          currency: fields[AIRTABLE_FIELDS.CURRENCY] as string | undefined,
+          hourlyRate,
+          currency,
+          hourlyRateConverted,
           timezone: preferences.timezone,
           rating: fields[AIRTABLE_FIELDS.RATING] as number | undefined,
           setupStatus,
