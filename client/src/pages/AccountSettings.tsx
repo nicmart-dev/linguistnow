@@ -1,6 +1,6 @@
 import CalendarSelector from '@/components/organisms/CalendarSelector'
 import AvailabilitySettings from '@/components/organisms/AvailabilitySettings'
-import LinguistProfileSettings from '@/components/organisms/LinguistProfileSettings'
+import { LinguistProfileSettings } from '@/components/organisms/LinguistProfileSettings'
 import { useTranslation } from 'react-i18next' // To show localized strings
 import Hero from '@/components/organisms/Hero'
 import { logger } from '@/utils/logger'

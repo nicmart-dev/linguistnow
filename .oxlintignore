@@ -1,0 +1,6 @@
+**/dist/**
+**/dev-dist/**
+**/build/**
+**/node_modules/**
+**/coverage/**
+**/scripts/**

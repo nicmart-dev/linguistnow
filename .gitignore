@@ -142,3 +142,6 @@ client/dev-dist
 
 # Cursor internal files
 .cursor/debug.log
+
+# Oxlint cache
+.oxlint-cache

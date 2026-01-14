@@ -3,7 +3,7 @@ import axios from 'axios'
 import { useTranslation } from 'react-i18next'
 import { X, Info } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import DateRangePicker from '@/components/molecules/DateRangePicker'
+import { DateRangePicker } from '@/components/molecules/DateRangePicker'
 import {
     Select,
     SelectContent,
