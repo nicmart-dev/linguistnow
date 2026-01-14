@@ -91,6 +91,25 @@ See `docs/development/testing-and-tdd.md` for examples.
 
 ---
 
+## Documentation (JSDoc)
+
+**Required**: Add JSDoc comments to all exported components, hooks, and functions.
+
+```tsx
+/**
+ * Brief description of what the component/function does.
+ * @param propName - Description of the prop
+ * @returns Description of return value (for hooks/functions)
+ */
+export const MyComponent = ({ propName }: Props) => { ... }
+```
+
+- Minimum 80% docstring coverage required
+- Document all props with `@param`
+- Include usage context in description
+
+---
+
 ## Internationalization (i18n)
 
 - **All user-facing strings** → `client/src/i18n/locales/*.json`
