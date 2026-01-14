@@ -28,15 +28,29 @@ dotenvExpand.expand(envConfig);
 // This log is for debugging dotenv loading only
 
 // Import modules that use env AFTER dotenv is loaded and expanded
+// Validate environment variables early - this will throw with helpful error messages
+import { env } from "./env.js";
+
+// Trigger validation by accessing a required property without a default
+// This will throw with a helpful error message if env vars are missing
+let PORT: number;
+try {
+  // Access a required variable (GOOGLE_CLIENT_ID) to trigger validation
+  // PORT has a default, so accessing it won't trigger validation errors
+  void env.GOOGLE_CLIENT_ID;
+  PORT = env.PORT;
+} catch (error) {
+  console.error(error instanceof Error ? error.message : String(error));
+  process.exit(1);
+}
+
 import calendarRoutes from "./routes/calendarRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import usersRoutes from "./routes/usersRoutes.js";
 import tokenRoutes from "./routes/tokenRoutes.js";
 import linguistsRoutes from "./routes/linguistsRoutes.js";
+import currencyRoutes from "./routes/currencyRoutes.js";
 import swaggerSpec, { apiVersion } from "./swagger.js";
-import { env } from "./env.js";
-
-const PORT = env.PORT;
 
 // Middleware
 app.use(express.json()); // Parse JSON bodies
@@ -161,6 +175,9 @@ app.use("/api/tokens", tokenRoutes);
 
 // Route for linguist search and filtering
 app.use("/api/linguists", linguistsRoutes);
+
+// Route for currency conversion and FX rates
+app.use("/api/currency", currencyRoutes);
 
 // Start the server
 app.listen(PORT, () => {

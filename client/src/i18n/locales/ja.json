@@ -115,7 +115,9 @@
             "useEstimatedHours": "選択した日付範囲に基づいて推定{{hours}}時間を使用するにはクリック（40時間/週の計算）",
             "availability": "可用性",
             "all": "すべて",
-            "availableOnly": "利用可能なもののみ"
+            "availableOnly": "利用可能なもののみ",
+            "displayCurrency": "表示通貨",
+            "ratesConvertedTo": "レートを {{currency}} に変換しました"
         },
         "availabilityBadge": {
             "available": "利用可能",
@@ -172,6 +174,13 @@
             "networkError": "可用性サービスに到達できません。サービスがダウンしている可能性があります。",
             "authenticationError": "認証に失敗しました。API設定を確認してください。",
             "unknownError": "可用性を確認中にエラーが発生しました。",
+            "currencyConversionFailed": "通貨変換が利用できません",
+            "currencyConversionFailedDescription": "レートを{{currency}}に変換できませんでした。通貨サービス（Redis/Frankfurter）が利用できない可能性があります。レートは元の通貨で表示されます。",
+            "currencyServiceError": "通貨サービスエラー",
+            "searchError": "言語学者の検索に失敗しました",
+            "serverError": "サーバーエラー",
+            "serverErrorDescription": "サーバーでエラーが発生しました。後でもう一度お試しください。",
+            "networkErrorDescription": "サーバーに接続できません。インターネット接続を確認してください。",
             "vaultPermissionDenied": "認証トークンを取得できません。サーバーのトークンストアへのアクセスが期限切れです。管理者に連絡してください。",
             "vaultError": "トークンストアに接続できません。後でもう一度お試しいただくか、管理者に連絡してください。",
             "tokenNotFound_one": "{{count}}人の言語学者（{{emails}}）のカレンダーアクセストークンが見つかりませんでした。Googleアカウントで再度ログインする必要があります。",

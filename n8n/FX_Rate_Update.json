@@ -1,5 +1,5 @@
 {
-  "name": "Token Refresh Schedule",
+  "name": "FX Rate Update",
   "nodes": [
     {
       "parameters": {
@@ -7,13 +7,13 @@
           "interval": [
             {
               "field": "cronExpression",
-              "expression": "0 3 1 * *"
+              "expression": "0 8 * * *"
             }
           ]
         }
       },
       "id": "schedule-trigger",
-      "name": "Schedule Trigger",
+      "name": "Schedule Trigger (Daily 8AM UTC)",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.1,
       "position": [250, 300]
@@ -21,10 +21,11 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "=http://backend:5000/api/tokens/refresh-all",
+        "url": "=http://backend:5000/api/currency/refresh",
         "options": {
           "timeout": 300000
-        }
+        },
+        "continueOnFail": true
       },
       "id": "http-request",
       "name": "Call Refresh Endpoint",
@@ -38,17 +39,17 @@
           "number": [
             {
               "name": "success",
-              "value": "={{ $json.success }}"
+              "value": "={{ $json.base ? 1 : ($json.error ? 0 : 0) }}"
             }
           ],
           "json": [
             {
               "name": "failures",
-              "value": "={{ $json.failures || [] }}"
+              "value": "={{ $json.error ? [{ error: $json.error, details: $json.details || $json.message || 'Unknown error' }] : ($json.base ? [] : [{ error: 'Request failed', details: JSON.stringify($json) }]) }}"
             },
             {
               "name": "context",
-              "value": "Token Refresh"
+              "value": "\"FX Rate Update\""
             }
           ]
         },
@@ -73,7 +74,7 @@
     }
   ],
   "connections": {
-    "Schedule Trigger": {
+    "Schedule Trigger (Daily 8AM UTC)": {
       "main": [
         [
           {
@@ -86,6 +87,15 @@
     },
     "Call Refresh Endpoint": {
       "main": [
+        [
+          {
+            "node": "Prepare Data for Subworkflow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ],
+      "error": [
         [
           {
             "node": "Prepare Data for Subworkflow",

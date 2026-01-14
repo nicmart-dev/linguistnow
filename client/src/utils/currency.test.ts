@@ -1,10 +1,13 @@
 import { describe, it, expect } from 'vitest'
-import { CURRENCIES, getCurrencySymbol } from './currency'
+import { getCurrencies, getCurrencySymbol, SUPPORTED_CURRENCIES } from '@linguistnow/shared'
+
+const CURRENCIES = getCurrencies()
 
 describe('currency utilities', () => {
     describe('CURRENCIES', () => {
-        it('should have 15 currencies', () => {
-            expect(CURRENCIES).toHaveLength(15)
+        it('should have 14 currencies (RUB removed)', () => {
+            expect(CURRENCIES).toHaveLength(14)
+            expect(SUPPORTED_CURRENCIES).toHaveLength(14)
         })
 
         it('should have required properties for each currency', () => {
@@ -30,6 +33,11 @@ describe('currency utilities', () => {
             expect(codes).toContain('EUR')
             expect(codes).toContain('GBP')
             expect(codes).toContain('JPY')
+        })
+
+        it('should not include RUB (removed)', () => {
+            const codes = CURRENCIES.map((c) => c.code)
+            expect(codes).not.toContain('RUB')
         })
 
         it('should have correct USD currency', () => {
