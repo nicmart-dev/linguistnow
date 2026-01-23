@@ -21,7 +21,7 @@
     "@linguistnow/shared": "workspace:*",
     "airtable": "^0.12.2",
     "axios": "^1.13.2",
-    "cors": "^2.8.5",
+    "cors": "^2.8.6",
     "date-fns": "^4.1.0",
     "date-fns-tz": "^3.2.0",
     "dotenv": "^17.2.3",
