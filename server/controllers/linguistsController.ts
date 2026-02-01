@@ -523,6 +523,7 @@ export const searchLinguists = async (
           : String(airtableError);
       throw new Error(
         `Airtable query failed: ${errorMessage}. Formula: ${filterFormula}`,
+        { cause: airtableError },
       );
     }
 

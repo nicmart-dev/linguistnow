@@ -80,7 +80,9 @@ async function refreshToken(refreshToken: string): Promise<string> {
       "error" in error.response.data &&
       error.response.data.error === "invalid_grant"
     ) {
-      throw new Error("invalid_grant: Refresh token is invalid or expired");
+      throw new Error("invalid_grant: Refresh token is invalid or expired", {
+        cause: error,
+      });
     }
 
     // Re-throw other errors
@@ -132,7 +134,9 @@ export async function getValidAccessToken(userEmail: string): Promise<string> {
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : "Unknown error";
-    throw new Error(`Failed to refresh access token: ${errorMessage}`);
+    throw new Error(`Failed to refresh access token: ${errorMessage}`, {
+      cause: error,
+    });
   }
 }
 
@@ -190,6 +194,7 @@ export async function withAutoRefresh<T>(
             : "Unknown error";
         throw new Error(
           `Failed to refresh token after expiration: ${errorMessage}`,
+          { cause: refreshError },
         );
       }
     }

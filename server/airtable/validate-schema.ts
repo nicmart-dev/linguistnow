@@ -288,7 +288,7 @@ export async function validateSchema(): Promise<ValidationReport> {
 
         // Type checking is lenient - just warn on obvious mismatches
         // Note: "rating" and "currency" types are compatible with "number" since they store as number
-        const isCompatibleType =
+        const _isCompatibleType =
           (expectedType === "rating" && inferredType === "number") ||
           (expectedType === "currency" && inferredType === "number") ||
           (expectedType === "number" && inferredType === "number") ||
