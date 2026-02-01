@@ -1,36 +1,40 @@
-# Dependabot configuration for automated dependency updates
+# Dependabot configuration - Security alerts only (no automatic PRs)
+# PRs are disabled via open-pull-requests-limit: 0
+# Dependency updates are handled by .github/workflows/dependency-updates.yml
 # https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
 
 version: 2
 updates:
-  # Frontend (client) npm dependencies
+  # Frontend (client) npm dependencies - security monitoring only
   - package-ecosystem: "npm"
     directory: "/client"
     schedule:
       interval: "weekly"
-    open-pull-requests-limit: 5
+    open-pull-requests-limit: 0 # Disable automatic PRs
 
-  # Backend (server) npm dependencies
+  # Backend (server) npm dependencies - security monitoring only
   - package-ecosystem: "npm"
     directory: "/server"
     schedule:
       interval: "weekly"
-    open-pull-requests-limit: 5
+    open-pull-requests-limit: 0 # Disable automatic PRs
 
-  # GitHub Actions
+  # GitHub Actions - security monitoring only
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
-    open-pull-requests-limit: 5
+    open-pull-requests-limit: 0 # Disable automatic PRs
 
-  # Docker images
+  # Docker images - security monitoring only
   - package-ecosystem: "docker"
     directory: "/client"
     schedule:
       interval: "weekly"
+    open-pull-requests-limit: 0 # Disable automatic PRs
 
   - package-ecosystem: "docker"
     directory: "/server"
     schedule:
       interval: "weekly"
+    open-pull-requests-limit: 0 # Disable automatic PRs
