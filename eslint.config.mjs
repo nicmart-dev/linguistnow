@@ -2,6 +2,7 @@ import eslint from "@eslint/js";
 import tseslint from "typescript-eslint";
 import globals from "globals";
 import oxlint from "eslint-plugin-oxlint";
+import react from "eslint-plugin-react";
 
 export default tseslint.config(
   eslint.configs.recommended,
@@ -206,6 +207,43 @@ export default tseslint.config(
     files: ["**/test/setup.ts", "**/test/setup.js"],
     rules: {
       "@typescript-eslint/no-unsafe-argument": "off",
+    },
+  },
+  {
+    // React 17+ uses automatic JSX transform - no need to import React
+    files: ["**/*.{tsx,jsx}"],
+    plugins: {
+      react,
+    },
+    settings: {
+      react: {
+        version: "detect",
+      },
+    },
+    rules: {
+      "react/react-in-jsx-scope": "off",
+    },
+  },
+  {
+    // Allow side-effect imports (CSS, i18n initialization)
+    files: ["client/src/index.tsx", "client/src/i18n/index.ts"],
+    rules: {
+      "import/no-unassigned-import": "off",
+    },
+  },
+  {
+    // Allow namespace imports for controllers (intentional pattern for route handlers)
+    files: ["server/routes/**/*.ts"],
+    rules: {
+      "import/no-named-as-default-member": "off",
+    },
+  },
+  {
+    // Allow axios.isAxiosError and i18next.use patterns globally
+    files: ["**/*.{ts,tsx}"],
+    rules: {
+      "import/no-named-as-default-member": "off",
+      "import/no-named-as-default": "off",
     },
   },
 );

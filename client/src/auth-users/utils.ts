@@ -91,7 +91,9 @@ export const fetchUserList = async (): Promise<User[]> => {
     } catch (error: unknown) {
         const errorMessage =
             error instanceof Error ? error.message : 'Unknown error'
-        throw new Error('Error fetching user list: ' + errorMessage)
+        throw new Error('Error fetching user list: ' + errorMessage, {
+            cause: error,
+        })
     }
 }
 
