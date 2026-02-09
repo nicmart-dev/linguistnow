@@ -20,11 +20,11 @@
   "dependencies": {
     "@linguistnow/shared": "workspace:*",
     "airtable": "^0.12.2",
-    "axios": "^1.13.2",
+    "axios": "^1.13.5",
     "cors": "^2.8.6",
     "date-fns": "^4.1.0",
     "date-fns-tz": "^3.2.0",
-    "dotenv": "^17.2.3",
+    "dotenv": "^17.2.4",
     "dotenv-expand": "^12.0.3",
     "express": "^5.2.1",
     "google-auth-library": "^10.5.0",
@@ -36,7 +36,7 @@
   "devDependencies": {
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
-    "@types/node": "^25.0.10",
+    "@types/node": "^25.2.2",
     "@types/swagger-jsdoc": "^6.0.4",
     "@types/swagger-ui-express": "^4.1.8",
     "@vitest/coverage-v8": "^4.0.18",
