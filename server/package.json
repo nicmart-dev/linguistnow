@@ -20,15 +20,15 @@
   "dependencies": {
     "@linguistnow/shared": "workspace:*",
     "airtable": "^0.12.2",
-    "axios": "^1.13.2",
+    "axios": "^1.15.0",
     "cors": "^2.8.6",
     "date-fns": "^4.1.0",
     "date-fns-tz": "^3.2.0",
-    "dotenv": "^17.2.3",
+    "dotenv": "^17.4.2",
     "dotenv-expand": "^12.0.3",
     "express": "^5.2.1",
-    "google-auth-library": "^10.5.0",
-    "node-vault": "^0.10.9",
+    "google-auth-library": "^10.6.2",
+    "node-vault": "^0.10.10",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",
     "zod": "^4.3.6"
@@ -36,13 +36,13 @@
   "devDependencies": {
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
-    "@types/node": "^25.0.10",
+    "@types/node": "^25.6.0",
     "@types/swagger-jsdoc": "^6.0.4",
     "@types/swagger-ui-express": "^4.1.8",
-    "@vitest/coverage-v8": "^4.0.18",
+    "@vitest/coverage-v8": "^4.1.4",
     "cross-env": "^10.1.0",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",
-    "vitest": "^4.0.18"
+    "vitest": "^4.1.4"
   }
 }
