@@ -1,9 +1,10 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+/* eslint-disable */
+import { describe, it, expect, vi, beforeEach, beforeAll } from "vitest";
 import type { Request, Response } from "express";
 import type {
   exchangeCodeForToken as ExchangeCodeForTokenType,
   getUserInfo as GetUserInfoType,
-} from "./authController";
+} from "./authController.js";
 
 // Store mock functions at module level for access in tests
 let mockGetToken: ReturnType<typeof vi.fn>;
@@ -56,7 +57,7 @@ describe("authController", () => {
     }));
 
     // Dynamic import after mocks are set up
-    const authController = await import("./authController");
+    const authController = await import("./authController.js");
     exchangeCodeForToken = authController.exchangeCodeForToken;
     getUserInfo = authController.getUserInfo;
   });
@@ -64,10 +65,10 @@ describe("authController", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     jsonSpy = vi.fn();
-    statusSpy = vi.fn(() => ({ json: jsonSpy }));
+    statusSpy = vi.fn(() => ({ json: jsonSpy as any }));
     mockResponse = {
-      json: jsonSpy,
-      status: statusSpy,
+      json: jsonSpy as any,
+      status: statusSpy as any,
     };
   });
 
@@ -83,10 +84,7 @@ describe("authController", () => {
         },
       });
 
-      await exchangeCodeForToken(
-        mockRequest as Request,
-        mockResponse as Response,
-      );
+      await exchangeCodeForToken(mockRequest as any, mockResponse as any);
 
       expect(mockGetToken).toHaveBeenCalledWith({
         code: "auth-code",
@@ -121,10 +119,7 @@ describe("authController", () => {
       });
       mockWriteToken.mockRejectedValue(new Error("Vault error"));
 
-      await exchangeCodeForToken(
-        mockRequest as Request,
-        mockResponse as Response,
-      );
+      await exchangeCodeForToken(mockRequest as any, mockResponse as any);
 
       // Should still return tokens even if Vault write fails
       expect(jsonSpy).toHaveBeenCalledWith({
@@ -143,10 +138,7 @@ describe("authController", () => {
       };
       mockGetToken.mockRejectedValue(new Error("Invalid code"));
 
-      await exchangeCodeForToken(
-        mockRequest as Request,
-        mockResponse as Response,
-      );
+      await exchangeCodeForToken(mockRequest as any, mockResponse as any);
 
       expect(statusSpy).toHaveBeenCalledWith(500);
       expect(jsonSpy).toHaveBeenCalledWith({
@@ -169,7 +161,7 @@ describe("authController", () => {
         },
       });
 
-      await getUserInfo(mockRequest as Request, mockResponse as Response);
+      await getUserInfo(mockRequest as any, mockResponse as any);
 
       expect(mockSetCredentials).toHaveBeenCalledWith({
         access_token: "access-token",
@@ -194,7 +186,7 @@ describe("authController", () => {
         data: {},
       });
 
-      await getUserInfo(mockRequest as Request, mockResponse as Response);
+      await getUserInfo(mockRequest as any, mockResponse as any);
 
       expect(jsonSpy).toHaveBeenCalledWith({
         userInfo: {
@@ -214,7 +206,7 @@ describe("authController", () => {
       };
       mockOAuthRequest.mockRejectedValue(new Error("Invalid token"));
 
-      await getUserInfo(mockRequest as Request, mockResponse as Response);
+      await getUserInfo(mockRequest as any, mockResponse as any);
 
       expect(statusSpy).toHaveBeenCalledWith(500);
       expect(jsonSpy).toHaveBeenCalledWith({

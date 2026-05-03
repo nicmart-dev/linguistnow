@@ -17,7 +17,7 @@ interface LanguageProviderProps {
 }
 
 // Type assertion for i18next instance - needed due to module resolution
-const i18n = i18nInstance as unknown as i18n
+const i18n = i18nInstance
 
 const LanguageProvider = ({ children }: LanguageProviderProps) => {
     // Update HTML direction and lang attribute when language changes
@@ -60,7 +60,7 @@ const LanguageProvider = ({ children }: LanguageProviderProps) => {
 
     const switchLanguage = (lang: Locale) => {
         // Type assertion needed due to TypeScript module resolution
-        ;(saveLocale as (locale: Locale) => void)(lang)
+        saveLocale(lang)
         void i18n.changeLanguage(lang)
         updateDocumentDirection(lang)
     }

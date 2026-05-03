@@ -303,7 +303,7 @@ const LinguistProfileSettings: React.FC<LinguistProfileSettingsProps> = ({
                 profile.hourlyRate = rateValue
             } else if (trimmedRate === '' && currentHourlyRate !== '') {
                 // User cleared the field - send null to clear it
-                profile.hourlyRate = null as unknown as number | undefined // Airtable accepts null to clear
+                profile.hourlyRate = null // Airtable accepts null to clear
             }
 
             // Currency is read-only - don't include in save request

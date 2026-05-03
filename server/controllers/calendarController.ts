@@ -239,7 +239,7 @@ export const checkAvailability = async (
   // Extract and validate request body with explicit types
   const body = req.body;
   // Handle calendarIds as either string (comma-separated from Airtable) or array
-  const rawCalendarIds = body.calendarIds;
+  const rawCalendarIds: unknown = body.calendarIds;
   const calendarIds: string[] = Array.isArray(rawCalendarIds)
     ? rawCalendarIds
     : typeof rawCalendarIds === "string"
@@ -288,7 +288,7 @@ export const checkAvailability = async (
     offDays = [];
   } else {
     // Default or excludeWeekends === true means weekends
-    offDays = AVAILABILITY_DEFAULTS.offDays;
+    offDays = [...AVAILABILITY_DEFAULTS.offDays];
   }
 
   // Validate required fields

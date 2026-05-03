@@ -227,6 +227,7 @@ export async function validateSchema(): Promise<ValidationReport> {
           missingFields,
           extraFields: [],
           typeMismatches: [],
+          optionsMismatches: [],
         };
       }
 

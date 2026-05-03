@@ -3,7 +3,7 @@ import { refreshAllTokens } from "../controllers/tokenRefreshController.js";
 import { listTokens, deleteToken } from "../utils/vaultClient.js";
 import { userExistsInAirtable } from "../controllers/usersController.js";
 
-const router = express.Router();
+const router: express.Router = express.Router();
 
 /**
  * @openapi

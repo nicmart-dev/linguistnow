@@ -151,7 +151,7 @@ export const getOne = async (req: Request<{ id: string }>, res: Response) => {
 
     if (records.length > 0) {
       const record = records[0];
-      res.json(record.fields as unknown as AirtableUserFields);
+      res.json(record.fields);
     } else {
       res.status(404).json({ error: "User not found" });
     }
@@ -191,7 +191,7 @@ export const create = async (
       Picture: picture_url,
       Role: role,
     });
-    res.json(createdRecord.fields as unknown as AirtableUserFields);
+    res.json(createdRecord.fields);
   } catch (error) {
     console.error("Error creating user", error);
     res.status(500).json({ error: "Failed to create user" });
@@ -236,8 +236,7 @@ export const update = async (
 
     if (records.length > 0) {
       const recordId = records[0].id;
-      const fieldsToUpdate: Partial<AirtableUserFields> =
-        {} as Partial<AirtableUserFields>;
+      const fieldsToUpdate: Partial<AirtableUserFields> = {};
 
       // Update the fields if provided
       // IMPORTANT: We use schema field names directly (e.g., "Calendar IDs", "Timezone")
@@ -427,7 +426,7 @@ export const update = async (
             fieldsToUpdate,
           );
           console.log("Successfully updated user:", updatedRecord.fields);
-          res.json(updatedRecord.fields as unknown as AirtableUserFields);
+          res.json(updatedRecord.fields);
         } catch (airtableError: unknown) {
           console.error("Airtable update error:", airtableError);
           console.error("Fields that were attempted:", fieldsToUpdate);

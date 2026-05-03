@@ -183,8 +183,8 @@ const router: Router = express.Router();
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.post("/availability", (req, res, next) => {
-  void checkAvailability(req, res, next);
+router.post("/availability", (req, res) => {
+  void checkAvailability(req, res);
 });
 
 /**
@@ -220,8 +220,8 @@ router.post("/availability", (req, res, next) => {
  *         description: Availability check result (same as /availability endpoint)
  */
 /* eslint-disable @typescript-eslint/no-deprecated -- intentionally kept for backward compatibility */
-router.post("/free", (req, res, next) => {
-  void isUserFree(req, res, next);
+router.post("/free", (req, res) => {
+  void isUserFree(req, res);
 });
 /* eslint-enable @typescript-eslint/no-deprecated */
 
@@ -275,8 +275,8 @@ router.post("/free", (req, res, next) => {
  *       503:
  *         description: Cannot reach Vault service
  */
-router.get("/list/:userEmail", (req, res, next) => {
-  void listCalendars(req, res, next);
+router.get("/list/:userEmail", (req, res) => {
+  void listCalendars(req, res);
 });
 
 export default router;
