@@ -59,6 +59,12 @@ services:
       - VAULT_ADDR=${VAULT_ADDR:-http://shared-vault:8200}
       - VAULT_TOKEN=${VAULT_TOKEN}
       - VAULT_SECRET_PATH=${VAULT_SECRET_PATH:-secret/data/linguistnow/tokens}
+
+      # Redis Configuration (for FX rate caching)
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
+
+      # Frankfurter Configuration (for ECB FX rates)
+      - FRANKFURTER_URL=${FRANKFURTER_URL:-http://frankfurter:8080}
     healthcheck:
       test:
         [
@@ -73,6 +79,11 @@ services:
       timeout: 10s
       retries: 3
       start_period: 10s
+    depends_on:
+      redis:
+        condition: service_healthy
+      frankfurter:
+        condition: service_healthy
     networks:
       - shared_net
 
@@ -109,6 +120,44 @@ services:
       timeout: 10s
       retries: 3
       start_period: 5s
+    networks:
+      - shared_net
+
+  # ---------------------------------------------------------------------------
+  # Redis (FX Rate Cache)
+  # ---------------------------------------------------------------------------
+  redis:
+    image: redis:7-alpine
+    container_name: linguistnow-redis
+    restart: unless-stopped
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - shared_net
+
+  # ---------------------------------------------------------------------------
+  # Frankfurter (ECB FX Rates)
+  # ---------------------------------------------------------------------------
+  frankfurter:
+    image: frankfurter/frankfurter:latest
+    container_name: linguistnow-frankfurter
+    restart: unless-stopped
+    ports:
+      - "${FRANKFURTER_PORT:-8080}:8080"
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8080/latest"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
     networks:
       - shared_net
 
@@ -152,3 +201,7 @@ networks:
 #
 # Or use the full docker-compose.yml which builds from source.
 # =============================================================================
+
+volumes:
+  redis-data:
+    name: linguistnow-redis-data
