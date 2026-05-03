@@ -76,7 +76,11 @@ className={cn('base-class', condition && 'conditional-class')}
 Controllers: validate input FIRST, then business logic, then response.
 See `server/controllers/authController.ts` for reference pattern.
 
-Swagger: Add `@openapi` JSDoc above route definitions in `server/routes/*.ts`.
+**Swagger/OpenAPI**: When adding or modifying API endpoints, ALWAYS update Swagger docs:
+1. Add/update `@openapi` JSDoc annotations in `server/routes/*.ts`
+2. Add new tags to `server/swagger.ts` tags array for new endpoint categories
+3. Update schema definitions in `server/swagger.ts` if response shapes change
+4. Verify changes appear correctly at `/` (Swagger UI) after server restart
 
 ---
 

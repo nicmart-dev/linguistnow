@@ -115,7 +115,9 @@
             "useEstimatedHours": "Clique para usar as {{hours}} horas estimadas com base no intervalo de datas selecionado (cálculo 40h/semana)",
             "availability": "Disponibilidade",
             "all": "Todos",
-            "availableOnly": "Apenas disponíveis"
+            "availableOnly": "Apenas disponíveis",
+            "displayCurrency": "Moeda de exibição",
+            "ratesConvertedTo": "Taxas convertidas para {{currency}}"
         },
         "availabilityBadge": {
             "available": "Disponível",
@@ -172,6 +174,13 @@
             "networkError": "Não é possível alcançar o serviço de disponibilidade. O serviço pode estar inativo.",
             "authenticationError": "Falha na autenticação. Verifique sua configuração de API.",
             "unknownError": "Ocorreu um erro ao verificar a disponibilidade.",
+            "currencyConversionFailed": "Conversão de moeda indisponível",
+            "currencyConversionFailedDescription": "As tarifas não puderam ser convertidas para {{currency}}. O serviço de conversão (Redis/Frankfurter) pode estar indisponível. As tarifas são exibidas em suas moedas originais.",
+            "currencyServiceError": "Erro do serviço de conversão",
+            "searchError": "Falha ao buscar linguistas",
+            "serverError": "Erro do servidor",
+            "serverErrorDescription": "Ocorreu um erro no servidor. Tente novamente mais tarde.",
+            "networkErrorDescription": "Não é possível conectar ao servidor. Verifique sua conexão com a Internet.",
             "vaultPermissionDenied": "Não é possível recuperar tokens de autenticação. O acesso do servidor ao armazenamento de tokens expirou. Entre em contato com seu administrador.",
             "vaultError": "Não é possível conectar ao armazenamento de tokens. Tente novamente mais tarde ou entre em contato com seu administrador.",
             "tokenNotFound_one": "Nenhum token de acesso ao calendário encontrado para {{count}} linguista ({{emails}}). Eles precisam fazer login novamente com sua conta do Google.",

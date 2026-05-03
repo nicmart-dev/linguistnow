@@ -139,7 +139,7 @@ describe("tokenRefresh utilities", () => {
       });
 
       await expect(getValidAccessToken("user@example.com")).rejects.toThrow(
-        "Failed to refresh access token",
+        "invalid_grant: Refresh token is invalid or expired",
       );
     });
   });

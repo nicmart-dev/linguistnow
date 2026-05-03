@@ -2,6 +2,7 @@ import swaggerJsdoc from "swagger-jsdoc";
 import { readFileSync } from "fs";
 import { dirname, join } from "path";
 import { fileURLToPath } from "url";
+
 import { env } from "./env.js";
 
 // Type for the minimal package.json fields we need
@@ -261,8 +262,21 @@ function getSwaggerOptions() {
               hourlyRate: {
                 type: "number",
                 nullable: true,
-                description: "Hourly rate in USD",
+                description: "Hourly rate in original currency",
                 example: 50,
+              },
+              currency: {
+                type: "string",
+                nullable: true,
+                description: "ISO 4217 currency code for hourlyRate",
+                example: "USD",
+              },
+              hourlyRateConverted: {
+                type: "number",
+                nullable: true,
+                description:
+                  "Hourly rate converted to displayCurrency (only present when displayCurrency query param is used)",
+                example: 45.5,
               },
               timezone: {
                 type: "string",
@@ -291,24 +305,28 @@ function getSwaggerOptions() {
           },
         },
       },
+      tags: [
+        { name: "Health", description: "Health check endpoints" },
+        { name: "Auth", description: "Google OAuth authentication endpoints" },
+        { name: "Users", description: "User management endpoints (Airtable)" },
+        {
+          name: "Calendars",
+          description: "Google Calendar availability endpoints",
+        },
+        {
+          name: "Tokens",
+          description: "Token management endpoints (internal)",
+        },
+        {
+          name: "Linguists",
+          description: "Linguist search and filtering endpoints",
+        },
+        {
+          name: "Currency",
+          description: "FX rate conversion and caching endpoints",
+        },
+      ],
     },
-    tags: [
-      { name: "Health", description: "Health check endpoints" },
-      { name: "Auth", description: "Google OAuth authentication endpoints" },
-      { name: "Users", description: "User management endpoints (Airtable)" },
-      {
-        name: "Calendars",
-        description: "Google Calendar availability endpoints",
-      },
-      {
-        name: "Tokens",
-        description: "Token management endpoints (internal)",
-      },
-      {
-        name: "Linguists",
-        description: "Linguist search and filtering endpoints",
-      },
-    ],
     apis: ["./server.ts", "./routes/*.ts"],
   };
 }

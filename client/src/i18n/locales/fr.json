@@ -115,7 +115,9 @@
             "useEstimatedHours": "Cliquez pour utiliser les {{hours}} heures estimées basées sur la plage de dates sélectionnée (calcul 40h/semaine)",
             "availability": "Disponibilité",
             "all": "Tous",
-            "availableOnly": "Disponibles uniquement"
+            "availableOnly": "Disponibles uniquement",
+            "displayCurrency": "Devise d'affichage",
+            "ratesConvertedTo": "Tarifs convertis en {{currency}}"
         },
         "availabilityBadge": {
             "available": "Disponible",
@@ -175,6 +177,13 @@
             "networkError": "Impossible d'atteindre le service de disponibilité. Le service peut être en panne.",
             "authenticationError": "L'authentification a échoué. Veuillez vérifier votre configuration API.",
             "unknownError": "Une erreur s'est produite lors de la vérification de la disponibilité.",
+            "currencyConversionFailed": "Conversion de devise indisponible",
+            "currencyConversionFailedDescription": "Les tarifs n'ont pas pu être convertis en {{currency}}. Le service de conversion (Redis/Frankfurter) peut être indisponible. Les tarifs sont affichés dans leurs devises d'origine.",
+            "currencyServiceError": "Erreur du service de conversion",
+            "searchError": "Échec de la recherche de linguistes",
+            "serverError": "Erreur du serveur",
+            "serverErrorDescription": "Une erreur s'est produite sur le serveur. Veuillez réessayer plus tard.",
+            "networkErrorDescription": "Impossible de se connecter au serveur. Veuillez vérifier votre connexion Internet.",
             "vaultPermissionDenied": "Impossible de récupérer les jetons d'authentification. L'accès du serveur au stockage de jetons a expiré. Veuillez contacter votre administrateur.",
             "vaultError": "Impossible de se connecter au stockage de jetons. Veuillez réessayer plus tard ou contacter votre administrateur.",
             "tokenNotFound_one": "Aucun jeton d'accès au calendrier trouvé pour {{count}} linguiste ({{emails}}). Il doit se reconnecter avec son compte Google.",

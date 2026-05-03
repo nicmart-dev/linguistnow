@@ -115,7 +115,9 @@
             "useEstimatedHours": "点击使用基于所选日期范围的估计 {{hours}} 小时（40小时/周计算）",
             "availability": "可用性",
             "all": "全部",
-            "availableOnly": "仅可用"
+            "availableOnly": "仅可用",
+            "displayCurrency": "显示货币",
+            "ratesConvertedTo": "费率已转换为 {{currency}}"
         },
         "availabilityBadge": {
             "available": "可用",
@@ -172,6 +174,13 @@
             "networkError": "无法连接到可用性服务。服务可能已关闭。",
             "authenticationError": "身份验证失败。请检查您的 API 配置。",
             "unknownError": "检查可用性时发生错误。",
+            "currencyConversionFailed": "货币转换不可用",
+            "currencyConversionFailedDescription": "无法将费率转换为{{currency}}。货币服务（Redis/Frankfurter）可能不可用。费率以其原始货币显示。",
+            "currencyServiceError": "货币服务错误",
+            "searchError": "搜索语言学家失败",
+            "serverError": "服务器错误",
+            "serverErrorDescription": "服务器发生错误。请稍后重试。",
+            "networkErrorDescription": "无法连接到服务器。请检查您的互联网连接。",
             "vaultPermissionDenied": "无法获取身份验证令牌。服务器对令牌存储的访问权限已过期。请联系您的管理员。",
             "vaultError": "无法连接到令牌存储。请稍后重试或联系您的管理员。",
             "tokenNotFound_one": "未找到 {{count}} 位语言学家（{{emails}}）的日历访问令牌。他们需要使用其 Google 账户重新登录。",
