@@ -115,7 +115,9 @@
             "useEstimatedHours": "Haga clic para usar las {{hours}} horas estimadas basadas en el rango de fechas seleccionado (cálculo 40h/semana)",
             "availability": "Disponibilidad",
             "all": "Todos",
-            "availableOnly": "Solo disponibles"
+            "availableOnly": "Solo disponibles",
+            "displayCurrency": "Moneda de visualización",
+            "ratesConvertedTo": "Tarifas convertidas a {{currency}}"
         },
         "availabilityBadge": {
             "available": "Disponible",
@@ -172,6 +174,13 @@
             "networkError": "No se puede alcanzar el servicio de disponibilidad. El servicio puede estar caído.",
             "authenticationError": "La autenticación falló. Por favor, verifica tu configuración de API.",
             "unknownError": "Ocurrió un error al verificar la disponibilidad.",
+            "currencyConversionFailed": "Conversión de moneda no disponible",
+            "currencyConversionFailedDescription": "No se pudieron convertir las tarifas a {{currency}}. El servicio de conversión (Redis/Frankfurter) puede no estar disponible. Las tarifas se muestran en sus monedas originales.",
+            "currencyServiceError": "Error del servicio de conversión",
+            "searchError": "Error al buscar lingüistas",
+            "serverError": "Error del servidor",
+            "serverErrorDescription": "Ocurrió un error en el servidor. Por favor, inténtalo más tarde.",
+            "networkErrorDescription": "No se puede conectar al servidor. Por favor, verifica tu conexión a Internet.",
             "vaultPermissionDenied": "No se pueden recuperar los tokens de autenticación. El acceso del servidor al almacén de tokens ha expirado. Por favor, contacta a tu administrador.",
             "vaultError": "No se puede conectar al almacén de tokens. Por favor, inténtalo más tarde o contacta a tu administrador.",
             "tokenNotFound_one": "No se encontró token de acceso al calendario para {{count}} lingüista ({{emails}}). Necesita iniciar sesión nuevamente con su cuenta de Google.",

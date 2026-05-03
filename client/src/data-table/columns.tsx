@@ -3,7 +3,7 @@ import { ArrowUpDown } from 'lucide-react'
 import { Button, Badge } from '@/components/ui'
 import { AvailabilityBadge, RatingInput } from '@/components/molecules'
 import type { ColumnDef } from '@tanstack/react-table'
-import { getCurrencySymbol } from '@/utils/currency'
+import { getCurrencySymbol } from '@linguistnow/shared'
 
 // Define the linguist data type based on the structure used in LinguistTable
 interface LinguistRow {
@@ -232,8 +232,21 @@ export const useColumns = (): ColumnDef<LinguistRow>[] => {
                     typeof rateValue === 'number' ? rateValue : undefined
                 const currency = row.original.currency
                 if (rate === undefined) return '-'
-                const symbol = getCurrencySymbol(currency)
-                return `${symbol}${rate.toFixed(2)}/hr`
+
+                // Use converted rate and display currency when available
+                const convertedRate = row.original
+                    .hourlyRateConverted as number | undefined
+                const displayCurrency = row.original
+                    .displayCurrency as string | undefined
+
+                const effectiveRate =
+                    convertedRate !== undefined ? convertedRate : rate
+                const effectiveCurrency =
+                    convertedRate !== undefined && displayCurrency
+                        ? displayCurrency
+                        : currency
+                const symbol = getCurrencySymbol(effectiveCurrency)
+                return `${symbol}${effectiveRate.toFixed(2)}/hr`
             },
         },
         {

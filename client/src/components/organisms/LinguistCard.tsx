@@ -6,7 +6,7 @@ import AvailabilityBadge from '@/components/molecules/AvailabilityBadge'
 import AvailabilityTimeline from './AvailabilityTimeline'
 import RatingInput from '@/components/molecules/RatingInput'
 import type { LinguistWithAvailability } from '@linguistnow/shared'
-import { getCurrencySymbol } from '@/utils/currency'
+import { getCurrencySymbol } from '@linguistnow/shared'
 
 interface LinguistCardProps {
     linguist: LinguistWithAvailability
@@ -181,19 +181,23 @@ const LinguistCard: React.FC<LinguistCardProps> = ({
                         <div className="flex items-center gap-1 text-sm text-gray-600">
                             <span className="font-semibold">
                                 {(() => {
-                                    const linguistWithCurrency =
+                                    const linguistAny =
                                         linguist as LinguistWithAvailability & {
                                             currency?: string
+                                            hourlyRateConverted?: number
+                                            displayCurrency?: string
                                         }
-                                    const currencyCode =
-                                        linguistWithCurrency.currency &&
-                                        typeof linguistWithCurrency.currency ===
-                                            'string'
-                                            ? linguistWithCurrency.currency
-                                            : undefined
-                                    return getCurrencySymbol(currencyCode)
+                                    const hasConversion =
+                                        linguistAny.hourlyRateConverted !==
+                                        undefined
+                                    const currencyCode = hasConversion
+                                        ? linguistAny.displayCurrency
+                                        : linguistAny.currency
+                                    const rate = hasConversion
+                                        ? (linguistAny.hourlyRateConverted ?? linguist.hourlyRate)
+                                        : linguist.hourlyRate
+                                    return `${getCurrencySymbol(currencyCode)}${rate.toFixed(2)}`
                                 })()}
-                                {linguist.hourlyRate.toFixed(2)}
                             </span>
                             <span className="text-xs">/hr</span>
                         </div>

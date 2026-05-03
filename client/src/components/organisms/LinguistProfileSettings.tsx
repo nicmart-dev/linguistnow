@@ -26,7 +26,9 @@ import {
     SelectValue,
 } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
-import { CURRENCIES } from '@/utils/currency'
+import { getCurrencies } from '@linguistnow/shared'
+
+const CURRENCIES = getCurrencies()
 
 /**
  * Settings component for linguist profile information.
@@ -221,9 +223,10 @@ const LinguistProfileSettings: React.FC<LinguistProfileSettingsProps> = ({
         const currentHourlyRate = userDetails['Hourly Rate']?.toString() || ''
 
         const timer = setTimeout(() => {
-            // Currency is read-only, so don't check for currency changes
+            const currentCurrency = (userDetails.Currency || 'USD').toUpperCase()
             if (
                 hourlyRate !== currentHourlyRate ||
+                currency !== currentCurrency ||
                 JSON.stringify([...languages].sort()) !==
                     JSON.stringify([...currentLanguages].sort()) ||
                 JSON.stringify([...specializations].sort()) !==
@@ -237,7 +240,7 @@ const LinguistProfileSettings: React.FC<LinguistProfileSettingsProps> = ({
             clearTimeout(timer)
         }
         // oxlint-disable-next-line eslint-plugin-react-hooks(exhaustive-deps) -- handleSave is intentionally excluded
-    }, [hourlyRate, languages, specializations, userDetails])
+    }, [hourlyRate, currency, languages, specializations, userDetails])
 
     const handleSave = async () => {
         setIsSaving(true)
@@ -306,8 +309,11 @@ const LinguistProfileSettings: React.FC<LinguistProfileSettingsProps> = ({
                 profile.hourlyRate = null // Airtable accepts null to clear
             }
 
-            // Currency is read-only - don't include in save request
-            // Currency exchange support will be added later
+            // Currency: include if changed
+            const currentCurrency = (userDetails.Currency || 'USD').toUpperCase()
+            if (currency !== currentCurrency) {
+                profile.currency = currency
+            }
 
             // Languages: include if changed (compare sorted arrays)
             const languagesChanged =
@@ -393,14 +399,8 @@ const LinguistProfileSettings: React.FC<LinguistProfileSettingsProps> = ({
                             placeholder={t('linguistProfile.ratePlaceholder')}
                         />
                     </div>
-                    <Select value={currency} onValueChange={() => {}} disabled>
-                        <SelectTrigger
-                            className="w-[140px] opacity-60 cursor-not-allowed"
-                            title={t(
-                                'linguistProfile.currencyReadOnly',
-                                'Currency selection will be available with currency exchange support'
-                            )}
-                        >
+                    <Select value={currency} onValueChange={setCurrency}>
+                        <SelectTrigger className="w-[140px]">
                             <SelectValue>
                                 {selectedCurrency
                                     ? `${selectedCurrency.symbol} ${selectedCurrency.code}`
@@ -418,8 +418,8 @@ const LinguistProfileSettings: React.FC<LinguistProfileSettingsProps> = ({
                 </div>
                 <p className="text-xs text-muted-foreground">
                     {t(
-                        'linguistProfile.currencyReadOnly',
-                        'Currency selection will be available with currency exchange support'
+                        'linguistProfile.currencyHint',
+                        'Your hourly rate will be stored in this currency'
                     )}
                 </p>
                 {isSaving && (

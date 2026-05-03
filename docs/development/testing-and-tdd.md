@@ -654,7 +654,71 @@ pnpm --filter ./client test src/components/molecules/
 pnpm --filter ./client test src/components/organisms/
 ```
 
+## Currency Feature Testing
+
+The FX rate conversion feature includes comprehensive test coverage for Redis caching and Frankfurter integration.
+
+### Test Coverage
+
+**Currency Service** (`server/services/currencyService.test.ts`): 21 tests covering:
+
+- Redis client management and singleton pattern
+- Rate refresh from Frankfurter API
+- Rate retrieval with cache fallback
+- Currency conversion (USD ↔ other currencies, cross-currency)
+- Cache status checking
+- Graceful error handling when Redis/Frankfurter unavailable
+
+**Currency Routes** (`server/routes/currencyRoutes.test.ts`): 15 tests covering:
+
+- `POST /api/currency/refresh` - Rate refresh endpoint
+- `GET /api/currency/rates` - Rate retrieval endpoint
+- `GET /api/currency/convert` - Conversion endpoint with validation
+- `GET /api/currency/check` - Cache status endpoint
+
+### Mocking Strategy
+
+**Redis**: Mocked using class-based approach to avoid requiring running Redis instance:
+
+```typescript
+vi.mock("ioredis", () => ({
+  default: class {
+    get = mockGet;
+    setex = mockSetex;
+    on = mockOn;
+  },
+}));
+```
+
+**Frankfurter API**: Mocked using `global.fetch`:
+
+```typescript
+vi.mocked(global.fetch).mockResolvedValueOnce({
+  ok: true,
+  json: async () => mockResponse,
+} as Response);
+```
+
+**Run currency tests:**
+
+```bash
+pnpm --filter ./server test currencyService
+pnpm --filter ./server test currencyRoutes
+```
+
+### Integration Testing
+
+For full integration testing with real services:
+
+```bash
+docker-compose up -d redis frankfurter
+curl -X POST http://localhost:5000/api/currency/refresh
+curl http://localhost:5000/api/currency/rates
+curl "http://localhost:5000/api/currency/convert?amount=100&from=USD&to=EUR"
+```
+
 ## Related Documentation
 
 - [TypeScript Guidelines](./typescript-guidelines.md) - TypeScript best practices
 - [Architecture Overview](../architecture/architecture-overview.md) - Project architecture
+- [Currency Conversion Architecture](../architecture/currency-conversion.md) - FX rate feature architecture

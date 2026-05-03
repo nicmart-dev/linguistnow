@@ -85,8 +85,12 @@ async function refreshToken(refreshToken: string): Promise<string> {
       });
     }
 
-    // Re-throw other errors
-    throw error;
+    // Re-throw other errors with cause
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
+    throw new Error(`Failed to refresh access token: ${errorMessage}`, {
+      cause: error,
+    });
   }
 }
 
@@ -120,24 +124,16 @@ export async function getValidAccessToken(userEmail: string): Promise<string> {
 
   // Token is expired, refresh it
   console.log(`Access token expired for ${userEmail}, refreshing...`);
-  try {
-    const newAccessToken = await refreshToken(tokens.refreshToken);
+  const newAccessToken = await refreshToken(tokens.refreshToken);
 
-    // Save the new token to Vault
-    await writeToken(userEmail, {
-      accessToken: newAccessToken,
-      refreshToken: tokens.refreshToken,
-    });
+  // Save the new token to Vault
+  await writeToken(userEmail, {
+    accessToken: newAccessToken,
+    refreshToken: tokens.refreshToken,
+  });
 
-    console.log(`Successfully refreshed access token for ${userEmail}`);
-    return newAccessToken;
-  } catch (error) {
-    const errorMessage =
-      error instanceof Error ? error.message : "Unknown error";
-    throw new Error(`Failed to refresh access token: ${errorMessage}`, {
-      cause: error,
-    });
-  }
+  console.log(`Successfully refreshed access token for ${userEmail}`);
+  return newAccessToken;
 }
 
 /**
@@ -199,7 +195,9 @@ export async function withAutoRefresh<T>(
       }
     }
 
-    // Not a token expiration error, rethrow
-    throw error;
+    // Not a token expiration error, rethrow with cause
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
+    throw new Error(`API call failed: ${errorMessage}`, { cause: error });
   }
 }

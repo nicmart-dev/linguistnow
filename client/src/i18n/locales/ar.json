@@ -115,7 +115,9 @@
             "useEstimatedHours": "انقر لاستخدام {{hours}} ساعة مقدرة بناءً على نطاق التاريخ المحدد (حساب 40 ساعة/أسبوع)",
             "availability": "التوفر",
             "all": "الكل",
-            "availableOnly": "المتاحون فقط"
+            "availableOnly": "المتاحون فقط",
+            "displayCurrency": "عملة العرض",
+            "ratesConvertedTo": "تم تحويل الأسعار إلى {{currency}}"
         },
         "availabilityBadge": {
             "available": "متاح",
@@ -172,6 +174,13 @@
             "networkError": "لا يمكن الوصول إلى خدمة التوفر. قد تكون الخدمة معطلة.",
             "authenticationError": "فشل المصادقة. يرجى التحقق من إعدادات API الخاصة بك.",
             "unknownError": "حدث خطأ أثناء التحقق من التوفر.",
+            "currencyConversionFailed": "تحويل العملة غير متاح",
+            "currencyConversionFailedDescription": "تعذر تحويل الأسعار إلى {{currency}}. قد تكون خدمة التحويل (Redis/Frankfurter) غير متاحة. يتم عرض الأسعار بعملاتها الأصلية.",
+            "currencyServiceError": "خطأ في خدمة التحويل",
+            "searchError": "فشل البحث عن اللغويين",
+            "serverError": "خطأ في الخادم",
+            "serverErrorDescription": "حدث خطأ في الخادم. يرجى المحاولة مرة أخرى لاحقاً.",
+            "networkErrorDescription": "لا يمكن الاتصال بالخادم. يرجى التحقق من اتصالك بالإنترنت.",
             "vaultPermissionDenied": "لا يمكن استرداد رموز المصادقة. انتهت صلاحية وصول الخادم إلى مخزن الرموز. يرجى الاتصال بالمسؤول.",
             "vaultError": "لا يمكن الاتصال بمخزن الرموز. يرجى المحاولة مرة أخرى لاحقاً أو الاتصال بالمسؤول.",
             "tokenNotFound_one": "لم يتم العثور على رمز وصول التقويم لـ {{count}} لغوي ({{emails}}). يحتاجون إلى تسجيل الدخول مرة أخرى باستخدام حساب Google الخاص بهم.",

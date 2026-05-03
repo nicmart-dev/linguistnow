@@ -139,7 +139,9 @@
             "useEstimatedHours": "Click to use estimated {{hours}} hours based on selected date range (40h/week calculation)",
             "availability": "Availability",
             "all": "All",
-            "availableOnly": "Available Only"
+            "availableOnly": "Available Only",
+            "displayCurrency": "Display Currency",
+            "ratesConvertedTo": "Rates converted to {{currency}}"
         },
         "availabilityBadge": {
             "available": "Available",
@@ -197,8 +199,15 @@
             "n8nWorkflowInactive": "The n8n workflow is not active. Please activate the workflow in n8n.",
             "n8nServiceUnavailable": "The n8n service is currently unavailable.",
             "networkError": "Unable to reach the availability service. The service may be down.",
+            "networkErrorDescription": "Unable to connect to the server. Please check your internet connection.",
             "authenticationError": "Authentication failed. Please check your API configuration.",
             "unknownError": "An error occurred while checking availability.",
+            "currencyConversionFailed": "Currency conversion unavailable",
+            "currencyConversionFailedDescription": "Rates could not be converted to {{currency}}. The currency service (Redis/Frankfurter) may be unavailable. Rates are shown in their original currencies.",
+            "currencyServiceError": "Currency service error",
+            "searchError": "Failed to search linguists",
+            "serverError": "Server error",
+            "serverErrorDescription": "An error occurred on the server. Please try again later.",
             "vaultPermissionDenied": "Unable to retrieve authentication tokens. The server's access to the token store has expired. Please contact your administrator.",
             "vaultError": "Unable to connect to the token store. Please try again later or contact your administrator.",
             "tokenNotFound_one": "No calendar access token found for {{count}} linguist ({{emails}}). They need to log in again with their Google account.",

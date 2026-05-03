@@ -101,6 +101,12 @@ const router: Router = express.Router();
  *           default: 20
  *         description: Number of results per page
  *         example: 20
+ *       - in: query
+ *         name: displayCurrency
+ *         schema:
+ *           type: string
+ *         description: ISO 4217 currency code to convert all rates to (e.g., "EUR", "GBP"). If provided, hourlyRateConverted field is added to each linguist.
+ *         example: EUR
  *     responses:
  *       200:
  *         description: Search results with linguists and availability
