@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import type { Request, Response } from "express";
 import axios from "axios";
@@ -5,16 +6,13 @@ import {
   checkAvailability,
   isUserFree,
   listCalendars,
-} from "./calendarController";
+} from "./calendarController.js";
 
 vi.mock("axios");
 const mockedAxios = vi.mocked(axios);
 
 // Mock vaultClient
-const mockReadToken = vi.fn<
-  [string],
-  Promise<{ accessToken: string; refreshToken: string }>
->();
+const mockReadToken = vi.fn();
 vi.mock("../utils/vaultClient.js", () => ({
   readToken: (
     email: string,
@@ -23,17 +21,14 @@ vi.mock("../utils/vaultClient.js", () => ({
 }));
 
 // Mock tokenRefresh
-const mockGetValidAccessToken = vi.fn<[string], Promise<string>>();
+const mockGetValidAccessToken = vi.fn();
 vi.mock("../utils/tokenRefresh.js", () => ({
   getValidAccessToken: (email: string): Promise<string> =>
     mockGetValidAccessToken(email),
 }));
 
 // Mock googleCalendarClient
-const mockGetFreeBusy = vi.fn<
-  Parameters<typeof import("../services/googleCalendarClient.js").getFreeBusy>,
-  ReturnType<typeof import("../services/googleCalendarClient.js").getFreeBusy>
->();
+const mockGetFreeBusy = vi.fn();
 vi.mock("../services/googleCalendarClient.js", () => ({
   getFreeBusy: (
     ...args: Parameters<
@@ -95,10 +90,10 @@ describe("calendarController", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     jsonSpy = vi.fn();
-    statusSpy = vi.fn(() => ({ json: jsonSpy }));
+    statusSpy = vi.fn(() => ({ json: jsonSpy as any }));
     mockResponse = {
-      json: jsonSpy,
-      status: statusSpy,
+      json: jsonSpy as any,
+      status: statusSpy as any,
     };
     // Reset tokenRefresh mock
     mockGetValidAccessToken.mockImplementation(async (email: string) => {
@@ -134,7 +129,7 @@ describe("calendarController", () => {
       mockReadToken.mockResolvedValue(mockTokens);
       mockGetFreeBusy.mockResolvedValue([]); // No busy slots
 
-      await checkAvailability(mockRequest as Request, mockResponse as Response);
+      await checkAvailability(mockRequest as any, mockResponse as any);
 
       expect(mockReadToken).toHaveBeenCalledWith("user@example.com");
       expect(mockGetFreeBusy).toHaveBeenCalledWith(
@@ -171,7 +166,7 @@ describe("calendarController", () => {
         })),
       }));
 
-      await checkAvailability(mockRequest as Request, mockResponse as Response);
+      await checkAvailability(mockRequest as any, mockResponse as any);
 
       expect(statusSpy).toHaveBeenCalledWith(400);
       expect(jsonSpy).toHaveBeenCalledWith({
@@ -188,7 +183,7 @@ describe("calendarController", () => {
         },
       };
 
-      await checkAvailability(mockRequest as Request, mockResponse as Response);
+      await checkAvailability(mockRequest as any, mockResponse as any);
 
       expect(statusSpy).toHaveBeenCalledWith(400);
       expect(jsonSpy).toHaveBeenCalledWith({
@@ -209,7 +204,7 @@ describe("calendarController", () => {
         refreshToken: null as unknown as string,
       });
 
-      await checkAvailability(mockRequest as Request, mockResponse as Response);
+      await checkAvailability(mockRequest as any, mockResponse as any);
 
       expect(statusSpy).toHaveBeenCalledWith(404);
       expect(jsonSpy).toHaveBeenCalledWith({
@@ -235,7 +230,7 @@ describe("calendarController", () => {
       });
       mockReadToken.mockRejectedValue(vault404Error);
 
-      await checkAvailability(mockRequest as Request, mockResponse as Response);
+      await checkAvailability(mockRequest as any, mockResponse as any);
 
       expect(statusSpy).toHaveBeenCalledWith(404);
       expect(jsonSpy).toHaveBeenCalledWith({
@@ -262,7 +257,7 @@ describe("calendarController", () => {
       });
       mockReadToken.mockRejectedValue(vault403Error);
 
-      await checkAvailability(mockRequest as Request, mockResponse as Response);
+      await checkAvailability(mockRequest as any, mockResponse as any);
 
       expect(statusSpy).toHaveBeenCalledWith(503);
       expect(jsonSpy).toHaveBeenCalledWith({
@@ -291,7 +286,7 @@ describe("calendarController", () => {
       });
       mockGetFreeBusy.mockResolvedValue([]);
 
-      await checkAvailability(mockRequest as Request, mockResponse as Response);
+      await checkAvailability(mockRequest as any, mockResponse as any);
 
       expect(statusSpy).toHaveBeenCalledWith(200);
       // Verify getFreeBusy was called with array parsed from string
@@ -329,7 +324,7 @@ describe("calendarController", () => {
       // Mock Airtable to return empty preferences
       mockFirstPage.mockResolvedValue([]);
 
-      await checkAvailability(mockRequest as Request, mockResponse as Response);
+      await checkAvailability(mockRequest as any, mockResponse as any);
 
       expect(statusSpy).toHaveBeenCalledWith(200);
       expect(jsonSpy).toHaveBeenCalled();
@@ -349,7 +344,7 @@ describe("calendarController", () => {
       };
       mockReadToken.mockRejectedValue(new Error("Vault connection failed"));
 
-      await checkAvailability(mockRequest as Request, mockResponse as Response);
+      await checkAvailability(mockRequest as any, mockResponse as any);
 
       expect(statusSpy).toHaveBeenCalledWith(503);
       expect(jsonSpy).toHaveBeenCalledWith({
@@ -374,7 +369,7 @@ describe("calendarController", () => {
       });
       mockGetFreeBusy.mockResolvedValue([]);
 
-      await checkAvailability(mockRequest as Request, mockResponse as Response);
+      await checkAvailability(mockRequest as any, mockResponse as any);
 
       expect(statusSpy).toHaveBeenCalledWith(200);
       expect(jsonSpy).toHaveBeenCalledWith(
@@ -406,7 +401,7 @@ describe("calendarController", () => {
       });
       mockGetFreeBusy.mockResolvedValue([]);
 
-      await isUserFree(mockRequest as Request, mockResponse as Response);
+      await isUserFree(mockRequest as any, mockResponse as any);
 
       // Should use the same flow as checkAvailability
       expect(mockReadToken).toHaveBeenCalled();
@@ -435,7 +430,7 @@ describe("calendarController", () => {
       // Mock calendar list API call
       mockedAxios.get.mockResolvedValueOnce({ data: mockCalendars });
 
-      await listCalendars(mockRequest as Request, mockResponse as Response);
+      await listCalendars(mockRequest as any, mockResponse as any);
 
       expect(mockGetValidAccessToken).toHaveBeenCalledWith("user@example.com");
       // Should be called once: for calendar list (token validation is handled by getValidAccessToken)
@@ -459,7 +454,7 @@ describe("calendarController", () => {
         params: { userEmail: "" },
       };
 
-      await listCalendars(mockRequest as Request, mockResponse as Response);
+      await listCalendars(mockRequest as any, mockResponse as any);
 
       expect(statusSpy).toHaveBeenCalledWith(400);
       expect(jsonSpy).toHaveBeenCalledWith({
@@ -476,7 +471,7 @@ describe("calendarController", () => {
         new Error("No access token found for user"),
       );
 
-      await listCalendars(mockRequest as Request, mockResponse as Response);
+      await listCalendars(mockRequest as any, mockResponse as any);
 
       expect(statusSpy).toHaveBeenCalledWith(401);
       expect(jsonSpy).toHaveBeenCalledWith({
@@ -499,7 +494,7 @@ describe("calendarController", () => {
         new Error("Failed to refresh access token"),
       );
 
-      await listCalendars(mockRequest as Request, mockResponse as Response);
+      await listCalendars(mockRequest as any, mockResponse as any);
 
       expect(statusSpy).toHaveBeenCalledWith(401);
       expect(jsonSpy).toHaveBeenCalledWith({
@@ -530,7 +525,7 @@ describe("calendarController", () => {
         },
       });
 
-      await listCalendars(mockRequest as Request, mockResponse as Response);
+      await listCalendars(mockRequest as any, mockResponse as any);
 
       expect(statusSpy).toHaveBeenCalledWith(403);
       expect(jsonSpy).toHaveBeenCalledWith({
@@ -550,7 +545,7 @@ describe("calendarController", () => {
       };
       mockReadToken.mockRejectedValue(new Error("Vault connection failed"));
 
-      await listCalendars(mockRequest as Request, mockResponse as Response);
+      await listCalendars(mockRequest as any, mockResponse as any);
 
       expect(statusSpy).toHaveBeenCalledWith(503);
       expect(jsonSpy).toHaveBeenCalledWith({
@@ -577,7 +572,7 @@ describe("calendarController", () => {
         })
         .mockResolvedValueOnce({ data: { items: [] } });
 
-      await listCalendars(mockRequest as Request, mockResponse as Response);
+      await listCalendars(mockRequest as any, mockResponse as any);
 
       expect(statusSpy).toHaveBeenCalledWith(200);
       expect(jsonSpy).toHaveBeenCalledWith({ calendars: [] });
@@ -599,7 +594,7 @@ describe("calendarController", () => {
         })
         .mockResolvedValueOnce({ data: {} });
 
-      await listCalendars(mockRequest as Request, mockResponse as Response);
+      await listCalendars(mockRequest as any, mockResponse as any);
 
       expect(statusSpy).toHaveBeenCalledWith(200);
       expect(jsonSpy).toHaveBeenCalledWith({ calendars: [] });

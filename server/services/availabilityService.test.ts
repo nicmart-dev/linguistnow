@@ -36,25 +36,25 @@ describe("availabilityService", () => {
 
       expect(result).toHaveLength(3);
       // Check start/end times exist and are correct (ignoring .000Z vs Z format)
-      const slot0 = result[0] as { start: string; end: string };
-      const slot1 = result[1] as { start: string; end: string };
-      const slot2 = result[2] as { start: string; end: string };
-      expect(new Date(slot0.start).getTime()).toBe(
+      const slot0 = result[0];
+      const slot1 = result[1];
+      const slot2 = result[2];
+      expect(new Date(slot0.start as string).getTime()).toBe(
         new Date("2024-01-15T08:00:00Z").getTime(),
       );
-      expect(new Date(slot0.end).getTime()).toBe(
+      expect(new Date(slot0.end as string).getTime()).toBe(
         new Date("2024-01-15T09:00:00Z").getTime(),
       );
-      expect(new Date(slot1.start).getTime()).toBe(
+      expect(new Date(slot1.start as string).getTime()).toBe(
         new Date("2024-01-15T10:00:00Z").getTime(),
       );
-      expect(new Date(slot1.end).getTime()).toBe(
+      expect(new Date(slot1.end as string).getTime()).toBe(
         new Date("2024-01-15T14:00:00Z").getTime(),
       );
-      expect(new Date(slot2.start).getTime()).toBe(
+      expect(new Date(slot2.start as string).getTime()).toBe(
         new Date("2024-01-15T15:00:00Z").getTime(),
       );
-      expect(new Date(slot2.end).getTime()).toBe(
+      expect(new Date(slot2.end as string).getTime()).toBe(
         new Date("2024-01-15T18:00:00Z").getTime(),
       );
     });
@@ -70,18 +70,18 @@ describe("availabilityService", () => {
       const result = calculateFreeSlots(busySlots, timeMin, timeMax);
 
       expect(result).toHaveLength(2);
-      const slot0 = result[0] as { start: string; end: string };
-      const slot1 = result[1] as { start: string; end: string };
-      expect(new Date(slot0.start).getTime()).toBe(
+      const slot0 = result[0];
+      const slot1 = result[1];
+      expect(new Date(slot0.start as string).getTime()).toBe(
         new Date("2024-01-15T08:00:00Z").getTime(),
       );
-      expect(new Date(slot0.end).getTime()).toBe(
+      expect(new Date(slot0.end as string).getTime()).toBe(
         new Date("2024-01-15T09:00:00Z").getTime(),
       );
-      expect(new Date(slot1.start).getTime()).toBe(
+      expect(new Date(slot1.start as string).getTime()).toBe(
         new Date("2024-01-15T12:00:00Z").getTime(),
       );
-      expect(new Date(slot1.end).getTime()).toBe(
+      expect(new Date(slot1.end as string).getTime()).toBe(
         new Date("2024-01-15T18:00:00Z").getTime(),
       );
     });

@@ -381,7 +381,7 @@ export function calculateAvailability(
     offDays = [];
   } else {
     // Default or excludeWeekends === true means weekends are off-days
-    offDays = AVAILABILITY_DEFAULTS.offDays;
+    offDays = [...AVAILABILITY_DEFAULTS.offDays];
   }
 
   // IMPORTANT: startDate and endDate are calendar dates (YYYY-MM-DD) selected by the PM from their timezone.

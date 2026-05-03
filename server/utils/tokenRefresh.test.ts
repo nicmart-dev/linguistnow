@@ -99,7 +99,7 @@ describe("tokenRefresh utilities", () => {
 
     it("should throw error when no access token found", async () => {
       vi.mocked(vaultClient.readToken).mockResolvedValue({
-        accessToken: undefined,
+        accessToken: undefined as any,
         refreshToken: "refresh-token",
       });
 
@@ -111,7 +111,7 @@ describe("tokenRefresh utilities", () => {
     it("should throw error when no refresh token found", async () => {
       vi.mocked(vaultClient.readToken).mockResolvedValue({
         accessToken: "access-token",
-        refreshToken: undefined,
+        refreshToken: undefined as any,
       });
 
       await expect(getValidAccessToken("user@example.com")).rejects.toThrow(

@@ -1,6 +1,7 @@
+/* eslint-disable */
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import type { Request, Response } from "express";
-import { getAll, getOne, create, update, remove } from "./usersController";
+import { getAll, getOne, create, update, remove } from "./usersController.js";
 
 // Mock vaultClient
 vi.mock("../utils/vaultClient.js", () => ({
@@ -64,10 +65,10 @@ describe("usersController", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     jsonSpy = vi.fn();
-    statusSpy = vi.fn(() => ({ json: jsonSpy }));
+    statusSpy = vi.fn(() => ({ json: jsonSpy as any }));
     mockResponse = {
-      json: jsonSpy,
-      status: statusSpy,
+      json: jsonSpy as any,
+      status: statusSpy as any,
     };
     mockSelect.mockReturnValue({
       all: mockAll,
@@ -95,7 +96,7 @@ describe("usersController", () => {
       ];
       mockAll.mockResolvedValue(mockRecords);
 
-      await getAll({} as Request, mockResponse as Response);
+      await getAll({} as any, mockResponse as any);
 
       expect(mockSelect).toHaveBeenCalled();
       expect(mockAll).toHaveBeenCalled();
@@ -108,7 +109,7 @@ describe("usersController", () => {
         .mockImplementation(() => {});
       mockAll.mockRejectedValue(new Error("Airtable error"));
 
-      await getAll({} as Request, mockResponse as Response);
+      await getAll({} as any, mockResponse as any);
 
       expect(statusSpy).toHaveBeenCalledWith(500);
       expect(jsonSpy).toHaveBeenCalledWith({ error: "Failed to fetch users" });
@@ -127,7 +128,7 @@ describe("usersController", () => {
       };
       mockFirstPage.mockResolvedValue([mockRecord]);
 
-      await getOne(mockRequest as Request, mockResponse as Response);
+      await getOne(mockRequest as any, mockResponse as any);
 
       expect(mockSelect).toHaveBeenCalledWith({
         filterByFormula: "{Email} = 'user@example.com'",
@@ -142,7 +143,7 @@ describe("usersController", () => {
       };
       mockFirstPage.mockResolvedValue([]);
 
-      await getOne(mockRequest as Request, mockResponse as Response);
+      await getOne(mockRequest as any, mockResponse as any);
 
       expect(statusSpy).toHaveBeenCalledWith(404);
       expect(jsonSpy).toHaveBeenCalledWith({ error: "User not found" });
@@ -157,7 +158,7 @@ describe("usersController", () => {
       };
       mockFirstPage.mockRejectedValue(new Error("Airtable error"));
 
-      await getOne(mockRequest as Request, mockResponse as Response);
+      await getOne(mockRequest as any, mockResponse as any);
 
       expect(statusSpy).toHaveBeenCalledWith(500);
       expect(jsonSpy).toHaveBeenCalledWith({ error: "Failed to fetch user" });
@@ -185,7 +186,7 @@ describe("usersController", () => {
       };
       mockCreate.mockResolvedValue(mockRecord);
 
-      await create(mockRequest as Request, mockResponse as Response);
+      await create(mockRequest as any, mockResponse as any);
 
       expect(mockCreate).toHaveBeenCalledWith({
         Email: "newuser@example.com",
@@ -214,7 +215,7 @@ describe("usersController", () => {
       };
       mockCreate.mockResolvedValue(mockRecord);
 
-      await create(mockRequest as Request, mockResponse as Response);
+      await create(mockRequest as any, mockResponse as any);
 
       expect(mockCreate).toHaveBeenCalledWith({
         Email: "newuser@example.com",
@@ -237,7 +238,7 @@ describe("usersController", () => {
       };
       mockCreate.mockRejectedValue(new Error("Airtable error"));
 
-      await create(mockRequest as Request, mockResponse as Response);
+      await create(mockRequest as any, mockResponse as any);
 
       expect(statusSpy).toHaveBeenCalledWith(500);
       expect(jsonSpy).toHaveBeenCalledWith({ error: "Failed to create user" });
@@ -270,7 +271,7 @@ describe("usersController", () => {
       mockFirstPage.mockResolvedValue([mockRecord]);
       mockUpdate.mockResolvedValue(updatedRecord);
 
-      await update(mockRequest as Request, mockResponse as Response);
+      await update(mockRequest as any, mockResponse as any);
 
       expect(mockUpdate).toHaveBeenCalledWith("rec123", {
         "Calendar IDs":
@@ -310,7 +311,7 @@ describe("usersController", () => {
       mockFirstPage.mockResolvedValue([mockRecord]);
       mockUpdate.mockResolvedValue(updatedRecord);
 
-      await update(mockRequest as Request, mockResponse as Response);
+      await update(mockRequest as any, mockResponse as any);
 
       expect(mockUpdate).toHaveBeenCalledWith("rec123", {
         Timezone: "Europe/Paris",
@@ -332,7 +333,7 @@ describe("usersController", () => {
       };
       mockFirstPage.mockResolvedValue([mockRecord]);
 
-      await update(mockRequest as Request, mockResponse as Response);
+      await update(mockRequest as any, mockResponse as any);
 
       expect(statusSpy).toHaveBeenCalledWith(400);
       expect(jsonSpy).toHaveBeenCalledWith({
@@ -347,7 +348,7 @@ describe("usersController", () => {
       };
       mockFirstPage.mockResolvedValue([]);
 
-      await update(mockRequest as Request, mockResponse as Response);
+      await update(mockRequest as any, mockResponse as any);
 
       expect(statusSpy).toHaveBeenCalledWith(404);
       expect(jsonSpy).toHaveBeenCalledWith({ error: "User not found" });
@@ -363,7 +364,7 @@ describe("usersController", () => {
       };
       mockFirstPage.mockRejectedValue(new Error("Airtable error"));
 
-      await update(mockRequest as Request, mockResponse as Response);
+      await update(mockRequest as any, mockResponse as any);
 
       expect(statusSpy).toHaveBeenCalledWith(500);
       expect(jsonSpy).toHaveBeenCalledWith({
@@ -380,7 +381,7 @@ describe("usersController", () => {
         params: { id: "invalid-email" },
       };
 
-      await remove(mockRequest as Request, mockResponse as Response);
+      await remove(mockRequest as any, mockResponse as any);
 
       expect(statusSpy).toHaveBeenCalledWith(400);
       expect(jsonSpy).toHaveBeenCalledWith({ error: "Invalid email format" });
@@ -404,7 +405,7 @@ describe("usersController", () => {
       ]);
       mockDestroy.mockResolvedValue(undefined);
 
-      await remove(mockRequest as Request, mockResponse as Response);
+      await remove(mockRequest as any, mockResponse as any);
 
       expect(mockFirstPage).toHaveBeenCalled();
       expect(mockDestroy).toHaveBeenCalledWith(recordId);
@@ -421,7 +422,7 @@ describe("usersController", () => {
       };
       mockFirstPage.mockResolvedValue([]);
 
-      await remove(mockRequest as Request, mockResponse as Response);
+      await remove(mockRequest as any, mockResponse as any);
 
       expect(statusSpy).toHaveBeenCalledWith(404);
       expect(jsonSpy).toHaveBeenCalledWith({ error: "User not found" });
@@ -436,7 +437,7 @@ describe("usersController", () => {
       };
       mockFirstPage.mockRejectedValue(new Error("Airtable error"));
 
-      await remove(mockRequest as Request, mockResponse as Response);
+      await remove(mockRequest as any, mockResponse as any);
 
       expect(statusSpy).toHaveBeenCalledWith(500);
       expect(jsonSpy).toHaveBeenCalledWith({ error: "Failed to delete user" });

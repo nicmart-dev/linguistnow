@@ -15,35 +15,34 @@ import { z } from "zod";
  * Schema for parsing array fields from Airtable
  * Handles both array format and comma-separated strings
  */
-export const AirtableArrayFieldSchema = z.union([
-  z.array(z.string()),
-  z.string().transform((val) =>
-    val
-      .split(",")
-      .map((s) => s.trim())
-      .filter(Boolean),
-  ),
-  z.null().transform(() => []),
-  z.undefined().transform(() => []),
-]);
+export const AirtableArrayFieldSchema = z
+  .union([
+    z.array(z.string()),
+    z.string().transform((val) =>
+      val
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean),
+    ),
+    z.null().transform(() => []),
+    z.undefined().transform(() => []),
+  ])
+  .optional()
+  .transform((val) => val ?? []);
 
 /**
  * Schema for parsing optional string fields
  */
-export const AirtableStringFieldSchema = z.union([
-  z.string(),
-  z.null().transform(() => undefined),
-  z.undefined(),
-]);
+export const AirtableStringFieldSchema = z
+  .union([z.string(), z.null().transform(() => undefined), z.undefined()])
+  .optional();
 
 /**
  * Schema for parsing optional number fields
  */
-export const AirtableNumberFieldSchema = z.union([
-  z.number(),
-  z.null().transform(() => undefined),
-  z.undefined(),
-]);
+export const AirtableNumberFieldSchema = z
+  .union([z.number(), z.null().transform(() => undefined), z.undefined()])
+  .optional();
 
 // ============================================================================
 // User/Linguist Record Schemas
@@ -113,6 +112,7 @@ export const AirtableUserFieldsSchema = z.object({
   "Working Hours End": AirtableStringFieldSchema,
   "Off Days": z
     .union([z.array(z.string()), z.null(), z.undefined()])
+    .optional()
     .transform((val) => {
       if (!val || val.length === 0) return [];
       const dayNames = [
