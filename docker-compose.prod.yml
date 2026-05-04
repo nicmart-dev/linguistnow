@@ -147,7 +147,7 @@ services:
   # Frankfurter (ECB FX Rates)
   # ---------------------------------------------------------------------------
   frankfurter:
-    image: frankfurter/frankfurter:latest
+    image: lineofflight/frankfurter:latest
     container_name: linguistnow-frankfurter
     restart: unless-stopped
     ports:
