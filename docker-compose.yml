@@ -263,12 +263,14 @@ services:
     restart: unless-stopped
     ports:
       - "${FRANKFURTER_PORT:-8080}:8080"
+    volumes:
+      - frankfurter-data:/app/data
     healthcheck:
       test: ["CMD", "wget", "--spider", "-q", "http://localhost:8080/latest"]
       interval: 60s
       timeout: 10s
       retries: 3
-      start_period: 60s
+      start_period: 45m
     networks:
       - linguistnow-net
     logging:
@@ -297,3 +299,5 @@ volumes:
     name: linguistnow-vault-logs
   redis-data:
     name: linguistnow-redis-data
+  frankfurter-data:
+    name: linguistnow-frankfurter-data
