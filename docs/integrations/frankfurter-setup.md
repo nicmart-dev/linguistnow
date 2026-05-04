@@ -10,7 +10,7 @@ Frankfurter is configured in `docker-compose.yml`:
 
 ```yaml
 frankfurter:
-  image: frankfurter/frankfurter:latest
+  image: lineofflight/frankfurter:latest
   container_name: linguistnow-frankfurter
   restart: unless-stopped
   ports:
@@ -210,7 +210,7 @@ curl http://localhost:8080/latest
 1. **Run Frankfurter locally:**
 
    ```bash
-   docker run -d -p 8080:8080 frankfurter/frankfurter:latest
+   docker run -d -p 8080:8080 lineofflight/frankfurter:latest
    ```
 
 2. **Update server/.env:**
