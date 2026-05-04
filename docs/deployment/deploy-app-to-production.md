@@ -57,6 +57,8 @@ flowchart TB
         subgraph LinguistNow["📦 LinguistNow Stack"]
             Frontend["🌐 Frontend<br/>(Nginx)<br/>:3000<br/><br/>Includes:<br/>- React app<br/>- Shared types<br/>(bundled)"]
             Backend["⚙️ Backend<br/>(Node.js)<br/>:5000<br/><br/>Includes:<br/>- Express API<br/>- Shared types<br/>(built)"]
+            Redis["🗄️ Redis<br/>(FX Cache)<br/>:6379"]
+            Frankfurter["💱 Frankfurter<br/>(FX Rates)<br/>:8080"]
         end
     end
 
@@ -64,6 +66,8 @@ flowchart TB
     Backend <--> N8N
     Backend -->|Write Tokens| Vault
     N8N -->|Read Tokens<br/>via Community Node| Vault
+    Backend <--> Redis
+    Backend --> Frankfurter
 ```
 
 **Note**: The `@linguistnow/shared` package is a TypeScript library containing shared types and utilities. It is:
@@ -175,6 +179,10 @@ This deploys LinguistNow connecting to external Vault and n8n (deployed as prere
 
    # Vault (from prerequisite setup)
    VAULT_TOKEN=<token-from-vault-setup>
+
+   # FX Rates (Optional - defaults shown)
+   REDIS_URL=redis://redis:6379
+   FRANKFURTER_URL=http://frankfurter:8080
    ```
 
 6. Click **Deploy the stack**
@@ -228,6 +236,8 @@ Use this method if you need to build images from source with custom frontend URL
    AIRTABLE_BASE_ID=appxxxxx
    N8N_BASE_URL=http://n8n:5678
    VAULT_TOKEN=dev-token
+   REDIS_URL=redis://redis:6379
+   FRANKFURTER_URL=http://frankfurter:8080
    ```
 
 6. Click **Deploy the stack**
