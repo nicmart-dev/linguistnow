@@ -24,8 +24,5 @@ jobs:
       
       - run: pnpm install
       - run: pnpm lint
-      - run: pnpm --filter client exec tsc --noEmit
-      - run: pnpm --filter server exec tsc --noEmit
-      - run: pnpm --filter client test -- --run
-      - run: pnpm --filter server test -- --run
+      - run: pnpm test
 
