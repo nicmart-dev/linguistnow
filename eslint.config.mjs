@@ -56,6 +56,7 @@ export default tseslint.config(
       "@typescript-eslint/no-unsafe-assignment": "off",
       "@typescript-eslint/no-unsafe-member-access": "off",
       "@typescript-eslint/no-unnecessary-condition": "off",
+      "@typescript-eslint/no-unnecessary-type-assertion": "off",
       "@typescript-eslint/no-useless-constructor": "off",
       "no-constant-binary-expression": "off",
       "@typescript-eslint/await-thenable": "off",
