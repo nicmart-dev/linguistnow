@@ -1,11 +1,13 @@
 # Deploy LinguistNow to Production
 
-This guide covers deploying LinguistNow to production using **Docker and Portainer**. While examples reference Synology NAS, the steps apply to any Docker host with Portainer.
+This guide covers deploying LinguistNow to production using **Docker and Docker Compose**. It is tool-agnostic and works seamlessly with container management tools like **Dockhand**, **Dockge**, or **Portainer**, as well as the standard Docker Compose CLI. While examples reference Synology NAS, the steps apply to any Docker host.
 
 The LinguistNow stack includes:
 
 - **Frontend**: React application served by Nginx
 - **Backend**: Node.js Express API server
+- **Redis**: In-memory cache for FX rates & sessions
+- **Frankfurter**: Self-hosted European Central Bank FX rates service
 - **Shared Package**: TypeScript library (built and bundled into frontend/backend, not a separate container)
 
 ## Prerequisites
@@ -14,9 +16,10 @@ Before deploying LinguistNow, ensure the following are set up:
 
 1. **Docker host** (Synology NAS, Linux server, cloud VM, etc.)
 2. **Docker** and **Docker Compose** installed
-3. **Portainer** installed for container management (recommended)
-4. **Google OAuth credentials** configured (see [Google Authentication Setup](../integrations/google-authentication.md#setup-google-oauth-configuration))
-5. **Airtable database** set up (see [Install Instructions](../getting-started/install-instructions.md#airtable-database))
+3. **Container Manager** (Dockhand, Dockge, Portainer, or CLI access)
+4. **Shared Docker Network**: `shared_net` created (`docker network create shared_net`)
+5. **Google OAuth credentials** configured (see [Google Authentication Setup](../integrations/google-authentication.md#setup-google-oauth-configuration))
+6. **Airtable database** set up (see [Install Instructions](../getting-started/install-instructions.md#airtable-database))
 
 ### Shared Infrastructure (Deploy First)
 
@@ -34,8 +37,8 @@ LinguistNow requires these shared services to be running:
 - [Architecture Overview](#architecture-overview)
 - [Step 1: Configure GitHub Repository Secrets (For CI/CD)](#step-1-configure-github-repository-secrets-for-cicd) _(optional)_
 - [Step 2: Update Google OAuth Configuration](#step-2-update-google-oauth-configuration)
-- [Step 3: Install Portainer](#step-3-install-portainer)
-- [Step 4: Deploy LinguistNow](#step-4-deploy-linguistnow)
+- [Step 3: Setup Container Management (Dockhand, Dockge, or Portainer)](#step-3-setup-container-management-dockhand-dockge-or-portainer)
+- [Step 4: Deploy LinguistNow Stack](#step-4-deploy-linguistnow-stack)
 - [Step 5: Verify Deployment](#step-5-verify-deployment)
 - [Step 6: Configure External Access](#step-6-configure-external-access-choose-one)
 - [Troubleshooting](#troubleshooting)
@@ -55,8 +58,8 @@ flowchart TB
             N8N["🔄 n8n<br/>(separate stack)<br/>:5678"]
         end
         subgraph LinguistNow["📦 LinguistNow Stack"]
-            Frontend["🌐 Frontend<br/>(Nginx)<br/>:3000<br/><br/>Includes:<br/>- React app<br/>- Shared types<br/>(bundled)"]
-            Backend["⚙️ Backend<br/>(Node.js)<br/>:5000<br/><br/>Includes:<br/>- Express API<br/>- Shared types<br/>(built)"]
+            Frontend["🌐 Frontend<br/>(Nginx)<br/>:3030<br/><br/>Includes:<br/>- React app<br/>- Shared types<br/>(bundled)"]
+            Backend["⚙️ Backend<br/>(Node.js)<br/>:5050<br/><br/>Includes:<br/>- Express API<br/>- Shared types<br/>(built)"]
             Redis["🗄️ Redis<br/>(FX Cache)<br/>:6379"]
             Frankfurter["💱 Frankfurter<br/>(FX Rates)<br/>:8080"]
         end
@@ -113,14 +116,14 @@ Before deploying, update your Google OAuth settings to use your production URLs.
 
    ```
    https://linguistnow.yourdomain.com
-   http://your-docker-host:3000
+   http://your-docker-host:3030
    ```
 
 4. Add your production URLs to **Authorized redirect URIs**:
 
    ```
    https://linguistnow.yourdomain.com
-   http://your-docker-host:3000
+   http://your-docker-host:3030
    ```
 
 5. Click **Save**
@@ -129,122 +132,70 @@ Before deploying, update your Google OAuth settings to use your production URLs.
 
 ---
 
-## Step 3: Install Portainer
+## Step 3: Setup Container Management (Dockhand, Dockge, or Portainer)
 
-If you haven't already installed Portainer:
+LinguistNow is fully compliant with the standard **Docker Compose specification**. You can manage it with any container management tool:
+
+- **Dockhand / Dockge**: Lightweight Docker Compose managers that track native compose files and `.env` directly.
+- **Portainer**: Full container management UI (go to **Stacks** → **Add Stack**).
+- **Docker Compose CLI**: Standard command line (`docker compose`) via SSH.
+
+### Create Shared Network
+
+Ensure the shared Docker network exists on your host so LinguistNow can communicate with Vault and other shared services:
 
 ```bash
-docker run -d -p 9443:9443 --name portainer \
-  --restart=always \
-  -v /var/run/docker.sock:/var/run/docker.sock \
-  -v portainer_data:/data \
-  portainer/portainer-ce:latest
+docker network inspect shared_net >/dev/null 2>&1 || docker network create shared_net
 ```
-
-Access Portainer at `https://your-docker-host:9443`
-
-> **Synology NAS**: Use Container Manager to pull `portainer/portainer-ce` and create a container with port `9443:9443` and volume `/docker/portainer:/data`.
 
 ---
 
-## Step 4: Deploy LinguistNow
+## Step 4: Deploy LinguistNow Stack
 
-### Recommended: Deploy with docker-compose.prod.yml
+LinguistNow uses a single unified **`docker-compose.yml`** file for all deployments.
 
-This deploys LinguistNow connecting to external Vault and n8n (deployed as prerequisites).
+### Method A: Deploy via Docker Management UI (Dockhand, Dockge, Portainer)
 
 1. **Ensure shared infrastructure is running:**
    - Vault: Deploy via [Vault Integration Guide](../integrations/vault-integration-guide.md#deploy-vault), then configure for [Production Mode](../integrations/vault-integration-guide.md#production-mode)
    - n8n: See [n8n Workflow Integration - Deploy n8n](../integrations/n8n-workflow-integration.md#3-deploy-n8n)
 
-2. In Portainer, go to **Stacks** → **Add Stack**
-
-3. Select **Repository**
-
-4. Configure:
+2. Create a new stack in your management UI:
    - **Repository URL**: `https://github.com/nicmart-dev/linguistnow`
-   - **Compose path**: `docker-compose.prod.yml`
+   - **Compose path**: `docker-compose.yml`
    - **Stack name**: `linguistnow`
 
-5. Add **environment variables**:
+3. Add **environment variables**:
 
    ```env
-   # Required
+   # Required Configuration
    FRONTEND_URL=https://linguistnow.yourdomain.com
+   BACKEND_URL=https://api.yourdomain.com
    GOOGLE_CLIENT_ID=your_google_client_id
    GOOGLE_CLIENT_SECRET=your_google_client_secret
    AIRTABLE_PERSONAL_ACCESS_TOKEN=pat_xxxxx
    AIRTABLE_BASE_ID=appxxxxx
-   N8N_BASE_URL=https://n8n.yourdomain.com
 
-   # Vault (from prerequisite setup)
+   # Vault Integration (from Vault setup)
+   VAULT_ADDR=http://shared-vault:8200
    VAULT_TOKEN=<token-from-vault-setup>
+   VAULT_SECRET_PATH=secret/data/linguistnow/tokens
 
-   # FX Rates (Optional - defaults shown)
+   # FX Rates Services (Defaults shown)
    REDIS_URL=redis://redis:6379
    FRANKFURTER_URL=http://frankfurter:8080
+   FRANKFURTER_FALLBACK_URL=https://api.frankfurter.dev/v1
+
+   # Networking
+   DOCKER_NETWORK_NAME=shared_net
+   USE_EXTERNAL_NETWORK=true
    ```
 
-6. Click **Deploy the stack**
-
-> **Note**: The `docker-compose.prod.yml` file:
->
-> - Uses pre-built images from GitHub Container Registry
-> - Connects to external `shared_net` network
-> - Does NOT include n8n or Vault (assumes shared infrastructure)
-
-> ⚠️ **Frontend URLs**: The pre-built frontend uses localhost URLs. For production domains, either:
->
-> - Configure GitHub Actions secrets to build with your URLs, or
-> - Rebuild the frontend locally with `--build-arg VITE_API_URL=...`
+4. Deploy the stack. By default, your Docker tool will pull and run the pre-built images from GitHub Container Registry (`ghcr.io/nicmart-dev/linguistnow-...:latest`).
 
 ---
 
-### Alternative: Deploy via Git Repository (Builds from Source)
-
-Use this method if you need to build images from source with custom frontend URLs.
-
-> **Note**: This uses `docker-compose.yml` which includes ALL services (n8n, Vault). Use this for self-contained deployments.
->
-> **Build Process**: During the Docker build:
->
-> - The `@linguistnow/shared` package is compiled (TypeScript → JavaScript)
-> - Frontend build bundles the shared package into static files
-> - Backend build includes the shared package as a dependency
-> - No separate container is needed for the shared package
-
-1. In Portainer, go to **Stacks** → **Add Stack**
-
-2. Select **Repository**
-
-3. Configure:
-   - **Repository URL**: `https://github.com/nicmart-dev/linguistnow`
-   - **Compose path**: `docker-compose.yml`
-
-4. Enable **Automatic updates** if desired
-
-5. Add environment variables:
-
-   ```env
-   FRONTEND_URL=http://your-docker-host:3000
-   VITE_BASE_URL=http://your-docker-host:3000
-   VITE_API_URL=http://your-docker-host:5000
-   VITE_GOOGLE_CLIENT_ID=your_client_id
-   GOOGLE_CLIENT_ID=your_client_id
-   GOOGLE_CLIENT_SECRET=your_client_secret
-   AIRTABLE_PERSONAL_ACCESS_TOKEN=pat_xxxxx
-   AIRTABLE_BASE_ID=appxxxxx
-   N8N_BASE_URL=http://n8n:5678
-   VAULT_TOKEN=dev-token
-   REDIS_URL=redis://redis:6379
-   FRANKFURTER_URL=http://frankfurter:8080
-   ```
-
-6. Click **Deploy the stack**
-
----
-
-### Alternative: Deploy via docker-compose CLI (SSH)
+### Method B: Deploy via Docker Compose CLI (SSH)
 
 SSH into your Docker host and run:
 
@@ -259,8 +210,11 @@ git clone https://github.com/nicmart-dev/linguistnow.git .
 cp example.env .env
 nano .env  # Edit with your values
 
-# Build and deploy
-docker-compose up -d --build
+# Option 1: Pull pre-built images and deploy (recommended)
+docker compose pull && docker compose up -d
+
+# Option 2: Build images from local source
+docker compose up -d --build
 ```
 
 ---
@@ -269,15 +223,15 @@ docker-compose up -d --build
 
 ### Check Container Health
 
-In Portainer, verify all containers show as **healthy**:
+In your container manager (Dockhand, Dockge, Portainer) or via `docker compose ps`, verify all containers show as **healthy**:
 
 - `linguistnow-backend` - Should show healthy after ~10 seconds
 - `linguistnow-frontend` - Should show healthy after ~5 seconds
 
 ### Test the Application
 
-1. **Frontend**: Open `http://your-docker-host:3000` in a browser
-2. **Backend API**: Visit `http://your-docker-host:5000/api/health`
+1. **Frontend**: Open `http://your-docker-host:3030` in a browser
+2. **Backend API**: Visit `http://your-docker-host:5050/api/health`
 
 ### Test OAuth Flow
 
@@ -355,8 +309,8 @@ flowchart LR
 
    | Description          | Source                           | Destination             |
    | -------------------- | -------------------------------- | ----------------------- |
-   | LinguistNow Frontend | `https://app.yourdomain.com:443` | `http://localhost:3000` |
-   | LinguistNow API      | `https://api.yourdomain.com:443` | `http://localhost:5000` |
+   | LinguistNow Frontend | `https://app.yourdomain.com:443` | `http://localhost:3030` |
+   | LinguistNow API      | `https://api.yourdomain.com:443` | `http://localhost:5050` |
    | n8n                  | `https://n8n.yourdomain.com:443` | `http://localhost:5678` |
 
 3. Enable **HSTS** for added security
@@ -371,11 +325,11 @@ flowchart LR
 
 ### Container Won't Start
 
-Check logs in Portainer or via CLI:
+Check logs in your container manager or via CLI:
 
 ```bash
-docker-compose logs backend
-docker-compose logs frontend
+docker compose logs -f backend
+docker compose logs -f frontend
 ```
 
 ### OAuth Redirect Error
@@ -384,15 +338,15 @@ docker-compose logs frontend
 - Ensure `FRONTEND_URL` and `VITE_BASE_URL` are identical
 - Check that the URL is listed in Google Console's Authorized redirect URIs
 
-### n8n Webhook Not Working
+### Vault Token / Storage Issues
 
-- Verify `N8N_BASE_URL` is accessible from the backend container
-- Check that the workflow is activated
-- Verify the webhook path matches `N8N_WEBHOOK_PATH`
+- Verify `VAULT_ADDR` and `VAULT_TOKEN` are set properly
+- Ensure Vault is unsealed (in production mode: `docker exec -it shared-vault vault status`)
+- Test connectivity from backend: `wget -qO- http://shared-vault:8200/v1/sys/health`
 
 ### Health Check Failures
 
-- Backend: Ensure port 5000 is accessible and `/api/health` returns 200
+- Backend: Ensure port 5050 is accessible and `/api/health` returns 200
 - Frontend: Ensure Nginx is running and `/health` returns 200
 
 ### Connection Refused Between Services
@@ -443,7 +397,7 @@ docker-compose logs -f backend
    ```
 3. **Restrict external access** to n8n and Vault if only used internally
 4. **Regular updates**: Keep Docker images and host OS updated
-5. **Firewall rules**: Only expose necessary ports (3000, 5000)
+5. **Firewall rules**: Only expose necessary ports (3030, 5050)
 
 ---
 
@@ -453,7 +407,7 @@ docker-compose logs -f backend
 
 ### Quick Start
 
-For local testing, `docker-compose.yml` includes all services (Frontend, Backend, n8n, Vault) in one stack:
+For local testing, the core services (Frontend, Backend, Redis, Frankfurter) can be built from source, and optional dev services (n8n, Vault) can be enabled using the `dev` profile:
 
 ```bash
 # Clone and setup
@@ -463,25 +417,32 @@ cp example.env .env
 cp server/example.env server/.env
 cp client/example.env client/.env
 
-# Edit .env with your credentials, then:
-docker-compose up -d --build
-docker-compose logs -f
+# Option 1: Core stack (build from source)
+docker compose up -d --build
+
+# Option 2: Full local stack with mock Vault and n8n
+docker compose --profile dev up -d --build
+
+# View logs
+docker compose logs -f
 ```
 
 Access at:
 
-- **Frontend**: http://localhost:3000
-- **Backend API**: http://localhost:5000
-- **n8n**: http://localhost:5678
-- **Vault**: http://localhost:8200
+- **Frontend**: http://localhost:3030
+- **Backend API**: http://localhost:5050
+- **Redis**: localhost:6379
+- **Frankfurter**: http://localhost:8080
+- **n8n** _(with `--profile dev`)_: http://localhost:5678
+- **Vault** _(with `--profile dev`)_: http://localhost:8200
 
 ### Docker Compose Files
 
-| File                       | Purpose                                         |
-| -------------------------- | ----------------------------------------------- |
-| `docker-compose.yml`       | Full stack for local development (all services) |
-| `docker-compose.prod.yml`  | Production (pre-built images, external network) |
-| `docker-compose.vault.yml` | Vault only (shared infrastructure)              |
+| File                                  | Purpose                                                                                   |
+| ------------------------------------- | ----------------------------------------------------------------------------------------- |
+| `docker-compose.yml`                  | Unified stack definition (uses pre-built GHCR images for production, `--build` for local) |
+| `docker-compose.vault.yml`            | Dedicated shared HashiCorp Vault stack                                                    |
+| `docker-compose.override.yml.example` | Template for optional local overrides (ports, bridge network, bind mounts)                |
 
 **Note**: The `@linguistnow/shared` package is not a separate service. It's a library dependency that:
 
@@ -496,7 +457,7 @@ For local development, configure environment variables in `.env` files. Required
 
 - `FRONTEND_URL`, `BACKEND_URL`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`
 - `AIRTABLE_PERSONAL_ACCESS_TOKEN`, `AIRTABLE_BASE_ID`
-- `N8N_BASE_URL`, `VAULT_ADDR`, `VAULT_TOKEN`
+- `VAULT_ADDR`, `VAULT_TOKEN`, `REDIS_URL`, `FRANKFURTER_URL`
 - `VITE_API_URL`, `VITE_BASE_URL`, `VITE_GOOGLE_CLIENT_ID` (build-time)
 
 **Key difference**: `docker-compose.yml` builds from source, so `VITE_*` variables are used at build time. See [Step 1: Configure GitHub Repository Secrets](#step-1-configure-github-repository-secrets-for-cicd) for details on Vite build-time variables.

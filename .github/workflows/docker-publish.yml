@@ -25,8 +25,8 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
-  DEFAULT_API_URL: "http://localhost:5000"
-  DEFAULT_BASE_URL: "http://localhost:3000"
+  DEFAULT_API_URL: "http://localhost:5050"
+  DEFAULT_BASE_URL: "http://localhost:3030"
 
 jobs:
   # Check if we should build
