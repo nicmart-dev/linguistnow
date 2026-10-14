@@ -41,7 +41,7 @@ jobs:
       build_ref: ${{ steps.decide.outputs.build_ref }}
       is_release: ${{ steps.decide.outputs.is_release }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -180,16 +180,16 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           ref: ${{ needs.check.outputs.build_ref }}
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
 
       - name: Log in to Container Registry
         if: github.event_name != 'pull_request'
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
@@ -200,7 +200,7 @@ jobs:
       # =========================================================================
       - name: Extract metadata for Backend
         id: meta-backend
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-backend
           tags: |
@@ -212,7 +212,7 @@ jobs:
             type=raw,value=main,enable=${{ needs.check.outputs.is_release != 'true' && github.event_name != 'pull_request' }}
 
       - name: Build and push Backend
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           file: ./server/Dockerfile
@@ -231,7 +231,7 @@ jobs:
       # =========================================================================
       - name: Extract metadata for Frontend
         id: meta-frontend
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-frontend
           tags: |
@@ -243,7 +243,7 @@ jobs:
             type=raw,value=main,enable=${{ needs.check.outputs.is_release != 'true' && github.event_name != 'pull_request' }}
 
       - name: Build and push Frontend
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           file: ./client/Dockerfile
