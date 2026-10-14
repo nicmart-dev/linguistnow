@@ -25,8 +25,27 @@ export interface ExchangeRates {
 let redis: RedisClient | null = null;
 let redisAvailable = false;
 
+// In-memory fallback cache (used when Redis is unavailable)
+let inMemoryRates: ExchangeRates | null = null;
+
 /**
- * Reset Redis client (for testing only)
+ * Reset in-memory rates (for testing only)
+ * @internal
+ */
+export function resetInMemoryRates(): void {
+  inMemoryRates = null;
+}
+
+/**
+ * Get in-memory rates (for testing only)
+ * @internal
+ */
+export function getInMemoryRates(): ExchangeRates | null {
+  return inMemoryRates;
+}
+
+/**
+ * Reset Redis client and in-memory rates (for testing only)
  * @internal
  */
 export function resetRedisClient(): void {
@@ -38,6 +57,7 @@ export function resetRedisClient(): void {
     redis = null;
   }
   redisAvailable = false;
+  inMemoryRates = null;
 }
 
 /**
@@ -118,27 +138,29 @@ export function getRedisClient(): RedisClient | null {
 }
 
 /**
- * Store exchange rates in Redis
- * Gracefully fails if Redis is unavailable
+ * Store exchange rates in Redis and in-memory cache
+ * Gracefully falls back to in-memory cache if Redis is unavailable
  * @param data - Exchange rates data from Frankfurter
  */
 async function storeRates(data: ExchangeRates): Promise<void> {
+  const ratesData: ExchangeRates = {
+    ...data,
+    updatedAt: new Date().toISOString(),
+  };
+  inMemoryRates = ratesData;
+
   const client = getRedisClient();
   if (!client || !redisAvailable) {
-    // Redis unavailable - skip caching, continue without it
+    // Redis unavailable - keep in-memory cache, continue without Redis
     return;
   }
 
   try {
-    const ratesData = {
-      ...data,
-      updatedAt: new Date().toISOString(),
-    };
     await client.setex(RATES_KEY, RATES_TTL, JSON.stringify(ratesData));
   } catch (error) {
     // Redis operation failed - log but don't throw
     console.warn(
-      "Failed to store rates in Redis (continuing without cache):",
+      "Failed to store rates in Redis (continuing with in-memory cache):",
       error instanceof Error ? error.message : String(error),
     );
     redisAvailable = false;
@@ -146,80 +168,118 @@ async function storeRates(data: ExchangeRates): Promise<void> {
 }
 
 /**
- * Get cached exchange rates from Redis
- * Gracefully returns null if Redis is unavailable
+ * Get cached exchange rates from Redis or in-memory fallback
+ * Gracefully falls back to in-memory cache if Redis is unavailable
  * @returns Cached rates or null if not found/expired/unavailable
  */
 async function getCachedRates(): Promise<ExchangeRates | null> {
   const client = getRedisClient();
-  if (!client || !redisAvailable) {
-    // Redis unavailable - return null to trigger fresh fetch
-    return null;
+  if (client && redisAvailable) {
+    try {
+      const cached = await client.get(RATES_KEY);
+      if (cached) {
+        const parsed = JSON.parse(cached) as ExchangeRates;
+        inMemoryRates = parsed;
+        return parsed;
+      }
+      return null;
+    } catch (error) {
+      // Redis operation failed - log and fallback to in-memory cache
+      console.warn(
+        "Failed to get cached rates from Redis (falling back to in-memory cache):",
+        error instanceof Error ? error.message : String(error),
+      );
+      redisAvailable = false;
+    }
   }
 
-  try {
-    const cached = await client.get(RATES_KEY);
-    if (!cached) {
-      return null;
-    }
-    return JSON.parse(cached) as ExchangeRates;
-  } catch (error) {
-    // Redis operation failed - log but return null to trigger fresh fetch
-    console.warn(
-      "Failed to get cached rates from Redis (will fetch fresh):",
-      error instanceof Error ? error.message : String(error),
-    );
-    redisAvailable = false;
-    return null;
+  // Fallback to in-memory cache if Redis is unavailable
+  if (inMemoryRates) {
+    return inMemoryRates;
   }
+
+  return null;
 }
 
 /**
- * Fetch fresh rates from Frankfurter and store in Redis
+ * Fetch rates from a Frankfurter API endpoint
+ * @param baseUrl - Frankfurter base URL
+ */
+async function fetchFrankfurterRates(baseUrl: string): Promise<ExchangeRates> {
+  const trimmedUrl = baseUrl.replace(/\/+$/, "");
+  const response = await fetch(`${trimmedUrl}/latest?base=USD`, {
+    signal: AbortSignal.timeout(10000), // 10 second timeout
+  });
+
+  if (!response.ok) {
+    throw new Error(
+      `Frankfurter API error: ${response.status.toString()} ${response.statusText}. Please ensure Frankfurter service is running at ${baseUrl}`,
+    );
+  }
+
+  const data = (await response.json()) as {
+    base: string;
+    date: string;
+    rates: Record<string, number>;
+  };
+
+  return {
+    ...data,
+    updatedAt: new Date().toISOString(),
+  };
+}
+
+/**
+ * Fetch fresh rates from Frankfurter (or fallback) and store in Redis/in-memory
  * @returns Exchange rates data
- * @throws Error if Frankfurter API call fails (with helpful error message)
+ * @throws Error if Frankfurter API calls fail (with helpful error message)
  */
 export async function refreshRates(): Promise<ExchangeRates> {
+  let primaryError: unknown = null;
+
   try {
-    const response = await fetch(`${env.FRANKFURTER_URL}/latest?base=USD`, {
-      signal: AbortSignal.timeout(10000), // 10 second timeout
-    });
-
-    if (!response.ok) {
-      throw new Error(
-        `Frankfurter API error: ${response.status.toString()} ${response.statusText}. Please ensure Frankfurter service is running at ${env.FRANKFURTER_URL}`,
-      );
-    }
-
-    const data = (await response.json()) as {
-      base: string;
-      date: string;
-      rates: Record<string, number>;
-    };
-
-    const ratesData: ExchangeRates = {
-      ...data,
-      updatedAt: new Date().toISOString(),
-    };
-
-    // Store in Redis (non-blocking - continues even if Redis fails)
+    const ratesData = await fetchFrankfurterRates(env.FRANKFURTER_URL);
     await storeRates(ratesData);
     return ratesData;
   } catch (error) {
-    if (error instanceof Error && error.name === "AbortError") {
-      throw new Error(
-        `Frankfurter API timeout. Please ensure Frankfurter service is running at ${env.FRANKFURTER_URL}`,
-        { cause: error },
-      );
-    }
-    if (error instanceof Error && error.message.includes("ECONNREFUSED")) {
-      throw new Error(
-        `Cannot connect to Frankfurter service at ${env.FRANKFURTER_URL}. Please ensure the service is running.`,
-        { cause: error },
-      );
-    }
-    throw error;
+    primaryError = error;
   }
+
+  // Attempt fallback if configured and different from primary URL
+  if (
+    env.FRANKFURTER_FALLBACK_URL &&
+    env.FRANKFURTER_FALLBACK_URL !== env.FRANKFURTER_URL
+  ) {
+    try {
+      console.warn(
+        `Primary Frankfurter service at ${env.FRANKFURTER_URL} failed, falling back to ${env.FRANKFURTER_FALLBACK_URL}...`,
+      );
+      const fallbackRates = await fetchFrankfurterRates(
+        env.FRANKFURTER_FALLBACK_URL,
+      );
+      await storeRates(fallbackRates);
+      return fallbackRates;
+    } catch (fallbackError) {
+      console.warn(
+        `Fallback Frankfurter service at ${env.FRANKFURTER_FALLBACK_URL} also failed: ${fallbackError instanceof Error ? fallbackError.message : String(fallbackError)}`,
+      );
+    }
+  }
+
+  const error = primaryError;
+  if (error instanceof Error && error.name === "AbortError") {
+    throw new Error(
+      `Frankfurter API timeout. Please ensure Frankfurter service is running at ${env.FRANKFURTER_URL}`,
+      { cause: error },
+    );
+  }
+  if (error instanceof Error && error.message.includes("ECONNREFUSED")) {
+    throw new Error(
+      `Cannot connect to Frankfurter service at ${env.FRANKFURTER_URL}. Please ensure the service is running.`,
+      { cause: error },
+    );
+  }
+  throw error;
 }
 
 /**

@@ -16,6 +16,10 @@ const envSchema = z
     VAULT_SECRET_PATH: z.string().optional(),
     REDIS_URL: z.url().default("redis://localhost:6379"),
     FRANKFURTER_URL: z.url().default("http://localhost:8081"),
+    FRANKFURTER_FALLBACK_URL: z
+      .url()
+      .optional()
+      .default("https://api.frankfurter.dev/v1"),
   })
   .refine(
     (data) => data.AIRTABLE_PERSONAL_ACCESS_TOKEN || data.AIRTABLE_API_KEY,
@@ -124,7 +128,8 @@ export function validateEnv(): z.infer<typeof envSchema> {
     errorMessage += "    Default: http://localhost:8081\n";
     errorMessage += "    Docker: http://frankfurter:8080\n";
     errorMessage +=
-      "    Note: If Frankfurter is not running, currency conversion will be unavailable.\n";
+      "  • FRANKFURTER_FALLBACK_URL - Fallback API if self-hosted Frankfurter is unavailable\n";
+    errorMessage += "    Default: https://api.frankfurter.dev/v1\n";
     errorMessage +=
       "    See: docs/integrations/redis-setup.md and docs/integrations/frankfurter-setup.md\n";
     errorMessage += "\n" + "=".repeat(80) + "\n";

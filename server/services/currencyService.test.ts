@@ -24,6 +24,7 @@ vi.mock("../env.js", () => ({
   env: {
     REDIS_URL: "redis://localhost:6379",
     FRANKFURTER_URL: "http://localhost:8080",
+    FRANKFURTER_FALLBACK_URL: "https://api.frankfurter.dev/v1",
   },
 }));
 
@@ -31,6 +32,7 @@ vi.mock("../env.js", () => ({
 import {
   getRedisClient,
   resetRedisClient,
+  resetInMemoryRates,
   refreshRates,
   getRates,
   convert,
@@ -96,6 +98,30 @@ describe("currencyService", () => {
     });
   });
 
+  describe("resetInMemoryRates", () => {
+    it("should clear in-memory rates cache", async () => {
+      const mockResponse = {
+        base: "USD",
+        date: "2024-01-15",
+        rates: { EUR: 0.85 },
+      };
+
+      vi.mocked(global.fetch).mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve(mockResponse),
+      } as Response);
+      mockSetex.mockResolvedValueOnce("OK");
+
+      await refreshRates();
+
+      resetInMemoryRates();
+
+      // Now with Redis error and cleared in-memory rates, hasRates returns false
+      mockGet.mockRejectedValueOnce(new Error("Redis error"));
+      expect(await hasRates()).toBe(false);
+    });
+  });
+
   describe("refreshRates", () => {
     it("should fetch rates from Frankfurter and store in Redis", async () => {
       const mockResponse = {
@@ -130,8 +156,8 @@ describe("currencyService", () => {
       expect(result.updatedAt).toBeDefined();
     });
 
-    it("should throw error when Frankfurter API fails", async () => {
-      vi.mocked(global.fetch).mockResolvedValueOnce({
+    it("should throw error when both primary and fallback Frankfurter APIs fail", async () => {
+      vi.mocked(global.fetch).mockResolvedValue({
         ok: false,
         status: 500,
         statusText: "Internal Server Error",
@@ -140,6 +166,43 @@ describe("currencyService", () => {
       await expect(refreshRates()).rejects.toThrow(
         "Frankfurter API error: 500 Internal Server Error",
       );
+      expect(global.fetch).toHaveBeenCalledTimes(2);
+    });
+
+    it("should fallback to FRANKFURTER_FALLBACK_URL when primary fails", async () => {
+      const mockFallbackResponse = {
+        base: "USD",
+        date: "2024-01-15",
+        rates: { EUR: 0.85, GBP: 0.73 },
+      };
+
+      vi.mocked(global.fetch)
+        .mockResolvedValueOnce({
+          ok: false,
+          status: 500,
+          statusText: "Internal Server Error",
+        } as Response)
+        .mockResolvedValueOnce({
+          ok: true,
+          json: () => Promise.resolve(mockFallbackResponse),
+        } as Response);
+
+      mockSetex.mockResolvedValueOnce("OK");
+
+      const result = await refreshRates();
+
+      expect(global.fetch).toHaveBeenCalledTimes(2);
+      expect(global.fetch).toHaveBeenNthCalledWith(
+        1,
+        "http://localhost:8080/latest?base=USD",
+        expect.any(Object),
+      );
+      expect(global.fetch).toHaveBeenNthCalledWith(
+        2,
+        "https://api.frankfurter.dev/v1/latest?base=USD",
+        expect.any(Object),
+      );
+      expect(result.rates).toEqual(mockFallbackResponse.rates);
     });
 
     it("should handle Redis storage failure gracefully", async () => {
@@ -240,6 +303,30 @@ describe("currencyService", () => {
       expect(global.fetch).toHaveBeenCalled();
       expect(result).toBeDefined();
     });
+
+    it("should return in-memory cached rates when Redis errors and in-memory cache is present", async () => {
+      const mockResponse = {
+        base: "USD",
+        date: "2024-01-15",
+        rates: { EUR: 0.85 },
+      };
+
+      vi.mocked(global.fetch).mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve(mockResponse),
+      } as Response);
+      mockSetex.mockResolvedValueOnce("OK");
+
+      await refreshRates();
+      vi.mocked(global.fetch).mockClear();
+
+      mockGet.mockRejectedValueOnce(new Error("Redis connection lost"));
+
+      const result = await getRates();
+
+      expect(global.fetch).not.toHaveBeenCalled();
+      expect(result.rates).toEqual(mockResponse.rates);
+    });
   });
 
   describe("convert", () => {
@@ -323,12 +410,34 @@ describe("currencyService", () => {
       expect(result).toBe(false);
     });
 
-    it("should return false when Redis error occurs", async () => {
+    it("should return false when Redis error occurs and no in-memory cache", async () => {
       mockGet.mockRejectedValueOnce(new Error("Redis error"));
 
       const result = await hasRates();
 
       expect(result).toBe(false);
+    });
+
+    it("should return true when Redis error occurs but in-memory cache is present", async () => {
+      const mockResponse = {
+        base: "USD",
+        date: "2024-01-15",
+        rates: { EUR: 0.85 },
+      };
+
+      vi.mocked(global.fetch).mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve(mockResponse),
+      } as Response);
+      mockSetex.mockResolvedValueOnce("OK");
+
+      await refreshRates();
+
+      mockGet.mockRejectedValueOnce(new Error("Redis error"));
+
+      const result = await hasRates();
+
+      expect(result).toBe(true);
     });
   });
 });
