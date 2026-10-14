@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.4](https://github.com/nicmart-dev/linguistnow/compare/v1.4.3...v1.4.4) (2026-10-14)
+
+### 🐛 Bug Fixes
+
+- **ci:** fix dependency-updates workflow and void operator lint errors ([#159](https://github.com/nicmart-dev/linguistnow/issues/159)) ([b275efa](https://github.com/nicmart-dev/linguistnow/commit/b275efaa04f793d79c52c9ee928e1dbc8a5b70b5))
+
 ## [1.4.3](https://github.com/nicmart-dev/linguistnow/compare/v1.4.2...v1.4.3) (2026-05-04)
 
 ### 🐛 Bug Fixes
