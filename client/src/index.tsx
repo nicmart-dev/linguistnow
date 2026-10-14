@@ -4,7 +4,7 @@ import AppWrapper from './App'
 import './i18n' // Initialize i18n
 import './tailwind.css'
 import './index.css'
-import { env } from './env'
+import { validateEnv } from './env'
 
 // Suppress harmless console warnings/errors in production only
 // In development, show all logs for debugging
@@ -50,7 +50,7 @@ if (!isDevelopment) {
 // Validate required environment variables at startup
 try {
     // This will throw if env vars are invalid
-    void env
+    validateEnv()
 } catch (error) {
     console.error('Invalid environment configuration:', error)
     console.error('Please check your .env file or build configuration.')

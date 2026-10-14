@@ -29,15 +29,12 @@ dotenvExpand.expand(envConfig);
 
 // Import modules that use env AFTER dotenv is loaded and expanded
 // Validate environment variables early - this will throw with helpful error messages
-import { env } from "./env.js";
+import { env, validateEnv } from "./env.js";
 
-// Trigger validation by accessing a required property without a default
-// This will throw with a helpful error message if env vars are missing
+// Trigger validation early - this will throw with a helpful error message if env vars are missing
 let PORT: number;
 try {
-  // Access a required variable (GOOGLE_CLIENT_ID) to trigger validation
-  // PORT has a default, so accessing it won't trigger validation errors
-  void env.GOOGLE_CLIENT_ID;
+  validateEnv();
   PORT = env.PORT;
 } catch (error) {
   console.error(error instanceof Error ? error.message : String(error));

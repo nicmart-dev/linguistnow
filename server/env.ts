@@ -31,7 +31,10 @@ let _env: z.infer<typeof envSchema> | null = null;
  * Validates environment variables and returns helpful error messages if validation fails.
  * @throws Error with detailed message about missing or invalid environment variables
  */
-function validateEnv(): z.infer<typeof envSchema> {
+export function validateEnv(): z.infer<typeof envSchema> {
+  if (_env) {
+    return _env;
+  }
   const result = envSchema.safeParse(process.env);
 
   if (!result.success) {
@@ -129,7 +132,8 @@ function validateEnv(): z.infer<typeof envSchema> {
     throw new Error(errorMessage);
   }
 
-  return result.data;
+  _env = result.data;
+  return _env;
 }
 
 function getEnv() {

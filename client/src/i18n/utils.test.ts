@@ -11,9 +11,7 @@ describe('getLocale', () => {
             storage[key] = value
         }),
         removeItem: vi.fn((key: string) => {
-            const { [key]: _removed, ...rest } = storage
-            void _removed // Mark as intentionally unused
-            storage = rest
+            Reflect.deleteProperty(storage, key)
         }),
         clear: vi.fn(() => {
             storage = {}
@@ -163,9 +161,7 @@ describe('saveLocale', () => {
                     storage[key] = value
                 }),
                 removeItem: vi.fn((key: string) => {
-                    const { [key]: _, ...rest } = storage
-                    void _
-                    storage = rest
+                    Reflect.deleteProperty(storage, key)
                 }),
                 clear: vi.fn(() => {
                     storage = {}

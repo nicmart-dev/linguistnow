@@ -358,22 +358,28 @@ describe("availabilityService", () => {
   describe("getDefaultStartDate", () => {
     it("should return tomorrow's date", () => {
       const result = getDefaultStartDate(TEST_TIMEZONE);
-      const tomorrow = new Date();
-      tomorrow.setDate(tomorrow.getDate() + 1);
-
-      const resultDate = new Date(result);
-      expect(resultDate.getDate()).toBe(tomorrow.getDate());
+      const formatter = new Intl.DateTimeFormat("en-US", {
+        timeZone: TEST_TIMEZONE,
+        day: "numeric",
+      });
+      const expectedTomorrow = new Date(Date.now() + 24 * 60 * 60 * 1000);
+      expect(formatter.format(new Date(result))).toBe(
+        formatter.format(expectedTomorrow),
+      );
     });
   });
 
   describe("getDefaultEndDate", () => {
     it("should return date 7 days from now", () => {
       const result = getDefaultEndDate(TEST_TIMEZONE);
-      const weekFromNow = new Date();
-      weekFromNow.setDate(weekFromNow.getDate() + 7);
-
-      const resultDate = new Date(result);
-      expect(resultDate.getDate()).toBe(weekFromNow.getDate());
+      const formatter = new Intl.DateTimeFormat("en-US", {
+        timeZone: TEST_TIMEZONE,
+        day: "numeric",
+      });
+      const expectedDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+      expect(formatter.format(new Date(result))).toBe(
+        formatter.format(expectedDate),
+      );
     });
   });
 });

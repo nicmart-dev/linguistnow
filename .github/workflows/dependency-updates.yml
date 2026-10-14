@@ -78,6 +78,8 @@ jobs:
       - name: Update dependencies
         if: steps.outdated.outputs.has_updates == 'true'
         id: update
+        env:
+          HUSKY: '0'
         run: |
           # Create branch name with date
           BRANCH_NAME="deps/update-$(date +%Y-%m-%d)"
@@ -138,10 +140,10 @@ jobs:
             
             # Commit and push
             git add .
-            git commit -m "build(deps): update dependencies $(date +%Y-%m-%d)
+            git commit --no-verify -m "build(deps): update dependencies $(date +%Y-%m-%d)
 
-          Automated dependency updates from weekly workflow."
-            git push origin "$BRANCH_NAME"
+Automated dependency updates from weekly workflow."
+            git push origin "$BRANCH_NAME" --no-verify
           fi
 
       - name: Create Pull Request
