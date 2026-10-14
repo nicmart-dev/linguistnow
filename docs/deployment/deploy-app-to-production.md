@@ -58,8 +58,8 @@ flowchart TB
             N8N["🔄 n8n<br/>(separate stack)<br/>:5678"]
         end
         subgraph LinguistNow["📦 LinguistNow Stack"]
-            Frontend["🌐 Frontend<br/>(Nginx)<br/>:3000<br/><br/>Includes:<br/>- React app<br/>- Shared types<br/>(bundled)"]
-            Backend["⚙️ Backend<br/>(Node.js)<br/>:5000<br/><br/>Includes:<br/>- Express API<br/>- Shared types<br/>(built)"]
+            Frontend["🌐 Frontend<br/>(Nginx)<br/>:3030<br/><br/>Includes:<br/>- React app<br/>- Shared types<br/>(bundled)"]
+            Backend["⚙️ Backend<br/>(Node.js)<br/>:5050<br/><br/>Includes:<br/>- Express API<br/>- Shared types<br/>(built)"]
             Redis["🗄️ Redis<br/>(FX Cache)<br/>:6379"]
             Frankfurter["💱 Frankfurter<br/>(FX Rates)<br/>:8080"]
         end
@@ -116,14 +116,14 @@ Before deploying, update your Google OAuth settings to use your production URLs.
 
    ```
    https://linguistnow.yourdomain.com
-   http://your-docker-host:3000
+   http://your-docker-host:3030
    ```
 
 4. Add your production URLs to **Authorized redirect URIs**:
 
    ```
    https://linguistnow.yourdomain.com
-   http://your-docker-host:3000
+   http://your-docker-host:3030
    ```
 
 5. Click **Save**
@@ -223,15 +223,15 @@ docker compose up -d --build
 
 ### Check Container Health
 
-In Portainer, verify all containers show as **healthy**:
+In your container manager (Dockhand, Dockge, Portainer) or via `docker compose ps`, verify all containers show as **healthy**:
 
 - `linguistnow-backend` - Should show healthy after ~10 seconds
 - `linguistnow-frontend` - Should show healthy after ~5 seconds
 
 ### Test the Application
 
-1. **Frontend**: Open `http://your-docker-host:3000` in a browser
-2. **Backend API**: Visit `http://your-docker-host:5000/api/health`
+1. **Frontend**: Open `http://your-docker-host:3030` in a browser
+2. **Backend API**: Visit `http://your-docker-host:5050/api/health`
 
 ### Test OAuth Flow
 
@@ -309,8 +309,8 @@ flowchart LR
 
    | Description          | Source                           | Destination             |
    | -------------------- | -------------------------------- | ----------------------- |
-   | LinguistNow Frontend | `https://app.yourdomain.com:443` | `http://localhost:3000` |
-   | LinguistNow API      | `https://api.yourdomain.com:443` | `http://localhost:5000` |
+   | LinguistNow Frontend | `https://app.yourdomain.com:443` | `http://localhost:3030` |
+   | LinguistNow API      | `https://api.yourdomain.com:443` | `http://localhost:5050` |
    | n8n                  | `https://n8n.yourdomain.com:443` | `http://localhost:5678` |
 
 3. Enable **HSTS** for added security
@@ -325,11 +325,11 @@ flowchart LR
 
 ### Container Won't Start
 
-Check logs in Portainer or via CLI:
+Check logs in your container manager or via CLI:
 
 ```bash
-docker-compose logs backend
-docker-compose logs frontend
+docker compose logs -f backend
+docker compose logs -f frontend
 ```
 
 ### OAuth Redirect Error
@@ -338,15 +338,15 @@ docker-compose logs frontend
 - Ensure `FRONTEND_URL` and `VITE_BASE_URL` are identical
 - Check that the URL is listed in Google Console's Authorized redirect URIs
 
-### n8n Webhook Not Working
+### Vault Token / Storage Issues
 
-- Verify `N8N_BASE_URL` is accessible from the backend container
-- Check that the workflow is activated
-- Verify the webhook path matches `N8N_WEBHOOK_PATH`
+- Verify `VAULT_ADDR` and `VAULT_TOKEN` are set properly
+- Ensure Vault is unsealed (in production mode: `docker exec -it shared-vault vault status`)
+- Test connectivity from backend: `wget -qO- http://shared-vault:8200/v1/sys/health`
 
 ### Health Check Failures
 
-- Backend: Ensure port 5000 is accessible and `/api/health` returns 200
+- Backend: Ensure port 5050 is accessible and `/api/health` returns 200
 - Frontend: Ensure Nginx is running and `/health` returns 200
 
 ### Connection Refused Between Services
@@ -397,7 +397,7 @@ docker-compose logs -f backend
    ```
 3. **Restrict external access** to n8n and Vault if only used internally
 4. **Regular updates**: Keep Docker images and host OS updated
-5. **Firewall rules**: Only expose necessary ports (3000, 5000)
+5. **Firewall rules**: Only expose necessary ports (3030, 5050)
 
 ---
 
@@ -407,7 +407,7 @@ docker-compose logs -f backend
 
 ### Quick Start
 
-For local testing, `docker-compose.yml` includes all services (Frontend, Backend, n8n, Vault) in one stack:
+For local testing, the core services (Frontend, Backend, Redis, Frankfurter) can be built from source, and optional dev services (n8n, Vault) can be enabled using the `dev` profile:
 
 ```bash
 # Clone and setup
@@ -417,17 +417,24 @@ cp example.env .env
 cp server/example.env server/.env
 cp client/example.env client/.env
 
-# Edit .env with your credentials, then:
-docker-compose up -d --build
-docker-compose logs -f
+# Option 1: Core stack (build from source)
+docker compose up -d --build
+
+# Option 2: Full local stack with mock Vault and n8n
+docker compose --profile dev up -d --build
+
+# View logs
+docker compose logs -f
 ```
 
 Access at:
 
-- **Frontend**: http://localhost:3000
-- **Backend API**: http://localhost:5000
-- **n8n**: http://localhost:5678
-- **Vault**: http://localhost:8200
+- **Frontend**: http://localhost:3030
+- **Backend API**: http://localhost:5050
+- **Redis**: localhost:6379
+- **Frankfurter**: http://localhost:8080
+- **n8n** _(with `--profile dev`)_: http://localhost:5678
+- **Vault** _(with `--profile dev`)_: http://localhost:8200
 
 ### Docker Compose Files
 
@@ -450,7 +457,7 @@ For local development, configure environment variables in `.env` files. Required
 
 - `FRONTEND_URL`, `BACKEND_URL`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`
 - `AIRTABLE_PERSONAL_ACCESS_TOKEN`, `AIRTABLE_BASE_ID`
-- `N8N_BASE_URL`, `VAULT_ADDR`, `VAULT_TOKEN`
+- `VAULT_ADDR`, `VAULT_TOKEN`, `REDIS_URL`, `FRANKFURTER_URL`
 - `VITE_API_URL`, `VITE_BASE_URL`, `VITE_GOOGLE_CLIENT_ID` (build-time)
 
 **Key difference**: `docker-compose.yml` builds from source, so `VITE_*` variables are used at build time. See [Step 1: Configure GitHub Repository Secrets](#step-1-configure-github-repository-secrets-for-cicd) for details on Vite build-time variables.

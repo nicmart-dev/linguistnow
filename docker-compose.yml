@@ -73,6 +73,9 @@ services:
       # Frankfurter Configuration (for ECB FX rates)
       - FRANKFURTER_URL=${FRANKFURTER_URL:-http://frankfurter:8080}
       - FRANKFURTER_FALLBACK_URL=${FRANKFURTER_FALLBACK_URL:-https://api.frankfurter.dev/v1}
+
+      # Currency Refresh API Key (Optional, for triggering FX rate sync)
+      - CURRENCY_REFRESH_API_KEY=${CURRENCY_REFRESH_API_KEY:-}
     healthcheck:
       test:
         [
@@ -257,6 +260,10 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
+    networks:
+      default:
+        aliases:
+          - shared-vault
 
 # =============================================================================
 # Networks
