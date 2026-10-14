@@ -140,9 +140,7 @@ jobs:
             
             # Commit and push
             git add .
-            git commit --no-verify -m "build(deps): update dependencies $(date +%Y-%m-%d)
-
-Automated dependency updates from weekly workflow."
+            git commit --no-verify -m "build(deps): update dependencies $(date +%Y-%m-%d)" -m "Automated dependency updates from weekly workflow."
             git push origin "$BRANCH_NAME" --no-verify
           fi
 
