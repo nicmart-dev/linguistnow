@@ -1,0 +1,26 @@
+# =============================================================================
+# Docker Compose Local Override Example
+# =============================================================================
+# Copy this file to docker-compose.override.yml to customize your local dev
+# environment without modifying the main docker-compose.yml.
+#
+# Docker Compose automatically loads docker-compose.override.yml when running
+# `docker compose up` locally.
+# =============================================================================
+
+# services:
+  # Example: Expose backend on port 5000 for local development
+  # backend:
+  #   ports:
+  #     - "5000:5000"
+
+  # Example: Expose frontend on port 3000 for local development
+  # frontend:
+  #   ports:
+  #     - "3000:80"
+
+# Example: Use a local isolated bridge network instead of the shared host network
+# networks:
+#   default:
+#     name: linguistnow-local-net
+#     external: false

@@ -145,3 +145,7 @@ client/dev-dist
 
 # Oxlint cache
 .oxlint-cache
+
+# Docker Compose local overrides
+docker-compose.override.yml
+docker-compose*.override.yml
