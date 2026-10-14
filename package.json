@@ -15,7 +15,7 @@
     "lint:eslint": "eslint .",
     "lint": "oxlint . && eslint .",
     "lint:fix": "oxlint --fix . && eslint . --fix",
-    "test": "pnpm --filter ./shared test:run && pnpm --filter ./client test:run && pnpm --filter ./server test:run",
+    "test": "pnpm --filter ./shared build && pnpm --filter ./shared test:run && pnpm --filter ./client test:run && pnpm --filter ./server test:run",
     "test:client": "pnpm --filter ./client test",
     "test:server": "pnpm --filter ./server test",
     "test:shared": "pnpm --filter ./shared test",
