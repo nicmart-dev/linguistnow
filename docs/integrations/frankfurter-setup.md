@@ -15,14 +15,24 @@ frankfurter:
   restart: unless-stopped
   ports:
     - "${FRANKFURTER_PORT:-8080}:8080"
+  volumes:
+    - frankfurter-data:/app/data
   healthcheck:
-    test: ["CMD", "wget", "--spider", "-q", "http://localhost:8080/latest"]
+    test:
+      [
+        "CMD-SHELL",
+        'ruby -rnet/http -e ''res = Net::HTTP.get_response(URI("http://localhost:8080/latest")); exit(res.is_a?(Net::HTTPSuccess) ? 0 : 1)''',
+      ]
     interval: 60s
     timeout: 10s
     retries: 3
-    start_period: 60s
+    start_period: 45m
   networks:
     - linguistnow-net
+
+volumes:
+  frankfurter-data:
+    name: linguistnow-frankfurter-data
 ```
 
 ## Key Features
@@ -75,12 +85,16 @@ Add to `server/.env`:
 
 ```bash
 FRANKFURTER_URL=http://frankfurter:8080
+# Optional: Fallback to public hosted API if self-hosted instance is unreachable
+FRANKFURTER_FALLBACK_URL=https://api.frankfurter.dev/v1
 ```
 
 For local development (outside Docker):
 
 ```bash
-FRANKFURTER_URL=http://localhost:8080
+# Note: Default local port is 8081 to avoid conflict if Docker Frankfurter is running on 8080
+FRANKFURTER_URL=http://localhost:8081
+FRANKFURTER_FALLBACK_URL=https://api.frankfurter.dev/v1
 ```
 
 ### Docker Compose
@@ -160,7 +174,7 @@ curl -X POST http://localhost:5000/api/currency/refresh
 
 - Check Frankfurter container logs: `docker logs linguistnow-frankfurter`
 - Verify container is healthy: `docker ps | grep frankfurter`
-- Check network connectivity: `docker network inspect linguistnow-network`
+- Check network connectivity: `docker network inspect linguistnow-net`
 
 **Error: "Connection refused"**
 
@@ -176,11 +190,13 @@ curl -X POST http://localhost:5000/api/currency/refresh
 
 ## Production Considerations
 
-### Rate Freshness
+### Rate Freshness & Resilience
 
 - **Update Frequency**: Rates update daily from ECB
-- **Cache Duration**: Rates cached in Redis for 48 hours
-- **Fallback**: Backend auto-fetches if cache is empty
+- **Persistent Cache**: Rates cached in Redis for 48 hours
+- **In-Memory Fallback**: Node.js in-memory cache buffers rates if Redis is disconnected
+- **Public API Fallback**: If the self-hosted Frankfurter container is offline or during a long historical sync, requests automatically fail over to `https://api.frankfurter.dev/v1`
+- **Decoupled Boot**: The backend depends on Frankfurter with `condition: service_started`, ensuring the main application boots instantly even when Frankfurter is doing an initial historical backfill
 
 ### Monitoring
 
