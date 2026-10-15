@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.0](https://github.com/nicmart-dev/linguistnow/compare/v1.4.5...v1.5.0) (2026-10-15)
+
+### ✨ Features
+
+- **currency:** improve Frankfurter resilience, security, and fallback ([#163](https://github.com/nicmart-dev/linguistnow/issues/163)) ([88756a2](https://github.com/nicmart-dev/linguistnow/commit/88756a29bff53f5d033ff80ce27f0fe7ae04652a)), closes [#161](https://github.com/nicmart-dev/linguistnow/issues/161)
+
+### ♻️ Code Refactoring
+
+- **docker:** consolidate compose files into tool-agnostic unified stack ([#167](https://github.com/nicmart-dev/linguistnow/issues/167)) ([b35cc03](https://github.com/nicmart-dev/linguistnow/commit/b35cc036f2a1ac796dd61b38e13fcdd43a2f3fed)), closes [#166](https://github.com/nicmart-dev/linguistnow/issues/166), references [#166](https://github.com/nicmart-dev/linguistnow/issues/166)
+
+### 📦 Build System
+
+- **deps:** bump fast-uri in the npm_and_yarn group across 1 directory ([#158](https://github.com/nicmart-dev/linguistnow/issues/158)) ([9ec7317](https://github.com/nicmart-dev/linguistnow/commit/9ec7317109f8584671429788630e85d4665160e6))
+- **deps:** bump the dependencies group with 61 updates ([#165](https://github.com/nicmart-dev/linguistnow/issues/165)) ([a2ab5ec](https://github.com/nicmart-dev/linguistnow/commit/a2ab5ec590ab7971231fc672dbba023dcf1c47d7))
+- **deps:** override conventional-changelog-writer to v9+ for semantic-release ([#168](https://github.com/nicmart-dev/linguistnow/issues/168)) ([8b26297](https://github.com/nicmart-dev/linguistnow/commit/8b26297ea048dd38ea1d6eb7f843b8ed5ac15dfe))
+- **deps:** update dependencies 2026-10-14 ([#164](https://github.com/nicmart-dev/linguistnow/issues/164)) ([0ba9eed](https://github.com/nicmart-dev/linguistnow/commit/0ba9eedae09ec8d69ee25207419c75b40868de2c))
+
+### 👷 Continuous Integration
+
+- **dependabot:** configure automated updates and auto-merge workflow ([9fce368](https://github.com/nicmart-dev/linguistnow/commit/9fce368e8707769d20a0d79f3cfb5a811f2bcb72))
+- **release:** support RELEASE_TOKEN secret to push to protected branch ([#169](https://github.com/nicmart-dev/linguistnow/issues/169)) ([ce6314d](https://github.com/nicmart-dev/linguistnow/commit/ce6314dee11690c4c384a5fae6cefe82281ff441))
+- **workflows:** upgrade actions to Node 24 compatible versions ([#160](https://github.com/nicmart-dev/linguistnow/issues/160)) ([9157a3f](https://github.com/nicmart-dev/linguistnow/commit/9157a3fb33b8d525100c5a78a41013089b3a8e85))
+
 ## [1.4.5](https://github.com/nicmart-dev/linguistnow/compare/v1.4.4...v1.4.5) (2026-10-14)
 
 ### 🐛 Bug Fixes
