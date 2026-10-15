@@ -92,7 +92,8 @@ FRANKFURTER_FALLBACK_URL=https://api.frankfurter.dev/v1
 For local development (outside Docker):
 
 ```bash
-FRANKFURTER_URL=http://localhost:8080
+# Note: Default local port is 8081 to avoid conflict if Docker Frankfurter is running on 8080
+FRANKFURTER_URL=http://localhost:8081
 FRANKFURTER_FALLBACK_URL=https://api.frankfurter.dev/v1
 ```
 
@@ -173,7 +174,7 @@ curl -X POST http://localhost:5000/api/currency/refresh
 
 - Check Frankfurter container logs: `docker logs linguistnow-frankfurter`
 - Verify container is healthy: `docker ps | grep frankfurter`
-- Check network connectivity: `docker network inspect linguistnow-network`
+- Check network connectivity: `docker network inspect linguistnow-net`
 
 **Error: "Connection refused"**
 

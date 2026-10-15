@@ -33,6 +33,7 @@ import {
   getRedisClient,
   resetRedisClient,
   resetInMemoryRates,
+  getInMemoryRates,
   refreshRates,
   getRates,
   convert,
@@ -225,6 +226,60 @@ describe("currencyService", () => {
       expect(result).toBeDefined();
       expect(result.base).toBe("USD");
     });
+
+    it("should handle TimeoutError and throw friendly timeout message", async () => {
+      const timeoutError = new DOMException(
+        "The operation was aborted due to timeout",
+        "TimeoutError",
+      );
+      vi.mocked(global.fetch).mockRejectedValue(timeoutError);
+
+      await expect(refreshRates()).rejects.toThrow(
+        "Frankfurter API timeout. Please ensure Frankfurter service is running at http://localhost:8080",
+      );
+    });
+
+    it("should handle ECONNREFUSED in error cause and throw connection error", async () => {
+      const fetchError = new TypeError("fetch failed");
+      fetchError.cause = {
+        code: "ECONNREFUSED",
+        message: "connect ECONNREFUSED 127.0.0.1:8080",
+      };
+      vi.mocked(global.fetch).mockRejectedValue(fetchError);
+
+      await expect(refreshRates()).rejects.toThrow(
+        "Cannot connect to Frankfurter service at http://localhost:8080. Please ensure the service is running.",
+      );
+    });
+
+    it("should deduplicate concurrent refreshRates calls", async () => {
+      const mockResponse = {
+        base: "USD",
+        date: "2024-01-15",
+        rates: { EUR: 0.85 },
+      };
+
+      vi.mocked(global.fetch).mockImplementation(
+        () =>
+          new Promise((resolve) =>
+            setTimeout(
+              () =>
+                resolve({
+                  ok: true,
+                  json: () => Promise.resolve(mockResponse),
+                } as Response),
+              20,
+            ),
+          ),
+      );
+
+      mockSetex.mockResolvedValue("OK");
+
+      const [res1, res2] = await Promise.all([refreshRates(), refreshRates()]);
+
+      expect(res1).toEqual(res2);
+      expect(global.fetch).toHaveBeenCalledTimes(1);
+    });
   });
 
   describe("getRates", () => {
@@ -326,6 +381,38 @@ describe("currencyService", () => {
 
       expect(global.fetch).not.toHaveBeenCalled();
       expect(result.rates).toEqual(mockResponse.rates);
+    });
+
+    it("should treat expired in-memory cache as cache miss", async () => {
+      const mockResponse = {
+        base: "USD",
+        date: "2024-01-15",
+        rates: { EUR: 0.85 },
+      };
+
+      vi.mocked(global.fetch).mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve(mockResponse),
+      } as Response);
+      mockSetex.mockResolvedValue("OK");
+
+      await refreshRates();
+
+      // Make in-memory cache appear older than 48 hours
+      const inMemory = getInMemoryRates();
+      if (inMemory) {
+        inMemory.updatedAt = new Date(
+          Date.now() - 86400 * 3 * 1000,
+        ).toISOString(); // 3 days ago
+      }
+
+      vi.mocked(global.fetch).mockClear();
+      mockGet.mockRejectedValueOnce(new Error("Redis offline"));
+
+      const result = await getRates();
+
+      expect(global.fetch).toHaveBeenCalledTimes(1);
+      expect(result).toBeDefined();
     });
   });
 

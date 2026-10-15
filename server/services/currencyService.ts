@@ -10,6 +10,7 @@ import { env } from "../env.js";
 
 const RATES_KEY = "fx:rates";
 const RATES_TTL = 86400 * 2; // 48 hours (buffer for weekends)
+const IN_MEMORY_TTL_MS = RATES_TTL * 1000; // 48 hours in milliseconds
 
 /**
  * Exchange rates response from Frankfurter API
@@ -28,12 +29,16 @@ let redisAvailable = false;
 // In-memory fallback cache (used when Redis is unavailable)
 let inMemoryRates: ExchangeRates | null = null;
 
+// In-flight refresh promise for request deduplication
+let inflightRefresh: Promise<ExchangeRates> | null = null;
+
 /**
- * Reset in-memory rates (for testing only)
+ * Reset in-memory rates and in-flight promises (for testing only)
  * @internal
  */
 export function resetInMemoryRates(): void {
   inMemoryRates = null;
+  inflightRefresh = null;
 }
 
 /**
@@ -58,6 +63,7 @@ export function resetRedisClient(): void {
   }
   redisAvailable = false;
   inMemoryRates = null;
+  inflightRefresh = null;
 }
 
 /**
@@ -193,9 +199,15 @@ async function getCachedRates(): Promise<ExchangeRates | null> {
     }
   }
 
-  // Fallback to in-memory cache if Redis is unavailable
+  // Fallback to in-memory cache if Redis is unavailable and rates are still fresh
   if (inMemoryRates) {
-    return inMemoryRates;
+    const age = Date.now() - new Date(inMemoryRates.updatedAt).getTime();
+    if (age < IN_MEMORY_TTL_MS) {
+      return inMemoryRates;
+    }
+    console.warn(
+      "In-memory FX rates cache has expired, fetching fresh rates...",
+    );
   }
 
   return null;
@@ -230,56 +242,83 @@ async function fetchFrankfurterRates(baseUrl: string): Promise<ExchangeRates> {
 }
 
 /**
- * Fetch fresh rates from Frankfurter (or fallback) and store in Redis/in-memory
+ * Fetch fresh rates from Frankfurter (or fallback) and store in Redis/in-memory.
+ * Deduplicates in-flight calls to prevent cache stampedes.
  * @returns Exchange rates data
  * @throws Error if Frankfurter API calls fail (with helpful error message)
  */
 export async function refreshRates(): Promise<ExchangeRates> {
-  let primaryError: unknown = null;
-
-  try {
-    const ratesData = await fetchFrankfurterRates(env.FRANKFURTER_URL);
-    await storeRates(ratesData);
-    return ratesData;
-  } catch (error) {
-    primaryError = error;
+  if (inflightRefresh) {
+    return inflightRefresh;
   }
 
-  // Attempt fallback if configured and different from primary URL
-  if (
-    env.FRANKFURTER_FALLBACK_URL &&
-    env.FRANKFURTER_FALLBACK_URL !== env.FRANKFURTER_URL
-  ) {
+  inflightRefresh = (async () => {
+    let primaryError: unknown;
+
     try {
-      console.warn(
-        `Primary Frankfurter service at ${env.FRANKFURTER_URL} failed, falling back to ${env.FRANKFURTER_FALLBACK_URL}...`,
-      );
-      const fallbackRates = await fetchFrankfurterRates(
-        env.FRANKFURTER_FALLBACK_URL,
-      );
-      await storeRates(fallbackRates);
-      return fallbackRates;
-    } catch (fallbackError) {
-      console.warn(
-        `Fallback Frankfurter service at ${env.FRANKFURTER_FALLBACK_URL} also failed: ${fallbackError instanceof Error ? fallbackError.message : String(fallbackError)}`,
+      const ratesData = await fetchFrankfurterRates(env.FRANKFURTER_URL);
+      await storeRates(ratesData);
+      return ratesData;
+    } catch (error) {
+      primaryError = error;
+    }
+
+    // Attempt fallback if configured and different from primary URL
+    if (
+      env.FRANKFURTER_FALLBACK_URL &&
+      env.FRANKFURTER_FALLBACK_URL !== env.FRANKFURTER_URL
+    ) {
+      try {
+        console.warn(
+          `Primary Frankfurter service at ${env.FRANKFURTER_URL} failed, falling back to ${env.FRANKFURTER_FALLBACK_URL}...`,
+        );
+        const fallbackRates = await fetchFrankfurterRates(
+          env.FRANKFURTER_FALLBACK_URL,
+        );
+        await storeRates(fallbackRates);
+        return fallbackRates;
+      } catch (fallbackError) {
+        console.warn(
+          `Fallback Frankfurter service at ${env.FRANKFURTER_FALLBACK_URL} also failed: ${fallbackError instanceof Error ? fallbackError.message : String(fallbackError)}`,
+        );
+      }
+    }
+
+    const error = primaryError;
+    const isTimeout =
+      error instanceof Error &&
+      (error.name === "AbortError" || error.name === "TimeoutError");
+
+    const isConnRefused =
+      error instanceof Error &&
+      (error.message.includes("ECONNREFUSED") ||
+        (error.cause instanceof Error &&
+          error.cause.message.includes("ECONNREFUSED")) ||
+        (typeof error.cause === "object" &&
+          error.cause !== null &&
+          "code" in error.cause &&
+          (error.cause as { code?: string }).code === "ECONNREFUSED"));
+
+    if (isTimeout) {
+      throw new Error(
+        `Frankfurter API timeout. Please ensure Frankfurter service is running at ${env.FRANKFURTER_URL}`,
+        { cause: error },
       );
     }
-  }
+    if (isConnRefused) {
+      throw new Error(
+        `Cannot connect to Frankfurter service at ${env.FRANKFURTER_URL}. Please ensure the service is running.`,
+        { cause: error },
+      );
+    }
+    throw error;
+  })();
 
-  const error = primaryError;
-  if (error instanceof Error && error.name === "AbortError") {
-    throw new Error(
-      `Frankfurter API timeout. Please ensure Frankfurter service is running at ${env.FRANKFURTER_URL}`,
-      { cause: error },
-    );
+  try {
+    return await inflightRefresh;
+  } finally {
+    inflightRefresh = null;
   }
-  if (error instanceof Error && error.message.includes("ECONNREFUSED")) {
-    throw new Error(
-      `Cannot connect to Frankfurter service at ${env.FRANKFURTER_URL}. Please ensure the service is running.`,
-      { cause: error },
-    );
-  }
-  throw error;
 }
 
 /**
@@ -358,11 +397,15 @@ export async function hasRates(): Promise<boolean> {
     const cached = await getCachedRates();
     return cached !== null;
   } catch (error) {
-    // If Redis check fails, return false (will trigger fresh fetch)
+    // If Redis check fails, check in-memory cache freshness
     console.warn(
       "Failed to check rates cache:",
       error instanceof Error ? error.message : String(error),
     );
+    if (inMemoryRates) {
+      const age = Date.now() - new Date(inMemoryRates.updatedAt).getTime();
+      return age < IN_MEMORY_TTL_MS;
+    }
     return false;
   }
 }

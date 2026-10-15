@@ -17,9 +17,23 @@ const envSchema = z
     REDIS_URL: z.url().default("redis://localhost:6379"),
     FRANKFURTER_URL: z.url().default("http://localhost:8081"),
     FRANKFURTER_FALLBACK_URL: z
-      .url()
+      .string()
       .optional()
-      .default("https://api.frankfurter.dev/v1"),
+      .default("https://api.frankfurter.dev/v1")
+      .refine(
+        (val) =>
+          !val ||
+          val === "disabled" ||
+          val === "none" ||
+          z.url().safeParse(val).success,
+        {
+          message:
+            "FRANKFURTER_FALLBACK_URL must be a valid URL, 'disabled', or empty",
+        },
+      )
+      .transform((val) =>
+        val === "disabled" || val === "none" || val === "" ? undefined : val,
+      ),
   })
   .refine(
     (data) => data.AIRTABLE_PERSONAL_ACCESS_TOKEN || data.AIRTABLE_API_KEY,
