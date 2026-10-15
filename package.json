@@ -57,6 +57,7 @@
   },
   "pnpm": {
     "overrides": {
+      "conventional-changelog-writer": ">=9.0.0",
       "qs": ">=6.14.1",
       "serialize-javascript": ">=7.0.5",
       "typescript": "^5.9.3"
