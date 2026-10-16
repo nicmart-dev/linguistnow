@@ -344,5 +344,9 @@
         "workingHoursHint24h": "24시간 형식(0-23)으로 근무 시간을 선택하세요",
         "noTimezoneFound": "시간대를 찾을 수 없습니다",
         "timezoneSearchPlaceholder": "시간대 검색..."
+    },
+    "notFound": {
+        "title": "404 | 찾을 수 없음",
+        "goHome": "홈으로 돌아가기"
     }
 }

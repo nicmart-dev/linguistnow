@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.7.0](https://github.com/nicmart-dev/linguistnow/compare/v1.6.0...v1.7.0) (2026-10-16)
+
+### ✨ Features
+
+- **client:** add 404 error page ([#55](https://github.com/nicmart-dev/linguistnow/issues/55)) ([#171](https://github.com/nicmart-dev/linguistnow/issues/171)) ([9d09755](https://github.com/nicmart-dev/linguistnow/commit/9d0975572a0dbf766aaa020fd1db62ceac46a363))
+
 ## [1.6.0](https://github.com/nicmart-dev/linguistnow/compare/v1.5.1...v1.6.0) (2026-10-16)
 
 ### ✨ Features

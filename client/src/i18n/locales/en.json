@@ -343,9 +343,10 @@
             "invalidStartHour": "Working hours start must be between 0 and 23",
             "invalidEndHour": "Working hours end must be between 0 and 23",
             "startAfterEnd": "Working hours start must be before end"
-        },
-        "selectHour": "Select hour",
-        "workingHoursHintAmPm": "Select your working hours",
-        "workingHoursHint24h": "Select your working hours in 24-hour format (0-23)"
+        }
+    },
+    "notFound": {
+        "title": "404 | Not Found",
+        "goHome": "Go Back Home"
     }
 }

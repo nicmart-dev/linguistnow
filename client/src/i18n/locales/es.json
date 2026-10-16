@@ -344,5 +344,9 @@
         "workingHoursHint24h": "Selecciona tus horas de trabajo en formato de 24 horas (0-23)",
         "noTimezoneFound": "No se encontró zona horaria",
         "timezoneSearchPlaceholder": "Buscar zona horaria..."
+    },
+    "notFound": {
+        "title": "404 | No encontrado",
+        "goHome": "Volver al inicio"
     }
 }
