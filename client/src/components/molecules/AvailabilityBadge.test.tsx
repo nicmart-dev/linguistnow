@@ -59,7 +59,7 @@ describe('AvailabilityBadge', () => {
                 setupMessage="Please connect your calendar"
             />
         )
-        const badge = container.querySelector('span[title]')
+        const badge = container.querySelector('[title]')
         expect(badge?.getAttribute('title')).toBe(
             'Please connect your calendar'
         )
@@ -67,21 +67,21 @@ describe('AvailabilityBadge', () => {
 
     it('applies correct styling for available status', () => {
         const { container } = render(<AvailabilityBadge status="available" />)
-        const badge = container.querySelector('span')
+        const badge = container.firstElementChild
         expect(badge?.className).toContain('bg-emerald-50')
         expect(badge?.className).toContain('text-emerald-600')
     })
 
     it('applies correct styling for unavailable status', () => {
         const { container } = render(<AvailabilityBadge status="unavailable" />)
-        const badge = container.querySelector('span')
+        const badge = container.firstElementChild
         expect(badge?.className).toContain('bg-red-50')
         expect(badge?.className).toContain('text-red-600')
     })
 
     it('applies correct styling for limited status', () => {
         const { container } = render(<AvailabilityBadge status="limited" />)
-        const badge = container.querySelector('span')
+        const badge = container.firstElementChild
         expect(badge?.className).toContain('bg-amber-50')
         expect(badge?.className).toContain('text-amber-600')
     })
@@ -90,24 +90,32 @@ describe('AvailabilityBadge', () => {
         const { container } = render(
             <AvailabilityBadge status="setup-incomplete" />
         )
-        const badge = container.querySelector('span')
+        const badge = container.firstElementChild
         expect(badge?.className).toContain('bg-gray-100')
         expect(badge?.className).toContain('text-gray-600')
     })
 
-    it('renders SVG icon for each status', () => {
+    it('renders decorative SVG icon for each status', () => {
         const { container, rerender } = render(
             <AvailabilityBadge status="available" />
         )
-        expect(container.querySelector('svg')).toBeTruthy()
+        expect(
+            container.querySelector('svg')?.getAttribute('aria-hidden')
+        ).toBe('true')
 
         rerender(<AvailabilityBadge status="unavailable" />)
-        expect(container.querySelector('svg')).toBeTruthy()
+        expect(
+            container.querySelector('svg')?.getAttribute('aria-hidden')
+        ).toBe('true')
 
         rerender(<AvailabilityBadge status="limited" />)
-        expect(container.querySelector('svg')).toBeTruthy()
+        expect(
+            container.querySelector('svg')?.getAttribute('aria-hidden')
+        ).toBe('true')
 
         rerender(<AvailabilityBadge status="setup-incomplete" />)
-        expect(container.querySelector('svg')).toBeTruthy()
+        expect(
+            container.querySelector('svg')?.getAttribute('aria-hidden')
+        ).toBe('true')
     })
 })
