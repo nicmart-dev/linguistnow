@@ -336,6 +336,7 @@
         "timezoneSearchPlaceholder": "Zeitzone suchen..."
     },
     "notFound": {
-        "title": "404 | Nicht gefunden"
+        "title": "404 | Nicht gefunden",
+        "goHome": "Zurück zur Startseite"
     }
 }

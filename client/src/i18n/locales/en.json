@@ -336,6 +336,7 @@
         }
     },
     "notFound": {
-        "title": "404 | Not Found"
+        "title": "404 | Not Found",
+        "goHome": "Go Back Home"
     }
 }

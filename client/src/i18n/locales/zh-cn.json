@@ -336,6 +336,7 @@
         "timezoneSearchPlaceholder": "搜索时区..."
     },
     "notFound": {
-        "title": "404 | 未找到"
+        "title": "404 | 未找到",
+        "goHome": "返回首页"
     }
 }

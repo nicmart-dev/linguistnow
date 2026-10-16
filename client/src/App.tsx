@@ -125,77 +125,99 @@ const AppContent = ({
             <LanguageProvider>
                 <BrowserRouter>
                     <ScrollToTop />
-                    <Navbar userDetails={userDetails} />
-                    <Routes>
-                        {/* Ask user to log in when landing on site, then if role
-                        is PM go to Dashboard, otherwise to Settings page */}
-                        <Route
-                            path="/"
-                            element={
-                                isRestoringAuth ? (
-                                    <div>{t('general.loading')}</div>
-                                ) : userDetails ? (
-                                    userDetails.role === 'Project Manager' ? (
-                                        <Navigate to="/dashboard" replace />
-                                    ) : (
-                                        <Navigate to="/settings" replace />
-                                    )
-                                ) : (
-                                    <Navigate to="/login" replace />
-                                )
-                            }
-                        />
-                        <Route
-                            path="/login"
-                            element={<Login setUserDetails={setUserDetails} />}
-                        />
-                        <Route
-                            path="/logout"
-                            element={
-                                <Logout
-                                    setUserDetails={setUserDetails}
-                                    userDetails={userDetails}
-                                />
-                            }
-                        />
-                        <Route
-                            path="/dashboard"
-                            element={
-                                <PrivateRoute
-                                    userDetails={userDetails}
-                                    isRestoringAuth={isRestoringAuth}
+                    <div className="flex min-h-screen flex-col">
+                        <Navbar userDetails={userDetails} />
+                        <div className="flex flex-1 flex-col">
+                            <Routes>
+                                {/* Ask user to log in when landing on site, then if role
+                                is PM go to Dashboard, otherwise to Settings page */}
+                                <Route
+                                    path="/"
                                     element={
-                                        userDetails ? (
-                                            <Dashboard
-                                                userName={userDetails.name}
-                                            />
+                                        isRestoringAuth ? (
+                                            <div>{t('general.loading')}</div>
+                                        ) : userDetails ? (
+                                            userDetails.role ===
+                                            'Project Manager' ? (
+                                                <Navigate
+                                                    to="/dashboard"
+                                                    replace
+                                                />
+                                            ) : (
+                                                <Navigate
+                                                    to="/settings"
+                                                    replace
+                                                />
+                                            )
                                         ) : (
-                                            <Navigate to="/login" />
+                                            <Navigate to="/login" replace />
                                         )
                                     }
                                 />
-                            }
-                        />
-                        <Route
-                            path="/settings"
-                            element={
-                                <PrivateRoute
-                                    userDetails={userDetails}
-                                    isRestoringAuth={isRestoringAuth}
+                                <Route
+                                    path="/login"
                                     element={
-                                        <AccountSettings
-                                            userDetails={userDetails}
+                                        <Login
                                             setUserDetails={setUserDetails}
                                         />
                                     }
                                 />
-                            }
-                        />
-                        <Route path="/privacy" element={<PrivacyPolicy />} />
-                        <Route path="/404" element={<NotFound />} />
-                        <Route path="*" element={<NotFound />} />
-                    </Routes>
-                    <Footer />
+                                <Route
+                                    path="/logout"
+                                    element={
+                                        <Logout
+                                            setUserDetails={setUserDetails}
+                                            userDetails={userDetails}
+                                        />
+                                    }
+                                />
+                                <Route
+                                    path="/dashboard"
+                                    element={
+                                        <PrivateRoute
+                                            userDetails={userDetails}
+                                            isRestoringAuth={isRestoringAuth}
+                                            element={
+                                                userDetails ? (
+                                                    <Dashboard
+                                                        userName={
+                                                            userDetails.name
+                                                        }
+                                                    />
+                                                ) : (
+                                                    <Navigate to="/login" />
+                                                )
+                                            }
+                                        />
+                                    }
+                                />
+                                <Route
+                                    path="/settings"
+                                    element={
+                                        <PrivateRoute
+                                            userDetails={userDetails}
+                                            isRestoringAuth={isRestoringAuth}
+                                            element={
+                                                <AccountSettings
+                                                    userDetails={userDetails}
+                                                    setUserDetails={
+                                                        setUserDetails
+                                                    }
+                                                />
+                                            }
+                                        />
+                                    }
+                                />
+                                <Route
+                                    path="/privacy"
+                                    element={<PrivacyPolicy />}
+                                />
+                                <Route path="/404" element={<NotFound />} />
+                                <Route path="*" element={<NotFound />} />
+                            </Routes>
+                        </div>
+                        <Footer />
+                    </div>
                     <Toaster position="top-right" />
                 </BrowserRouter>
             </LanguageProvider>

@@ -336,6 +336,7 @@
         "timezoneSearchPlaceholder": "시간대 검색..."
     },
     "notFound": {
-        "title": "404 | 찾을 수 없음"
+        "title": "404 | 찾을 수 없음",
+        "goHome": "홈으로 돌아가기"
     }
 }

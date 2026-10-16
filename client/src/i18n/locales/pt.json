@@ -336,6 +336,7 @@
         "timezoneSearchPlaceholder": "Pesquisar fuso horário..."
     },
     "notFound": {
-        "title": "404 | Não encontrado"
+        "title": "404 | Não encontrado",
+        "goHome": "Voltar para o início"
     }
 }

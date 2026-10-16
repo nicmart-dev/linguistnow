@@ -336,6 +336,7 @@
         "timezoneSearchPlaceholder": "Rechercher un fuseau horaire..."
     },
     "notFound": {
-        "title": "404 | Non trouvé"
+        "title": "404 | Non trouvé",
+        "goHome": "Retour à l'accueil"
     }
 }

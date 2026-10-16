@@ -336,6 +336,7 @@
         "timezoneSearchPlaceholder": "Поиск часового пояса..."
     },
     "notFound": {
-        "title": "404 | Не найдено"
+        "title": "404 | Не найдено",
+        "goHome": "Вернуться на главную"
     }
 }

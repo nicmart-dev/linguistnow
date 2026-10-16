@@ -336,6 +336,7 @@
         "timezoneSearchPlaceholder": "タイムゾーンを検索..."
     },
     "notFound": {
-        "title": "404 | 見つかりません"
+        "title": "404 | 見つかりません",
+        "goHome": "ホームに戻る"
     }
 }
