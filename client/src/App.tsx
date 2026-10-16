@@ -11,6 +11,7 @@ import LanguageProvider from '@/i18n/LanguageProvider' // Package used to manage
 import { Logout } from '@/pages/Logout'
 import Footer from '@/components/organisms/Footer'
 import PrivacyPolicy from '@/pages/PrivacyPolicy'
+import NotFound from '@/pages/NotFound'
 import ScrollToTop from '@/components/organisms/ScrollToTop'
 import type { User } from '@linguistnow/shared'
 import { fetchUserDetails } from '@/auth-users/utils'
@@ -191,6 +192,8 @@ const AppContent = ({
                             }
                         />
                         <Route path="/privacy" element={<PrivacyPolicy />} />
+                        <Route path="/404" element={<NotFound />} />
+                        <Route path="*" element={<NotFound />} />
                     </Routes>
                     <Footer />
                     <Toaster position="top-right" />

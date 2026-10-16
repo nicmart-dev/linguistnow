@@ -334,5 +334,8 @@
         "workingHoursHint24h": "以24小时格式（0-23）选择您的工作时间",
         "noTimezoneFound": "未找到时区",
         "timezoneSearchPlaceholder": "搜索时区..."
+    },
+    "notFound": {
+        "title": "404 | 未找到"
     }
 }

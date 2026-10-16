@@ -334,5 +334,8 @@
         "workingHoursHint24h": "Выберите ваши рабочие часы в 24-часовом формате (0-23)",
         "noTimezoneFound": "Часовой пояс не найден",
         "timezoneSearchPlaceholder": "Поиск часового пояса..."
+    },
+    "notFound": {
+        "title": "404 | Не найдено"
     }
 }

@@ -334,5 +334,8 @@
         "workingHoursHint24h": "24時間形式（0-23）で勤務時間を選択してください",
         "noTimezoneFound": "タイムゾーンが見つかりません",
         "timezoneSearchPlaceholder": "タイムゾーンを検索..."
+    },
+    "notFound": {
+        "title": "404 | 見つかりません"
     }
 }

@@ -334,5 +334,8 @@
         "workingHoursHint24h": "حدد ساعات عملك بتنسيق 24 ساعة (0-23)",
         "noTimezoneFound": "لم يتم العثور على المنطقة الزمنية",
         "timezoneSearchPlaceholder": "البحث عن المنطقة الزمنية..."
+    },
+    "notFound": {
+        "title": "404 | غير موجود"
     }
 }
