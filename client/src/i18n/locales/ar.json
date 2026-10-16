@@ -30,7 +30,10 @@
         "deleteAccountSuccess": "تم حذف الحساب بنجاح",
         "confirmDelete": "نعم، احذف حسابي",
         "cancel": "إلغاء",
-        "deleting": "جاري الحذف..."
+        "deleting": "جاري الحذف...",
+        "setupCompleteTitle": "Setup complete!",
+        "setupCompleteMessage": "Your calendar selection has been saved. You're all set, and you can come back to update your settings any time.",
+        "setupCompleteButton": "Done"
     },
     "linguistProfile": {
         "title": "إعدادات الملف الشخصي",

@@ -30,7 +30,10 @@
         "deleteAccountSuccess": "帐户已成功删除",
         "confirmDelete": "是的，删除我的帐户",
         "cancel": "取消",
-        "deleting": "正在删除..."
+        "deleting": "正在删除...",
+        "setupCompleteTitle": "Setup complete!",
+        "setupCompleteMessage": "Your calendar selection has been saved. You're all set, and you can come back to update your settings any time.",
+        "setupCompleteButton": "Done"
     },
     "linguistProfile": {
         "title": "个人资料设置",
