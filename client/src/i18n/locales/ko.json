@@ -30,7 +30,10 @@
         "deleteAccountSuccess": "계정이 성공적으로 삭제되었습니다",
         "confirmDelete": "예, 내 계정 삭제",
         "cancel": "취소",
-        "deleting": "삭제 중..."
+        "deleting": "삭제 중...",
+        "setupCompleteTitle": "Setup complete!",
+        "setupCompleteMessage": "Your calendar selection has been saved. You're all set, and you can come back to update your settings any time.",
+        "setupCompleteButton": "Done"
     },
     "linguistProfile": {
         "title": "프로필 설정",

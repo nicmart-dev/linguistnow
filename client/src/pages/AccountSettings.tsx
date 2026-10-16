@@ -6,7 +6,7 @@ import Hero from '@/components/organisms/Hero'
 import { logger } from '@/utils/logger'
 import { useNavigate } from 'react-router-dom'
 import { googleLogout } from '@react-oauth/google'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
 
 /* The AccountSettings component utilizes the CalendarSelector component 
@@ -16,8 +16,24 @@ const AccountSettings = ({ userDetails, setUserDetails }) => {
     const navigate = useNavigate()
     const [isDeleting, setIsDeleting] = useState(false)
     const [showConfirmDelete, setShowConfirmDelete] = useState(false)
+    const [calendarsSaved, setCalendarsSaved] = useState(false)
+    const setupAlertRef = useRef<HTMLDivElement>(null)
+    const isLinguist = userDetails?.Role === 'Linguist'
+
+    /* Bring the setup-complete alert into view and focus it after a save */
+    useEffect(() => {
+        if (calendarsSaved && isLinguist && setupAlertRef.current) {
+            setupAlertRef.current.scrollIntoView?.({
+                behavior: 'smooth',
+                block: 'center',
+            })
+            setupAlertRef.current.focus()
+        }
+    }, [calendarsSaved, isLinguist])
+
     /* Save user selected calendars */
     const handleSaveCalendars = async (updatedCalendars) => {
+        setCalendarsSaved(false)
         try {
             // Validate: at least one calendar must be selected
             const validCalendars = Array.isArray(updatedCalendars)
@@ -78,11 +94,16 @@ const AccountSettings = ({ userDetails, setUserDetails }) => {
                 'Calendar IDs': updatedCalendars.join(','),
             })
 
-            // Show success toast
-            toast.success(t('calendarSelector.saveSuccess'))
+            // Linguists get the inline setup-complete alert instead of a toast
+            if (isLinguist) {
+                setCalendarsSaved(true)
+            } else {
+                toast.success(t('calendarSelector.saveSuccess'))
+            }
             logger.log('Calendars saved.')
         } catch (error) {
             console.error('Failed to save calendars:', error)
+            setCalendarsSaved(false)
             // Show error toast
             const errorMessage =
                 error instanceof Error
@@ -319,6 +340,41 @@ const AccountSettings = ({ userDetails, setUserDetails }) => {
                         {t('accountSettings.introText')}
                     </p>
 
+                    <div aria-live="polite">
+                        {isLinguist && calendarsSaved && (
+                            <div
+                                role="status"
+                                ref={setupAlertRef}
+                                tabIndex={-1}
+                                className="max-w-3xl mb-6 p-4 rounded border border-green-300 bg-green-50 text-green-800 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
+                            >
+                                <div>
+                                    <p className="font-semibold">
+                                        {t(
+                                            'accountSettings.setupCompleteTitle',
+                                            'Setup complete!'
+                                        )}
+                                    </p>
+                                    <p className="text-sm">
+                                        {t(
+                                            'accountSettings.setupCompleteMessage',
+                                            "Your calendar selection has been saved. You're all set, and you can come back to update your settings any time."
+                                        )}
+                                    </p>
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={handleGoToCalendar}
+                                    className="bg-green-700 hover:bg-green-800 text-white font-semibold py-2 px-6 rounded transition-colors"
+                                >
+                                    {t(
+                                        'accountSettings.setupCompleteButton',
+                                        'Done'
+                                    )}
+                                </button>
+                            </div>
+                        )}
+                    </div>
                     {userDetails && (
                         <>
                             {/* Calendar Selection, Profile Settings, and Availability Settings - Grid layout on large screens */}

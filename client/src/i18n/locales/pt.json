@@ -30,7 +30,10 @@
         "deleteAccountSuccess": "Conta excluída com sucesso",
         "confirmDelete": "Sim, excluir minha conta",
         "cancel": "Cancelar",
-        "deleting": "Excluindo..."
+        "deleting": "Excluindo...",
+        "setupCompleteTitle": "Setup complete!",
+        "setupCompleteMessage": "Your calendar selection has been saved. You're all set, and you can come back to update your settings any time.",
+        "setupCompleteButton": "Done"
     },
     "linguistProfile": {
         "title": "Configurações do perfil",

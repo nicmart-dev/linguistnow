@@ -30,7 +30,10 @@
         "deleteAccountSuccess": "Compte supprimé avec succès",
         "confirmDelete": "Oui, supprimer mon compte",
         "cancel": "Annuler",
-        "deleting": "Suppression..."
+        "deleting": "Suppression...",
+        "setupCompleteTitle": "Setup complete!",
+        "setupCompleteMessage": "Your calendar selection has been saved. You're all set, and you can come back to update your settings any time.",
+        "setupCompleteButton": "Done"
     },
     "linguistProfile": {
         "title": "Paramètres du profil",
@@ -204,9 +207,6 @@
             "missingCredentials_other": "Les identifiants de calendrier ou l'authentification ne sont pas disponibles pour {{count}} linguistes ({{emails}}). Veuillez leur demander de se connecter à nouveau avec leur compte Google, de sélectionner leurs calendriers et de cliquer sur le bouton \"Enregistrer les calendriers\" dans la page des paramètres.",
             "genericMultiple_one": "{{message}} ({{count}} utilisateur affecté : {{emails}})",
             "genericMultiple_other": "{{message}} ({{count}} utilisateurs affectés : {{emails}})"
-        },
-        "alt": {
-            "userProfileAvatar": "avatar de profil utilisateur"
         }
     },
     "hero": {
