@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.8.1](https://github.com/nicmart-dev/linguistnow/compare/v1.8.0...v1.8.1) (2026-10-16)
+
+### 🐛 Bug Fixes
+
+- **i18n:** translate setup complete alert strings in non-English locales ([#174](https://github.com/nicmart-dev/linguistnow/issues/174)) ([b0fc027](https://github.com/nicmart-dev/linguistnow/commit/b0fc02775bc971f6ddec0c00fae1c8359c70906b))
+
 ## [1.8.0](https://github.com/nicmart-dev/linguistnow/compare/v1.7.0...v1.8.0) (2026-10-16)
 
 ### ✨ Features
