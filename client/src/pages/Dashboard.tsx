@@ -252,7 +252,7 @@ const Dashboard = ({ userName }: DashboardProps) => {
 
                     {/* View Mode Toggle and Bulk Actions */}
                     <div className="w-full mb-4 flex justify-between items-center">
-                        <div>
+                        <div className="flex flex-wrap gap-2">
                             {(() => {
                                 const incompleteLinguists = linguists.filter(
                                     (l) => !l.setupStatus.isComplete
@@ -344,6 +344,47 @@ const Dashboard = ({ userName }: DashboardProps) => {
                                     </Button>
                                 )
                             })()}
+                            {(() => {
+                                const expiredTokenLinguists = linguists.filter(
+                                    (l) =>
+                                        l.setupStatus.isComplete &&
+                                        l.setupStatus.tokenExpired
+                                )
+                                if (expiredTokenLinguists.length === 0)
+                                    return null
+
+                                return (
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => {
+                                            const accountSettingsUrl = `${window.location.origin}/settings`
+                                            const emailBody = tEmail(
+                                                'dashboard.booking.reloginReminderBodyBulk',
+                                                {
+                                                    accountSettingsUrl,
+                                                }
+                                            )
+                                            const emailAddresses =
+                                                expiredTokenLinguists
+                                                    .map((l) => l.email)
+                                                    .join(',')
+
+                                            window.open(
+                                                `mailto:?bcc=${emailAddresses}&subject=${encodeURIComponent(tEmail('dashboard.booking.reloginReminderSubjectBulk'))}&body=${encodeURIComponent(emailBody)}`,
+                                                '_blank'
+                                            )
+                                        }}
+                                    >
+                                        {t(
+                                            'dashboard.booking.sendReloginReminderToAll',
+                                            {
+                                                count: expiredTokenLinguists.length,
+                                            }
+                                        )}
+                                    </Button>
+                                )
+                            })()}
                         </div>
                         <Tabs
                             value={viewMode}
@@ -388,6 +429,8 @@ const Dashboard = ({ userName }: DashboardProps) => {
                                                 />
                                                 {linguist.setupStatus
                                                     .isComplete &&
+                                                    !linguist.setupStatus
+                                                        .tokenExpired &&
                                                     linguist.availability
                                                         ?.isAvailable && (
                                                         <div className="mt-2">
@@ -458,6 +501,29 @@ const Dashboard = ({ userName }: DashboardProps) => {
                                                         </Button>
                                                     </div>
                                                 )}
+                                                {linguist.setupStatus
+                                                    .isComplete &&
+                                                    linguist.setupStatus
+                                                        .tokenExpired && (
+                                                        <div className="mt-2">
+                                                            <Button
+                                                                size="sm"
+                                                                variant="outline"
+                                                                onClick={() => {
+                                                                    const accountSettingsUrl = `${window.location.origin}/settings`
+                                                                    window.open(
+                                                                        `mailto:${linguist.email}?subject=${encodeURIComponent(tEmail('dashboard.booking.reloginReminderSubjectBulk'))}&body=${encodeURIComponent(tEmail('dashboard.booking.reloginReminderBodyBulk', { accountSettingsUrl }))}`,
+                                                                        '_blank'
+                                                                    )
+                                                                }}
+                                                                className="w-full"
+                                                            >
+                                                                {t(
+                                                                    'dashboard.booking.sendReloginReminder'
+                                                                )}
+                                                            </Button>
+                                                        </div>
+                                                    )}
                                             </div>
                                         ))}
                                     </div>

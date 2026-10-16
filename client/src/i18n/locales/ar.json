@@ -127,7 +127,9 @@
             "unavailable": "غير متاح",
             "limited": "محدود",
             "setupIncomplete": "الإعداد غير مكتمل",
-            "missingItems": "مفقود: {{items}}"
+            "missingItems": "مفقود: {{items}}",
+            "tokenExpired": "مطلوب تسجيل الدخول",
+            "tokenExpiredTooltip": "انتهت صلاحية تفويض تقويم Google. يحتاج اللغوي إلى تسجيل الدخول مرة أخرى لإعادة التفويض."
         },
         "availabilityTimeline": {
             "title": "الجدول الزمني للتوفر",
@@ -156,6 +158,11 @@
             "sendSetupReminderToAll_other": "إرسال تذكير إلى {{count}} لغويين",
             "setupReminderSubjectBulk": "أكمل إعداد LinguistNow الخاص بك",
             "setupReminderBodyBulk": "مرحباً،\n\nأنت قيد النظر لمشروع قادم! لتكون مؤهلاً، يرجى إكمال إعداد LinguistNow الخاص بك. العناصر المفقودة: {{missingItems}}\n\nيرجى تسجيل الدخول وإكمال ملفك الشخصي في: {{accountSettingsUrl}}\n\nشكراً لك!",
+            "sendReloginReminder": "إرسال تذكير بإعادة تسجيل الدخول",
+            "sendReloginReminderToAll": "إرسال تذكير بإعادة تسجيل الدخول إلى {{count}} لغوي",
+            "sendReloginReminderToAll_other": "إرسال تذكير بإعادة تسجيل الدخول إلى {{count}} لغويين",
+            "reloginReminderSubjectBulk": "أعد تفويض وصول تقويم Google الخاص بك في LinguistNow",
+            "reloginReminderBodyBulk": "مرحباً،\n\nأنت قيد النظر لمشروع قادم! ومع ذلك، انتهت صلاحية تفويض تقويم Google الخاص بك في LinguistNow، لذا لا يمكننا التحقق من توفرك.\n\nيرجى تسجيل الدخول مرة أخرى باستخدام حساب Google الخاص بك لإعادة تفويض الوصول في: {{accountSettingsUrl}}\n\nشكراً لك!",
             "defaultTitle": "مشروع الترجمة",
             "emailSubject": "طلب الحجز: {{projectName}}",
             "emailBody": "مرحباً {{linguistName}}،\n\nأود حجزك للمشروع التالي:\n\nالمشروع: {{projectName}}\nالتوفر المطلوب: {{startDate}} - {{endDate}}\n\n{{description}}\n\nيرجى تأكيد توفرك لكامل مدة المشروع.\n\nمع أطيب التحيات",

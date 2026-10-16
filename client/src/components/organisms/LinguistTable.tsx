@@ -20,11 +20,14 @@ const LinguistTable = ({ linguists }: LinguistTableProps) => {
             | 'available'
             | 'unavailable'
             | 'limited'
-            | 'setup-incomplete' = 'setup-incomplete'
+            | 'setup-incomplete'
+            | 'token-expired' = 'setup-incomplete'
         let freeHours: number | undefined
 
         if (!linguist.setupStatus.isComplete) {
             availabilityStatus = 'setup-incomplete'
+        } else if (linguist.setupStatus.tokenExpired) {
+            availabilityStatus = 'token-expired'
         } else if (linguist.availability) {
             if (linguist.availability.isAvailable) {
                 availabilityStatus = 'available'

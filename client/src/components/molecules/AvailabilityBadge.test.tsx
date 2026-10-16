@@ -11,6 +11,9 @@ vi.mock('react-i18next', () => ({
                 'dashboard.availabilityBadge.limited': 'Limited',
                 'dashboard.availabilityBadge.setupIncomplete':
                     'Setup Incomplete',
+                'dashboard.availabilityBadge.tokenExpired': 'Login Required',
+                'dashboard.availabilityBadge.tokenExpiredTooltip':
+                    'Google Calendar authorization has expired. The linguist needs to log in again to re-authorize.',
             }
             return translations[key] || key
         },
@@ -65,6 +68,30 @@ describe('AvailabilityBadge', () => {
         )
     })
 
+    it('renders token-expired status with default tooltip', () => {
+        const { container } = render(
+            <AvailabilityBadge status="token-expired" />
+        )
+        expect(screen.getByText('Login Required')).toBeDefined()
+        const badge = container.querySelector('[title]')
+        expect(badge?.getAttribute('title')).toBe(
+            'Google Calendar authorization has expired. The linguist needs to log in again to re-authorize.'
+        )
+    })
+
+    it('renders token-expired status with custom setupMessage tooltip', () => {
+        const { container } = render(
+            <AvailabilityBadge
+                status="token-expired"
+                setupMessage="Custom token expired message"
+            />
+        )
+        const badge = container.querySelector('[title]')
+        expect(badge?.getAttribute('title')).toBe(
+            'Custom token expired message'
+        )
+    })
+
     it('applies correct styling for available status', () => {
         const { container } = render(<AvailabilityBadge status="available" />)
         const badge = container.firstElementChild
@@ -95,6 +122,15 @@ describe('AvailabilityBadge', () => {
         expect(badge?.className).toContain('text-gray-600')
     })
 
+    it('applies correct styling for token-expired status', () => {
+        const { container } = render(
+            <AvailabilityBadge status="token-expired" />
+        )
+        const badge = container.firstElementChild
+        expect(badge?.className).toContain('bg-orange-50')
+        expect(badge?.className).toContain('text-orange-600')
+    })
+
     it('renders decorative SVG icon for each status', () => {
         const { container, rerender } = render(
             <AvailabilityBadge status="available" />
@@ -114,6 +150,11 @@ describe('AvailabilityBadge', () => {
         ).toBe('true')
 
         rerender(<AvailabilityBadge status="setup-incomplete" />)
+        expect(
+            container.querySelector('svg')?.getAttribute('aria-hidden')
+        ).toBe('true')
+
+        rerender(<AvailabilityBadge status="token-expired" />)
         expect(
             container.querySelector('svg')?.getAttribute('aria-hidden')
         ).toBe('true')

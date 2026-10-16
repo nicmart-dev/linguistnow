@@ -47,6 +47,7 @@ export interface SearchLinguistsQuery {
 export interface SetupStatus {
   isComplete: boolean;
   missingItems: string[]; // e.g., ["calendars", "timezone", "working_hours"]
+  tokenExpired?: boolean; // true when Google OAuth token is missing, expired, or revoked
 }
 
 /**
@@ -69,7 +70,7 @@ export interface LinguistWithAvailability {
     isAvailable: boolean;
     freeSlots: Array<{ start: string; end: string }>;
     totalFreeHours: number;
-  } | null; // null if setup incomplete
+  } | null; // null if setup incomplete, token expired, or check failed
 }
 
 /**
