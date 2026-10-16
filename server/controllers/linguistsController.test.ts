@@ -25,12 +25,14 @@ vi.mock("../env.js", () => ({
 
 const mockWithAutoRefresh = vi.fn();
 vi.mock("../utils/tokenRefresh.js", () => ({
-  withAutoRefresh: (...args: unknown[]) => mockWithAutoRefresh(...args),
+  withAutoRefresh: (...args: unknown[]): Promise<unknown> =>
+    mockWithAutoRefresh(...args) as Promise<unknown>,
 }));
 
 const mockGetFreeBusy = vi.fn();
 vi.mock("../services/googleCalendarClient.js", () => ({
-  getFreeBusy: (...args: unknown[]) => mockGetFreeBusy(...args),
+  getFreeBusy: (...args: unknown[]): Promise<unknown> =>
+    mockGetFreeBusy(...args) as Promise<unknown>,
 }));
 
 import {
