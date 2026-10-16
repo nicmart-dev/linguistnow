@@ -31,9 +31,9 @@
         "confirmDelete": "Да, удалить мой аккаунт",
         "cancel": "Отмена",
         "deleting": "Удаление...",
-        "setupCompleteTitle": "Setup complete!",
-        "setupCompleteMessage": "Your calendar selection has been saved. You're all set, and you can come back to update your settings any time.",
-        "setupCompleteButton": "Done"
+        "setupCompleteTitle": "Настройка завершена!",
+        "setupCompleteMessage": "Выбранные календари сохранены. Всё готово, и вы можете вернуться и обновить настройки в любое время.",
+        "setupCompleteButton": "Готово"
     },
     "linguistProfile": {
         "title": "Настройки профиля",
