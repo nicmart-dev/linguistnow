@@ -8,6 +8,8 @@ import { useNavigate } from 'react-router-dom'
 import { googleLogout } from '@react-oauth/google'
 import { useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
+import { AlertTriangle } from 'lucide-react'
+import { checkSetupStatus } from '@linguistnow/shared'
 import type { AuthenticatedUser } from '@/auth-users/utils'
 import { getAuthHeaders } from '@/auth-users/utils'
 
@@ -31,6 +33,20 @@ const AccountSettings = ({
     const [calendarsSaved, setCalendarsSaved] = useState(false)
     const setupAlertRef = useRef<HTMLDivElement>(null)
     const isLinguist = userDetails?.Role === 'Linguist'
+
+    const setupStatus = checkSetupStatus(
+        (userDetails || {}) as unknown as Record<string, unknown>
+    )
+
+    const fieldLabelMap: Record<string, string> = {
+        calendars: t('calendarSelector.title', 'Calendar Selection'),
+        timezone: t('availabilitySettings.timezone', 'Timezone'),
+        working_hours: t('availabilitySettings.workingHours', 'Working Hours'),
+    }
+
+    const missingItemsLabels = setupStatus.missingItems.map(
+        (item) => fieldLabelMap[item] || item
+    )
 
     /* Bring the setup-complete alert into view and focus it after a save */
     useEffect(() => {
@@ -361,6 +377,44 @@ const AccountSettings = ({
                     </p>
 
                     <div aria-live="polite">
+                        {isImpersonating &&
+                            isLinguist &&
+                            !setupStatus.isComplete && (
+                                <div
+                                    data-testid="setup-incomplete-banner"
+                                    role="status"
+                                    className="max-w-3xl mb-6 p-4 rounded-lg border border-amber-300 bg-amber-50 text-amber-900 flex flex-col gap-2"
+                                >
+                                    <div className="flex items-center gap-2">
+                                        <AlertTriangle className="h-5 w-5 text-amber-600 shrink-0" />
+                                        <h3 className="font-semibold text-base text-amber-900">
+                                            {t(
+                                                'accountSettings.setupIncompleteTitle',
+                                                'Setup Incomplete'
+                                            )}
+                                        </h3>
+                                    </div>
+                                    <p className="text-sm text-amber-800">
+                                        {t(
+                                            'accountSettings.setupIncompleteDescription',
+                                            'This linguist has not completed their account setup. Calendar selection and availability checking require the linguist to sign in with their Google account to authorize calendar access.'
+                                        )}
+                                    </p>
+                                    {setupStatus.missingItems.length > 0 && (
+                                        <div className="text-xs font-medium text-amber-900 bg-amber-100/80 rounded px-2.5 py-1.5 self-start">
+                                            <span>
+                                                {t(
+                                                    'accountSettings.missingItemsLabel',
+                                                    'Missing setup items: '
+                                                )}
+                                            </span>
+                                            <span className="font-semibold">
+                                                {missingItemsLabels.join(', ')}
+                                            </span>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
                         {isLinguist && calendarsSaved && (
                             <div
                                 role="status"
@@ -384,11 +438,7 @@ const AccountSettings = ({
                                 </div>
                                 <button
                                     type="button"
-                                    onClick={
-                                        isImpersonating
-                                            ? () => navigate('/dashboard')
-                                            : handleGoToCalendar
-                                    }
+                                    onClick={handleGoToCalendar}
                                     className="bg-green-700 hover:bg-green-800 text-white font-semibold py-2 px-6 rounded transition-colors"
                                 >
                                     {t(

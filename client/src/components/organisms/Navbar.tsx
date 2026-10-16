@@ -174,8 +174,8 @@ const Navbar = ({
                                 </Link>
                             </li>
                             {userDetails &&
-                                (userDetails.role === 'Project Manager' ||
-                                    canImpersonate) && (
+                                userDetails.role === 'Project Manager' &&
+                                !impersonatedUser && (
                                     <li>
                                         <Link
                                             className="inline-block no-underline hover:text-black hover:underline py-2 px-4"
@@ -517,9 +517,9 @@ const Navbar = ({
                                         </Link>
                                     </li>
                                     {userDetails &&
-                                        (userDetails.role ===
-                                            'Project Manager' ||
-                                            canImpersonate) && (
+                                        userDetails.role ===
+                                            'Project Manager' &&
+                                        !impersonatedUser && (
                                             <li>
                                                 <Link
                                                     onClick={() => {

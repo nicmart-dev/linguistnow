@@ -51,6 +51,52 @@ export interface SetupStatus {
 }
 
 /**
+ * Check whether a linguist user has completed their initial setup.
+ * Requires configured calendars, timezone, and working hours start.
+ * Supports Airtable fields as well as camelCase User preference fields.
+ *
+ * @param fields - User or Airtable record fields
+ * @returns SetupStatus object indicating completion status and missing items
+ */
+export function checkSetupStatus(fields: Record<string, unknown>): SetupStatus {
+  const missingItems: string[] = [];
+
+  const calendarIds =
+    fields["Calendar IDs"] ?? fields.calendarIds ?? fields.googleCalendarId;
+
+  if (
+    typeof calendarIds !== "string" ||
+    calendarIds
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean).length === 0
+  ) {
+    missingItems.push("calendars");
+  }
+
+  const timezone = fields.Timezone ?? fields.timezone;
+  if (!timezone) {
+    missingItems.push("timezone");
+  }
+
+  const workingHoursStart =
+    fields["Working Hours Start"] ??
+    fields.workingHoursStart ??
+    (
+      fields.availabilityPreferences as
+        { workingHoursStart?: string } | undefined
+    )?.workingHoursStart;
+  if (!workingHoursStart) {
+    missingItems.push("working_hours");
+  }
+
+  return {
+    isComplete: missingItems.length === 0,
+    missingItems,
+  };
+}
+
+/**
  * Linguist with availability information
  */
 export interface LinguistWithAvailability {

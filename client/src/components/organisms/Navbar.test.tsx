@@ -196,7 +196,7 @@ describe('Navbar', () => {
         expect(screen.queryByTestId('impersonation-banner')).toBeNull()
     })
 
-    it('shows dashboard link for Project Manager even while impersonating a linguist', () => {
+    it('hides dashboard link when impersonating a linguist', () => {
         renderWithProviders(
             <Navbar
                 userDetails={{ role: 'Linguist' }}
@@ -208,7 +208,7 @@ describe('Navbar', () => {
                 isPM={true}
             />
         )
-        expect(screen.getByRole('link', { name: 'Dashboard' })).toBeDefined()
+        expect(screen.queryByRole('link', { name: 'Dashboard' })).toBeNull()
     })
 
     it('opens linguist switcher popover, fetches linguist list and filters linguists', async () => {

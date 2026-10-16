@@ -115,7 +115,10 @@ const CalendarSelector = ({
 
                     if (isImpersonating) {
                         setError(
-                            'The linguist needs to log in again with their Google account to authorize calendar access.'
+                            t(
+                                'calendarSelector.impersonatingTokenExpired',
+                                'The linguist needs to log in again with their Google account to authorize calendar access.'
+                            )
                         )
                     } else if (errorCode === 'TOKEN_EXPIRED') {
                         setError(
@@ -135,25 +138,41 @@ const CalendarSelector = ({
                 } else {
                     // Generic 401 - might be temporary, don't mark as expired
                     setError(
-                        t(
-                            'calendarSelector.fetchError',
-                            'Unable to fetch calendars. Please try again.'
-                        )
+                        isImpersonating
+                            ? t(
+                                  'calendarSelector.impersonatingFetchError',
+                                  'Setup Incomplete: Google Calendar access has not been authorized by this linguist.'
+                              )
+                            : t(
+                                  'calendarSelector.fetchError',
+                                  'Unable to fetch calendars. Please try again.'
+                              )
                     )
                 }
             } else {
                 // Other errors
                 setError(
-                    t(
-                        'calendarSelector.fetchError',
-                        'Unable to fetch calendars. Please try again.'
-                    )
+                    isImpersonating
+                        ? t(
+                              'calendarSelector.impersonatingFetchError',
+                              'Setup Incomplete: Google Calendar access has not been authorized by this linguist.'
+                          )
+                        : t(
+                              'calendarSelector.fetchError',
+                              'Unable to fetch calendars. Please try again.'
+                          )
                 )
             }
         } finally {
             setLoading(false)
         }
-    }, [userDetails, t, markSessionExpired, clearSessionExpired])
+    }, [
+        userDetails,
+        t,
+        markSessionExpired,
+        clearSessionExpired,
+        isImpersonating,
+    ])
 
     useEffect(() => {
         // Only fetch calendars if userDetails exists

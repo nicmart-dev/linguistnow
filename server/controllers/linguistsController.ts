@@ -9,13 +9,12 @@ import {
   getDefaultEndDate,
 } from "../services/availabilityService.js";
 import { convert } from "../services/currencyService.js";
-import { SUPPORTED_CURRENCIES } from "@linguistnow/shared";
+import { checkSetupStatus, SUPPORTED_CURRENCIES } from "@linguistnow/shared";
 import type {
   SearchLinguistsQuery,
   SearchLinguistsResponse,
   FilterOptionsResponse,
   LinguistWithAvailability,
-  SetupStatus,
   AvailabilityRequest,
 } from "@linguistnow/shared";
 import {
@@ -174,33 +173,9 @@ function getAirtableBase() {
 }
 
 /**
- * Check if linguist setup is complete.
- * Validates that required fields (Calendar IDs, Timezone, Working Hours Start) are present.
- * @param fields - Airtable record fields
- * @returns SetupStatus object indicating completion status and missing items
+ * Re-export checkSetupStatus from @linguistnow/shared for backward compatibility.
  */
-export function checkSetupStatus(fields: Record<string, unknown>): SetupStatus {
-  const missingItems: string[] = [];
-
-  const calendarIds = fields[AIRTABLE_FIELDS.CALENDAR_IDS];
-  if (
-    typeof calendarIds !== "string" ||
-    parseCommaSeparated(calendarIds).length === 0
-  ) {
-    missingItems.push("calendars");
-  }
-  if (!fields[AIRTABLE_FIELDS.TIMEZONE]) {
-    missingItems.push("timezone");
-  }
-  if (!fields[AIRTABLE_FIELDS.WORKING_HOURS_START]) {
-    missingItems.push("working_hours");
-  }
-
-  return {
-    isComplete: missingItems.length === 0,
-    missingItems,
-  };
-}
+export { checkSetupStatus };
 
 /**
  * Determine whether an error thrown during availability checking is caused

@@ -236,20 +236,23 @@ const AppRouterContent = ({
                         path="/dashboard"
                         element={
                             <PrivateRoute
-                                userDetails={userDetails}
+                                userDetails={effectiveUser}
                                 isRestoringAuth={isRestoringAuth}
                                 element={
-                                    userDetails ? (
+                                    effectiveUser?.role === 'Project Manager' &&
+                                    !isImpersonating ? (
                                         <Dashboard
-                                            userName={userDetails.name}
+                                            userName={effectiveUser.name}
                                             onImpersonate={
                                                 isPM
                                                     ? handleStartImpersonation
                                                     : undefined
                                             }
                                         />
+                                    ) : effectiveUser ? (
+                                        <Navigate to="/settings" replace />
                                     ) : (
-                                        <Navigate to="/login" />
+                                        <Navigate to="/login" replace />
                                     )
                                 }
                             />
