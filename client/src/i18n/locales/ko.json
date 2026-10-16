@@ -31,9 +31,9 @@
         "confirmDelete": "예, 내 계정 삭제",
         "cancel": "취소",
         "deleting": "삭제 중...",
-        "setupCompleteTitle": "Setup complete!",
-        "setupCompleteMessage": "Your calendar selection has been saved. You're all set, and you can come back to update your settings any time.",
-        "setupCompleteButton": "Done"
+        "setupCompleteTitle": "설정 완료!",
+        "setupCompleteMessage": "캘린더 선택이 저장되었습니다. 모든 준비가 완료되었으며 언제든지 설정을 다시 업데이트할 수 있습니다.",
+        "setupCompleteButton": "완료"
     },
     "linguistProfile": {
         "title": "프로필 설정",

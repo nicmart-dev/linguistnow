@@ -31,9 +31,9 @@
         "confirmDelete": "Ja, mein Konto löschen",
         "cancel": "Abbrechen",
         "deleting": "Wird gelöscht...",
-        "setupCompleteTitle": "Setup complete!",
-        "setupCompleteMessage": "Your calendar selection has been saved. You're all set, and you can come back to update your settings any time.",
-        "setupCompleteButton": "Done"
+        "setupCompleteTitle": "Einrichtung abgeschlossen!",
+        "setupCompleteMessage": "Ihre Kalenderauswahl wurde gespeichert. Alles ist bereit, und Sie können Ihre Einstellungen jederzeit wieder aktualisieren.",
+        "setupCompleteButton": "Fertig"
     },
     "linguistProfile": {
         "title": "Profileinstellungen",

@@ -31,9 +31,9 @@
         "confirmDelete": "はい、アカウントを削除します",
         "cancel": "キャンセル",
         "deleting": "削除中...",
-        "setupCompleteTitle": "Setup complete!",
-        "setupCompleteMessage": "Your calendar selection has been saved. You're all set, and you can come back to update your settings any time.",
-        "setupCompleteButton": "Done"
+        "setupCompleteTitle": "設定が完了しました！",
+        "setupCompleteMessage": "カレンダーの選択が保存されました。準備は完了です。いつでも設定を更新できます。",
+        "setupCompleteButton": "完了"
     },
     "linguistProfile": {
         "title": "プロフィール設定",
