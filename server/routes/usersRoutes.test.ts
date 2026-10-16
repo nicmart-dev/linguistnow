@@ -2,6 +2,7 @@ import { describe, it, expect, vi } from "vitest";
 import usersRoutes from "./usersRoutes.js";
 import { apiKeyAuthMiddleware } from "../utils/apiKeyAuth.js";
 import { rateLimitMiddleware } from "../utils/rateLimit.js";
+import { requireSession } from "../utils/userAuth.js";
 
 vi.mock("../controllers/usersController.js", () => ({
   default: {
@@ -23,7 +24,7 @@ describe("usersRoutes", () => {
     expect(getAllRoute.route.stack[1].handle).toBe(rateLimitMiddleware);
   });
 
-  it("should protect per-user routes with rateLimitMiddleware", () => {
+  it("should protect per-user routes with rateLimitMiddleware and requireSession", () => {
     const expectedRoutes = [
       { path: "/:id", method: "get" },
       { path: "/:id", method: "put" },
@@ -39,6 +40,7 @@ describe("usersRoutes", () => {
       );
       expect(routeLayer).toBeDefined();
       expect(routeLayer.route.stack[0].handle).toBe(rateLimitMiddleware);
+      expect(routeLayer.route.stack[1].handle).toBe(requireSession);
     }
   });
 });
