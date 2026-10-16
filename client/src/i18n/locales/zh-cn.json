@@ -124,7 +124,9 @@
             "unavailable": "不可用",
             "limited": "有限",
             "setupIncomplete": "设置不完整",
-            "missingItems": "缺失：{{items}}"
+            "missingItems": "缺失：{{items}}",
+            "tokenExpired": "需要重新登录",
+            "tokenExpiredTooltip": "Google 日历授权已过期。语言学家需要重新登录以重新授权。"
         },
         "availabilityTimeline": {
             "title": "可用性时间线",
@@ -153,6 +155,11 @@
             "sendSetupReminderToAll_other": "向 {{count}} 位语言学家发送设置提醒",
             "setupReminderSubjectBulk": "完成您的 LinguistNow 设置",
             "setupReminderBodyBulk": "您好，\n\n您正在被考虑参与一个即将到来的项目！要符合资格，请完成您的 LinguistNow 设置。缺失项目：{{missingItems}}\n\n请登录并在以下位置完成您的个人资料：{{accountSettingsUrl}}\n\n谢谢！",
+            "sendReloginReminder": "发送重新登录提醒",
+            "sendReloginReminderToAll": "向 {{count}} 位语言学家发送重新登录提醒",
+            "sendReloginReminderToAll_other": "向 {{count}} 位语言学家发送重新登录提醒",
+            "reloginReminderSubjectBulk": "重新授权您在 LinguistNow 上的 Google 日历访问权限",
+            "reloginReminderBodyBulk": "您好，\n\n您正在被考虑参与一个即将到来的项目！但是，您在 LinguistNow 上的 Google 日历授权已过期，因此我们无法查看您的可用性。\n\n请使用您的 Google 账户重新登录并在以下位置重新授权访问：{{accountSettingsUrl}}\n\n谢谢！",
             "defaultTitle": "翻译项目",
             "emailSubject": "预订请求：{{projectName}}",
             "emailBody": "您好 {{linguistName}}，\n\n我想为以下项目预订您：\n\n项目：{{projectName}}\n所需可用性：{{startDate}} - {{endDate}}\n\n{{description}}\n\n请确认您在整个项目期间的可用性。\n\n此致",

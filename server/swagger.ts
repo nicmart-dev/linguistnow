@@ -189,6 +189,12 @@ function getSwaggerOptions() {
                   "List of missing setup items (e.g., ['calendars', 'timezone', 'working_hours'])",
                 example: [],
               },
+              tokenExpired: {
+                type: "boolean",
+                description:
+                  "Whether the linguist's OAuth token is expired or missing (requires re-login)",
+                example: false,
+              },
             },
           },
           LinguistAvailability: {
@@ -299,7 +305,7 @@ function getSwaggerOptions() {
                   { type: "null" },
                 ],
                 description:
-                  "Availability information, null if setup is incomplete",
+                  "Availability information, null if setup is incomplete or OAuth token is expired",
               },
             },
           },

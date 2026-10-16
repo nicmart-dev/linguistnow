@@ -12,6 +12,7 @@ interface LinguistRow {
         | 'unavailable'
         | 'limited'
         | 'setup-incomplete'
+        | 'token-expired'
     freeHours?: number
     picture?: string // API response format (lowercase)
     name: string // API response format (lowercase)
@@ -26,6 +27,7 @@ interface LinguistRow {
     setupStatus?: {
         isComplete: boolean
         missingItems: string[]
+        tokenExpired?: boolean
     }
     [key: string]: unknown // Allow other Airtable fields
 }
@@ -54,6 +56,24 @@ export const useColumns = (): ColumnDef<LinguistRow>[] => {
         {
             accessorKey: 'availabilityStatus',
             size: 120,
+            sortingFn: (rowA, rowB, columnId) => {
+                const priority: Record<string, number> = {
+                    available: 1,
+                    limited: 2,
+                    unavailable: 3,
+                    'token-expired': 4,
+                    'setup-incomplete': 5,
+                }
+                const a =
+                    priority[
+                        rowA.getValue<string>(columnId) || 'setup-incomplete'
+                    ] ?? 99
+                const b =
+                    priority[
+                        rowB.getValue<string>(columnId) || 'setup-incomplete'
+                    ] ?? 99
+                return a - b
+            },
             header: ({ column }) => {
                 return (
                     <Button
@@ -68,7 +88,9 @@ export const useColumns = (): ColumnDef<LinguistRow>[] => {
                 )
             },
             cell: ({ row }) => {
-                const status = row.getValue('availabilityStatus')
+                const status = row.getValue<LinguistRow['availabilityStatus']>(
+                    'availabilityStatus'
+                )
                 const freeHours = row.original.freeHours
                 const setupStatus = row.original.setupStatus
                 return (
@@ -76,7 +98,9 @@ export const useColumns = (): ColumnDef<LinguistRow>[] => {
                         status={status || 'setup-incomplete'}
                         freeHours={freeHours}
                         setupMessage={
-                            setupStatus && !setupStatus.isComplete
+                            setupStatus &&
+                            !setupStatus.isComplete &&
+                            setupStatus.missingItems.length > 0
                                 ? (() => {
                                       // Map field identifiers to their display labels
                                       const fieldLabelMap: Record<
@@ -110,7 +134,11 @@ export const useColumns = (): ColumnDef<LinguistRow>[] => {
                                           }
                                       )
                                   })()
-                                : undefined
+                                : setupStatus?.tokenExpired
+                                  ? t(
+                                        'dashboard.availabilityBadge.tokenExpiredTooltip'
+                                    )
+                                  : undefined
                         }
                     />
                 )

@@ -2,17 +2,22 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 interface AvailabilityBadgeProps {
-    status: 'available' | 'unavailable' | 'limited' | 'setup-incomplete'
+    status:
+        | 'available'
+        | 'unavailable'
+        | 'limited'
+        | 'setup-incomplete'
+        | 'token-expired'
     freeHours?: number
     setupMessage?: string
 }
 
 /**
  * Displays a linguist's availability status as a colored badge.
- * Shows different visual states for available, unavailable, limited, and setup-incomplete.
+ * Shows different visual states for available, unavailable, limited, setup-incomplete, and token-expired.
  * @param status - The availability status to display
  * @param freeHours - Optional number of free hours to show for available/limited states
- * @param setupMessage - Optional tooltip message for setup-incomplete state
+ * @param setupMessage - Optional tooltip message for setup-incomplete or token-expired state
  */
 const AvailabilityBadge: React.FC<AvailabilityBadgeProps> = ({
     status,
@@ -114,6 +119,32 @@ const AvailabilityBadge: React.FC<AvailabilityBadgeProps> = ({
                             />
                         </svg>
                         {t('dashboard.availabilityBadge.setupIncomplete')}
+                    </span>
+                )
+            case 'token-expired':
+                return (
+                    <span
+                        className="inline-flex items-center gap-1 rounded-full bg-orange-50 px-2 py-1 text-xs font-semibold text-orange-600"
+                        title={
+                            setupMessage ||
+                            t('dashboard.availabilityBadge.tokenExpiredTooltip')
+                        }
+                    >
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            strokeWidth="1.5"
+                            stroke="currentColor"
+                            className="size-3"
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99"
+                            />
+                        </svg>
+                        {t('dashboard.availabilityBadge.tokenExpired')}
                     </span>
                 )
             default:

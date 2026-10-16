@@ -124,7 +124,9 @@
             "unavailable": "사용 불가",
             "limited": "제한적",
             "setupIncomplete": "설정 미완료",
-            "missingItems": "누락: {{items}}"
+            "missingItems": "누락: {{items}}",
+            "tokenExpired": "재로그인 필요",
+            "tokenExpiredTooltip": "Google 캘린더 인증이 만료되었습니다. 언어학자가 다시 로그인하여 재인증해야 합니다."
         },
         "availabilityTimeline": {
             "title": "가용성 타임라인",
@@ -153,6 +155,11 @@
             "sendSetupReminderToAll_other": "{{count}}명의 언어학자에게 알림 보내기",
             "setupReminderSubjectBulk": "LinguistNow 설정 완료",
             "setupReminderBodyBulk": "안녕하세요,\n\n다가오는 프로젝트에 대한 후보로 검토되고 있습니다! 자격을 갖추려면 LinguistNow 설정을 완료해 주세요. 누락된 항목: {{missingItems}}\n\n로그인하여 {{accountSettingsUrl}}에서 프로필을 완료해 주세요\n\n감사합니다!",
+            "sendReloginReminder": "재로그인 알림 보내기",
+            "sendReloginReminderToAll": "{{count}}명의 언어학자에게 재로그인 알림 보내기",
+            "sendReloginReminderToAll_other": "{{count}}명의 언어학자에게 재로그인 알림 보내기",
+            "reloginReminderSubjectBulk": "LinguistNow의 Google 캘린더 접근 권한 재인증",
+            "reloginReminderBodyBulk": "안녕하세요,\n\n다가오는 프로젝트에 대한 후보로 검토되고 있습니다! 그러나 LinguistNow의 Google 캘린더 인증이 만료되어 가용성을 확인할 수 없습니다.\n\nGoogle 계정으로 다시 로그인하여 다음 위치에서 접근 권한을 재인증해 주세요: {{accountSettingsUrl}}\n\n감사합니다!",
             "defaultTitle": "번역 프로젝트",
             "emailSubject": "예약 요청: {{projectName}}",
             "emailBody": "안녕하세요 {{linguistName}}님,\n\n다음 프로젝트에 대해 예약하고 싶습니다:\n\n프로젝트: {{projectName}}\n필요한 가용성: {{startDate}} - {{endDate}}\n\n{{description}}\n\n프로젝트 기간 전체에 대한 가용성을 확인해 주세요.\n\n감사합니다",

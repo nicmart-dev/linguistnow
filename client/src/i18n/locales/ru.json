@@ -124,7 +124,9 @@
             "unavailable": "Недоступен",
             "limited": "Ограничен",
             "setupIncomplete": "Настройка не завершена",
-            "missingItems": "Отсутствует: {{items}}"
+            "missingItems": "Отсутствует: {{items}}",
+            "tokenExpired": "Требуется вход",
+            "tokenExpiredTooltip": "Срок действия авторизации Google Календаря истек. Лингвисту необходимо войти снова для повторной авторизации."
         },
         "availabilityTimeline": {
             "title": "График доступности",
@@ -153,6 +155,11 @@
             "sendSetupReminderToAll_other": "Отправить напоминание {{count}} лингвистам",
             "setupReminderSubjectBulk": "Завершите настройку LinguistNow",
             "setupReminderBodyBulk": "Привет,\n\nВы рассматриваетесь для предстоящего проекта! Чтобы иметь право, пожалуйста, завершите настройку LinguistNow. Отсутствующие элементы: {{missingItems}}\n\nПожалуйста, войдите в систему и завершите свой профиль на: {{accountSettingsUrl}}\n\nСпасибо!",
+            "sendReloginReminder": "Отправить напоминание о повторном входе",
+            "sendReloginReminderToAll": "Отправить напоминание о входе {{count}} лингвисту",
+            "sendReloginReminderToAll_other": "Отправить напоминание о входе {{count}} лингвистам",
+            "reloginReminderSubjectBulk": "Повторно авторизуйте доступ к Google Календарю в LinguistNow",
+            "reloginReminderBodyBulk": "Привет,\n\nВы рассматриваетесь для предстоящего проекта! Однако срок действия вашей авторизации Google Календаря в LinguistNow истек, поэтому мы не можем проверить вашу доступность.\n\nПожалуйста, войдите снова со своим аккаунтом Google для повторной авторизации доступа на: {{accountSettingsUrl}}\n\nСпасибо!",
             "defaultTitle": "Проект перевода",
             "emailSubject": "Запрос на бронирование: {{projectName}}",
             "emailBody": "Привет {{linguistName}},\n\nЯ хотел бы забронировать вас для следующего проекта:\n\nПроект: {{projectName}}\nТребуемая доступность: {{startDate}} - {{endDate}}\n\n{{description}}\n\nПожалуйста, подтвердите вашу доступность на весь период проекта.\n\nС уважением",

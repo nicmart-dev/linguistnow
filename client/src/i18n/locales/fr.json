@@ -124,7 +124,9 @@
             "unavailable": "Indisponible",
             "limited": "Limité",
             "setupIncomplete": "Configuration incomplète",
-            "missingItems": "Manquant : {{items}}"
+            "missingItems": "Manquant : {{items}}",
+            "tokenExpired": "Reconnexion requise",
+            "tokenExpiredTooltip": "L'autorisation Google Agenda a expiré. Le linguiste doit se reconnecter pour réautoriser l'accès."
         },
         "availabilityTimeline": {
             "title": "Chronologie de disponibilité",
@@ -153,6 +155,11 @@
             "sendSetupReminderToAll_other": "Envoyer un rappel à {{count}} linguistes",
             "setupReminderSubjectBulk": "Complétez votre configuration LinguistNow",
             "setupReminderBodyBulk": "Bonjour,\n\nVous êtes considéré(e) pour un projet à venir ! Pour être éligible, veuillez compléter votre configuration LinguistNow. Éléments manquants : {{missingItems}}\n\nVeuillez vous connecter et compléter votre profil à : {{accountSettingsUrl}}\n\nMerci !",
+            "sendReloginReminder": "Envoyer un rappel de reconnexion",
+            "sendReloginReminderToAll": "Envoyer un rappel de reconnexion à {{count}} linguiste",
+            "sendReloginReminderToAll_other": "Envoyer un rappel de reconnexion à {{count}} linguistes",
+            "reloginReminderSubjectBulk": "Réautorisez votre accès Google Agenda sur LinguistNow",
+            "reloginReminderBodyBulk": "Bonjour,\n\nVous êtes considéré(e) pour un projet à venir ! Cependant, votre autorisation Google Agenda sur LinguistNow a expiré, nous ne pouvons donc pas vérifier votre disponibilité.\n\nVeuillez vous reconnecter avec votre compte Google pour réautoriser l'accès à : {{accountSettingsUrl}}\n\nMerci !",
             "defaultTitle": "Projet de traduction",
             "emailSubject": "Demande de réservation : {{projectName}}",
             "emailBody": "Bonjour {{linguistName}},\n\nJe souhaite vous réserver pour le projet suivant :\n\nProjet : {{projectName}}\nDisponibilité requise : {{startDate}} - {{endDate}}\n\n{{description}}\n\nVeuillez confirmer votre disponibilité pour toute la durée du projet.\n\nCordialement",

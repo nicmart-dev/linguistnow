@@ -68,6 +68,8 @@ You may notice that email content translations exist in all locale files (`clien
 - `dashboard.booking.emailBody`
 - `dashboard.booking.setupReminderSubjectBulk`
 - `dashboard.booking.setupReminderBodyBulk`
+- `dashboard.booking.reloginReminderSubjectBulk`
+- `dashboard.booking.reloginReminderBodyBulk`
 
 These translations exist for **completeness** and **future flexibility**, but they are **not currently used** for actual email content. The code explicitly uses `getFixedT('en')` to bypass the PM's UI language preference.
 
@@ -77,6 +79,9 @@ This policy applies to all emails sent from the system:
 
 1. **Booking Confirmation Emails** - Sent when a PM books a linguist for a project
 2. **Setup Reminder Emails** - Sent to linguists who haven't completed their profile setup
+   - Individual reminders
+   - Bulk reminders (sent to multiple linguists)
+3. **Re-login Reminder Emails** - Sent to linguists whose Google Calendar authorization token has expired or been revoked
    - Individual reminders
    - Bulk reminders (sent to multiple linguists)
 

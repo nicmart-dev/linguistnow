@@ -179,12 +179,13 @@ function getAirtableBase() {
  * @param fields - Airtable record fields
  * @returns SetupStatus object indicating completion status and missing items
  */
-function checkSetupStatus(fields: Record<string, unknown>): SetupStatus {
+export function checkSetupStatus(fields: Record<string, unknown>): SetupStatus {
   const missingItems: string[] = [];
 
+  const calendarIds = fields[AIRTABLE_FIELDS.CALENDAR_IDS];
   if (
-    !fields[AIRTABLE_FIELDS.CALENDAR_IDS] ||
-    (fields[AIRTABLE_FIELDS.CALENDAR_IDS] as string).trim() === ""
+    typeof calendarIds !== "string" ||
+    parseCommaSeparated(calendarIds).length === 0
   ) {
     missingItems.push("calendars");
   }
@@ -199,6 +200,71 @@ function checkSetupStatus(fields: Record<string, unknown>): SetupStatus {
     isComplete: missingItems.length === 0,
     missingItems,
   };
+}
+
+/**
+ * Determine whether an error thrown during availability checking is caused
+ * by a missing, expired, or revoked Google OAuth token.
+ * Inspects the error and its cause chain for OAuth/Vault token failure indicators.
+ * @param error - Error thrown during availability check
+ * @returns true if the error indicates an expired, revoked, or missing OAuth token
+ */
+export function isTokenExpiredOrMissingError(error: unknown): boolean {
+  let current: unknown = error;
+  const visited = new Set<unknown>();
+
+  while (current && typeof current === "object" && !visited.has(current)) {
+    visited.add(current);
+
+    if ("code" in current) {
+      const code = (current as { code?: unknown }).code;
+      if (
+        code === "TOKEN_EXPIRED" ||
+        code === "TOKEN_INVALID" ||
+        code === "TOKEN_NOT_FOUND"
+      ) {
+        return true;
+      }
+    }
+
+    if (
+      "response" in current &&
+      typeof current.response === "object" &&
+      current.response !== null
+    ) {
+      const resp = current.response as {
+        status?: number;
+        statusCode?: number;
+        data?: { error?: unknown };
+      };
+      // Google 401 Unauthorized or Vault 404 (token secret not found for user)
+      if (resp.status === 401 || resp.statusCode === 404) {
+        return true;
+      }
+      if (resp.data?.error === "invalid_grant") {
+        return true;
+      }
+    }
+
+    if ("message" in current && typeof current.message === "string") {
+      const msg = current.message;
+      if (
+        msg.includes("invalid_grant") ||
+        msg === "Failed to refresh access token" ||
+        msg.includes("No access token found") ||
+        msg.includes("No refresh token found") ||
+        msg.includes("TOKEN_EXPIRED") ||
+        msg.includes("Status 404")
+      ) {
+        return true;
+      }
+    }
+
+    current =
+      "cause" in current ? (current as { cause?: unknown }).cause : null;
+  }
+
+  return false;
 }
 
 /**
@@ -330,6 +396,15 @@ function getUserPreferences(fields: Record<string, unknown>): {
   };
 }
 
+interface CheckAvailabilityOutcome {
+  availability: {
+    isAvailable: boolean;
+    freeSlots: Array<{ start: string; end: string }>;
+    totalFreeHours: number;
+  } | null;
+  tokenExpired?: boolean;
+}
+
 /**
  * Check availability for a linguist.
  * Reads calendar data from Google Calendar API and calculates available time slots
@@ -338,7 +413,7 @@ function getUserPreferences(fields: Record<string, unknown>): {
  * @param calendarIds - Comma-separated list of Google Calendar IDs
  * @param query - Search query with date range and required hours
  * @param preferences - User's availability preferences (timezone, working hours, off days)
- * @returns Availability result with free slots and total hours, or null on error
+ * @returns Availability outcome with free slots/total hours, or null availability and tokenExpired flag on error
  */
 async function checkLinguistAvailability(
   userEmail: string,
@@ -350,11 +425,7 @@ async function checkLinguistAvailability(
     workingHoursEnd?: string;
     offDays?: number[];
   },
-): Promise<{
-  isAvailable: boolean;
-  freeSlots: Array<{ start: string; end: string }>;
-  totalFreeHours: number;
-} | null> {
+): Promise<CheckAvailabilityOutcome> {
   try {
     // Parse calendar IDs
     const ids = calendarIds
@@ -362,7 +433,7 @@ async function checkLinguistAvailability(
       .map((id) => id.trim())
       .filter(Boolean);
     if (ids.length === 0) {
-      return null;
+      return { availability: null };
     }
 
     // Build availability request
@@ -426,21 +497,28 @@ async function checkLinguistAvailability(
       result.totalFreeHours < query.requiredHours
     ) {
       return {
-        isAvailable: false,
-        freeSlots: result.freeSlots,
-        totalFreeHours: result.totalFreeHours,
+        availability: {
+          isAvailable: false,
+          freeSlots: result.freeSlots,
+          totalFreeHours: result.totalFreeHours,
+        },
       };
     }
 
     return {
-      isAvailable: result.isAvailable,
-      freeSlots: result.freeSlots,
-      totalFreeHours: result.totalFreeHours,
+      availability: {
+        isAvailable: result.isAvailable,
+        freeSlots: result.freeSlots,
+        totalFreeHours: result.totalFreeHours,
+      },
     };
   } catch (error) {
     logError(`checking availability for ${userEmail}`, error);
-    // Return null on error - will be handled as setup incomplete
-    return null;
+    if (isTokenExpiredOrMissingError(error)) {
+      return { availability: null, tokenExpired: true };
+    }
+    // Return null availability on other errors
+    return { availability: null };
   }
 }
 
@@ -601,20 +679,15 @@ export const searchLinguists = async (
         } | null = null;
 
         if (setupStatus.isComplete && fields[AIRTABLE_FIELDS.CALENDAR_IDS]) {
-          try {
-            availability = await checkLinguistAvailability(
-              fields[AIRTABLE_FIELDS.EMAIL] as string,
-              fields[AIRTABLE_FIELDS.CALENDAR_IDS] as string,
-              query,
-              preferences,
-            );
-          } catch (error) {
-            // Log error but don't fail the entire request
-            logError(
-              `checking availability for ${fields[AIRTABLE_FIELDS.EMAIL] as string}`,
-              error,
-            );
-            // Continue with null availability
+          const outcome = await checkLinguistAvailability(
+            fields[AIRTABLE_FIELDS.EMAIL] as string,
+            fields[AIRTABLE_FIELDS.CALENDAR_IDS] as string,
+            query,
+            preferences,
+          );
+          availability = outcome.availability;
+          if (outcome.tokenExpired) {
+            setupStatus.tokenExpired = true;
           }
         }
 
@@ -880,12 +953,16 @@ export const getLinguistById = async (
       const startDate = extractDateString(defaultStart);
       const endDate = extractDateString(defaultEnd);
 
-      availability = await checkLinguistAvailability(
+      const outcome = await checkLinguistAvailability(
         userEmail,
         fields[AIRTABLE_FIELDS.CALENDAR_IDS] as string,
         { startDate, endDate },
         preferences,
       );
+      availability = outcome.availability;
+      if (outcome.tokenExpired) {
+        setupStatus.tokenExpired = true;
+      }
     }
 
     res.json({

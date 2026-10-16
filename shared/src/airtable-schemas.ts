@@ -216,6 +216,7 @@ export function parseUserPreferences(fields: Record<string, unknown>): {
 export const SetupStatusSchema = z.object({
   isComplete: z.boolean(),
   missingItems: z.array(z.string()),
+  tokenExpired: z.boolean().optional(),
 });
 
 /**

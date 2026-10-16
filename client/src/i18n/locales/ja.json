@@ -124,7 +124,9 @@
             "unavailable": "利用不可",
             "limited": "限定",
             "setupIncomplete": "設定が不完全",
-            "missingItems": "不足: {{items}}"
+            "missingItems": "不足: {{items}}",
+            "tokenExpired": "再ログインが必要",
+            "tokenExpiredTooltip": "Googleカレンダーの認証が期限切れです。言語学者は再度ログインして再認証する必要があります。"
         },
         "availabilityTimeline": {
             "title": "可用性タイムライン",
@@ -153,6 +155,11 @@
             "sendSetupReminderToAll_other": "{{count}}人の言語学者にリマインダーを送信",
             "setupReminderSubjectBulk": "LinguistNowの設定を完了してください",
             "setupReminderBodyBulk": "こんにちは、\n\n今後のプロジェクトの候補として検討されています！資格を得るには、LinguistNowの設定を完了してください。不足している項目: {{missingItems}}\n\nログインして、{{accountSettingsUrl}}でプロフィールを完了してください\n\nありがとうございます！",
+            "sendReloginReminder": "再ログインリマインダーを送信",
+            "sendReloginReminderToAll": "{{count}}人の言語学者に再ログインリマインダーを送信",
+            "sendReloginReminderToAll_other": "{{count}}人の言語学者に再ログインリマインダーを送信",
+            "reloginReminderSubjectBulk": "LinguistNowでのGoogleカレンダーアクセスを再認証してください",
+            "reloginReminderBodyBulk": "こんにちは、\n\n今後のプロジェクトの候補として検討されています！ただし、LinguistNowでのGoogleカレンダーの認証が期限切れのため、空き状況を確認できません。\n\nGoogleアカウントで再度ログインし、次のURLでアクセスを再認証してください: {{accountSettingsUrl}}\n\nありがとうございます！",
             "defaultTitle": "翻訳プロジェクト",
             "emailSubject": "予約リクエスト: {{projectName}}",
             "emailBody": "こんにちは{{linguistName}}さん、\n\n以下のプロジェクトで予約したいと思います:\n\nプロジェクト: {{projectName}}\n必要な可用性: {{startDate}} - {{endDate}}\n\n{{description}}\n\nプロジェクト期間全体の可用性を確認してください。\n\n敬具",
