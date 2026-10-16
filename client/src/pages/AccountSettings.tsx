@@ -16,6 +16,7 @@ const AccountSettings = ({ userDetails, setUserDetails }) => {
     const navigate = useNavigate()
     const [isDeleting, setIsDeleting] = useState(false)
     const [showConfirmDelete, setShowConfirmDelete] = useState(false)
+    const [calendarsSaved, setCalendarsSaved] = useState(false)
     /* Save user selected calendars */
     const handleSaveCalendars = async (updatedCalendars) => {
         try {
@@ -80,6 +81,7 @@ const AccountSettings = ({ userDetails, setUserDetails }) => {
 
             // Show success toast
             toast.success(t('calendarSelector.saveSuccess'))
+            setCalendarsSaved(true)
             logger.log('Calendars saved.')
         } catch (error) {
             console.error('Failed to save calendars:', error)
@@ -319,6 +321,34 @@ const AccountSettings = ({ userDetails, setUserDetails }) => {
                         {t('accountSettings.introText')}
                     </p>
 
+                    {userDetails?.Role === 'Linguist' && calendarsSaved && (
+                        <div
+                            role="status"
+                            className="max-w-3xl mb-6 p-4 rounded border border-green-300 bg-green-50 text-green-800 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
+                        >
+                            <div>
+                                <p className="font-semibold">
+                                    {t(
+                                        'accountSettings.setupCompleteTitle',
+                                        'Setup complete!'
+                                    )}
+                                </p>
+                                <p className="text-sm">
+                                    {t(
+                                        'accountSettings.setupCompleteMessage',
+                                        "Your calendar selection has been saved. You're all set, and you can come back to update your settings any time."
+                                    )}
+                                </p>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => navigate('/dashboard')}
+                                className="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-6 rounded transition-colors"
+                            >
+                                {t('accountSettings.setupCompleteButton', 'Done')}
+                            </button>
+                        </div>
+                    )}
                     {userDetails && (
                         <>
                             {/* Calendar Selection, Profile Settings, and Availability Settings - Grid layout on large screens */}
