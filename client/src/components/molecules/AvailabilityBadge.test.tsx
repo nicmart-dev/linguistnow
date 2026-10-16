@@ -131,22 +131,32 @@ describe('AvailabilityBadge', () => {
         expect(badge?.className).toContain('text-orange-600')
     })
 
-    it('renders SVG icon for each status', () => {
+    it('renders decorative SVG icon for each status', () => {
         const { container, rerender } = render(
             <AvailabilityBadge status="available" />
         )
-        expect(container.querySelector('svg')).toBeTruthy()
+        expect(
+            container.querySelector('svg')?.getAttribute('aria-hidden')
+        ).toBe('true')
 
         rerender(<AvailabilityBadge status="unavailable" />)
-        expect(container.querySelector('svg')).toBeTruthy()
+        expect(
+            container.querySelector('svg')?.getAttribute('aria-hidden')
+        ).toBe('true')
 
         rerender(<AvailabilityBadge status="limited" />)
-        expect(container.querySelector('svg')).toBeTruthy()
+        expect(
+            container.querySelector('svg')?.getAttribute('aria-hidden')
+        ).toBe('true')
 
         rerender(<AvailabilityBadge status="setup-incomplete" />)
-        expect(container.querySelector('svg')).toBeTruthy()
+        expect(
+            container.querySelector('svg')?.getAttribute('aria-hidden')
+        ).toBe('true')
 
         rerender(<AvailabilityBadge status="token-expired" />)
-        expect(container.querySelector('svg')).toBeTruthy()
+        expect(
+            container.querySelector('svg')?.getAttribute('aria-hidden')
+        ).toBe('true')
     })
 })
