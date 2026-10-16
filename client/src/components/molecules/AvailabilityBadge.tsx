@@ -1,20 +1,25 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { CheckCircle2, Clock, XCircle, AlertTriangle } from 'lucide-react'
+import { CheckCircle2, Clock, XCircle, AlertTriangle, KeyRound } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 
 interface AvailabilityBadgeProps {
-    status: 'available' | 'unavailable' | 'limited' | 'setup-incomplete'
+    status:
+        | 'available'
+        | 'unavailable'
+        | 'limited'
+        | 'setup-incomplete'
+        | 'token-expired'
     freeHours?: number
     setupMessage?: string
 }
 
 /**
  * Displays a linguist's availability status as a colored badge.
- * Shows different visual states for available, unavailable, limited, and setup-incomplete.
+ * Shows different visual states for available, unavailable, limited, setup-incomplete, and token-expired.
  * @param status - The availability status to display
  * @param freeHours - Optional number of free hours to show for available/limited states
- * @param setupMessage - Optional tooltip message for setup-incomplete state
+ * @param setupMessage - Optional tooltip message for setup-incomplete or token-expired state
  */
 const AvailabilityBadge: React.FC<AvailabilityBadgeProps> = ({
     status,
@@ -73,6 +78,20 @@ const AvailabilityBadge: React.FC<AvailabilityBadgeProps> = ({
                 >
                     <AlertTriangle className="size-3" aria-hidden="true" />
                     {t('dashboard.availabilityBadge.setupIncomplete')}
+                </Badge>
+            )
+        case 'token-expired':
+            return (
+                <Badge
+                    variant="outline"
+                    className="gap-1 rounded-full border-orange-200 bg-orange-50 px-2 py-1 text-orange-600"
+                    title={
+                        setupMessage ||
+                        t('dashboard.availabilityBadge.tokenExpiredTooltip')
+                    }
+                >
+                    <KeyRound className="size-3" aria-hidden="true" />
+                    {t('dashboard.availabilityBadge.tokenExpired')}
                 </Badge>
             )
         default:

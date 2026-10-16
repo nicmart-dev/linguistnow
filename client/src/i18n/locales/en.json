@@ -151,7 +151,9 @@
             "unavailable": "Not Available",
             "limited": "Limited",
             "setupIncomplete": "Setup Incomplete",
-            "missingItems": "Missing: {{items}}"
+            "missingItems": "Missing: {{items}}",
+            "tokenExpired": "Login Required",
+            "tokenExpiredTooltip": "Google Calendar authorization has expired. The linguist needs to log in again to re-authorize."
         },
         "availabilityTimeline": {
             "title": "Availability Timeline",
@@ -180,6 +182,11 @@
             "sendSetupReminderToAll_other": "Send Setup Reminder to {{count}} Linguists",
             "setupReminderSubjectBulk": "Complete Your LinguistNow Setup",
             "setupReminderBodyBulk": "Hi,\n\nYou are being considered for an upcoming project! To be eligible, please complete your LinguistNow setup. Missing items: {{missingItems}}\n\nPlease log in and complete your profile at: {{accountSettingsUrl}}\n\nThank you!",
+            "sendReloginReminder": "Send Re-login Reminder",
+            "sendReloginReminderToAll": "Send Re-login Reminder to {{count}} Linguist",
+            "sendReloginReminderToAll_other": "Send Re-login Reminder to {{count}} Linguists",
+            "reloginReminderSubjectBulk": "Re-authorize Your LinguistNow Google Calendar Access",
+            "reloginReminderBodyBulk": "Hi,\n\nYou are being considered for an upcoming project! However, your Google Calendar authorization on LinguistNow has expired, so we cannot check your availability.\n\nPlease log in again with your Google account to re-authorize access at: {{accountSettingsUrl}}\n\nThank you!",
             "defaultTitle": "Translation Project",
             "emailSubject": "Booking Request: {{projectName}}",
             "emailBody": "Hi {{linguistName}},\n\nI would like to book you for the following project:\n\nProject: {{projectName}}\nAvailability Required: {{startDate}} - {{endDate}}\n\n{{description}}\n\nPlease confirm your availability for the entire project duration.\n\nBest regards",

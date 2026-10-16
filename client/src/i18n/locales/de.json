@@ -127,7 +127,9 @@
             "unavailable": "Nicht verfügbar",
             "limited": "Begrenzt",
             "setupIncomplete": "Einrichtung unvollständig",
-            "missingItems": "Fehlend: {{items}}"
+            "missingItems": "Fehlend: {{items}}",
+            "tokenExpired": "Anmeldung erforderlich",
+            "tokenExpiredTooltip": "Die Google Kalender-Autorisierung ist abgelaufen. Der Linguist muss sich erneut anmelden, um den Zugriff neu zu autorisieren."
         },
         "availabilityTimeline": {
             "title": "Verfügbarkeitszeitplan",
@@ -156,6 +158,11 @@
             "sendSetupReminderToAll_other": "Erinnerung an {{count}} Linguisten senden",
             "setupReminderSubjectBulk": "Vervollständige deine LinguistNow-Einrichtung",
             "setupReminderBodyBulk": "Hallo,\n\nDu wirst für ein bevorstehendes Projekt in Betracht gezogen! Um berechtigt zu sein, vervollständige bitte deine LinguistNow-Einrichtung. Fehlende Elemente: {{missingItems}}\n\nBitte melde dich an und vervollständige dein Profil unter: {{accountSettingsUrl}}\n\nVielen Dank!",
+            "sendReloginReminder": "Anmeldeerinnerung senden",
+            "sendReloginReminderToAll": "Anmeldeerinnerung an {{count}} Linguisten senden",
+            "sendReloginReminderToAll_other": "Anmeldeerinnerung an {{count}} Linguisten senden",
+            "reloginReminderSubjectBulk": "Autorisiere deinen Google Kalender-Zugriff auf LinguistNow erneut",
+            "reloginReminderBodyBulk": "Hallo,\n\nDu wirst für ein bevorstehendes Projekt in Betracht gezogen! Allerdings ist deine Google Kalender-Autorisierung auf LinguistNow abgelaufen, sodass wir deine Verfügbarkeit nicht prüfen können.\n\nBitte melde dich erneut mit deinem Google-Konto an, um den Zugriff neu zu autorisieren unter: {{accountSettingsUrl}}\n\nVielen Dank!",
             "defaultTitle": "Übersetzungsprojekt",
             "emailSubject": "Buchungsanfrage: {{projectName}}",
             "emailBody": "Hallo {{linguistName}},\n\nIch möchte dich für das folgende Projekt buchen:\n\nProjekt: {{projectName}}\nVerfügbarkeit erforderlich: {{startDate}} - {{endDate}}\n\n{{description}}\n\nBitte bestätige deine Verfügbarkeit für die gesamte Projektdauer.\n\nMit freundlichen Grüßen",

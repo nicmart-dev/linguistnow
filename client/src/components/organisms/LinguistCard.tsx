@@ -30,9 +30,13 @@ const LinguistCard: React.FC<LinguistCardProps> = ({
         | 'available'
         | 'unavailable'
         | 'limited'
-        | 'setup-incomplete' => {
+        | 'setup-incomplete'
+        | 'token-expired' => {
         if (!linguist.setupStatus.isComplete) {
             return 'setup-incomplete'
+        }
+        if (linguist.setupStatus.tokenExpired) {
+            return 'token-expired'
         }
         if (!linguist.availability) {
             return 'setup-incomplete'
@@ -103,7 +107,11 @@ const LinguistCard: React.FC<LinguistCardProps> = ({
                                               }
                                           )
                                       })()
-                                    : undefined
+                                    : linguist.setupStatus.tokenExpired
+                                      ? t(
+                                            'dashboard.availabilityBadge.tokenExpiredTooltip'
+                                        )
+                                      : undefined
                             }
                         />
                     </div>

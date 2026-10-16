@@ -127,7 +127,9 @@
             "unavailable": "Non disponibile",
             "limited": "Limitato",
             "setupIncomplete": "Configurazione incompleta",
-            "missingItems": "Mancante: {{items}}"
+            "missingItems": "Mancante: {{items}}",
+            "tokenExpired": "Accesso richiesto",
+            "tokenExpiredTooltip": "L'autorizzazione di Google Calendar è scaduta. Il linguista deve accedere nuovamente per riautorizzare."
         },
         "availabilityTimeline": {
             "title": "Cronologia disponibilità",
@@ -156,6 +158,11 @@
             "sendSetupReminderToAll_other": "Invia promemoria a {{count}} linguisti",
             "setupReminderSubjectBulk": "Completa la tua configurazione LinguistNow",
             "setupReminderBodyBulk": "Ciao,\n\nSei in considerazione per un progetto imminente! Per essere idoneo, completa la tua configurazione LinguistNow. Elementi mancanti: {{missingItems}}\n\nAccedi e completa il tuo profilo su: {{accountSettingsUrl}}\n\nGrazie!",
+            "sendReloginReminder": "Invia promemoria di accesso",
+            "sendReloginReminderToAll": "Invia promemoria di accesso a {{count}} linguista",
+            "sendReloginReminderToAll_other": "Invia promemoria di accesso a {{count}} linguisti",
+            "reloginReminderSubjectBulk": "Riautorizza l'accesso a Google Calendar su LinguistNow",
+            "reloginReminderBodyBulk": "Ciao,\n\nSei in considerazione per un progetto imminente! Tuttavia, la tua autorizzazione di Google Calendar su LinguistNow è scaduta, quindi non possiamo verificare la tua disponibilità.\n\nEffettua nuovamente l'accesso con il tuo account Google per riautorizzare l'accesso su: {{accountSettingsUrl}}\n\nGrazie!",
             "defaultTitle": "Progetto di traduzione",
             "emailSubject": "Richiesta di prenotazione: {{projectName}}",
             "emailBody": "Ciao {{linguistName}},\n\nVorrei prenotarti per il seguente progetto:\n\nProgetto: {{projectName}}\nDisponibilità richiesta: {{startDate}} - {{endDate}}\n\n{{description}}\n\nConferma la tua disponibilità per l'intera durata del progetto.\n\nCordiali saluti",
