@@ -1,29 +1,139 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { UserCheck, X } from 'lucide-react'
 import { LanguageContext } from '@/i18n/LanguageProvider'
+import { fetchLinguistList } from '@/auth-users/utils'
+import type { User } from '@linguistnow/shared'
+
+interface NavbarUser {
+    role: string
+    name?: string
+    email?: string
+    Name?: string
+    Email?: string
+}
 
 interface NavbarProps {
-    userDetails: { role: string } | null
+    userDetails: NavbarUser | null
+    impersonatedUser?: NavbarUser | null
+    isPM?: boolean
+    onImpersonate?: (email: string) => void | Promise<void>
+    onStopImpersonation?: () => void
 }
 
 /**
  * Main navigation bar component with responsive mobile menu and language selector.
  * Displays different navigation options based on user role and authentication status.
- * @param userDetails - Current user details including role, or null if not authenticated
+ * @param userDetails - Current effective user details including role, or null if not authenticated
+ * @param impersonatedUser - Currently impersonated linguist details, if active
+ * @param isPM - Whether the real authenticated user is a Project Manager
+ * @param onImpersonate - Callback to start impersonating a linguist by email
+ * @param onStopImpersonation - Callback to stop impersonating and return to PM view
  */
-const Navbar = ({ userDetails }: NavbarProps) => {
+const Navbar = ({
+    userDetails,
+    impersonatedUser = null,
+    isPM,
+    onImpersonate,
+    onStopImpersonation,
+}: NavbarProps) => {
     const { t } = useTranslation()
     const languageContext = useContext(LanguageContext)
     const switchLanguage = languageContext?.switchLanguage
     const [menuOpen, setMenuOpen] = useState(false) // track if menu is open or not
     const [langOpen, setLangOpen] = useState(false) // track if language toggle is open or not
+    const [impersonateOpen, setImpersonateOpen] = useState(false)
+    const [linguistOptions, setLinguistOptions] = useState<User[]>([])
+    const [linguistSearch, setLinguistSearch] = useState('')
+    const [loadingLinguists, setLoadingLinguists] = useState(false)
+    const searchInputRef = useRef<HTMLInputElement>(null)
+
+    const canImpersonate =
+        isPM ??
+        (userDetails?.role === 'Project Manager' || Boolean(impersonatedUser))
+
+    useEffect(() => {
+        if (impersonateOpen && canImpersonate) {
+            setLoadingLinguists(true)
+            fetchLinguistList()
+                .then((users) => {
+                    setLinguistOptions(
+                        users.filter((u) => u.role === 'Linguist' && u.email)
+                    )
+                })
+                .catch(() => {
+                    setLinguistOptions([])
+                })
+                .finally(() => {
+                    setLoadingLinguists(false)
+                })
+        }
+    }, [impersonateOpen, canImpersonate])
+
+    useEffect(() => {
+        if (!impersonateOpen) return
+
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') {
+                setImpersonateOpen(false)
+            }
+        }
+        window.addEventListener('keydown', handleKeyDown)
+        searchInputRef.current?.focus()
+
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown)
+        }
+    }, [impersonateOpen])
+
+    const filteredLinguists = linguistOptions.filter((u) => {
+        const q = linguistSearch.trim().toLowerCase()
+        if (!q) return true
+        return (
+            u.name.toLowerCase().includes(q) ||
+            u.email.toLowerCase().includes(q)
+        )
+    })
 
     return (
         <nav
             id="header"
             className="w-full z-30 sticky top-0 py-1 bg-white shadow-sm"
         >
+            {impersonatedUser && canImpersonate && (
+                <div
+                    data-testid="impersonation-banner"
+                    role="status"
+                    className="w-full bg-amber-50 border-b border-amber-200 px-6 py-2 text-amber-900 text-sm flex flex-wrap items-center justify-between gap-2"
+                >
+                    <div className="flex items-center gap-2 font-medium">
+                        <UserCheck className="h-4 w-4 text-amber-700 shrink-0" />
+                        <span>
+                            {t('impersonation.bannerText', {
+                                name:
+                                    impersonatedUser.name ||
+                                    impersonatedUser.Name ||
+                                    impersonatedUser.email ||
+                                    impersonatedUser.Email,
+                                email:
+                                    impersonatedUser.email ||
+                                    impersonatedUser.Email,
+                            })}
+                        </span>
+                    </div>
+                    {onStopImpersonation && (
+                        <button
+                            type="button"
+                            onClick={onStopImpersonation}
+                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-amber-200 hover:bg-amber-300 text-amber-950 font-semibold text-xs transition-colors cursor-pointer"
+                        >
+                            <X className="h-3.5 w-3.5" />
+                            {t('impersonation.stopImpersonating')}
+                        </button>
+                    )}
+                </div>
+            )}
             <div className="w-full container mx-auto flex flex-wrap items-center mt-0 px-6 py-3">
                 {/* Left section - Menu toggle and navigation (desktop) */}
                 <div className="flex-1 flex items-center order-1">
@@ -35,6 +145,9 @@ const Navbar = ({ userDetails }: NavbarProps) => {
                             setMenuOpen(!menuOpen)
                             if (langOpen) {
                                 setLangOpen(false)
+                            }
+                            if (impersonateOpen) {
+                                setImpersonateOpen(false)
                             }
                         }}
                     >
@@ -61,7 +174,8 @@ const Navbar = ({ userDetails }: NavbarProps) => {
                                 </Link>
                             </li>
                             {userDetails &&
-                                userDetails.role === 'Project Manager' && (
+                                userDetails.role === 'Project Manager' &&
+                                !impersonatedUser && (
                                     <li>
                                         <Link
                                             className="inline-block no-underline hover:text-black hover:underline py-2 px-4"
@@ -102,6 +216,32 @@ const Navbar = ({ userDetails }: NavbarProps) => {
                     className="flex-1 flex items-center justify-end order-3"
                     id="nav-content"
                 >
+                    {canImpersonate && onImpersonate && (
+                        <button
+                            type="button"
+                            data-testid="navbar-impersonate-button"
+                            title={t('impersonation.impersonateLinguist')}
+                            aria-label={t('impersonation.impersonateLinguist')}
+                            aria-expanded={impersonateOpen}
+                            aria-controls="impersonate-menu"
+                            aria-haspopup="dialog"
+                            onClick={() => {
+                                setImpersonateOpen(!impersonateOpen)
+                                if (langOpen) setLangOpen(false)
+                                if (menuOpen) setMenuOpen(false)
+                            }}
+                            className={`me-3 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium border transition-colors cursor-pointer ${
+                                impersonatedUser
+                                    ? 'bg-amber-100 border-amber-300 text-amber-900 hover:bg-amber-200'
+                                    : 'bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100 hover:text-black'
+                            }`}
+                        >
+                            <UserCheck className="h-4 w-4" />
+                            <span className="hidden sm:inline">
+                                {t('impersonation.impersonateLinguist')}
+                            </span>
+                        </button>
+                    )}
                     {(!userDetails ||
                         userDetails.role !== 'Project Manager') && (
                         <Link
@@ -123,7 +263,7 @@ const Navbar = ({ userDetails }: NavbarProps) => {
                     {/* Button to toggle language menu so user can select a language to localize UI */}
                     <label
                         htmlFor="language-toggle"
-                        className="pl-3 cursor-pointer block"
+                        className="ps-3 cursor-pointer block"
                     >
                         <svg
                             className="fill-current hover:text-black"
@@ -152,6 +292,9 @@ const Navbar = ({ userDetails }: NavbarProps) => {
                             if (menuOpen) {
                                 setMenuOpen(false)
                             }
+                            if (impersonateOpen) {
+                                setImpersonateOpen(false)
+                            }
                         }}
                     />
 
@@ -159,7 +302,7 @@ const Navbar = ({ userDetails }: NavbarProps) => {
                     {userDetails && (
                         <Link
                             to="/logout"
-                            className="pl-3 inline-block no-underline hover:text-black"
+                            className="ps-3 inline-block no-underline hover:text-black"
                         >
                             <svg
                                 className="fill-current hover:text-black"
@@ -177,6 +320,82 @@ const Navbar = ({ userDetails }: NavbarProps) => {
                         </Link>
                     )}
                 </div>
+                {/* Impersonate Linguist selection popover */}
+                {impersonateOpen && canImpersonate && onImpersonate && (
+                    <>
+                        <div
+                            className="fixed inset-0 z-40"
+                            onClick={() => {
+                                setImpersonateOpen(false)
+                            }}
+                        />
+                        <div
+                            className="absolute end-4 top-16 z-50 bg-white rounded-lg shadow-lg border border-gray-200 p-3 w-80 max-w-[calc(100vw-2rem)]"
+                            id="impersonate-menu"
+                            role="dialog"
+                            aria-label={t('impersonation.impersonateLinguist')}
+                        >
+                            <div className="mb-2">
+                                <input
+                                    ref={searchInputRef}
+                                    type="text"
+                                    value={linguistSearch}
+                                    onChange={(e) => {
+                                        setLinguistSearch(e.target.value)
+                                    }}
+                                    placeholder={t(
+                                        'impersonation.searchLinguists'
+                                    )}
+                                    className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-400"
+                                />
+                            </div>
+                            <div className="max-h-60 overflow-y-auto divide-y divide-gray-100">
+                                {loadingLinguists ? (
+                                    <div className="py-3 text-center text-sm text-gray-500">
+                                        {t('general.loading')}
+                                    </div>
+                                ) : filteredLinguists.length === 0 ? (
+                                    <div className="py-3 text-center text-sm text-gray-500">
+                                        {t('impersonation.noLinguistsFound')}
+                                    </div>
+                                ) : (
+                                    filteredLinguists.map((linguist) => {
+                                        const isCurrent =
+                                            (impersonatedUser?.email ||
+                                                impersonatedUser?.Email) ===
+                                            linguist.email
+                                        return (
+                                            <button
+                                                key={linguist.email}
+                                                type="button"
+                                                onClick={() => {
+                                                    setImpersonateOpen(false)
+                                                    setLinguistSearch('')
+                                                    void onImpersonate(
+                                                        linguist.email
+                                                    )
+                                                }}
+                                                className={`w-full text-start px-3 py-2 text-sm rounded-md transition-colors flex flex-col cursor-pointer ${
+                                                    isCurrent
+                                                        ? 'bg-amber-50 text-amber-900 font-medium'
+                                                        : 'hover:bg-gray-100 text-gray-800'
+                                                }`}
+                                            >
+                                                <span className="font-medium truncate">
+                                                    {linguist.name ||
+                                                        linguist.email}
+                                                </span>
+                                                <span className="text-xs text-gray-500 truncate">
+                                                    {linguist.email}
+                                                </span>
+                                            </button>
+                                        )
+                                    })
+                                )}
+                            </div>
+                        </div>
+                    </>
+                )}
                 {/* Language selection menu - compact grid popover */}
                 {langOpen && (
                     <>
@@ -299,7 +518,8 @@ const Navbar = ({ userDetails }: NavbarProps) => {
                                     </li>
                                     {userDetails &&
                                         userDetails.role ===
-                                            'Project Manager' && (
+                                            'Project Manager' &&
+                                        !impersonatedUser && (
                                             <li>
                                                 <Link
                                                     onClick={() => {

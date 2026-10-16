@@ -4,15 +4,17 @@ import type { LinguistWithAvailability } from '@linguistnow/shared'
 
 interface LinguistTableProps {
     linguists: LinguistWithAvailability[]
+    onImpersonate?: (email: string) => void | Promise<void>
 }
 
 /**
  * Displays a table of linguists with their availability status.
  * Maps linguist data to table format with availability status indicators.
  * @param linguists - Array of linguist data with availability information
+ * @param onImpersonate - Optional callback to impersonate a linguist by email
  */
-const LinguistTable = ({ linguists }: LinguistTableProps) => {
-    const columns = useColumns()
+const LinguistTable = ({ linguists, onImpersonate }: LinguistTableProps) => {
+    const columns = useColumns({ onImpersonate })
 
     // Map linguists to table format with computed availability status
     const tableData = linguists.map((linguist) => {

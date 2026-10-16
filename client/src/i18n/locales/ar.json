@@ -9,6 +9,8 @@
         "tokenExpired": "انتهت صلاحية الوصول إلى تقويم Google. يرجى تسجيل الدخول مرة أخرى لإعادة التفويض.",
         "sessionExpired": "انتهت صلاحية جلستك. يرجى تسجيل الدخول مرة أخرى.",
         "fetchError": "تعذر جلب التقويمات. يرجى المحاولة مرة أخرى.",
+        "impersonatingTokenExpired": "يحتاج اللغوي إلى تسجيل الدخول مرة أخرى باستخدام حساب Google الخاص به لتفويض الوصول إلى التقويم.",
+        "impersonatingFetchError": "الإعداد غير مكتمل: لم يتم تفويض الوصول إلى تقويم Google من قبل هذا اللغوي.",
         "saveSuccess": "تم حفظ التقويمات",
         "saveError": "فشل حفظ التقويمات",
         "atLeastOneRequired": "يجب اختيار تقويم واحد على الأقل",
@@ -22,6 +24,9 @@
         "name": "الاسم:",
         "automaticSave": "يتم حفظ اختياراتك تلقائياً.",
         "introText": "قم بتكوين إعدادات حسابك أدناه.",
+        "setupIncompleteTitle": "الإعداد غير مكتمل",
+        "setupIncompleteDescription": "لم يكمل هذا اللغوي إعداد حسابه. يتطلب اختيار التقويم والتحقق من التوفر تسجيل دخول اللغوي بحساب Google الخاص به لتفويض الوصول إلى التقويم.",
+        "missingItemsLabel": "عناصر الإعداد المفقودة: ",
         "deleteAccountTitle": "حذف الحساب",
         "deleteAccountDescription": "حذف حسابك وجميع البيانات المرتبطة به بشكل دائم. لا يمكن التراجع عن هذا الإجراء.",
         "deleteAccountButton": "حذف حسابي",
@@ -348,5 +353,16 @@
     "notFound": {
         "title": "404 | غير موجود",
         "goHome": "العودة إلى الصفحة الرئيسية"
+    },
+    "impersonation": {
+        "impersonate": "انتحال",
+        "impersonateLinguist": "انتحال صفة لغوي",
+        "searchLinguists": "البحث عن لغويين...",
+        "noLinguistsFound": "لم يتم العثور على لغويين.",
+        "bannerText": "عرض كاللغوي: {{name}} ({{email}})",
+        "stopImpersonating": "إيقاف الانتحال",
+        "startedToast": "يتم الآن العرض كـ {{name}}",
+        "stoppedToast": "تم إيقاف انتحال صفة اللغوي",
+        "errorToast": "فشل في انتحال صفة اللغوي"
     }
 }

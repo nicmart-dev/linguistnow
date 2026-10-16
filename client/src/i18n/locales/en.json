@@ -33,6 +33,8 @@
         "tokenExpired": "Your Google Calendar access has expired. Please login again to re-authorize.",
         "sessionExpired": "Your session has expired. Please login again.",
         "fetchError": "Unable to fetch calendars. Please try again.",
+        "impersonatingTokenExpired": "The linguist needs to log in again with their Google account to authorize calendar access.",
+        "impersonatingFetchError": "Setup Incomplete: Google Calendar access has not been authorized by this linguist.",
         "saveSuccess": "Calendars saved",
         "saveError": "Failed to save calendars",
         "atLeastOneRequired": "At least one calendar must be selected",
@@ -46,6 +48,9 @@
         "name": "Name:",
         "automaticSave": "Your choices are automatically saved.",
         "introText": "Configure your account settings below.",
+        "setupIncompleteTitle": "Setup Incomplete",
+        "setupIncompleteDescription": "This linguist has not completed their account setup. Calendar selection and availability checking require the linguist to sign in with their Google account to authorize calendar access.",
+        "missingItemsLabel": "Missing setup items: ",
         "deleteAccountTitle": "Delete Account",
         "deleteAccountDescription": "Permanently delete your account and all associated data. This action cannot be undone.",
         "deleteAccountButton": "Delete My Account",
@@ -343,10 +348,24 @@
             "invalidStartHour": "Working hours start must be between 0 and 23",
             "invalidEndHour": "Working hours end must be between 0 and 23",
             "startAfterEnd": "Working hours start must be before end"
-        }
+        },
+        "selectHour": "Select hour",
+        "workingHoursHintAmPm": "Select your working hours",
+        "workingHoursHint24h": "Select your working hours in 24-hour format (0-23)"
     },
     "notFound": {
         "title": "404 | Not Found",
         "goHome": "Go Back Home"
+    },
+    "impersonation": {
+        "impersonate": "Impersonate",
+        "impersonateLinguist": "Impersonate Linguist",
+        "searchLinguists": "Search linguists...",
+        "noLinguistsFound": "No linguists found.",
+        "bannerText": "Impersonating linguist: {{name}} ({{email}})",
+        "stopImpersonating": "Stop Impersonating",
+        "startedToast": "Now impersonating {{name}}",
+        "stoppedToast": "Stopped impersonating linguist",
+        "errorToast": "Failed to impersonate linguist"
     }
 }

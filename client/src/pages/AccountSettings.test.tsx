@@ -111,3 +111,63 @@ describe('AccountSettings setup-complete alert', () => {
         )
     })
 })
+
+describe('AccountSettings impersonation setup-incomplete banner', () => {
+    it('renders setup-incomplete banner when impersonating a linguist with incomplete setup', () => {
+        render(
+            <MemoryRouter>
+                <I18nextProvider i18n={i18nInstance}>
+                    <AccountSettings
+                        userDetails={linguist}
+                        setUserDetails={vi.fn()}
+                        isImpersonating={true}
+                    />
+                </I18nextProvider>
+            </MemoryRouter>
+        )
+        const banner = screen.getByTestId('setup-incomplete-banner')
+        expect(banner).toBeDefined()
+        expect(banner.textContent).toContain('Setup Incomplete')
+        expect(banner.textContent).toContain('Calendar Selection')
+        expect(banner.textContent).toContain('Timezone')
+        expect(banner.textContent).toContain('Working Hours')
+    })
+
+    it('does not render setup-incomplete banner when impersonating a linguist whose setup is complete', () => {
+        const completeLinguist = {
+            Name: 'Lin Complete',
+            Email: 'lin@example.com',
+            Role: 'Linguist',
+            'Calendar IDs': 'lin@example.com',
+            Timezone: 'Europe/Paris',
+            'Working Hours Start': '09:00',
+        }
+        render(
+            <MemoryRouter>
+                <I18nextProvider i18n={i18nInstance}>
+                    <AccountSettings
+                        userDetails={completeLinguist}
+                        setUserDetails={vi.fn()}
+                        isImpersonating={true}
+                    />
+                </I18nextProvider>
+            </MemoryRouter>
+        )
+        expect(screen.queryByTestId('setup-incomplete-banner')).toBeNull()
+    })
+
+    it('does not render setup-incomplete banner when not impersonating', () => {
+        render(
+            <MemoryRouter>
+                <I18nextProvider i18n={i18nInstance}>
+                    <AccountSettings
+                        userDetails={linguist}
+                        setUserDetails={vi.fn()}
+                        isImpersonating={false}
+                    />
+                </I18nextProvider>
+            </MemoryRouter>
+        )
+        expect(screen.queryByTestId('setup-incomplete-banner')).toBeNull()
+    })
+})

@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next' // To show localized strings
-import { ArrowUpDown } from 'lucide-react'
+import { ArrowUpDown, UserCheck } from 'lucide-react'
 import { Button, Badge } from '@/components/ui'
 import { AvailabilityBadge, RatingInput } from '@/components/molecules'
 import type { ColumnDef } from '@tanstack/react-table'
@@ -32,6 +32,10 @@ interface LinguistRow {
     [key: string]: unknown // Allow other Airtable fields
 }
 
+interface UseColumnsOptions {
+    onImpersonate?: (email: string) => void | Promise<void>
+}
+
 /**
  * Returns column definitions for the linguist table.
  * @deprecated Use useColumns hook instead for proper i18n support
@@ -47,12 +51,16 @@ export const getColumns = (): ColumnDef<LinguistRow>[] => {
  * React hook that returns localized column definitions for the linguist table.
  * Provides columns for availability, picture, name, languages, specialization,
  * hourly rate, and rating with sorting capabilities.
+ * @param options - Optional callbacks such as onImpersonate
  * @returns Array of TanStack Table column definitions
  */
-export const useColumns = (): ColumnDef<LinguistRow>[] => {
+export const useColumns = (
+    options?: UseColumnsOptions
+): ColumnDef<LinguistRow>[] => {
     const { t } = useTranslation()
+    const onImpersonate = options?.onImpersonate
 
-    return [
+    const baseColumns: ColumnDef<LinguistRow>[] = [
         {
             accessorKey: 'availabilityStatus',
             size: 120,
@@ -88,9 +96,10 @@ export const useColumns = (): ColumnDef<LinguistRow>[] => {
                 )
             },
             cell: ({ row }) => {
-                const status = row.getValue<LinguistRow['availabilityStatus']>(
-                    'availabilityStatus'
-                )
+                const status =
+                    row.getValue<LinguistRow['availabilityStatus']>(
+                        'availabilityStatus'
+                    )
                 const freeHours = row.original.freeHours
                 const setupStatus = row.original.setupStatus
                 return (
@@ -262,10 +271,10 @@ export const useColumns = (): ColumnDef<LinguistRow>[] => {
                 if (rate === undefined) return '-'
 
                 // Use converted rate and display currency when available
-                const convertedRate = row.original
-                    .hourlyRateConverted as number | undefined
-                const displayCurrency = row.original
-                    .displayCurrency as string | undefined
+                const convertedRate = row.original.hourlyRateConverted as
+                    number | undefined
+                const displayCurrency = row.original.displayCurrency as
+                    string | undefined
 
                 const effectiveRate =
                     convertedRate !== undefined ? convertedRate : rate
@@ -300,6 +309,33 @@ export const useColumns = (): ColumnDef<LinguistRow>[] => {
             },
         },
     ]
+
+    if (onImpersonate) {
+        baseColumns.push({
+            id: 'actions',
+            header: () => '',
+            size: 130,
+            cell: ({ row }) => {
+                const email = row.original.email
+                return (
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        data-testid={`impersonate-row-${email}`}
+                        onClick={() => {
+                            void onImpersonate(email)
+                        }}
+                        className="inline-flex items-center gap-1.5"
+                    >
+                        <UserCheck className="h-3.5 w-3.5" />
+                        {t('impersonation.impersonate')}
+                    </Button>
+                )
+            },
+        })
+    }
+
+    return baseColumns
 }
 
 // Export default for backward compatibility - will be replaced by useColumns hook

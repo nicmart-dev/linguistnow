@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import axios, { isAxiosError } from 'axios'
 import { useTranslation } from 'react-i18next'
+import { UserCheck } from 'lucide-react'
 import { toast } from 'sonner'
 import i18next from '@/i18n'
 import { format, addDays, startOfDay } from 'date-fns'
@@ -22,9 +23,10 @@ import type {
 
 interface DashboardProps {
     userName?: string
+    onImpersonate?: (email: string) => void | Promise<void>
 }
 
-const Dashboard = ({ userName }: DashboardProps) => {
+const Dashboard = ({ userName, onImpersonate }: DashboardProps) => {
     const { t } = useTranslation()
     // Use English for email content regardless of PM's UI language
     const tEmail = i18next.getFixedT('en')
@@ -409,7 +411,10 @@ const Dashboard = ({ userName }: DashboardProps) => {
                     ) : (
                         <Tabs value={viewMode} className="w-full">
                             <TabsContent value="list">
-                                <LinguistTable linguists={linguists} />
+                                <LinguistTable
+                                    linguists={linguists}
+                                    onImpersonate={onImpersonate}
+                                />
                             </TabsContent>
                             <TabsContent value="card">
                                 {linguists.length === 0 ? (
@@ -524,6 +529,26 @@ const Dashboard = ({ userName }: DashboardProps) => {
                                                             </Button>
                                                         </div>
                                                     )}
+                                                {onImpersonate && (
+                                                    <div className="mt-2">
+                                                        <Button
+                                                            size="sm"
+                                                            variant="secondary"
+                                                            data-testid={`impersonate-card-${linguist.email}`}
+                                                            onClick={() => {
+                                                                void onImpersonate(
+                                                                    linguist.email
+                                                                )
+                                                            }}
+                                                            className="w-full inline-flex items-center justify-center gap-1.5"
+                                                        >
+                                                            <UserCheck className="h-3.5 w-3.5" />
+                                                            {t(
+                                                                'impersonation.impersonate'
+                                                            )}
+                                                        </Button>
+                                                    </div>
+                                                )}
                                             </div>
                                         ))}
                                     </div>

@@ -15,11 +15,13 @@ import type { AirtableUserFields } from '@linguistnow/shared'
 interface LogoutProps {
     setUserDetails: (user: AirtableUserFields | null) => void
     userDetails: AirtableUserFields | null
+    setImpersonatedUser?: (user: AirtableUserFields | null) => void
 }
 
 export const Logout: React.FC<LogoutProps> = ({
     setUserDetails,
     userDetails,
+    setImpersonatedUser,
 }) => {
     const { t } = useTranslation()
     const [userName, setUserName] = useState('') // store user name so we can display it after logout
@@ -29,9 +31,11 @@ export const Logout: React.FC<LogoutProps> = ({
         googleLogout()
         setUserName(userDetails?.Name || '') // Store user name to display on logout
         setUserDetails(null) // Clear user details upon logout
+        setImpersonatedUser?.(null)
         // Clear stored email from localStorage
         localStorage.removeItem('userEmail')
-    }, [setUserDetails, setUserName, userDetails?.Name])
+        localStorage.removeItem('impersonatedUserEmail')
+    }, [setUserDetails, setImpersonatedUser, setUserName, userDetails?.Name])
 
     useEffect(() => {
         // Check if the user was logged in before attempting logout

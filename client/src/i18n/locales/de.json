@@ -9,6 +9,8 @@
         "tokenExpired": "Ihr Zugriff auf Google Calendar ist abgelaufen. Bitte melden Sie sich erneut an, um erneut zu autorisieren.",
         "sessionExpired": "Ihre Sitzung ist abgelaufen. Bitte melden Sie sich erneut an.",
         "fetchError": "Kalender konnten nicht abgerufen werden. Bitte versuchen Sie es erneut.",
+        "impersonatingTokenExpired": "Der Linguist muss sich erneut mit seinem Google-Konto anmelden, um den Kalenderzugriff zu autorisieren.",
+        "impersonatingFetchError": "Einrichtung unvollständig: Der Google Kalender-Zugriff wurde von diesem Linguisten noch nicht autorisiert.",
         "saveSuccess": "Kalender gespeichert",
         "saveError": "Fehler beim Speichern der Kalender",
         "atLeastOneRequired": "Mindestens ein Kalender muss ausgewählt werden",
@@ -22,6 +24,9 @@
         "name": "Name:",
         "automaticSave": "Ihre Auswahl wird automatisch gespeichert.",
         "introText": "Konfigurieren Sie unten Ihre Kontoeinstellungen.",
+        "setupIncompleteTitle": "Einrichtung unvollständig",
+        "setupIncompleteDescription": "Dieser Linguist hat die Kontoeinrichtung noch nicht abgeschlossen. Kalenderauswahl und Verfügbarkeitsprüfung erfordern, dass sich der Linguist mit seinem Google-Konto anmeldet, um den Kalenderzugriff zu autorisieren.",
+        "missingItemsLabel": "Fehlende Einrichtungselemente: ",
         "deleteAccountTitle": "Konto löschen",
         "deleteAccountDescription": "Löschen Sie Ihr Konto und alle zugehörigen Daten dauerhaft. Diese Aktion kann nicht rückgängig gemacht werden.",
         "deleteAccountButton": "Mein Konto löschen",
@@ -348,5 +353,16 @@
     "notFound": {
         "title": "404 | Nicht gefunden",
         "goHome": "Zurück zur Startseite"
+    },
+    "impersonation": {
+        "impersonate": "Als Nutzer ansehen",
+        "impersonateLinguist": "Als Linguist ansehen",
+        "searchLinguists": "Linguisten suchen...",
+        "noLinguistsFound": "Keine Linguisten gefunden.",
+        "bannerText": "Ansicht als Linguist: {{name}} ({{email}})",
+        "stopImpersonating": "Ansicht beenden",
+        "startedToast": "Ansicht als {{name}} aktiv",
+        "stoppedToast": "Linguisten-Ansicht beendet",
+        "errorToast": "Linguisten-Ansicht fehlgeschlagen"
     }
 }

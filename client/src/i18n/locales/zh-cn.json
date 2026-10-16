@@ -9,6 +9,8 @@
         "tokenExpired": "您的 Google 日历访问权限已过期。请重新登录以重新授权。",
         "sessionExpired": "您的会话已过期。请重新登录。",
         "fetchError": "无法获取日历。请重试。",
+        "impersonatingTokenExpired": "该译员需要使用其 Google 帐户重新登录以授权日历访问。",
+        "impersonatingFetchError": "设置未完成：该译员尚未授权 Google 日历访问权限。",
         "saveSuccess": "日历已保存",
         "saveError": "保存日历失败",
         "atLeastOneRequired": "必须至少选择一个日历",
@@ -22,6 +24,9 @@
         "name": "姓名：",
         "automaticSave": "您的选择将自动保存。",
         "introText": "请在下方配置您的帐户设置。",
+        "setupIncompleteTitle": "设置未完成",
+        "setupIncompleteDescription": "该译员尚未完成其帐户设置。日历选择和可用性检查需要译员使用其 Google 帐户登录并授权日历访问权限。",
+        "missingItemsLabel": "缺失的设置项：",
         "deleteAccountTitle": "删除帐户",
         "deleteAccountDescription": "永久删除您的帐户和所有相关数据。此操作无法撤销。",
         "deleteAccountButton": "删除我的帐户",
@@ -348,5 +353,16 @@
     "notFound": {
         "title": "404 | 未找到",
         "goHome": "返回首页"
+    },
+    "impersonation": {
+        "impersonate": "模拟用户",
+        "impersonateLinguist": "模拟语言专家",
+        "searchLinguists": "搜索语言专家...",
+        "noLinguistsFound": "未找到语言专家。",
+        "bannerText": "正在模拟语言专家：{{name}} ({{email}})",
+        "stopImpersonating": "停止模拟",
+        "startedToast": "正在模拟 {{name}}",
+        "stoppedToast": "已停止模拟语言专家",
+        "errorToast": "模拟语言专家失败"
     }
 }

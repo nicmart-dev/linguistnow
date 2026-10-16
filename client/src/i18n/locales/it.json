@@ -9,6 +9,8 @@
         "tokenExpired": "Il tuo accesso a Google Calendar è scaduto. Effettua nuovamente l'accesso per riautorizzare.",
         "sessionExpired": "La tua sessione è scaduta. Effettua nuovamente l'accesso.",
         "fetchError": "Impossibile recuperare i calendari. Riprova.",
+        "impersonatingTokenExpired": "Il linguista deve effettuare nuovamente l'accesso con il proprio account Google per autorizzare l'accesso al calendario.",
+        "impersonatingFetchError": "Configurazione incompleta: l'accesso a Google Calendar non è stato autorizzato da questo linguista.",
         "saveSuccess": "Calendari salvati",
         "saveError": "Errore nel salvataggio dei calendari",
         "atLeastOneRequired": "Deve essere selezionato almeno un calendario",
@@ -22,6 +24,9 @@
         "name": "Nome:",
         "automaticSave": "Le tue scelte vengono salvate automaticamente.",
         "introText": "Configura le impostazioni del tuo account qui sotto.",
+        "setupIncompleteTitle": "Configurazione incompleta",
+        "setupIncompleteDescription": "Questo linguista non ha completato la configurazione dell'account. La selezione del calendario e la verifica della disponibilità richiedono che il linguista acceda con il proprio account Google per autorizzare l'accesso al calendario.",
+        "missingItemsLabel": "Elementi di configurazione mancanti: ",
         "deleteAccountTitle": "Elimina account",
         "deleteAccountDescription": "Elimina definitivamente il tuo account e tutti i dati associati. Questa azione non può essere annullata.",
         "deleteAccountButton": "Elimina il mio account",
@@ -348,5 +353,16 @@
     "notFound": {
         "title": "404 | Non trovato",
         "goHome": "Torna alla home"
+    },
+    "impersonation": {
+        "impersonate": "Impersona",
+        "impersonateLinguist": "Impersona linguista",
+        "searchLinguists": "Cerca linguisti...",
+        "noLinguistsFound": "Nessun linguista trovato.",
+        "bannerText": "Impersonando il linguista: {{name}} ({{email}})",
+        "stopImpersonating": "Termina impersonificazione",
+        "startedToast": "Ora stai impersonando {{name}}",
+        "stoppedToast": "Impersonificazione terminata",
+        "errorToast": "Impossibile impersonare il linguista"
     }
 }

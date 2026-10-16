@@ -251,7 +251,7 @@ describe("linguistsController", () => {
         json: jsonMock,
       } as unknown as Response;
 
-      await getLinguistById(req, res);
+      await getLinguistById(req, res as never);
 
       expect(jsonMock).toHaveBeenCalledTimes(1);
       const result = jsonMock.mock.calls[0][0];

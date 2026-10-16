@@ -9,6 +9,8 @@
         "tokenExpired": "Google 캘린더 접근 권한이 만료되었습니다. 다시 로그인하여 재승인하세요.",
         "sessionExpired": "세션이 만료되었습니다. 다시 로그인하세요.",
         "fetchError": "캘린더를 가져올 수 없습니다. 다시 시도하세요.",
+        "impersonatingTokenExpired": "캘린더 접근을 승인하려면 링귀스트가 Google 계정으로 다시 로그인해야 합니다.",
+        "impersonatingFetchError": "설정 미완료: 이 링귀스트가 Google 캘린더 접근을 아직 승인하지 않았습니다.",
         "saveSuccess": "캘린더 저장됨",
         "saveError": "캘린더 저장 실패",
         "atLeastOneRequired": "최소한 하나의 캘린더를 선택해야 합니다",
@@ -22,6 +24,9 @@
         "name": "이름:",
         "automaticSave": "선택 사항이 자동으로 저장됩니다.",
         "introText": "아래에서 계정 설정을 구성하세요.",
+        "setupIncompleteTitle": "설정 미완료",
+        "setupIncompleteDescription": "이 링귀스트는 계정 설정을 완료하지 않았습니다. 캘린더 선택 및 가용성 확인을 위해서는 링귀스트가 Google 계정으로 로그인하여 캘린더 접근을 승인해야 합니다.",
+        "missingItemsLabel": "누락된 설정 항목: ",
         "deleteAccountTitle": "계정 삭제",
         "deleteAccountDescription": "계정 및 관련된 모든 데이터를 영구적으로 삭제합니다. 이 작업은 취소할 수 없습니다.",
         "deleteAccountButton": "내 계정 삭제",
@@ -348,5 +353,16 @@
     "notFound": {
         "title": "404 | 찾을 수 없음",
         "goHome": "홈으로 돌아가기"
+    },
+    "impersonation": {
+        "impersonate": "가장하기",
+        "impersonateLinguist": "링귀스트 가장하기",
+        "searchLinguists": "링귀스트 검색...",
+        "noLinguistsFound": "링귀스트를 찾을 수 없습니다.",
+        "bannerText": "링귀스트 가장 중: {{name}} ({{email}})",
+        "stopImpersonating": "가장 중지",
+        "startedToast": "{{name}} 님으로 가장 중",
+        "stoppedToast": "링귀스트 가장을 중지했습니다",
+        "errorToast": "링귀스트 가장에 실패했습니다"
     }
 }

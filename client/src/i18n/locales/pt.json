@@ -9,6 +9,8 @@
         "tokenExpired": "Seu acesso ao Google Calendar expirou. Por favor, faça login novamente para reautorizar.",
         "sessionExpired": "Sua sessão expirou. Por favor, faça login novamente.",
         "fetchError": "Não foi possível buscar os calendários. Por favor, tente novamente.",
+        "impersonatingTokenExpired": "O linguista precisa fazer login novamente com sua conta do Google para autorizar o acesso ao calendário.",
+        "impersonatingFetchError": "Configuração incompleta: o acesso ao Google Calendar não foi autorizado por este linguista.",
         "saveSuccess": "Calendários salvos",
         "saveError": "Erro ao salvar os calendários",
         "atLeastOneRequired": "Pelo menos um calendário deve ser selecionado",
@@ -22,6 +24,9 @@
         "name": "Nome:",
         "automaticSave": "Suas escolhas são salvas automaticamente.",
         "introText": "Configure as configurações da sua conta abaixo.",
+        "setupIncompleteTitle": "Configuração incompleta",
+        "setupIncompleteDescription": "Este linguista não concluiu a configuração da conta. A seleção de calendários e a verificação de disponibilidade exigem que o linguista faça login com sua conta do Google para autorizar o acesso ao calendário.",
+        "missingItemsLabel": "Itens de configuração ausentes: ",
         "deleteAccountTitle": "Excluir conta",
         "deleteAccountDescription": "Excluir permanentemente sua conta e todos os dados associados. Esta ação não pode ser desfeita.",
         "deleteAccountButton": "Excluir minha conta",
@@ -348,5 +353,16 @@
     "notFound": {
         "title": "404 | Não encontrado",
         "goHome": "Voltar para o início"
+    },
+    "impersonation": {
+        "impersonate": "Representar",
+        "impersonateLinguist": "Representar linguista",
+        "searchLinguists": "Pesquisar linguistas...",
+        "noLinguistsFound": "Nenhum linguista encontrado.",
+        "bannerText": "Representando o linguista: {{name}} ({{email}})",
+        "stopImpersonating": "Parar representação",
+        "startedToast": "Representando agora {{name}}",
+        "stoppedToast": "Representação de linguista encerrada",
+        "errorToast": "Falha ao representar linguista"
     }
 }

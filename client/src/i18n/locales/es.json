@@ -9,6 +9,8 @@
         "tokenExpired": "Tu acceso a Google Calendar ha expirado. Por favor, inicia sesión nuevamente para reautorizar.",
         "sessionExpired": "Tu sesión ha expirado. Por favor, inicia sesión nuevamente.",
         "fetchError": "No se pudieron obtener los calendarios. Por favor, inténtalo de nuevo.",
+        "impersonatingTokenExpired": "El lingüista debe iniciar sesión nuevamente con su cuenta de Google para autorizar el acceso al calendario.",
+        "impersonatingFetchError": "Configuración incompleta: el acceso a Google Calendar no ha sido autorizado por este lingüista.",
         "saveSuccess": "Calendarios guardados",
         "saveError": "Error al guardar los calendarios",
         "atLeastOneRequired": "Debe seleccionarse al menos un calendario",
@@ -22,6 +24,9 @@
         "name": "Nombre:",
         "automaticSave": "Tus elecciones se guardan automáticamente.",
         "introText": "Configura la configuración de tu cuenta a continuación.",
+        "setupIncompleteTitle": "Configuración incompleta",
+        "setupIncompleteDescription": "Este lingüista no ha completado la configuración de su cuenta. La selección de calendarios y la comprobación de disponibilidad requieren que el lingüista inicie sesión con su cuenta de Google para autorizar el acceso al calendario.",
+        "missingItemsLabel": "Elementos de configuración faltantes: ",
         "deleteAccountTitle": "Eliminar cuenta",
         "deleteAccountDescription": "Eliminar permanentemente tu cuenta y todos los datos asociados. Esta acción no se puede deshacer.",
         "deleteAccountButton": "Eliminar mi cuenta",
@@ -348,5 +353,16 @@
     "notFound": {
         "title": "404 | No encontrado",
         "goHome": "Volver al inicio"
+    },
+    "impersonation": {
+        "impersonate": "Suplantar",
+        "impersonateLinguist": "Suplantar lingüista",
+        "searchLinguists": "Buscar lingüistas...",
+        "noLinguistsFound": "No se encontraron lingüistas.",
+        "bannerText": "Suplantando al lingüista: {{name}} ({{email}})",
+        "stopImpersonating": "Dejar de suplantar",
+        "startedToast": "Suplantando ahora a {{name}}",
+        "stoppedToast": "Se dejó de suplantar al lingüista",
+        "errorToast": "Error al suplantar al lingüista"
     }
 }

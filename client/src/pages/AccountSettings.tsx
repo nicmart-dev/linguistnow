@@ -8,10 +8,24 @@ import { useNavigate } from 'react-router-dom'
 import { googleLogout } from '@react-oauth/google'
 import { useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
+import { AlertTriangle } from 'lucide-react'
+import { checkSetupStatus } from '@linguistnow/shared'
+import type { AuthenticatedUser } from '@/auth-users/utils'
+import { getAuthHeaders } from '@/auth-users/utils'
 
 /* The AccountSettings component utilizes the CalendarSelector component 
 to allow the user to select and save their calendars. */
-const AccountSettings = ({ userDetails, setUserDetails }) => {
+interface AccountSettingsProps {
+    userDetails: AuthenticatedUser
+    setUserDetails: (user: AuthenticatedUser | null) => void
+    isImpersonating?: boolean
+}
+
+const AccountSettings = ({
+    userDetails,
+    setUserDetails,
+    isImpersonating = false,
+}: AccountSettingsProps) => {
     const { t } = useTranslation()
     const navigate = useNavigate()
     const [isDeleting, setIsDeleting] = useState(false)
@@ -19,6 +33,20 @@ const AccountSettings = ({ userDetails, setUserDetails }) => {
     const [calendarsSaved, setCalendarsSaved] = useState(false)
     const setupAlertRef = useRef<HTMLDivElement>(null)
     const isLinguist = userDetails?.Role === 'Linguist'
+
+    const setupStatus = checkSetupStatus(
+        (userDetails || {}) as unknown as Record<string, unknown>
+    )
+
+    const fieldLabelMap: Record<string, string> = {
+        calendars: t('calendarSelector.title', 'Calendar Selection'),
+        timezone: t('availabilitySettings.timezone', 'Timezone'),
+        working_hours: t('availabilitySettings.workingHours', 'Working Hours'),
+    }
+
+    const missingItemsLabels = setupStatus.missingItems.map(
+        (item) => fieldLabelMap[item] || item
+    )
 
     /* Bring the setup-complete alert into view and focus it after a save */
     useEffect(() => {
@@ -32,7 +60,7 @@ const AccountSettings = ({ userDetails, setUserDetails }) => {
     }, [calendarsSaved, isLinguist])
 
     /* Save user selected calendars */
-    const handleSaveCalendars = async (updatedCalendars) => {
+    const handleSaveCalendars = async (updatedCalendars: string[]) => {
         setCalendarsSaved(false)
         try {
             // Validate: at least one calendar must be selected
@@ -62,11 +90,12 @@ const AccountSettings = ({ userDetails, setUserDetails }) => {
 
             // Update the user's calendar IDs in Airtable
             const response = await fetch(
-                `${import.meta.env.VITE_API_URL}/api/users/${userEmail}`,
+                `${import.meta.env.VITE_API_URL}/api/users/${encodeURIComponent(userEmail)}`,
                 {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
+                        ...getAuthHeaders(),
                     },
                     body: JSON.stringify({
                         calendarIds: updatedCalendars,
@@ -133,6 +162,7 @@ const AccountSettings = ({ userDetails, setUserDetails }) => {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
+                        ...getAuthHeaders(),
                     },
                     body: JSON.stringify({
                         availabilityPreferences: preferences,
@@ -200,6 +230,7 @@ const AccountSettings = ({ userDetails, setUserDetails }) => {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
+                        ...getAuthHeaders(),
                     },
                     body: JSON.stringify({
                         profile: profile,
@@ -255,6 +286,9 @@ const AccountSettings = ({ userDetails, setUserDetails }) => {
     }
 
     const handleDeleteAccount = async () => {
+        if (isImpersonating) {
+            return
+        }
         if (!showConfirmDelete) {
             setShowConfirmDelete(true)
             return
@@ -279,6 +313,7 @@ const AccountSettings = ({ userDetails, setUserDetails }) => {
                     method: 'DELETE',
                     headers: {
                         'Content-Type': 'application/json',
+                        ...getAuthHeaders(),
                     },
                 }
             )
@@ -311,6 +346,7 @@ const AccountSettings = ({ userDetails, setUserDetails }) => {
             // Clear user details and localStorage
             setUserDetails(null)
             localStorage.removeItem('userEmail')
+            localStorage.removeItem('sessionToken')
 
             // Navigate to login page after a short delay
             setTimeout(() => {
@@ -341,6 +377,44 @@ const AccountSettings = ({ userDetails, setUserDetails }) => {
                     </p>
 
                     <div aria-live="polite">
+                        {isImpersonating &&
+                            isLinguist &&
+                            !setupStatus.isComplete && (
+                                <div
+                                    data-testid="setup-incomplete-banner"
+                                    role="status"
+                                    className="max-w-3xl mb-6 p-4 rounded-lg border border-amber-300 bg-amber-50 text-amber-900 flex flex-col gap-2"
+                                >
+                                    <div className="flex items-center gap-2">
+                                        <AlertTriangle className="h-5 w-5 text-amber-600 shrink-0" />
+                                        <h3 className="font-semibold text-base text-amber-900">
+                                            {t(
+                                                'accountSettings.setupIncompleteTitle',
+                                                'Setup Incomplete'
+                                            )}
+                                        </h3>
+                                    </div>
+                                    <p className="text-sm text-amber-800">
+                                        {t(
+                                            'accountSettings.setupIncompleteDescription',
+                                            'This linguist has not completed their account setup. Calendar selection and availability checking require the linguist to sign in with their Google account to authorize calendar access.'
+                                        )}
+                                    </p>
+                                    {setupStatus.missingItems.length > 0 && (
+                                        <div className="text-xs font-medium text-amber-900 bg-amber-100/80 rounded px-2.5 py-1.5 self-start">
+                                            <span>
+                                                {t(
+                                                    'accountSettings.missingItemsLabel',
+                                                    'Missing setup items: '
+                                                )}
+                                            </span>
+                                            <span className="font-semibold">
+                                                {missingItemsLabels.join(', ')}
+                                            </span>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
                         {isLinguist && calendarsSaved && (
                             <div
                                 role="status"
@@ -387,6 +461,9 @@ const AccountSettings = ({ userDetails, setUserDetails }) => {
                                             <CalendarSelector
                                                 userDetails={userDetails}
                                                 onSave={handleSaveCalendars}
+                                                isImpersonating={
+                                                    isImpersonating
+                                                }
                                             />
                                         </div>
 
@@ -406,6 +483,7 @@ const AccountSettings = ({ userDetails, setUserDetails }) => {
                                             onSave={
                                                 handleSaveAvailabilityPreferences
                                             }
+                                            isImpersonating={isImpersonating}
                                         />
                                     </div>
                                 </div>
@@ -417,6 +495,7 @@ const AccountSettings = ({ userDetails, setUserDetails }) => {
                                         <CalendarSelector
                                             userDetails={userDetails}
                                             onSave={handleSaveCalendars}
+                                            isImpersonating={isImpersonating}
                                         />
                                     </div>
 
@@ -427,76 +506,83 @@ const AccountSettings = ({ userDetails, setUserDetails }) => {
                                             onSave={
                                                 handleSaveAvailabilityPreferences
                                             }
+                                            isImpersonating={isImpersonating}
                                         />
                                     </div>
                                 </div>
                             )}
 
-                            {/* Delete Account Section */}
-                            <div className="mt-8 pt-8 border-t border-gray-300">
-                                <h2 className="text-lg font-semibold text-red-600 mb-4">
-                                    {t(
-                                        'accountSettings.deleteAccountTitle',
-                                        'Delete Account'
-                                    )}
-                                </h2>
-                                <p className="text-sm text-gray-600 mb-4">
-                                    {t(
-                                        'accountSettings.deleteAccountDescription',
-                                        'Permanently delete your account and all associated data. This action cannot be undone.'
-                                    )}
-                                </p>
-                                {!showConfirmDelete ? (
-                                    <button
-                                        onClick={handleDeleteAccount}
-                                        disabled={isDeleting}
-                                        className="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                    >
+                            {/* Delete Account Section - Hidden while a PM is impersonating a linguist */}
+                            {!isImpersonating && (
+                                <div className="mt-8 pt-8 border-t border-gray-300">
+                                    <h2 className="text-lg font-semibold text-red-600 mb-4">
                                         {t(
-                                            'accountSettings.deleteAccountButton',
-                                            'Delete My Account'
+                                            'accountSettings.deleteAccountTitle',
+                                            'Delete Account'
                                         )}
-                                    </button>
-                                ) : (
-                                    <div>
-                                        <p className="text-sm text-red-600 font-semibold mb-4">
+                                    </h2>
+                                    <p className="text-sm text-gray-600 mb-4">
+                                        {t(
+                                            'accountSettings.deleteAccountDescription',
+                                            'Permanently delete your account and all associated data. This action cannot be undone.'
+                                        )}
+                                    </p>
+                                    {!showConfirmDelete ? (
+                                        <button
+                                            onClick={handleDeleteAccount}
+                                            disabled={isDeleting}
+                                            className="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                        >
                                             {t(
-                                                'accountSettings.deleteAccountConfirm',
-                                                'Are you sure you want to delete your account? This action cannot be undone.'
+                                                'accountSettings.deleteAccountButton',
+                                                'Delete My Account'
                                             )}
-                                        </p>
-                                        <div className="flex gap-4">
-                                            <button
-                                                onClick={handleDeleteAccount}
-                                                disabled={isDeleting}
-                                                className="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                            >
-                                                {isDeleting
-                                                    ? t(
-                                                          'accountSettings.deleting',
-                                                          'Deleting...'
-                                                      )
-                                                    : t(
-                                                          'accountSettings.confirmDelete',
-                                                          'Yes, Delete My Account'
-                                                      )}
-                                            </button>
-                                            <button
-                                                onClick={() => {
-                                                    setShowConfirmDelete(false)
-                                                }}
-                                                disabled={isDeleting}
-                                                className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-4 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                            >
+                                        </button>
+                                    ) : (
+                                        <div>
+                                            <p className="text-sm text-red-600 font-semibold mb-4">
                                                 {t(
-                                                    'accountSettings.cancel',
-                                                    'Cancel'
+                                                    'accountSettings.deleteAccountConfirm',
+                                                    'Are you sure you want to delete your account? This action cannot be undone.'
                                                 )}
-                                            </button>
+                                            </p>
+                                            <div className="flex gap-4">
+                                                <button
+                                                    onClick={
+                                                        handleDeleteAccount
+                                                    }
+                                                    disabled={isDeleting}
+                                                    className="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                                >
+                                                    {isDeleting
+                                                        ? t(
+                                                              'accountSettings.deleting',
+                                                              'Deleting...'
+                                                          )
+                                                        : t(
+                                                              'accountSettings.confirmDelete',
+                                                              'Yes, Delete My Account'
+                                                          )}
+                                                </button>
+                                                <button
+                                                    onClick={() => {
+                                                        setShowConfirmDelete(
+                                                            false
+                                                        )
+                                                    }}
+                                                    disabled={isDeleting}
+                                                    className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-4 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                                >
+                                                    {t(
+                                                        'accountSettings.cancel',
+                                                        'Cancel'
+                                                    )}
+                                                </button>
+                                            </div>
                                         </div>
-                                    </div>
-                                )}
-                            </div>
+                                    )}
+                                </div>
+                            )}
                         </>
                     )}
                 </div>
