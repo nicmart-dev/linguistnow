@@ -2,6 +2,7 @@ import { OAuth2Client } from "google-auth-library";
 import type { Request, Response } from "express";
 import { env } from "../env.js";
 import { writeToken } from "../utils/vaultClient.js";
+import { createSessionToken } from "../utils/session.js";
 
 // Lazy initialization functions to ensure dotenv is loaded before accessing env
 function getGoogleRedirectUri(): string {
@@ -23,6 +24,35 @@ function getOAuth2ClientInstance(): OAuth2Client {
     );
   }
   return oAuth2Client;
+}
+
+/**
+ * Asks Google which account an access token belongs to.
+ * @returns the verified email, or undefined if it cannot be determined
+ */
+async function fetchVerifiedGoogleEmail(
+  accessToken: string,
+): Promise<string | undefined> {
+  try {
+    const response = await fetch(
+      "https://www.googleapis.com/oauth2/v3/userinfo",
+      { headers: { Authorization: `Bearer ${accessToken}` } },
+    );
+    if (!response.ok) {
+      return undefined;
+    }
+    const data = (await response.json()) as {
+      email?: string;
+      email_verified?: boolean;
+    };
+    if (!data.email || data.email_verified === false) {
+      return undefined;
+    }
+    return data.email;
+  } catch (error) {
+    console.error("Failed to fetch user email:", error);
+    return undefined;
+  }
 }
 
 interface TokenExchangeRequest {
@@ -62,33 +92,27 @@ export const exchangeCodeForToken = async (
       refresh_token: tokens.refresh_token,
     });
 
-    // Get userEmail from request or fetch from Google
-    // Validate userEmail if provided in request body
+    // Client-supplied email is only a fallback - it is not verified
     let userEmail: string | undefined = req.body.userEmail;
     if (userEmail && typeof userEmail !== "string") {
       throw new Error("Invalid userEmail: must be a string");
     }
-    if (!userEmail && tokens.access_token) {
-      try {
-        // Fetch user info from Google's userinfo endpoint (simpler, always available with oauth scopes)
-        const response = await fetch(
-          "https://www.googleapis.com/oauth2/v3/userinfo",
-          {
-            headers: {
-              Authorization: `Bearer ${tokens.access_token}`,
-            },
-          },
+
+    // The email Google reports for this access token is the verified identity
+    const verifiedEmail = tokens.access_token
+      ? await fetchVerifiedGoogleEmail(tokens.access_token)
+      : undefined;
+    if (verifiedEmail) {
+      if (
+        userEmail &&
+        userEmail.toLowerCase() !== verifiedEmail.toLowerCase()
+      ) {
+        console.warn(
+          "Ignoring client-supplied userEmail that does not match the Google account",
         );
-        if (response.ok) {
-          const data = (await response.json()) as { email?: string };
-          userEmail = data.email;
-          if (userEmail) {
-            console.log("Fetched user email from Google:", userEmail);
-          }
-        }
-      } catch (error) {
-        console.error("Failed to fetch user email:", error);
       }
+      userEmail = verifiedEmail;
+      console.log("Fetched user email from Google:", userEmail);
     }
 
     // Write tokens to Vault if userEmail is available
@@ -116,6 +140,9 @@ export const exchangeCodeForToken = async (
     res.json({
       accessToken: tokens.access_token,
       refreshToken: tokens.refresh_token,
+      ...(verifiedEmail
+        ? { sessionToken: createSessionToken(verifiedEmail) }
+        : {}),
     });
   } catch (error) {
     console.error("Error during token exchange:", error);

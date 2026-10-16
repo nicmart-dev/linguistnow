@@ -1,5 +1,18 @@
 import { z } from "zod";
 
+/**
+ * Optional secret: unset or blank (e.g. `KEY=` passed through docker-compose)
+ * is treated as "not configured"; otherwise it must be at least minLength chars.
+ */
+const optionalSecret = (minLength: number) =>
+  z
+    .string()
+    .optional()
+    .transform((value) => value?.trim() || undefined)
+    .refine((value) => value === undefined || value.length >= minLength, {
+      message: `must be at least ${String(minLength)} characters`,
+    });
+
 const envSchema = z
   .object({
     PORT: z.coerce.number().default(5000),
@@ -34,6 +47,10 @@ const envSchema = z
       .transform((val) =>
         val === "disabled" || val === "none" || val === "" ? undefined : val,
       ),
+    INTERNAL_API_KEY: optionalSecret(1),
+    CURRENCY_REFRESH_API_KEY: optionalSecret(1),
+    SESSION_SECRET: optionalSecret(32),
+    TRUST_PROXY: z.coerce.number().int().min(0).optional(),
   })
   .refine(
     (data) => data.AIRTABLE_PERSONAL_ACCESS_TOKEN || data.AIRTABLE_API_KEY,

@@ -65,6 +65,13 @@ function getSwaggerOptions() {
             bearerFormat: "JWT",
             description: "Google OAuth2 access token",
           },
+          ApiKeyAuth: {
+            type: "apiKey",
+            in: "header",
+            name: "X-API-Key",
+            description:
+              "API key for internal and management endpoints (INTERNAL_API_KEY)",
+          },
         },
         schemas: {
           User: {
@@ -192,7 +199,7 @@ function getSwaggerOptions() {
               tokenExpired: {
                 type: "boolean",
                 description:
-                  "Whether the linguist's OAuth token is expired or missing (requires re-login)",
+                  "Whether the linguist's Google OAuth token is missing, expired, or revoked (requires re-login)",
                 example: false,
               },
             },
@@ -305,7 +312,7 @@ function getSwaggerOptions() {
                   { type: "null" },
                 ],
                 description:
-                  "Availability information, null if setup is incomplete or OAuth token is expired",
+                  "Availability information, null if setup is incomplete, token is expired, or availability check failed",
               },
             },
           },

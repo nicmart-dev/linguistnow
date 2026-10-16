@@ -244,6 +244,25 @@ describe("usersController", () => {
       expect(jsonSpy).toHaveBeenCalledWith({ error: "Failed to create user" });
       consoleLogSpy.mockRestore();
     });
+
+    it("should reject privilege escalation when attempting to create user with non-Linguist role", async () => {
+      mockRequest = {
+        body: {
+          email: "attacker@example.com",
+          name: "Attacker",
+          picture_url: "https://example.com/pic.jpg",
+          role: "Project Manager",
+        },
+      };
+
+      await create(mockRequest as any, mockResponse as any);
+
+      expect(statusSpy).toHaveBeenCalledWith(403);
+      expect(jsonSpy).toHaveBeenCalledWith({
+        error: "Cannot assign privileged role",
+      });
+      expect(mockCreate).not.toHaveBeenCalled();
+    });
   });
 
   describe("update", () => {
@@ -354,24 +373,40 @@ describe("usersController", () => {
       expect(jsonSpy).toHaveBeenCalledWith({ error: "User not found" });
     });
 
-    it("should handle errors", async () => {
-      const consoleLogSpy = vi
-        .spyOn(console, "log")
+    it("should sanitize errors during record update and not leak raw airtable error or attemptedFields", async () => {
+      const consoleErrorSpy = vi
+        .spyOn(console, "error")
         .mockImplementation(() => {});
       mockRequest = {
         params: { id: "user@example.com" },
-        body: { calendarIds: ["cal1"] },
+        body: { calendarIds: ["cal1@example.com"] },
       };
-      mockFirstPage.mockRejectedValue(new Error("Airtable error"));
+      const mockRecord = {
+        id: "rec123",
+        fields: { Email: "user@example.com" },
+      };
+      mockFirstPage.mockResolvedValue([mockRecord]);
+      mockUpdate.mockRejectedValue({
+        error: {
+          message: "Internal schema violation",
+          field: "Calendar IDs",
+        },
+        rawInternalLeak: "should-not-be-sent",
+      });
 
       await update(mockRequest as any, mockResponse as any);
 
       expect(statusSpy).toHaveBeenCalledWith(500);
       expect(jsonSpy).toHaveBeenCalledWith({
         error: "Failed to update user",
-        details: "Airtable error",
+        details: "Internal schema violation",
+        code: "AIRTABLE_UPDATE_ERROR",
+        invalidField: "Calendar IDs",
       });
-      consoleLogSpy.mockRestore();
+      const responseData = jsonSpy.mock.calls[0][0];
+      expect(responseData.airtableError).toBeUndefined();
+      expect(responseData.attemptedFields).toBeUndefined();
+      consoleErrorSpy.mockRestore();
     });
   });
 

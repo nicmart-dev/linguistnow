@@ -200,9 +200,9 @@ pnpm --filter ./server test --coverage
 
 1. Start services: `docker-compose up -d`
 2. Wait for health checks to pass
-3. Trigger refresh: `curl -X POST -H "X-API-Key: $CURRENCY_REFRESH_API_KEY" http://localhost:5000/api/currency/refresh`
+3. Trigger refresh: `curl -X POST -H "X-API-Key: $INTERNAL_API_KEY" http://localhost:5000/api/currency/refresh`
 
-> **Note:** The `/refresh` endpoint requires an `X-API-Key` header matching the `CURRENCY_REFRESH_API_KEY` environment variable, unless called from within the Docker network.
+> **Note:** The `/refresh` endpoint requires an `X-API-Key` header matching the `INTERNAL_API_KEY` environment variable, unless called from within the Docker network.
 
 4. Check rates: `curl http://localhost:5000/api/currency/rates`
 5. Test conversion: `curl "http://localhost:5000/api/currency/convert?amount=100&from=USD&to=EUR"`
@@ -214,7 +214,7 @@ pnpm --filter ./server test --coverage
 1. Check n8n workflow is active and running
 2. Verify Frankfurter container is healthy
 3. Check Redis connection: `docker exec linguistnow-redis redis-cli ping`
-4. Manual refresh: `curl -X POST http://localhost:5000/api/currency/refresh`
+4. Manual refresh: `curl -X POST -H "X-API-Key: $INTERNAL_API_KEY" http://localhost:5000/api/currency/refresh`
 
 ### Conversion errors
 

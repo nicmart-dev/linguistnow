@@ -19,7 +19,10 @@ const Login = ({ setUserDetails }) => {
                 `${import.meta.env.VITE_API_URL}/api/auth/google/code`,
                 { code }
             )
-            const { accessToken } = tokenResponse.data
+            const { accessToken, sessionToken } = tokenResponse.data
+            if (sessionToken) {
+                localStorage.setItem('sessionToken', sessionToken)
+            }
 
             // Fetch user info from Google
             const userInfoResponse = await axios.get(

@@ -110,11 +110,13 @@ const AppContent = ({
                 setUserDetails(user)
                 setIsRestoringAuth(false)
             }).catch(() => {
-                // If user not found or error, clear stored email
+                // If user not found or error, clear stored email and session token
                 localStorage.removeItem('userEmail')
+                localStorage.removeItem('sessionToken')
                 setIsRestoringAuth(false)
             })
         } else {
+            localStorage.removeItem('sessionToken')
             setIsRestoringAuth(false)
         }
     }, [setUserDetails, setIsRestoringAuth])
