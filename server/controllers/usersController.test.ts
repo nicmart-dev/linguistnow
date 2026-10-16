@@ -244,6 +244,25 @@ describe("usersController", () => {
       expect(jsonSpy).toHaveBeenCalledWith({ error: "Failed to create user" });
       consoleLogSpy.mockRestore();
     });
+
+    it("should reject privilege escalation when attempting to create user with non-Linguist role", async () => {
+      mockRequest = {
+        body: {
+          email: "attacker@example.com",
+          name: "Attacker",
+          picture_url: "https://example.com/pic.jpg",
+          role: "Project Manager",
+        },
+      };
+
+      await create(mockRequest as any, mockResponse as any);
+
+      expect(statusSpy).toHaveBeenCalledWith(403);
+      expect(jsonSpy).toHaveBeenCalledWith({
+        error: "Cannot assign privileged role",
+      });
+      expect(mockCreate).not.toHaveBeenCalled();
+    });
   });
 
   describe("update", () => {

@@ -5,6 +5,12 @@ import { I18nextProvider } from 'react-i18next'
 import { LanguageContext } from '@/i18n/LanguageProvider'
 import i18nInstance from '@/i18n'
 import { Navbar } from '@/components/organisms'
+import { fetchLinguistList } from '@/auth-users/utils'
+
+vi.mock('@/auth-users/utils', () => ({
+    fetchLinguistList: vi.fn(),
+    fetchUserList: vi.fn(),
+}))
 
 const mockSwitchLanguage = vi.fn()
 
@@ -25,6 +31,22 @@ const renderWithProviders = (component: React.ReactNode) => {
 describe('Navbar', () => {
     beforeEach(() => {
         vi.clearAllMocks()
+        vi.mocked(fetchLinguistList).mockResolvedValue([
+            {
+                id: 'alice@example.com',
+                email: 'alice@example.com',
+                name: 'Alice Linguist',
+                role: 'Linguist',
+                googleCalendarId: '',
+            },
+            {
+                id: 'bob@example.com',
+                email: 'bob@example.com',
+                name: 'Bob Linguist',
+                role: 'Linguist',
+                googleCalendarId: '',
+            },
+        ])
     })
 
     it('renders logo', () => {
@@ -99,5 +121,158 @@ describe('Navbar', () => {
         }
         const menu = document.getElementById('menu')
         expect(menu).toBeDefined()
+    })
+
+    it('shows impersonate linguist button for Project Manager when onImpersonate is provided', () => {
+        const mockOnImpersonate = vi.fn()
+        renderWithProviders(
+            <Navbar
+                userDetails={{ role: 'Project Manager' }}
+                isPM={true}
+                onImpersonate={mockOnImpersonate}
+            />
+        )
+        expect(screen.getByTestId('navbar-impersonate-button')).toBeDefined()
+    })
+
+    it('hides impersonate linguist button for Linguist', () => {
+        const mockOnImpersonate = vi.fn()
+        renderWithProviders(
+            <Navbar
+                userDetails={{ role: 'Linguist' }}
+                isPM={false}
+                onImpersonate={mockOnImpersonate}
+            />
+        )
+        expect(screen.queryByTestId('navbar-impersonate-button')).toBeNull()
+    })
+
+    it('renders impersonation banner and calls onStopImpersonation when clicked', () => {
+        const mockStop = vi.fn()
+        renderWithProviders(
+            <Navbar
+                userDetails={{
+                    role: 'Linguist',
+                    name: 'Alice Translator',
+                    email: 'alice@example.com',
+                }}
+                impersonatedUser={{
+                    role: 'Linguist',
+                    name: 'Alice Translator',
+                    email: 'alice@example.com',
+                }}
+                isPM={true}
+                onStopImpersonation={mockStop}
+            />
+        )
+        const banner = screen.getByTestId('impersonation-banner')
+        expect(banner).toBeDefined()
+        expect(banner.textContent).toContain('Alice Translator')
+        expect(banner.textContent).toContain('alice@example.com')
+
+        const stopButton = screen.getByRole('button', {
+            name: /Stop Impersonating/i,
+        })
+        fireEvent.click(stopButton)
+        expect(mockStop).toHaveBeenCalledTimes(1)
+    })
+
+    it('does not render impersonation banner if user is not a Project Manager', () => {
+        renderWithProviders(
+            <Navbar
+                userDetails={{
+                    role: 'Linguist',
+                    name: 'Alice Translator',
+                    email: 'alice@example.com',
+                }}
+                impersonatedUser={{
+                    role: 'Linguist',
+                    name: 'Alice Translator',
+                    email: 'alice@example.com',
+                }}
+                isPM={false}
+            />
+        )
+        expect(screen.queryByTestId('impersonation-banner')).toBeNull()
+    })
+
+    it('shows dashboard link for Project Manager even while impersonating a linguist', () => {
+        renderWithProviders(
+            <Navbar
+                userDetails={{ role: 'Linguist' }}
+                impersonatedUser={{
+                    role: 'Linguist',
+                    name: 'Alice Translator',
+                    email: 'alice@example.com',
+                }}
+                isPM={true}
+            />
+        )
+        expect(screen.getByRole('link', { name: 'Dashboard' })).toBeDefined()
+    })
+
+    it('opens linguist switcher popover, fetches linguist list and filters linguists', async () => {
+        const mockOnImpersonate = vi.fn()
+        renderWithProviders(
+            <Navbar
+                userDetails={{ role: 'Project Manager' }}
+                isPM={true}
+                onImpersonate={mockOnImpersonate}
+            />
+        )
+
+        const impersonateBtn = screen.getByTestId('navbar-impersonate-button')
+        fireEvent.click(impersonateBtn)
+
+        expect(fetchLinguistList).toHaveBeenCalled()
+        const aliceOption = await screen.findByText('Alice Linguist')
+        expect(aliceOption).toBeDefined()
+        expect(screen.getByText('Bob Linguist')).toBeDefined()
+
+        const searchInput = screen.getByPlaceholderText('Search linguists...')
+        fireEvent.change(searchInput, { target: { value: 'Alice' } })
+
+        expect(screen.getByText('Alice Linguist')).toBeDefined()
+        expect(screen.queryByText('Bob Linguist')).toBeNull()
+    })
+
+    it('calls onImpersonate when a linguist is selected from the popover', async () => {
+        const mockOnImpersonate = vi.fn()
+        renderWithProviders(
+            <Navbar
+                userDetails={{ role: 'Project Manager' }}
+                isPM={true}
+                onImpersonate={mockOnImpersonate}
+            />
+        )
+
+        const impersonateBtn = screen.getByTestId('navbar-impersonate-button')
+        fireEvent.click(impersonateBtn)
+
+        const aliceOption = await screen.findByText('Alice Linguist')
+        fireEvent.click(aliceOption)
+
+        expect(mockOnImpersonate).toHaveBeenCalledWith('alice@example.com')
+        expect(document.getElementById('impersonate-menu')).toBeNull()
+    })
+
+    it('closes impersonation popover when Escape key is pressed', async () => {
+        const mockOnImpersonate = vi.fn()
+        renderWithProviders(
+            <Navbar
+                userDetails={{ role: 'Project Manager' }}
+                isPM={true}
+                onImpersonate={mockOnImpersonate}
+            />
+        )
+
+        const impersonateBtn = screen.getByTestId('navbar-impersonate-button')
+        fireEvent.click(impersonateBtn)
+
+        await screen.findByText('Alice Linguist')
+        expect(document.getElementById('impersonate-menu')).not.toBeNull()
+
+        fireEvent.keyDown(window, { key: 'Escape' })
+        expect(document.getElementById('impersonate-menu')).toBeNull()
     })
 })

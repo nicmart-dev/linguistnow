@@ -50,6 +50,7 @@ interface AvailabilitySettingsProps {
         'Off Days'?: string
     }
     onSave: (preferences: AvailabilityPreferences) => Promise<void>
+    isImpersonating?: boolean
 }
 
 // Get UTC offset in minutes for a timezone
@@ -150,6 +151,7 @@ const getValidTimezones = (): string[] => {
 const AvailabilitySettings: React.FC<AvailabilitySettingsProps> = ({
     userDetails,
     onSave,
+    isImpersonating = false,
 }) => {
     const { t, i18n } = useTranslation()
 
@@ -249,12 +251,14 @@ const AvailabilitySettings: React.FC<AvailabilitySettingsProps> = ({
     }, [timezonesWithBrowser, formatTimezoneLabel])
 
     // Initialize state from userDetails or defaults
-    // Validate that stored timezone is in valid list, otherwise use browser timezone
+    // Validate that stored timezone is in valid list, otherwise use browser timezone (or empty when impersonating)
     const initialTimezone =
         userDetails.Timezone &&
         timezonesWithBrowser.includes(userDetails.Timezone)
             ? userDetails.Timezone
-            : browserTimezone
+            : isImpersonating
+              ? ''
+              : browserTimezone
 
     const [timezone, setTimezone] = useState<string>(initialTimezone)
     const [workingHoursStart, setWorkingHoursStart] = useState<string>(() => {
@@ -395,12 +399,19 @@ const AvailabilitySettings: React.FC<AvailabilitySettingsProps> = ({
             timezonesWithBrowser.includes(userDetails.Timezone)
         ) {
             setTimezone(userDetails.Timezone)
+        } else if (isImpersonating) {
+            setTimezone('')
         } else {
             setTimezone(browserTimezone)
         }
         // Mark as initialized after first load
         setHasInitialized(true)
-    }, [userDetails.Timezone, browserTimezone, timezonesWithBrowser])
+    }, [
+        userDetails.Timezone,
+        browserTimezone,
+        timezonesWithBrowser,
+        isImpersonating,
+    ])
 
     const handleOffDayToggle = (day: number) => {
         setOffDays((prev) =>
@@ -416,14 +427,18 @@ const AvailabilitySettings: React.FC<AvailabilitySettingsProps> = ({
             changedField: string | null
         ) => {
             // Validation
-            if (!timezonesWithBrowser.includes(preferences.timezone || '')) {
-                toast.error(
-                    t(
-                        'availabilitySettings.errors.invalidTimezone',
-                        'Please select a valid timezone from the dropdown'
+            if (preferences.timezone || !isImpersonating) {
+                if (
+                    !timezonesWithBrowser.includes(preferences.timezone || '')
+                ) {
+                    toast.error(
+                        t(
+                            'availabilitySettings.errors.invalidTimezone',
+                            'Please select a valid timezone from the dropdown'
+                        )
                     )
-                )
-                return
+                    return
+                }
             }
             // Validate HH:mm format
             const timeRegex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/
@@ -509,7 +524,7 @@ const AvailabilitySettings: React.FC<AvailabilitySettingsProps> = ({
                 setIsSaving(false)
             }
         },
-        [onSave, timezonesWithBrowser, t]
+        [onSave, timezonesWithBrowser, t, isImpersonating]
     )
 
     // Auto-save when preferences change (debounced)
@@ -585,15 +600,16 @@ const AvailabilitySettings: React.FC<AvailabilitySettingsProps> = ({
 
             // Update previous values before saving
             previousValuesRef.current = latestValues
-            void savePreferences(
-                {
-                    timezone: latestValues.timezone,
-                    workingHoursStart: latestValues.workingHoursStart,
-                    workingHoursEnd: latestValues.workingHoursEnd,
-                    offDays: latestValues.offDays,
-                },
-                changedFieldRef.current
-            )
+            const preferencesToSave: AvailabilityPreferences = {
+                workingHoursStart: latestValues.workingHoursStart,
+                workingHoursEnd: latestValues.workingHoursEnd,
+                offDays: latestValues.offDays,
+            }
+            if (latestValues.timezone) {
+                preferencesToSave.timezone = latestValues.timezone
+            }
+
+            void savePreferences(preferencesToSave, changedFieldRef.current)
             changedFieldRef.current = null
         }, 200)
 
@@ -737,13 +753,15 @@ const AvailabilitySettings: React.FC<AvailabilitySettingsProps> = ({
                         </Command>
                     </PopoverContent>
                 </Popover>
-                <p className="mt-1 text-sm text-gray-500">
-                    {t(
-                        'availabilitySettings.timezoneHint',
-                        'Detected timezone: {{timezone}}',
-                        { timezone: formatTimezoneLabel(browserTimezone) }
-                    )}
-                </p>
+                {!isImpersonating && (
+                    <p className="mt-1 text-sm text-gray-500">
+                        {t(
+                            'availabilitySettings.timezoneHint',
+                            'Detected timezone: {{timezone}}',
+                            { timezone: formatTimezoneLabel(browserTimezone) }
+                        )}
+                    </p>
+                )}
             </div>
 
             {/* Working Hours */}

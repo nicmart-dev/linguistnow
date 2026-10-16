@@ -6,7 +6,12 @@ import { fetchUserDetails, createUserIfNotFound } from '@/auth-users/utils'
 import Hero from '@/components/organisms/Hero'
 import { logger } from '@/utils/logger'
 
-const Login = ({ setUserDetails }) => {
+interface LoginProps {
+    setUserDetails: React.Dispatch<React.SetStateAction<any>>
+    setImpersonatedUser?: (user: any) => void
+}
+
+const Login = ({ setUserDetails, setImpersonatedUser }: LoginProps) => {
     const navigate = useNavigate()
 
     const handleGoogleLoginSuccess = async (response) => {
@@ -19,7 +24,10 @@ const Login = ({ setUserDetails }) => {
                 `${import.meta.env.VITE_API_URL}/api/auth/google/code`,
                 { code }
             )
-            const { accessToken } = tokenResponse.data
+            const { accessToken, sessionToken } = tokenResponse.data
+            if (sessionToken) {
+                localStorage.setItem('sessionToken', sessionToken)
+            }
 
             // Fetch user info from Google
             const userInfoResponse = await axios.get(
@@ -80,6 +88,8 @@ const Login = ({ setUserDetails }) => {
 
             // Store user email in localStorage for persistence across page refreshes
             localStorage.setItem('userEmail', userInfo.email)
+            localStorage.removeItem('impersonatedUserEmail')
+            setImpersonatedUser?.(null)
 
             // Clear calendar session expired flag on successful login
             localStorage.removeItem('calendarSessionExpired')

@@ -31,9 +31,9 @@
         "confirmDelete": "Sì, elimina il mio account",
         "cancel": "Annulla",
         "deleting": "Eliminazione...",
-        "setupCompleteTitle": "Setup complete!",
-        "setupCompleteMessage": "Your calendar selection has been saved. You're all set, and you can come back to update your settings any time.",
-        "setupCompleteButton": "Done"
+        "setupCompleteTitle": "Configurazione completata!",
+        "setupCompleteMessage": "La selezione dei tuoi calendari è stata salvata. È tutto pronto, e puoi tornare ad aggiornare le tue impostazioni in qualsiasi momento.",
+        "setupCompleteButton": "Fatto"
     },
     "linguistProfile": {
         "title": "Impostazioni profilo",
@@ -348,5 +348,16 @@
     "notFound": {
         "title": "404 | Non trovato",
         "goHome": "Torna alla home"
+    },
+    "impersonation": {
+        "impersonate": "Impersona",
+        "impersonateLinguist": "Impersona linguista",
+        "searchLinguists": "Cerca linguisti...",
+        "noLinguistsFound": "Nessun linguista trovato.",
+        "bannerText": "Impersonando il linguista: {{name}} ({{email}})",
+        "stopImpersonating": "Termina impersonificazione",
+        "startedToast": "Ora stai impersonando {{name}}",
+        "stoppedToast": "Impersonificazione terminata",
+        "errorToast": "Impossibile impersonare il linguista"
     }
 }

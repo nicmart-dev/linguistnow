@@ -129,6 +129,27 @@ export async function userExistsInAirtable(
   }
 }
 
+/**
+ * Look up a user's role in Airtable by email (case-insensitive).
+ * @param userEmail - User's email address
+ * @returns the role (e.g. "Project Manager", "Linguist") or undefined if the user has none/does not exist
+ * @throws if Airtable cannot be reached
+ */
+export async function getUserRole(
+  userEmail: string,
+): Promise<string | undefined> {
+  const escapedEmail = escapeAirtableFormulaString(userEmail.toLowerCase());
+  const records = await getAirtableBase()("Users")
+    .select({
+      filterByFormula: `LOWER({Email}) = '${escapedEmail}'`,
+      maxRecords: 1,
+      fields: ["Role"],
+    })
+    .firstPage();
+  const role = records[0]?.fields.Role;
+  return typeof role === "string" ? role : undefined;
+}
+
 /* GET /users/:id
 Get a single user details based on their email address, set as primary key in Airtable */
 export const getOne = async (req: Request<{ id: string }>, res: Response) => {
@@ -167,7 +188,8 @@ export const create = async (
   req: Request<Record<string, never>, Record<string, never>, CreateUserRequest>,
   res: Response,
 ) => {
-  const { email, name, picture_url, role = "Linguist" } = req.body;
+  const body = req.body as Partial<CreateUserRequest> | undefined;
+  const { email, name, picture_url, role } = body ?? {};
 
   // Validate required fields
   if (!email || typeof email !== "string" || !isValidEmail(email)) {
@@ -179,8 +201,13 @@ export const create = async (
   if (picture_url && typeof picture_url !== "string") {
     return res.status(400).json({ error: "Invalid picture_url format" });
   }
-  if (role && typeof role !== "string") {
-    return res.status(400).json({ error: "Invalid role format" });
+  // Self-registration can only ever create Linguists. Any other explicitly
+  // supplied value (including null, "" or non-strings) is rejected - Project
+  // Managers are assigned manually in Airtable.
+  if (role !== undefined && role !== "Linguist") {
+    return res.status(403).json({
+      error: "Cannot assign privileged role",
+    });
   }
 
   try {
@@ -189,7 +216,7 @@ export const create = async (
       Email: email,
       Name: name,
       Picture: picture_url,
-      Role: role,
+      Role: "Linguist",
     });
     res.json(createdRecord.fields);
   } catch (error) {
@@ -493,8 +520,6 @@ export const update = async (
             details: errorMessage,
             code: "AIRTABLE_UPDATE_ERROR",
             invalidField,
-            airtableError: errorDetails,
-            attemptedFields: Object.keys(fieldsToUpdate),
           });
           return;
         }

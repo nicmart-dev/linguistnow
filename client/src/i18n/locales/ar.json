@@ -31,9 +31,9 @@
         "confirmDelete": "نعم، احذف حسابي",
         "cancel": "إلغاء",
         "deleting": "جاري الحذف...",
-        "setupCompleteTitle": "Setup complete!",
-        "setupCompleteMessage": "Your calendar selection has been saved. You're all set, and you can come back to update your settings any time.",
-        "setupCompleteButton": "Done"
+        "setupCompleteTitle": "اكتمل الإعداد!",
+        "setupCompleteMessage": "تم حفظ اختيار التقويم الخاص بك. كل شيء جاهز، ويمكنك العودة لتحديث إعداداتك في أي وقت.",
+        "setupCompleteButton": "تم"
     },
     "linguistProfile": {
         "title": "إعدادات الملف الشخصي",
@@ -348,5 +348,16 @@
     "notFound": {
         "title": "404 | غير موجود",
         "goHome": "العودة إلى الصفحة الرئيسية"
+    },
+    "impersonation": {
+        "impersonate": "انتحال",
+        "impersonateLinguist": "انتحال صفة لغوي",
+        "searchLinguists": "البحث عن لغويين...",
+        "noLinguistsFound": "لم يتم العثور على لغويين.",
+        "bannerText": "عرض كاللغوي: {{name}} ({{email}})",
+        "stopImpersonating": "إيقاف الانتحال",
+        "startedToast": "يتم الآن العرض كـ {{name}}",
+        "stoppedToast": "تم إيقاف انتحال صفة اللغوي",
+        "errorToast": "فشل في انتحال صفة اللغوي"
     }
 }

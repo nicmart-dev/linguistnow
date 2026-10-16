@@ -31,9 +31,9 @@
         "confirmDelete": "はい、アカウントを削除します",
         "cancel": "キャンセル",
         "deleting": "削除中...",
-        "setupCompleteTitle": "Setup complete!",
-        "setupCompleteMessage": "Your calendar selection has been saved. You're all set, and you can come back to update your settings any time.",
-        "setupCompleteButton": "Done"
+        "setupCompleteTitle": "設定が完了しました！",
+        "setupCompleteMessage": "カレンダーの選択が保存されました。準備は完了です。いつでも設定を更新できます。",
+        "setupCompleteButton": "完了"
     },
     "linguistProfile": {
         "title": "プロフィール設定",
@@ -348,5 +348,16 @@
     "notFound": {
         "title": "404 | 見つかりません",
         "goHome": "ホームに戻る"
+    },
+    "impersonation": {
+        "impersonate": "代理表示",
+        "impersonateLinguist": "リンギストとして代理表示",
+        "searchLinguists": "リンギストを検索...",
+        "noLinguistsFound": "リンギストが見つかりません。",
+        "bannerText": "リンギストとして代理表示中: {{name}} ({{email}})",
+        "stopImpersonating": "代理表示を終了",
+        "startedToast": "{{name}} として代理表示中",
+        "stoppedToast": "リンギストの代理表示を終了しました",
+        "errorToast": "リンギストの代理表示に失敗しました"
     }
 }

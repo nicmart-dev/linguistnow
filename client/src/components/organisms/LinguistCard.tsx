@@ -202,7 +202,8 @@ const LinguistCard: React.FC<LinguistCardProps> = ({
                                         ? linguistAny.displayCurrency
                                         : linguistAny.currency
                                     const rate = hasConversion
-                                        ? (linguistAny.hourlyRateConverted ?? linguist.hourlyRate)
+                                        ? (linguistAny.hourlyRateConverted ??
+                                          linguist.hourlyRate)
                                         : linguist.hourlyRate
                                     return `${getCurrencySymbol(currencyCode)}${rate.toFixed(2)}`
                                 })()}

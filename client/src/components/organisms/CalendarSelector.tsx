@@ -24,6 +24,7 @@ import { cn } from '@/lib/utils'
 interface CalendarSelectorProps {
     userDetails: Record<string, unknown> | null
     onSave: (calendars: string[]) => Promise<void>
+    isImpersonating?: boolean
 }
 
 /**
@@ -34,8 +35,13 @@ interface CalendarSelectorProps {
  * Display names are fetched from Google API for UI only, never stored.
  * @param userDetails - Current user's profile details
  * @param onSave - Callback when calendar selection is saved
+ * @param isImpersonating - Whether a PM is impersonating the linguist
  */
-const CalendarSelector = ({ userDetails, onSave }: CalendarSelectorProps) => {
+const CalendarSelector = ({
+    userDetails,
+    onSave,
+    isImpersonating = false,
+}: CalendarSelectorProps) => {
     const [fetchedCalendars, setFetchedCalendars] = useState<
         Array<{ id: string; summary: string }>
     >([]) // all calendars user has access to in Google Calendar
@@ -45,12 +51,16 @@ const CalendarSelector = ({ userDetails, onSave }: CalendarSelectorProps) => {
     const { t } = useTranslation()
 
     const markSessionExpired = useCallback(() => {
-        localStorage.setItem('calendarSessionExpired', 'true')
-    }, [])
+        if (!isImpersonating) {
+            localStorage.setItem('calendarSessionExpired', 'true')
+        }
+    }, [isImpersonating])
 
     const clearSessionExpired = useCallback(() => {
-        localStorage.removeItem('calendarSessionExpired')
-    }, [])
+        if (!isImpersonating) {
+            localStorage.removeItem('calendarSessionExpired')
+        }
+    }, [isImpersonating])
 
     const fetchCalendars = useCallback(async () => {
         if (!userDetails?.Email && !userDetails?.email) {
@@ -93,8 +103,7 @@ const CalendarSelector = ({ userDetails, onSave }: CalendarSelectorProps) => {
                 // Only mark as expired if refresh token is invalid (not just access token)
                 // Access token expiration is now handled automatically by the server
                 const errorData = err.response.data as
-                    | { code?: string }
-                    | undefined
+                    { code?: string } | undefined
                 const errorCode = errorData?.code
 
                 if (
@@ -104,7 +113,11 @@ const CalendarSelector = ({ userDetails, onSave }: CalendarSelectorProps) => {
                     // Refresh token is invalid or missing - user needs to re-authenticate
                     markSessionExpired()
 
-                    if (errorCode === 'TOKEN_EXPIRED') {
+                    if (isImpersonating) {
+                        setError(
+                            'The linguist needs to log in again with their Google account to authorize calendar access.'
+                        )
+                    } else if (errorCode === 'TOKEN_EXPIRED') {
                         setError(
                             t(
                                 'calendarSelector.tokenExpired',

@@ -1,5 +1,8 @@
 import express, { type Router } from "express";
 import usersController from "../controllers/usersController.js";
+import { apiKeyAuthMiddleware } from "../utils/apiKeyAuth.js";
+import { rateLimitMiddleware } from "../utils/rateLimit.js";
+import { authorizeUserParam, authorizeBodyEmail } from "../utils/userAuth.js";
 
 const router: Router = express.Router();
 
@@ -9,8 +12,10 @@ const router: Router = express.Router();
  *   get:
  *     tags:
  *       - Users
- *     summary: Get all users
- *     description: Retrieves all users from the Airtable database
+ *     summary: Get all users (internal endpoint)
+ *     description: Retrieves all users from the Airtable database. Protected by API key or internal network restriction.
+ *     security:
+ *       - ApiKeyAuth: []
  *     responses:
  *       200:
  *         description: List of all users
@@ -20,6 +25,14 @@ const router: Router = express.Router();
  *               type: array
  *               items:
  *                 $ref: '#/components/schemas/User'
+ *       401:
+ *         description: Unauthorized - invalid or missing API key
+ *       429:
+ *         description: Too many requests - rate limit exceeded
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  *       500:
  *         description: Failed to fetch users
  *         content:
@@ -27,7 +40,12 @@ const router: Router = express.Router();
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.get("/", usersController.getAll);
+router.get(
+  "/",
+  apiKeyAuthMiddleware,
+  rateLimitMiddleware,
+  usersController.getAll,
+);
 
 /**
  * @openapi
@@ -36,6 +54,8 @@ router.get("/", usersController.getAll);
  *     tags:
  *       - Users
  *     summary: Get user by email
+ *     security:
+ *       - BearerAuth: []
  *     description: Retrieves a single user by their email address (used as primary key)
  *     parameters:
  *       - in: path
@@ -59,14 +79,43 @@ router.get("/", usersController.getAll);
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Error'
+ *       429:
+ *         description: Too many requests - rate limit exceeded
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  *       500:
  *         description: Failed to fetch user
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Error'
+ *       400:
+ *         description: Invalid email format
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       401:
+ *         description: Unauthorized - missing or invalid session token
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       403:
+ *         description: Forbidden - caller may not access this user
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  */
-router.get("/:id", usersController.getOne);
+router.get(
+  "/:id",
+  rateLimitMiddleware,
+  ...authorizeUserParam({ allowProjectManager: true }),
+  usersController.getOne,
+);
 
 /**
  * @openapi
@@ -75,6 +124,8 @@ router.get("/:id", usersController.getOne);
  *     tags:
  *       - Users
  *     summary: Update user
+ *     security:
+ *       - BearerAuth: []
  *     description: Updates user's calendar IDs and availability preferences. Note - OAuth tokens are stored in Vault, not Airtable.
  *     parameters:
  *       - in: path
@@ -164,14 +215,37 @@ router.get("/:id", usersController.getOne);
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Error'
+ *       429:
+ *         description: Too many requests - rate limit exceeded
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  *       500:
  *         description: Failed to update user
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Error'
+ *       401:
+ *         description: Unauthorized - missing or invalid session token
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       403:
+ *         description: Forbidden - caller may not access this user
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  */
-router.put("/:id", usersController.update);
+router.put(
+  "/:id",
+  rateLimitMiddleware,
+  ...authorizeUserParam({ allowProjectManager: true }),
+  usersController.update,
+);
 
 /**
  * @openapi
@@ -180,6 +254,8 @@ router.put("/:id", usersController.update);
  *     tags:
  *       - Users
  *     summary: Delete user
+ *     security:
+ *       - BearerAuth: []
  *     description: Deletes a user from Airtable and Vault by their email address. This endpoint is actively used by the Account Settings page to allow linguists to permanently remove themselves from the database. All user data and tokens are permanently deleted.
  *     parameters:
  *       - in: path
@@ -217,14 +293,37 @@ router.put("/:id", usersController.update);
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Error'
+ *       429:
+ *         description: Too many requests - rate limit exceeded
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  *       500:
  *         description: Failed to delete user
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Error'
+ *       401:
+ *         description: Unauthorized - missing or invalid session token
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       403:
+ *         description: Forbidden - users can only delete their own account
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  */
-router.delete("/:id", usersController.remove);
+router.delete(
+  "/:id",
+  rateLimitMiddleware,
+  ...authorizeUserParam({ allowProjectManager: false }),
+  usersController.remove,
+);
 
 /**
  * @openapi
@@ -233,7 +332,9 @@ router.delete("/:id", usersController.remove);
  *     tags:
  *       - Users
  *     summary: Create a new user
- *     description: Creates a new user in Airtable upon first login using Google User API information
+ *     security:
+ *       - BearerAuth: []
+ *     description: Creates a new user in Airtable upon first login using Google User API information. Self-registered users are assigned the Linguist role.
  *     requestBody:
  *       required: true
  *       content:
@@ -259,6 +360,7 @@ router.delete("/:id", usersController.remove);
  *               role:
  *                 type: string
  *                 default: Linguist
+ *                 enum: [Linguist]
  *                 example: Linguist
  *     responses:
  *       200:
@@ -267,13 +369,42 @@ router.delete("/:id", usersController.remove);
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/User'
+ *       403:
+ *         description: Forbidden - cannot self-assign a privileged role or create a user for a different email
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       429:
+ *         description: Too many requests - rate limit exceeded
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  *       500:
  *         description: Failed to create user
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Error'
+ *       400:
+ *         description: Invalid or missing email, name or picture_url
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       401:
+ *         description: Unauthorized - missing or invalid session token
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  */
-router.post("/", usersController.create);
+router.post(
+  "/",
+  rateLimitMiddleware,
+  ...authorizeBodyEmail,
+  usersController.create,
+);
 
 export default router;

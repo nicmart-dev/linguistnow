@@ -31,9 +31,9 @@
         "confirmDelete": "是的，删除我的帐户",
         "cancel": "取消",
         "deleting": "正在删除...",
-        "setupCompleteTitle": "Setup complete!",
-        "setupCompleteMessage": "Your calendar selection has been saved. You're all set, and you can come back to update your settings any time.",
-        "setupCompleteButton": "Done"
+        "setupCompleteTitle": "设置完成！",
+        "setupCompleteMessage": "您的日历选择已保存。一切准备就绪，您可以随时返回更新设置。",
+        "setupCompleteButton": "完成"
     },
     "linguistProfile": {
         "title": "个人资料设置",
@@ -348,5 +348,16 @@
     "notFound": {
         "title": "404 | 未找到",
         "goHome": "返回首页"
+    },
+    "impersonation": {
+        "impersonate": "模拟用户",
+        "impersonateLinguist": "模拟语言专家",
+        "searchLinguists": "搜索语言专家...",
+        "noLinguistsFound": "未找到语言专家。",
+        "bannerText": "正在模拟语言专家：{{name}} ({{email}})",
+        "stopImpersonating": "停止模拟",
+        "startedToast": "正在模拟 {{name}}",
+        "stoppedToast": "已停止模拟语言专家",
+        "errorToast": "模拟语言专家失败"
     }
 }

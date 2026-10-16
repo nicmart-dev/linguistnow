@@ -18,6 +18,8 @@ const router = Router();
  *       - Currency
  *     summary: Refresh exchange rates from Frankfurter
  *     description: Fetches fresh exchange rates from Frankfurter API and stores them in Redis cache. Called by n8n scheduler daily.
+ *     security:
+ *       - ApiKeyAuth: []
  *     responses:
  *       200:
  *         description: Rates refreshed successfully
@@ -43,6 +45,10 @@ const router = Router();
  *         description: Unauthorized - invalid or missing API key
  *       429:
  *         description: Too many requests - rate limit exceeded
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  *       500:
  *         description: Failed to refresh rates
  */

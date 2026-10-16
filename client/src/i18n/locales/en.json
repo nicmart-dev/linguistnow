@@ -343,10 +343,24 @@
             "invalidStartHour": "Working hours start must be between 0 and 23",
             "invalidEndHour": "Working hours end must be between 0 and 23",
             "startAfterEnd": "Working hours start must be before end"
-        }
+        },
+        "selectHour": "Select hour",
+        "workingHoursHintAmPm": "Select your working hours",
+        "workingHoursHint24h": "Select your working hours in 24-hour format (0-23)"
     },
     "notFound": {
         "title": "404 | Not Found",
         "goHome": "Go Back Home"
+    },
+    "impersonation": {
+        "impersonate": "Impersonate",
+        "impersonateLinguist": "Impersonate Linguist",
+        "searchLinguists": "Search linguists...",
+        "noLinguistsFound": "No linguists found.",
+        "bannerText": "Impersonating linguist: {{name}} ({{email}})",
+        "stopImpersonating": "Stop Impersonating",
+        "startedToast": "Now impersonating {{name}}",
+        "stoppedToast": "Stopped impersonating linguist",
+        "errorToast": "Failed to impersonate linguist"
     }
 }

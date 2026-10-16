@@ -50,6 +50,11 @@ import currencyRoutes from "./routes/currencyRoutes.js";
 import swaggerSpec, { apiVersion } from "./swagger.js";
 
 // Middleware
+// Behind a reverse proxy, set TRUST_PROXY to the number of proxy hops so req.ip
+// (used for rate limiting and internal-network checks) is the real client IP
+if (env.TRUST_PROXY !== undefined && env.TRUST_PROXY > 0) {
+  app.set("trust proxy", env.TRUST_PROXY);
+}
 app.use(express.json()); // Parse JSON bodies
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
 
@@ -107,7 +112,7 @@ const corsOptions: cors.CorsOptions = {
   },
   credentials: true,
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
+  allowedHeaders: ["Content-Type", "Authorization", "X-API-Key"],
 };
 app.use(cors(corsOptions));
 
