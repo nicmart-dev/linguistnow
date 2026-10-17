@@ -1,16 +1,42 @@
 import axios, { isAxiosError } from 'axios'
 import type { User } from '@linguistnow/shared'
 
+export type AuthenticatedUser = User & {
+    Email?: string
+    Name?: string
+    Role?: string
+    'Calendar IDs'?: string
+    Picture?: string
+    Timezone?: string
+    'Working Hours Start'?: string
+    'Working Hours End'?: string
+    'Off Days'?: string[]
+    'Min Hours Per Day'?: number
+    'Hourly Rate'?: number
+    Currency?: string
+    Languages?: string[] | string
+    Specialization?: string[] | string
+}
+
+export const getAuthHeaders = (): Record<string, string> => {
+    const token =
+        typeof localStorage !== 'undefined'
+            ? localStorage.getItem('sessionToken')
+            : null
+    return token ? { Authorization: `Bearer ${token}` } : {}
+}
+
 /* Utility function to get user details from Airtable after a successful login, 
 and save it in state to keep track of user details and consider them logged in.
 Note: Tokens are stored in Vault, not returned from Airtable. */
 export const fetchUserDetails = async (
     email: string,
-    setUserDetails: (user: User | null) => void
-): Promise<User> => {
+    setUserDetails?: (user: AuthenticatedUser | null) => void
+): Promise<AuthenticatedUser> => {
     try {
         const response = await axios.get<Record<string, unknown>>(
-            `${import.meta.env.VITE_API_URL}/api/users/${email}`
+            `${import.meta.env.VITE_API_URL}/api/users/${encodeURIComponent(email)}`,
+            { headers: getAuthHeaders() }
         )
         // Get raw Airtable data with uppercase field names
         // Note: Tokens are no longer stored in Airtable - they're in Vault
@@ -61,10 +87,12 @@ export const fetchUserDetails = async (
             Currency: airtableData.Currency,
             Languages: airtableData.Languages,
             Specialization: airtableData.Specialization,
-        } as User & typeof airtableData
+        } as AuthenticatedUser
 
-        setUserDetails(userWithAirtableFields)
-        return user
+        if (setUserDetails) {
+            setUserDetails(userWithAirtableFields)
+        }
+        return userWithAirtableFields
     } catch (error: unknown) {
         if (isAxiosError(error) && error.response?.status === 404) {
             throw { response: { status: 404 } }
@@ -115,7 +143,8 @@ export const createUserIfNotFound = async (
             email: userInfo.email,
             name: userInfo.name,
             picture_url: userInfo.picture,
-        }
+        },
+        { headers: getAuthHeaders() }
     )
     // Get raw Airtable data with uppercase field names
     // Note: Tokens are no longer stored in Airtable - they're in Vault

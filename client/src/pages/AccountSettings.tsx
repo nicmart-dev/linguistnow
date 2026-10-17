@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom'
 import { googleLogout } from '@react-oauth/google'
 import { useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
+import { getAuthHeaders } from '@/auth-users/utils'
 
 /* The AccountSettings component utilizes the CalendarSelector component 
 to allow the user to select and save their calendars. */
@@ -62,11 +63,12 @@ const AccountSettings = ({ userDetails, setUserDetails }) => {
 
             // Update the user's calendar IDs in Airtable
             const response = await fetch(
-                `${import.meta.env.VITE_API_URL}/api/users/${userEmail}`,
+                `${import.meta.env.VITE_API_URL}/api/users/${encodeURIComponent(userEmail)}`,
                 {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
+                        ...getAuthHeaders(),
                     },
                     body: JSON.stringify({
                         calendarIds: updatedCalendars,
@@ -133,6 +135,7 @@ const AccountSettings = ({ userDetails, setUserDetails }) => {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
+                        ...getAuthHeaders(),
                     },
                     body: JSON.stringify({
                         availabilityPreferences: preferences,
@@ -200,6 +203,7 @@ const AccountSettings = ({ userDetails, setUserDetails }) => {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
+                        ...getAuthHeaders(),
                     },
                     body: JSON.stringify({
                         profile: profile,
@@ -279,6 +283,7 @@ const AccountSettings = ({ userDetails, setUserDetails }) => {
                     method: 'DELETE',
                     headers: {
                         'Content-Type': 'application/json',
+                        ...getAuthHeaders(),
                     },
                 }
             )
@@ -311,6 +316,7 @@ const AccountSettings = ({ userDetails, setUserDetails }) => {
             // Clear user details and localStorage
             setUserDetails(null)
             localStorage.removeItem('userEmail')
+            localStorage.removeItem('sessionToken')
 
             // Navigate to login page after a short delay
             setTimeout(() => {

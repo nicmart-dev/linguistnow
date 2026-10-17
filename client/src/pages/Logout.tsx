@@ -29,8 +29,9 @@ export const Logout: React.FC<LogoutProps> = ({
         googleLogout()
         setUserName(userDetails?.Name || '') // Store user name to display on logout
         setUserDetails(null) // Clear user details upon logout
-        // Clear stored email from localStorage
+        // Clear stored email and session token from localStorage
         localStorage.removeItem('userEmail')
+        localStorage.removeItem('sessionToken')
     }, [setUserDetails, setUserName, userDetails?.Name])
 
     useEffect(() => {
