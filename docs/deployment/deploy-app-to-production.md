@@ -186,6 +186,11 @@ LinguistNow uses a single unified **`docker-compose.yml`** file for all deployme
    FRANKFURTER_URL=http://frankfurter:8080
    FRANKFURTER_FALLBACK_URL=https://api.frankfurter.dev/v1
 
+   # Security & Internal APIs (Recommended)
+   INTERNAL_API_KEY=<strong-random-api-key>
+   SESSION_SECRET=<32-char-random-secret-for-persistent-sessions>
+   TRUST_PROXY=1 # Set if behind reverse proxy (Caddy, Nginx, Traefik, etc.)
+
    # Networking
    DOCKER_NETWORK_NAME=shared_net
    USE_EXTERNAL_NETWORK=true

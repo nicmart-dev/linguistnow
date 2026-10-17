@@ -75,6 +75,10 @@ services:
       - FRANKFURTER_FALLBACK_URL=${FRANKFURTER_FALLBACK_URL:-https://api.frankfurter.dev/v1}
       # Internal API Key (Optional, for protecting internal/management endpoints)
       - INTERNAL_API_KEY=${INTERNAL_API_KEY:-${CURRENCY_REFRESH_API_KEY:-}}
+      # Session Secret (Optional, persists login sessions across container restarts; min 32 chars)
+      - SESSION_SECRET=${SESSION_SECRET:-}
+      # Reverse proxy trust hops (Optional, e.g. 1 if behind Nginx/Traefik/Cloudflare)
+      - TRUST_PROXY=${TRUST_PROXY:-}
     healthcheck:
       test:
         [
