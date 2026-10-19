@@ -5,7 +5,7 @@
 # container orchestration (Portainer, etc.)
 # =============================================================================
 
-FROM node:25-alpine
+FROM node:26-alpine
 
 # Build arguments for version tracking
 ARG BUILD_VERSION=dev
