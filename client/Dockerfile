@@ -6,7 +6,7 @@
 # =============================================================================
 
 # Stage 1: Build the Vite React application
-FROM node:25-alpine AS build
+FROM node:26-alpine AS build
 
 # Install pnpm globally
 RUN npm install -g pnpm@9.15.2
