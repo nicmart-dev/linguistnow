@@ -24,7 +24,7 @@ jobs:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.RELEASE_TOKEN || secrets.GITHUB_TOKEN }}
 
       - uses: pnpm/action-setup@v6
         with:
@@ -80,7 +80,16 @@ jobs:
         id: update
         env:
           HUSKY: '0'
+          GH_TOKEN: ${{ secrets.RELEASE_TOKEN || secrets.GITHUB_TOKEN }}
         run: |
+          # Close any older open dependency update PRs to prevent stale PR accumulation
+          echo "Checking for superseded dependency update PRs..."
+          OLD_PRS=$(gh pr list --state open --label "dependencies" --json number,headRefName --jq '.[] | select(.headRefName | startswith("deps/update-")) | .number' 2>/dev/null || echo "")
+          for pr in $OLD_PRS; do
+            echo "Closing superseded dependency update PR #$pr..."
+            gh pr close "$pr" --comment "Superseded by newer automated weekly dependency updates." --delete-branch || true
+          done
+
           # Create branch name with date
           BRANCH_NAME="deps/update-$(date +%Y-%m-%d)"
           echo "branch_name=$BRANCH_NAME" >> $GITHUB_OUTPUT
@@ -148,7 +157,7 @@ jobs:
         if: steps.outdated.outputs.has_updates == 'true' && steps.update.outputs.has_changes == 'true' && steps.update.outputs.branch_exists == 'false'
         id: create-pr
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.RELEASE_TOKEN || secrets.GITHUB_TOKEN }}
         run: |
           PR_URL=$(gh pr create \
             --title "build(deps): automated dependency updates $(date +%Y-%m-%d)" \
@@ -168,6 +177,7 @@ jobs:
       - uses: actions/checkout@v7
         with:
           ref: ${{ needs.update-dependencies.outputs.branch_name }}
+          token: ${{ secrets.RELEASE_TOKEN || secrets.GITHUB_TOKEN }}
 
       - uses: pnpm/action-setup@v6
         with:
@@ -195,6 +205,6 @@ jobs:
     steps:
       - name: Enable auto-merge
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.RELEASE_TOKEN || secrets.GITHUB_TOKEN }}
         run: |
           gh pr merge "${{ needs.update-dependencies.outputs.pr_url }}" --auto --squash
