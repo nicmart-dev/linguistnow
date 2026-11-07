@@ -1,24 +1,19 @@
-# Dependabot configuration for automated dependency updates
+# Dependabot configuration
+# Security alerts remain active for all ecosystems.
+# Dependency version updates:
+# - npm: Handled consolidated via .github/workflows/dependency-updates.yml (open-pull-requests-limit: 0)
+# - github-actions & docker: Handled by Dependabot with semver-major protection
 # https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
 
 version: 2
 updates:
-  # Monorepo npm dependencies (client, server, shared, and root)
+  # Monorepo npm dependencies - security monitoring only (no automatic PRs)
+  # Automatic version updates are handled by .github/workflows/dependency-updates.yml using native pnpm
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
       interval: "weekly"
-      day: "monday"
-      time: "09:00"
-      timezone: "Etc/UTC"
-    open-pull-requests-limit: 10
-    commit-message:
-      prefix: "build"
-      include: "scope"
-    groups:
-      dependencies:
-        patterns:
-          - "*"
+    open-pull-requests-limit: 0
 
   # GitHub Actions workflows
   - package-ecosystem: "github-actions"
@@ -28,7 +23,7 @@ updates:
       day: "monday"
       time: "09:00"
       timezone: "Etc/UTC"
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 5
     commit-message:
       prefix: "build"
       include: "scope"
@@ -36,6 +31,9 @@ updates:
       actions:
         patterns:
           - "*"
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
 
   # Docker images for client
   - package-ecosystem: "docker"
@@ -49,6 +47,9 @@ updates:
     commit-message:
       prefix: "build"
       include: "scope"
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
 
   # Docker images for server
   - package-ecosystem: "docker"
@@ -62,3 +63,6 @@ updates:
     commit-message:
       prefix: "build"
       include: "scope"
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
