@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.9.2](https://github.com/nicmart-dev/linguistnow/compare/v1.9.1...v1.9.2) (2026-11-07)
+
+### 🐛 Bug Fixes
+
+- **ci:** grant contents write permission to auto-merge job ([#191](https://github.com/nicmart-dev/linguistnow/issues/191)) ([ccc87b9](https://github.com/nicmart-dev/linguistnow/commit/ccc87b9531572b3b5d0b7e935ec6939ea6f5f64c))
+
+### 📦 Build System
+
+- **deps-dev:** bump happy-dom from 20.14.6 to 21.0.4 ([#187](https://github.com/nicmart-dev/linguistnow/issues/187)) ([b175695](https://github.com/nicmart-dev/linguistnow/commit/b1756952bf1e4dbb01f718a45e001b3b5d417e3f))
+- **deps:** bump node from 25-alpine to 26-alpine in /client ([#180](https://github.com/nicmart-dev/linguistnow/issues/180)) ([580be18](https://github.com/nicmart-dev/linguistnow/commit/580be1819e4b0d59bdc3196b6ac33cb3758905d9))
+- **deps:** bump node from 25-alpine to 26-alpine in /server ([#179](https://github.com/nicmart-dev/linguistnow/issues/179)) ([8c59358](https://github.com/nicmart-dev/linguistnow/commit/8c593586529bb36c08ca397e76b7ca46736bb5be))
+- **deps:** update dependencies 2026-10-19 ([#182](https://github.com/nicmart-dev/linguistnow/issues/182)) ([8025711](https://github.com/nicmart-dev/linguistnow/commit/802571140d469f52181503a5e00d9e2dc6b21503))
+- **deps:** update dependencies 2026-11-02 ([#190](https://github.com/nicmart-dev/linguistnow/issues/190)) ([a1553ca](https://github.com/nicmart-dev/linguistnow/commit/a1553ca8878dc4a5ee0da39f4ddad2f2c96849ee))
+
 ## [1.9.1](https://github.com/nicmart-dev/linguistnow/compare/v1.9.0...v1.9.1) (2026-10-17)
 
 ### 🐛 Bug Fixes
