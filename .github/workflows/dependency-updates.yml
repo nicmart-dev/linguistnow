@@ -190,6 +190,7 @@ jobs:
     if: always() && needs.update-dependencies.result == 'success' && needs.test.result == 'success' && needs.update-dependencies.outputs.pr_url != ''
     runs-on: ubuntu-latest
     permissions:
+      contents: write
       pull-requests: write
     steps:
       - name: Enable auto-merge
