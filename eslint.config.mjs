@@ -19,6 +19,7 @@ export default tseslint.config(
           "./server/tsconfig.json",
           "./client/tsconfig.json",
           "./shared/tsconfig.json",
+          "./e2e/tsconfig.json",
         ],
         tsconfigRootDir: import.meta.dirname,
       },
@@ -67,6 +68,10 @@ export default tseslint.config(
       ".lintstagedrc.js",
       "commitlint.config.js",
       "**/coverage/**",
+      "**/playwright-report/**",
+      "**/test-results/**",
+      "**/blob-report/**",
+      "e2e/.auth/**",
       "scripts/**", // Build/release scripts
       "**/audit-translations.js", // Utility script
       "shared/**/*.test.ts", // Shared test files
