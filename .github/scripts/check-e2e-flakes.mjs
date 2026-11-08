@@ -25,6 +25,13 @@ function collectSpecs(suite, prefix = [], out = []) {
   return out;
 }
 
+function escapeMarkdownTableCell(text) {
+  return String(text)
+    .replace(/\\/g, "\\\\")
+    .replace(/\|/g, "\\|")
+    .replace(/\r?\n/g, " ");
+}
+
 function main() {
   if (!existsSync(REPORT_PATH)) {
     console.log(`No Playwright JSON report found at ${REPORT_PATH}`);
@@ -54,7 +61,7 @@ function main() {
       `::warning::Flaky E2E test passed on retry (${item.project}): ${item.title}`,
     );
     summaryLines.push(
-      `| ${item.title.replace(/\|/g, "\\|")} | ${item.project} | ${String(item.results.length)} |`,
+      `| ${escapeMarkdownTableCell(item.title)} | ${escapeMarkdownTableCell(item.project)} | ${String(item.results.length)} |`,
     );
   }
 

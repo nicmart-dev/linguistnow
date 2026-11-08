@@ -289,12 +289,11 @@ jobs:
         uses: actions/setup-node@v7
         with:
           node-version: "22"
-          cache: pnpm
 
       - name: Install dependencies & build shared package (PR smoke test)
         if: github.event_name == 'pull_request'
         run: |
-          pnpm install --frozen-lockfile
+          pnpm install --frozen-lockfile --ignore-scripts
           pnpm --filter ./shared build
 
       - name: Install Playwright Chromium & system deps (PR smoke test)
@@ -379,11 +378,10 @@ jobs:
         uses: actions/setup-node@v7
         with:
           node-version: "22"
-          cache: pnpm
 
       - name: Install dependencies & build shared package
         run: |
-          pnpm install --frozen-lockfile
+          pnpm install --frozen-lockfile --ignore-scripts
           pnpm --filter ./shared build
 
       - name: Install Playwright Chromium & system deps
