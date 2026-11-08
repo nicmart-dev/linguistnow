@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.9.3](https://github.com/nicmart-dev/linguistnow/compare/v1.9.2...v1.9.3) (2026-11-08)
+
+### 🐛 Bug Fixes
+
+- **ci:** stop exposing push token to dependency install scripts ([#194](https://github.com/nicmart-dev/linguistnow/issues/194)) ([6943db6](https://github.com/nicmart-dev/linguistnow/commit/6943db6c413fffd8419c097662def538a80fd018))
+
+### 👷 Continuous Integration
+
+- harden dependency automation and auto-merge workflows ([#193](https://github.com/nicmart-dev/linguistnow/issues/193)) ([5158f25](https://github.com/nicmart-dev/linguistnow/commit/5158f25a6ad2e0c0457e008199c839bcf14663f2))
+
 ## [1.9.2](https://github.com/nicmart-dev/linguistnow/compare/v1.9.1...v1.9.2) (2026-11-07)
 
 ### 🐛 Bug Fixes
