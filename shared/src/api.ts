@@ -63,6 +63,7 @@ export interface LinguistWithAvailability {
   hourlyRate?: number;
   currency?: string;
   hourlyRateConverted?: number; // Rate converted to displayCurrency
+  displayCurrency?: string;
   timezone?: string;
   rating?: number;
   setupStatus: SetupStatus;

@@ -143,11 +143,23 @@ test.describe("Tier B Live Container Smoke Tests @smoke", () => {
       .locator("label", { hasText: /^Display Currency$/ })
       .locator("..")
       .getByRole("combobox");
-    await currencySelect.click();
-    await page.getByRole("option", { name: /EUR/ }).click();
+
+    const [searchResponse] = await Promise.all([
+      page.waitForResponse(
+        (r) =>
+          r.url().includes("/api/linguists/search") &&
+          r.url().includes("displayCurrency=EUR") &&
+          r.status() === 200,
+      ),
+      (async () => {
+        await currencySelect.click();
+        await page.getByRole("option", { name: /EUR/ }).click();
+      })(),
+    ]);
+    expect(searchResponse.ok()).toBe(true);
 
     await expect(page.getByText("Rates converted to EUR")).toBeVisible();
-    await expect(page.getByText("€46.00/hr")).toBeVisible();
+    await expect(page.getByText("€46.00/hr")).toBeVisible({ timeout: 15_000 });
     expect(pageErrors).toEqual([]);
   });
 

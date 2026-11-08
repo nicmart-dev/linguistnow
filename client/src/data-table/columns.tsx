@@ -23,6 +23,8 @@ interface LinguistRow {
     specialization?: string[]
     hourlyRate?: number
     currency?: string
+    hourlyRateConverted?: number
+    displayCurrency?: string
     rating?: number
     setupStatus?: {
         isComplete: boolean
@@ -88,9 +90,10 @@ export const useColumns = (): ColumnDef<LinguistRow>[] => {
                 )
             },
             cell: ({ row }) => {
-                const status = row.getValue<LinguistRow['availabilityStatus']>(
-                    'availabilityStatus'
-                )
+                const status =
+                    row.getValue<LinguistRow['availabilityStatus']>(
+                        'availabilityStatus'
+                    )
                 const freeHours = row.original.freeHours
                 const setupStatus = row.original.setupStatus
                 return (
@@ -262,10 +265,8 @@ export const useColumns = (): ColumnDef<LinguistRow>[] => {
                 if (rate === undefined) return '-'
 
                 // Use converted rate and display currency when available
-                const convertedRate = row.original
-                    .hourlyRateConverted as number | undefined
-                const displayCurrency = row.original
-                    .displayCurrency as string | undefined
+                const convertedRate = row.original.hourlyRateConverted
+                const displayCurrency = row.original.displayCurrency
 
                 const effectiveRate =
                     convertedRate !== undefined ? convertedRate : rate

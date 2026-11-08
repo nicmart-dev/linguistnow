@@ -104,7 +104,14 @@ const Dashboard = ({ userName }: DashboardProps) => {
                 )
 
                 logger.log('Search results:', response.data)
-                setLinguists(response.data.linguists)
+                const linguistsWithCurrency = response.data.linguists.map(
+                    (linguist) => ({
+                        ...linguist,
+                        displayCurrency:
+                            linguist.displayCurrency ?? filters.displayCurrency,
+                    })
+                )
+                setLinguists(linguistsWithCurrency)
 
                 // Check if currency conversion was requested but rates weren't converted
                 if (filters.displayCurrency) {
