@@ -12,10 +12,13 @@ set -e
 # 4. Pruning rates older than the retention window on startup and daily at 01:00 UTC
 # =============================================================================
 
-RETENTION_DAYS="${FRANKFURTER_RETENTION_DAYS:-90}"
+RETENTION_DAYS="${FRANKFURTER_RETENTION_DAYS:-${RETENTION_DAYS:-90}}"
 export RETENTION_DAYS
 
-ruby -e '
+mkdir -p /app/data
+chmod 777 /app/data
+
+bundle exec ruby -e '
   retention_days = Integer(ENV.fetch("RETENTION_DAYS", 90))
   providers_dir = "/app/db/seeds/providers"
 
@@ -85,9 +88,10 @@ end
 
 # 5. Migrate and seed ECB
 bundle exec rake db:setup
+chmod 666 /app/data/frankfurter.sqlite3* 2>/dev/null || true
 
 # 6. Prune any rates older than retention window on startup
-ruby -e '
+bundle exec ruby -e '
   require_relative "boot"
   require "db"
   require "date"

@@ -173,6 +173,7 @@ services:
     image: lineofflight/frankfurter:latest
     container_name: linguistnow-frankfurter
     restart: unless-stopped
+    user: root
     ports:
       - "${FRANKFURTER_BIND_IP:-127.0.0.1}:${FRANKFURTER_PORT:-8080}:8080"
     environment:
@@ -184,7 +185,11 @@ services:
       - sh
       - -c
       - |
-        ruby -e '
+        set -e
+        mkdir -p /app/data
+        chmod 777 /app/data
+
+        bundle exec ruby -e '
           retention_days = Integer(ENV.fetch("FRANKFURTER_RETENTION_DAYS", 90))
           providers_dir = "/app/db/seeds/providers"
           if Dir.exist?(providers_dir)
@@ -247,7 +252,8 @@ services:
           end
         '
         bundle exec rake db:setup
-        ruby -e '
+        chmod 666 /app/data/frankfurter.sqlite3* 2>/dev/null || true
+        bundle exec ruby -e '
           require_relative "boot"
           require "db"
           require "date"
