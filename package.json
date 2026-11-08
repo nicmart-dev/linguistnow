@@ -13,8 +13,10 @@
     "clean": "pnpm -r exec rm -rf node_modules && rm -rf node_modules",
     "lint:ox": "pnpm --filter ./shared --fail-if-no-match build && oxlint .",
     "lint:eslint": "pnpm --filter ./shared --fail-if-no-match build && eslint .",
-    "lint": "pnpm --filter ./shared --fail-if-no-match build && oxlint . && eslint .",
+    "lint:yaml": "node scripts/validate-yaml.mjs",
+    "lint": "pnpm --filter ./shared --fail-if-no-match build && oxlint . && eslint . && node scripts/validate-yaml.mjs",
     "lint:fix": "pnpm --filter ./shared --fail-if-no-match build && oxlint --fix . && eslint . --fix",
+    "test:yaml": "node --test scripts/__tests__/validate-yaml.test.mjs",
     "type-check": "pnpm --filter ./shared --fail-if-no-match build && pnpm exec tsc --noEmit && pnpm --filter ./shared --fail-if-no-match type-check && pnpm --filter ./client --fail-if-no-match type-check && pnpm --filter ./server --fail-if-no-match type-check && pnpm --filter ./e2e --fail-if-no-match type-check",
     "build": "pnpm --filter ./shared --fail-if-no-match build && pnpm --filter ./client --fail-if-no-match build",
     "test": "pnpm --filter ./shared --fail-if-no-match build && pnpm --filter ./shared --fail-if-no-match test:run && pnpm --filter ./client --fail-if-no-match test:run && pnpm --filter ./server --fail-if-no-match test:run",
@@ -57,7 +59,8 @@
     "prettier": "^3.9.10",
     "semantic-release": "^25.0.9",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.72.1"
+    "typescript-eslint": "^8.72.1",
+    "yaml": "^2.9.1"
   },
   "engines": {
     "node": ">= 20.0.0"
