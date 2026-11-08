@@ -99,6 +99,22 @@ jobs:
       - run: pnpm install --frozen-lockfile --ignore-scripts
       - run: pnpm check:peers
 
+  test-integrity:
+    name: test-integrity
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+      - name: Verify test suite integrity
+        env:
+          BASE_REF: ${{ github.base_ref && format('origin/{0}', github.base_ref) || '' }}
+        run: node .github/scripts/check-test-integrity.mjs
+
   e2e:
     name: e2e
     runs-on: ubuntu-24.04
@@ -150,7 +166,7 @@ jobs:
   # Replaced when Phase 4 migrates main branch protection to a Repository Ruleset.
   lint-and-test:
     name: lint-and-test
-    needs: [lint, typecheck, build, unit, peer-deps, e2e, dependency-review]
+    needs: [lint, typecheck, build, unit, peer-deps, test-integrity, e2e, dependency-review]
     if: always()
     runs-on: ubuntu-24.04
     steps:
