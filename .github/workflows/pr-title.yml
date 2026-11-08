@@ -1,0 +1,64 @@
+name: PR Title Check
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, reopened, edited, synchronize]
+
+concurrency:
+  group: pr-title-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  pull-requests: read
+
+jobs:
+  pr-title:
+    name: pr-title
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: amannn/action-semantic-pull-request@v6
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          requireScope: false
+          types: |
+            build
+            chore
+            ci
+            docs
+            feat
+            fix
+            perf
+            refactor
+            revert
+            style
+            test
+          scopes: |
+            client
+            server
+            shared
+            deps
+            deps-dev
+            config
+            types
+            tests
+            docs
+            ci
+            docker
+
+      - name: Enforce commitlint title constraints
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          node -e '
+            const title = process.env.PR_TITLE || "";
+            if (title.length > 72) {
+              console.error(`PR title exceeds 72 characters (${title.length}): ${title}`);
+              process.exit(1);
+            }
+            if (title.endsWith(".")) {
+              console.error(`PR title must not end with a period: ${title}`);
+              process.exit(1);
+            }
+          '

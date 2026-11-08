@@ -2,14 +2,24 @@ import React from 'react'
 import { useGoogleLogin } from '@react-oauth/google'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
-import { fetchUserDetails, createUserIfNotFound } from '@/auth-users/utils'
+import {
+    fetchUserDetails,
+    createUserIfNotFound,
+    type AuthenticatedUser,
+} from '@/auth-users/utils'
 import Hero from '@/components/organisms/Hero'
 import { logger } from '@/utils/logger'
 
-const Login = ({ setUserDetails }) => {
+interface LoginProps {
+    setUserDetails: React.Dispatch<
+        React.SetStateAction<AuthenticatedUser | null>
+    >
+}
+
+const Login = ({ setUserDetails }: LoginProps) => {
     const navigate = useNavigate()
 
-    const handleGoogleLoginSuccess = async (response) => {
+    const handleGoogleLoginSuccess = async (response: { code: string }) => {
         const { code } = response // Extract the authorization code
 
         try {
@@ -41,16 +51,18 @@ const Login = ({ setUserDetails }) => {
 
             /* Get user info from Google email, creating new user if it doesn't exist, 
       and save user info in parent state */
-            let fetchedUserDetails: any = null
+            let fetchedUserDetails: AuthenticatedUser | null = null
             try {
                 // Get latest user details from Airtable, save in parent state
                 await fetchUserDetails(userInfo.email, (user) => {
                     fetchedUserDetails = user
                     setUserDetails(user)
                 })
-            } catch (error) {
+            } catch (error: unknown) {
                 // Create the user if not found and save to state
-                if (error.response && error.response.status === 404) {
+                const status = (error as { response?: { status?: number } })
+                    ?.response?.status
+                if (status === 404) {
                     await createUserIfNotFound(userInfo, (user) => {
                         fetchedUserDetails = user
                         setUserDetails(user)
@@ -73,7 +85,7 @@ const Login = ({ setUserDetails }) => {
                         Email: userInfo.email,
                         Name: userInfo.name,
                         Role: 'Linguist',
-                    } as any
+                    }
                 }
                 // Preserve all existing fields (including Calendar IDs)
                 // Preserve all existing fields (including Calendar IDs)

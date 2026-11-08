@@ -1,3 +1,2 @@
 pnpm lint-staged
-pnpm --filter client exec tsc --noEmit
-pnpm --filter server exec tsc --noEmit
+pnpm type-check

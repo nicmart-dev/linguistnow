@@ -31,7 +31,7 @@ env:
 jobs:
   # Check if we should build
   check:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: read
     # Skip if release workflow failed
@@ -171,7 +171,7 @@ jobs:
   build-and-push:
     needs: check
     if: needs.check.outputs.should_build == 'true'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: read
       packages: write

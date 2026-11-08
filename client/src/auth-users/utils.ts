@@ -8,9 +8,9 @@ export type AuthenticatedUser = User & {
     'Calendar IDs'?: string
     Picture?: string
     Timezone?: string
-    'Working Hours Start'?: string
-    'Working Hours End'?: string
-    'Off Days'?: string[]
+    'Working Hours Start'?: string | number
+    'Working Hours End'?: string | number
+    'Off Days'?: string[] | string
     'Min Hours Per Day'?: number
     'Hourly Rate'?: number
     Currency?: string
@@ -135,7 +135,7 @@ interface GoogleUserInfo {
 Note: Tokens are stored in Vault by the backend, not in Airtable. */
 export const createUserIfNotFound = async (
     userInfo: GoogleUserInfo,
-    setUserDetails: (user: User | null) => void
+    setUserDetails: (user: AuthenticatedUser | null) => void
 ): Promise<void> => {
     const response = await axios.post<Record<string, unknown>>(
         `${import.meta.env.VITE_API_URL}/api/users`,

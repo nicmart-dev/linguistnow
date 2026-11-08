@@ -3,6 +3,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { I18nextProvider } from 'react-i18next'
 import i18nInstance from '@/i18n'
+import type { AuthenticatedUser } from '@/auth-users/utils'
 import AccountSettings from './AccountSettings'
 
 vi.mock('sonner', () => ({
@@ -30,10 +31,26 @@ vi.mock('@/components/organisms/CalendarSelector', () => ({
     ),
 }))
 
-const linguist = { Name: 'Lin', Email: 'lin@example.com', Role: 'Linguist' }
-const pm = { Name: 'Pat', Email: 'pat@example.com', Role: 'Project Manager' }
+const linguist: AuthenticatedUser = {
+    id: 'lin@example.com',
+    email: 'lin@example.com',
+    name: 'Lin',
+    role: 'Linguist',
+    Name: 'Lin',
+    Email: 'lin@example.com',
+    Role: 'Linguist',
+}
+const pm: AuthenticatedUser = {
+    id: 'pat@example.com',
+    email: 'pat@example.com',
+    name: 'Pat',
+    role: 'Project Manager',
+    Name: 'Pat',
+    Email: 'pat@example.com',
+    Role: 'Project Manager',
+}
 
-const renderPage = (userDetails: Record<string, string>) =>
+const renderPage = (userDetails: AuthenticatedUser) =>
     render(
         <MemoryRouter>
             <I18nextProvider i18n={i18nInstance}>

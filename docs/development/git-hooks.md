@@ -46,11 +46,10 @@ module.exports = {
 
 ### 2. TypeScript Type Checking
 
-Validates types for client and server packages:
+Validates types across root, shared, client, and server packages:
 
 ```bash
-pnpm --filter client exec tsc --noEmit
-pnpm --filter server exec tsc --noEmit
+pnpm type-check
 ```
 
 ### Fast Failure
@@ -63,19 +62,19 @@ If Oxlint finds errors, the commit is blocked immediately (1.6s) without waiting
 
 ```bash
 pnpm lint-staged
-pnpm --filter client exec tsc --noEmit
-pnpm --filter server exec tsc --noEmit
+pnpm type-check
 ```
 
 ## Pre-push Hook
 
 The pre-push hook runs automatically when you run `git push`. It performs the same checks as CI:
 
-| Step | Command        | What it does                               |
-| ---- | -------------- | ------------------------------------------ |
-| 1    | `pnpm lint`    | Full Oxlint + ESLint on entire codebase    |
-| 2    | `tsc --noEmit` | TypeScript type checking (client + server) |
-| 3    | `pnpm test`    | Run all tests (client + server)            |
+| Step | Command              | What it does                                      |
+| ---- | -------------------- | ------------------------------------------------- |
+| 1    | `pnpm lint`          | Full Oxlint + ESLint on entire codebase           |
+| 2    | `pnpm type-check`    | TypeScript type checking (all workspace packages) |
+| 3    | `pnpm build`         | Shared & client production builds                 |
+| 4    | `pnpm test:coverage` | All unit tests with enforced coverage thresholds  |
 
 This hook ensures that code pushed to the repository will pass CI checks. If any check fails, the push is blocked until issues are resolved.
 
@@ -85,10 +84,9 @@ This hook ensures that code pushed to the repository will pass CI checks. If any
 
 ```bash
 pnpm lint
-pnpm --filter client exec tsc --noEmit
-pnpm --filter server exec tsc --noEmit
-pnpm --filter client test -- --run
-pnpm --filter server test -- --run
+pnpm type-check
+pnpm build
+pnpm test:coverage
 ```
 
 ## Linting Commands

@@ -8,7 +8,7 @@ import {
 import { apiKeyAuthMiddleware } from "../utils/apiKeyAuth.js";
 import { rateLimitMiddleware } from "../utils/rateLimit.js";
 
-const router = Router();
+const router: Router = Router();
 
 /**
  * @openapi

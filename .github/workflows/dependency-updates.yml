@@ -13,7 +13,7 @@ permissions:
 
 jobs:
   update-dependencies:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     outputs:
       has_updates: ${{ steps.outdated.outputs.has_updates }}
       has_changes: ${{ steps.update.outputs.has_changes }}
@@ -174,7 +174,7 @@ jobs:
         run: |
           git push --no-verify "https://x-access-token:${PUSH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "HEAD:refs/heads/${BRANCH_NAME}"
 
-      - name: Create Pull Request
+      - name: Create Pull Request and Enable Auto-Merge
         if: steps.outdated.outputs.has_updates == 'true' && steps.update.outputs.has_changes == 'true' && steps.update.outputs.branch_exists == 'false'
         id: create-pr
         env:
@@ -186,48 +186,8 @@ jobs:
             --base main \
             --head "${{ steps.update.outputs.branch_name }}" \
             --label "dependencies")
-          
+
           echo "Created PR: $PR_URL"
           echo "pr_url=$PR_URL" >> $GITHUB_OUTPUT
 
-  test:
-    needs: update-dependencies
-    if: always() && needs.update-dependencies.result == 'success' && needs.update-dependencies.outputs.has_updates == 'true' && needs.update-dependencies.outputs.has_changes == 'true' && needs.update-dependencies.outputs.branch_exists == 'false'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          ref: ${{ needs.update-dependencies.outputs.branch_name }}
-          persist-credentials: false
-
-      - uses: pnpm/action-setup@v6
-        with:
-          version: 9.15.2
-
-      - uses: actions/setup-node@v7
-        with:
-          node-version: '22'
-          cache: 'pnpm'
-
-      - run: pnpm install
-      - run: pnpm lint
-      - run: pnpm --filter client exec tsc --noEmit
-      - run: pnpm --filter server exec tsc --noEmit
-      - run: pnpm --filter client test -- --run
-      - run: pnpm --filter server test -- --run
-
-  auto-merge:
-    needs: [update-dependencies, test]
-    if: always() && needs.update-dependencies.result == 'success' && needs.test.result == 'success' && needs.update-dependencies.outputs.pr_url != ''
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pull-requests: write
-    steps:
-      - name: Enable auto-merge
-        env:
-          GH_TOKEN: ${{ secrets.RELEASE_TOKEN || secrets.GITHUB_TOKEN }}
-        run: |
-          gh pr merge "${{ needs.update-dependencies.outputs.pr_url }}" --auto --squash
+          gh pr merge "$PR_URL" --auto --squash

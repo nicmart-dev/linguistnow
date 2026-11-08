@@ -45,9 +45,9 @@ interface AvailabilitySettingsProps {
         email?: string
         Email?: string
         Timezone?: string
-        'Working Hours Start'?: number
-        'Working Hours End'?: number
-        'Off Days'?: string
+        'Working Hours Start'?: number | string
+        'Working Hours End'?: number | string
+        'Off Days'?: string | string[]
     }
     onSave: (preferences: AvailabilityPreferences) => Promise<void>
 }

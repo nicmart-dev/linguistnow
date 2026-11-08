@@ -89,11 +89,7 @@ export function validateEnv(): z.infer<typeof envSchema> {
         missingRequired.push(pathStr);
       } else if (error.code === "invalid_type") {
         missingRequired.push(pathStr);
-      } else if (
-        error.code === "invalid_string" ||
-        error.code === "invalid_url" ||
-        error.code === "invalid_format"
-      ) {
+      } else if (error.code === "invalid_format") {
         invalidFormat.push(`${pathStr}: ${error.message}`);
       } else {
         missingRequired.push(`${pathStr}: ${error.message}`);
