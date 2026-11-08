@@ -1,0 +1,44 @@
+name: Canary Recovery
+
+on:
+  workflow_run:
+    workflows:
+      - "CI"
+      - "Build and Push Docker Images"
+    types: [completed]
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  triage-and-recover:
+    name: Recover Main Pipeline
+    # Only execute when a workflow on 'main' finishes with conclusion 'failure'
+    if: github.event.workflow_run.conclusion == 'failure'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+
+      - name: Execute Canary Recovery
+        env:
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          FAILED_RUN_ID: ${{ github.event.workflow_run.id }}
+          FAILED_WORKFLOW_NAME: ${{ github.event.workflow_run.name }}
+          FAILED_COMMIT_SHA: ${{ github.event.workflow_run.head_sha }}
+          GH_TOKEN: ${{ secrets.RELEASE_TOKEN || secrets.GITHUB_TOKEN }}
+        run: node .github/scripts/recover-main-pipeline.mjs
