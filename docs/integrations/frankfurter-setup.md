@@ -13,6 +13,7 @@ frankfurter:
   image: lineofflight/frankfurter:latest
   container_name: linguistnow-frankfurter
   restart: unless-stopped
+  user: root
   ports:
     - "${FRANKFURTER_BIND_IP:-127.0.0.1}:${FRANKFURTER_PORT:-8080}:8080"
   environment:
@@ -24,7 +25,11 @@ frankfurter:
     - sh
     - -c
     - |
-      ruby -e '
+      set -e
+      mkdir -p /app/data
+      chmod 777 /app/data
+
+      bundle exec ruby -e '
         retention_days = Integer(ENV.fetch("FRANKFURTER_RETENTION_DAYS", 90))
         providers_dir = "/app/db/seeds/providers"
         if Dir.exist?(providers_dir)
@@ -87,7 +92,8 @@ frankfurter:
         end
       '
       bundle exec rake db:setup
-      ruby -e '
+      chmod 666 /app/data/frankfurter.sqlite3* 2>/dev/null || true
+      bundle exec ruby -e '
         require_relative "boot"
         require "db"
         require "date"
@@ -317,7 +323,7 @@ curl http://localhost:8080/latest
 1. **Run Frankfurter locally with lightweight entrypoint:**
 
    ```bash
-   docker run -d -p 8080:8080 \
+   docker run -d --user root -p 8080:8080 \
      -e DATABASE_URL=sqlite:///app/data/frankfurter.sqlite3 \
      -e FRANKFURTER_RETENTION_DAYS=90 \
      -v frankfurter-data:/app/data \
