@@ -56,7 +56,9 @@
         "saveSuccess": "Profil erfolgreich gespeichert",
         "saveError": "Fehler beim Speichern des Profils",
         "saving": "Wird gespeichert...",
-        "currencyReadOnly": "Die Währungsauswahl wird mit Währungswechselunterstützung verfügbar sein"
+        "currencyReadOnly": "Die Währungsauswahl wird mit Währungswechselunterstützung verfügbar sein",
+        "removeLanguage": "{{language}} entfernen",
+        "removeSpecialization": "{{specialization}} entfernen"
     },
     "dashboard": {
         "linguistsDescription": "Hier ist der Zeitplan vom {{startDate}} bis einschließlich {{endDate}}.",
@@ -281,7 +283,8 @@
         "languageIcon": "Sprache",
         "dashboard": "Dashboard",
         "settings": "Einstellungen",
-        "home": "Startseite"
+        "home": "Startseite",
+        "logout": "Abmelden"
     },
     "general": {
         "loading": "Lädt..."

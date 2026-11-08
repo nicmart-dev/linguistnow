@@ -56,7 +56,9 @@
         "saveSuccess": "Profil enregistré avec succès",
         "saveError": "Échec de l'enregistrement du profil",
         "saving": "Enregistrement...",
-        "currencyReadOnly": "La sélection de devise sera disponible avec le support de change de devises"
+        "currencyReadOnly": "La sélection de devise sera disponible avec le support de change de devises",
+        "removeLanguage": "Supprimer {{language}}",
+        "removeSpecialization": "Supprimer {{specialization}}"
     },
     "dashboard": {
         "linguistsDescription": "Voici le programme du {{startDate}} jusqu'au {{endDate}} inclus.",
@@ -281,7 +283,8 @@
         "languageIcon": "langue",
         "dashboard": "Tableau de bord",
         "settings": "Paramètres",
-        "home": "Accueil"
+        "home": "Accueil",
+        "logout": "Déconnexion"
     },
     "general": {
         "loading": "Chargement..."

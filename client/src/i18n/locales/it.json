@@ -56,7 +56,9 @@
         "saveSuccess": "Profilo salvato con successo",
         "saveError": "Errore nel salvataggio del profilo",
         "saving": "Salvataggio...",
-        "currencyReadOnly": "La selezione della valuta sarà disponibile con il supporto per il cambio valuta"
+        "currencyReadOnly": "La selezione della valuta sarà disponibile con il supporto per il cambio valuta",
+        "removeLanguage": "Rimuovi {{language}}",
+        "removeSpecialization": "Rimuovi {{specialization}}"
     },
     "dashboard": {
         "linguistsDescription": "Ecco il programma dal {{startDate}} fino al {{endDate}} incluso.",
@@ -281,7 +283,8 @@
         "languageIcon": "lingua",
         "dashboard": "Dashboard",
         "settings": "Impostazioni",
-        "home": "Home"
+        "home": "Home",
+        "logout": "Esci"
     },
     "general": {
         "loading": "Caricamento..."

@@ -1,6 +1,12 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { CheckCircle2, Clock, XCircle, AlertTriangle, KeyRound } from 'lucide-react'
+import {
+    CheckCircle2,
+    Clock,
+    XCircle,
+    AlertTriangle,
+    KeyRound,
+} from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 
 interface AvailabilityBadgeProps {
@@ -33,12 +39,12 @@ const AvailabilityBadge: React.FC<AvailabilityBadgeProps> = ({
             return (
                 <Badge
                     variant="outline"
-                    className="gap-1 rounded-full border-emerald-200 bg-emerald-50 px-2 py-1 text-emerald-600"
+                    className="gap-1 rounded-full border-emerald-200 bg-emerald-50 px-2 py-1 text-emerald-800"
                 >
                     <CheckCircle2 className="size-3" aria-hidden="true" />
                     {t('dashboard.availabilityBadge.available')}
                     {freeHours !== undefined && (
-                        <span className="ml-1 text-emerald-500">
+                        <span className="ml-1 text-emerald-700">
                             ({freeHours}h)
                         </span>
                     )}
@@ -48,7 +54,7 @@ const AvailabilityBadge: React.FC<AvailabilityBadgeProps> = ({
             return (
                 <Badge
                     variant="outline"
-                    className="gap-1 rounded-full border-red-200 bg-red-50 px-2 py-1 text-red-600"
+                    className="gap-1 rounded-full border-red-200 bg-red-50 px-2 py-1 text-red-700"
                 >
                     <XCircle className="size-3" aria-hidden="true" />
                     {t('dashboard.availabilityBadge.unavailable')}
@@ -58,12 +64,12 @@ const AvailabilityBadge: React.FC<AvailabilityBadgeProps> = ({
             return (
                 <Badge
                     variant="outline"
-                    className="gap-1 rounded-full border-amber-200 bg-amber-50 px-2 py-1 text-amber-600"
+                    className="gap-1 rounded-full border-amber-200 bg-amber-50 px-2 py-1 text-amber-800"
                 >
                     <Clock className="size-3" aria-hidden="true" />
                     {t('dashboard.availabilityBadge.limited')}
                     {freeHours !== undefined && (
-                        <span className="ml-1 text-amber-500">
+                        <span className="ml-1 text-amber-800">
                             ({freeHours}h)
                         </span>
                     )}
@@ -84,7 +90,7 @@ const AvailabilityBadge: React.FC<AvailabilityBadgeProps> = ({
             return (
                 <Badge
                     variant="outline"
-                    className="gap-1 rounded-full border-orange-200 bg-orange-50 px-2 py-1 text-orange-600"
+                    className="gap-1 rounded-full border-orange-200 bg-orange-50 px-2 py-1 text-orange-800"
                     title={
                         setupMessage ||
                         t('dashboard.availabilityBadge.tokenExpiredTooltip')
