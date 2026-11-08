@@ -1,6 +1,7 @@
 import React from 'react'
 import Hero from '@/components/organisms/Hero'
 import { useTranslation } from 'react-i18next'
+import './missing-asset-for-build-gate.css'
 
 const PrivacyPolicy = () => {
     const { t } = useTranslation()

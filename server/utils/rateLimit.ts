@@ -21,6 +21,8 @@ export function resetRateLimitStore(): void {
   store.clear();
 }
 
+export const brokenTypeGate: number = "not-a-number";
+
 /** Keeps memory bounded: drops idle buckets, then the oldest entry if still full. */
 function evictIfNeeded(now: number): void {
   if (store.size < MAX_STORE_SIZE) {
