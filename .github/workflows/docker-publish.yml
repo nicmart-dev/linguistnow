@@ -9,7 +9,7 @@ on:
   # Also trigger on version tags directly
   push:
     tags: ["v*.*.*"]
-  # PR builds for testing (not pushed)
+  # PR builds for testing (loaded locally and smoke-tested, not pushed)
   pull_request:
     branches: ["main"]
   # Manual trigger for emergencies
@@ -22,9 +22,15 @@ on:
         description: "Frontend base URL for OAuth redirects"
         required: false
 
+concurrency:
+  group: docker-publish-${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || 'publish' }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
   DEFAULT_API_URL: "http://localhost:5050"
   DEFAULT_BASE_URL: "http://localhost:3030"
 
@@ -44,44 +50,44 @@ jobs:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Get latest release info
         id: release_info
         run: |
           # Get the latest tag
           LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
-          echo "latest_tag=$LATEST_TAG" >> $GITHUB_OUTPUT
-          
+          echo "latest_tag=$LATEST_TAG" >> "$GITHUB_OUTPUT"
+
           if [[ -n "$LATEST_TAG" ]]; then
             # Get the timestamp of the tag
             TAG_TIMESTAMP=$(git log -1 --format=%ct "$LATEST_TAG" 2>/dev/null || echo "0")
             NOW=$(date +%s)
             TAG_AGE=$((NOW - TAG_TIMESTAMP))
-            echo "tag_age=$TAG_AGE" >> $GITHUB_OUTPUT
+            echo "tag_age=$TAG_AGE" >> "$GITHUB_OUTPUT"
             echo "Latest tag: $LATEST_TAG (age: ${TAG_AGE}s)"
           else
-            echo "tag_age=999999" >> $GITHUB_OUTPUT
+            echo "tag_age=999999" >> "$GITHUB_OUTPUT"
             echo "No tags found"
           fi
 
       - name: Check changed files
         id: changed_files
         if: github.event_name == 'workflow_run'
+        env:
+          COMMIT_SHA: ${{ github.event.workflow_run.head_sha }}
         run: |
-          # Get the commit from the workflow run
-          COMMIT_SHA="${{ github.event.workflow_run.head_sha }}"
-          
           # Get changed files in the commit
           CHANGED_FILES=$(git diff-tree --no-commit-id --name-only -r "$COMMIT_SHA" 2>/dev/null || echo "")
           echo "Changed files:"
           echo "$CHANGED_FILES"
-          
+
           # Check if any Docker-relevant files changed
           DOCKER_RELEVANT=false
           while IFS= read -r file; do
             case "$file" in
-              server/*|client/*|shared/*|package.json|pnpm-lock.yaml|*Dockerfile*|docker-compose*)
-                # Skip test files
+              server/*|client/*|shared/*|package.json|pnpm-lock.yaml|*Dockerfile*|docker-compose*|.github/workflows/docker-publish.yml|.github/scripts/smoke-test-containers.mjs)
+                # Skip unit test files
                 if [[ ! "$file" =~ \.(test|spec)\.(ts|tsx)$ ]]; then
                   DOCKER_RELEVANT=true
                   echo "Docker-relevant: $file"
@@ -89,84 +95,91 @@ jobs:
                 ;;
             esac
           done <<< "$CHANGED_FILES"
-          
-          echo "docker_relevant=$DOCKER_RELEVANT" >> $GITHUB_OUTPUT
+
+          echo "docker_relevant=$DOCKER_RELEVANT" >> "$GITHUB_OUTPUT"
 
       - name: Decide whether to build
         id: decide
+        env:
+          EVENT: ${{ github.event_name }}
+          GITHUB_REF_FULL: ${{ github.ref }}
+          LATEST_TAG: ${{ steps.release_info.outputs.latest_tag }}
+          TAG_AGE: ${{ steps.release_info.outputs.tag_age }}
+          DOCKER_RELEVANT: ${{ steps.changed_files.outputs.docker_relevant }}
         run: |
-          EVENT="${{ github.event_name }}"
-          LATEST_TAG="${{ steps.release_info.outputs.latest_tag }}"
-          TAG_AGE="${{ steps.release_info.outputs.tag_age }}"
-          DOCKER_RELEVANT="${{ steps.changed_files.outputs.docker_relevant }}"
-          
           echo "Event: $EVENT"
           echo "Latest tag: $LATEST_TAG"
           echo "Tag age: $TAG_AGE seconds"
           echo "Docker relevant: $DOCKER_RELEVANT"
-          
-          if [[ "$EVENT" == "push" && "${{ github.ref }}" == refs/tags/v* ]]; then
+
+          if [[ "$EVENT" == "push" && "$GITHUB_REF_FULL" == refs/tags/v* ]]; then
             # Direct tag push - always build
-            echo "should_build=true" >> $GITHUB_OUTPUT
-            echo "build_ref=${{ github.ref }}" >> $GITHUB_OUTPUT
-            echo "is_release=true" >> $GITHUB_OUTPUT
+            echo "should_build=true" >> "$GITHUB_OUTPUT"
+            echo "build_ref=$GITHUB_REF_FULL" >> "$GITHUB_OUTPUT"
+            echo "is_release=true" >> "$GITHUB_OUTPUT"
             echo "Decision: Build from tag push"
-            
+
           elif [[ "$EVENT" == "workflow_dispatch" ]]; then
             # Manual trigger - always build from main
-            echo "should_build=true" >> $GITHUB_OUTPUT
-            echo "build_ref=refs/heads/main" >> $GITHUB_OUTPUT
-            echo "is_release=false" >> $GITHUB_OUTPUT
+            echo "should_build=true" >> "$GITHUB_OUTPUT"
+            echo "build_ref=refs/heads/main" >> "$GITHUB_OUTPUT"
+            echo "is_release=false" >> "$GITHUB_OUTPUT"
             echo "Decision: Build from manual trigger"
-            
+
           elif [[ "$EVENT" == "pull_request" ]]; then
             # PR - always build for testing
-            echo "should_build=true" >> $GITHUB_OUTPUT
-            echo "build_ref=${{ github.ref }}" >> $GITHUB_OUTPUT
-            echo "is_release=false" >> $GITHUB_OUTPUT
+            echo "should_build=true" >> "$GITHUB_OUTPUT"
+            echo "build_ref=$GITHUB_REF_FULL" >> "$GITHUB_OUTPUT"
+            echo "is_release=false" >> "$GITHUB_OUTPUT"
             echo "Decision: Build for PR"
-            
+
           elif [[ "$EVENT" == "workflow_run" ]]; then
             # After release workflow completed
-            
             # Check if a new release was just created (tag < 5 minutes old)
             if [[ -n "$LATEST_TAG" && "$TAG_AGE" -lt 300 ]]; then
-              echo "should_build=true" >> $GITHUB_OUTPUT
-              echo "build_ref=refs/tags/$LATEST_TAG" >> $GITHUB_OUTPUT
-              echo "is_release=true" >> $GITHUB_OUTPUT
+              echo "should_build=true" >> "$GITHUB_OUTPUT"
+              echo "build_ref=refs/tags/$LATEST_TAG" >> "$GITHUB_OUTPUT"
+              echo "is_release=true" >> "$GITHUB_OUTPUT"
               echo "Decision: Build from new release tag $LATEST_TAG"
-              
+
             elif [[ "$DOCKER_RELEVANT" == "true" ]]; then
               # No new release, but Docker-relevant files changed
-              echo "should_build=true" >> $GITHUB_OUTPUT
-              echo "build_ref=refs/heads/main" >> $GITHUB_OUTPUT
-              echo "is_release=false" >> $GITHUB_OUTPUT
+              echo "should_build=true" >> "$GITHUB_OUTPUT"
+              echo "build_ref=refs/heads/main" >> "$GITHUB_OUTPUT"
+              echo "is_release=false" >> "$GITHUB_OUTPUT"
               echo "Decision: Build from main (Docker files changed, no release)"
-              
+
             else
               # No release, no Docker changes
-              echo "should_build=false" >> $GITHUB_OUTPUT
-              echo "build_ref=" >> $GITHUB_OUTPUT
-              echo "is_release=false" >> $GITHUB_OUTPUT
+              echo "should_build=false" >> "$GITHUB_OUTPUT"
+              echo "build_ref=" >> "$GITHUB_OUTPUT"
+              echo "is_release=false" >> "$GITHUB_OUTPUT"
               echo "Decision: Skip (no release, no Docker-relevant changes)"
             fi
           else
-            echo "should_build=false" >> $GITHUB_OUTPUT
-            echo "build_ref=" >> $GITHUB_OUTPUT
-            echo "is_release=false" >> $GITHUB_OUTPUT
+            echo "should_build=false" >> "$GITHUB_OUTPUT"
+            echo "build_ref=" >> "$GITHUB_OUTPUT"
+            echo "is_release=false" >> "$GITHUB_OUTPUT"
             echo "Decision: Skip (unknown event)"
           fi
 
       - name: Log decision
+        env:
+          EVENT: ${{ github.event_name }}
+          SHOULD_BUILD: ${{ steps.decide.outputs.should_build }}
+          BUILD_REF: ${{ steps.decide.outputs.build_ref }}
+          IS_RELEASE: ${{ steps.decide.outputs.is_release }}
         run: |
-          echo "## 🔍 Docker Build Decision" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "| Property | Value |" >> $GITHUB_STEP_SUMMARY
-          echo "|----------|-------|" >> $GITHUB_STEP_SUMMARY
-          echo "| Event | ${{ github.event_name }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Should Build | ${{ steps.decide.outputs.should_build }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Build Ref | ${{ steps.decide.outputs.build_ref }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Is Release | ${{ steps.decide.outputs.is_release }} |" >> $GITHUB_STEP_SUMMARY
+          {
+            echo "## 🔍 Docker Build Decision"
+            echo ""
+            echo "| Property | Value |"
+            echo "|----------|-------|"
+            echo "| Event | ${EVENT} |"
+            echo "| Should Build | ${SHOULD_BUILD} |"
+            echo "| Build Ref | ${BUILD_REF} |"
+            echo "| Is Release | ${IS_RELEASE} |"
+          } >> "$GITHUB_STEP_SUMMARY"
 
   build-and-push:
     needs: check
@@ -177,12 +190,21 @@ jobs:
       packages: write
       attestations: write
       id-token: write
+    outputs:
+      image_repo: ${{ steps.image-repo.outputs.value }}
+      backend_digest: ${{ steps.build-backend.outputs.digest }}
+      frontend_digest: ${{ steps.build-frontend.outputs.digest }}
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
         with:
           ref: ${{ needs.check.outputs.build_ref }}
+          persist-credentials: false
+
+      - name: Normalize image repository name
+        id: image-repo
+        run: echo "value=${GITHUB_REPOSITORY,,}" >> "$GITHUB_OUTPUT"
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
@@ -202,25 +224,23 @@ jobs:
         id: meta-backend
         uses: docker/metadata-action@v6
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-backend
+          images: ${{ env.REGISTRY }}/${{ steps.image-repo.outputs.value }}-backend
           tags: |
             type=ref,event=pr
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
             type=sha,prefix=
-            type=raw,value=latest,enable=${{ github.event_name != 'pull_request' }}
-            type=raw,value=main,enable=${{ needs.check.outputs.is_release != 'true' && github.event_name != 'pull_request' }}
 
       - name: Build and push Backend
+        id: build-backend
         uses: docker/build-push-action@v7
         with:
           context: .
           file: ./server/Dockerfile
           push: ${{ github.event_name != 'pull_request' }}
+          load: ${{ github.event_name == 'pull_request' }}
           tags: ${{ steps.meta-backend.outputs.tags }}
           labels: ${{ steps.meta-backend.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=backend
+          cache-to: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && 'type=gha,mode=max,scope=backend' || '' }}
           build-args: |
             BUILD_VERSION=${{ needs.check.outputs.build_ref }}
             BUILD_DATE=${{ github.event.head_commit.timestamp || github.event.repository.updated_at }}
@@ -233,50 +253,195 @@ jobs:
         id: meta-frontend
         uses: docker/metadata-action@v6
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-frontend
+          images: ${{ env.REGISTRY }}/${{ steps.image-repo.outputs.value }}-frontend
           tags: |
             type=ref,event=pr
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
             type=sha,prefix=
-            type=raw,value=latest,enable=${{ github.event_name != 'pull_request' }}
-            type=raw,value=main,enable=${{ needs.check.outputs.is_release != 'true' && github.event_name != 'pull_request' }}
 
       - name: Build and push Frontend
+        id: build-frontend
         uses: docker/build-push-action@v7
         with:
           context: .
           file: ./client/Dockerfile
           push: ${{ github.event_name != 'pull_request' }}
+          load: ${{ github.event_name == 'pull_request' }}
           tags: ${{ steps.meta-frontend.outputs.tags }}
           labels: ${{ steps.meta-frontend.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=frontend
+          cache-to: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && 'type=gha,mode=max,scope=frontend' || '' }}
           build-args: |
             VITE_API_URL=${{ github.event.inputs.vite_api_url || secrets.VITE_API_URL || env.DEFAULT_API_URL }}
             VITE_BASE_URL=${{ github.event.inputs.vite_base_url || secrets.VITE_BASE_URL || env.DEFAULT_BASE_URL }}
             VITE_GOOGLE_CLIENT_ID=${{ secrets.VITE_GOOGLE_CLIENT_ID || '' }}
 
       # =========================================================================
+      # PR Smoke Test (local loaded images)
+      # =========================================================================
+      - name: Set up Node.js for PR smoke test
+        if: github.event_name == 'pull_request'
+        uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+
+      - name: Run container smoke tests (PR)
+        if: github.event_name == 'pull_request'
+        env:
+          BACKEND_TAGS: ${{ steps.meta-backend.outputs.tags }}
+          FRONTEND_TAGS: ${{ steps.meta-frontend.outputs.tags }}
+        run: |
+          BACKEND_IMAGE_REF=$(printf '%s\n' "$BACKEND_TAGS" | head -n 1)
+          FRONTEND_IMAGE_REF=$(printf '%s\n' "$FRONTEND_TAGS" | head -n 1)
+          export BACKEND_IMAGE_REF FRONTEND_IMAGE_REF
+          node .github/scripts/smoke-test-containers.mjs
+
+      # =========================================================================
       # Summary
       # =========================================================================
       - name: Generate Summary
         if: github.event_name != 'pull_request'
+        env:
+          IS_RELEASE: ${{ needs.check.outputs.is_release }}
+          BUILD_REF: ${{ needs.check.outputs.build_ref }}
+          BACKEND_TAGS: ${{ steps.meta-backend.outputs.tags }}
+          FRONTEND_TAGS: ${{ steps.meta-frontend.outputs.tags }}
+          BACKEND_DIGEST: ${{ steps.build-backend.outputs.digest }}
+          FRONTEND_DIGEST: ${{ steps.build-frontend.outputs.digest }}
         run: |
-          echo "## 🐳 Docker Images Published" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          if [[ "${{ needs.check.outputs.is_release }}" == "true" ]]; then
-            echo "📦 **Release Build**: ${{ needs.check.outputs.build_ref }}" >> $GITHUB_STEP_SUMMARY
+          {
+            echo "## 🐳 Docker Images Built (Pending Smoke Test Promotion)"
+            echo ""
+            if [[ "$IS_RELEASE" == "true" ]]; then
+              echo "📦 **Release Build**: ${BUILD_REF}"
+            else
+              echo "🔧 **Development Build**: main branch"
+            fi
+            echo ""
+            echo "### Backend"
+            echo "- Digest: \`${BACKEND_DIGEST}\`"
+            echo "\`\`\`"
+            echo "${BACKEND_TAGS}"
+            echo "\`\`\`"
+            echo ""
+            echo "### Frontend"
+            echo "- Digest: \`${FRONTEND_DIGEST}\`"
+            echo "\`\`\`"
+            echo "${FRONTEND_TAGS}"
+            echo "\`\`\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  smoke-test:
+    needs: [check, build-and-push]
+    if: github.event_name != 'pull_request' && needs.check.outputs.should_build == 'true' && needs.build-and-push.result == 'success'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ needs.check.outputs.build_ref }}
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+
+      - name: Log in to Container Registry
+        uses: docker/login-action@v4
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Run container smoke tests against pushed digests
+        env:
+          BACKEND_IMAGE_REF: ${{ env.REGISTRY }}/${{ needs.build-and-push.outputs.image_repo }}-backend@${{ needs.build-and-push.outputs.backend_digest }}
+          FRONTEND_IMAGE_REF: ${{ env.REGISTRY }}/${{ needs.build-and-push.outputs.image_repo }}-frontend@${{ needs.build-and-push.outputs.frontend_digest }}
+          SMOKE_PULL_IMAGES: "true"
+        run: node .github/scripts/smoke-test-containers.mjs
+
+  promote-latest:
+    needs: [check, build-and-push, smoke-test]
+    if: github.event_name != 'pull_request' && needs.check.outputs.should_build == 'true' && needs.smoke-test.result == 'success'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Log in to Container Registry
+        uses: docker/login-action@v4
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Promote verified container digests
+        id: promote
+        env:
+          REGISTRY: ${{ env.REGISTRY }}
+          IMAGE_REPO: ${{ needs.build-and-push.outputs.image_repo }}
+          BACKEND_DIGEST: ${{ needs.build-and-push.outputs.backend_digest }}
+          FRONTEND_DIGEST: ${{ needs.build-and-push.outputs.frontend_digest }}
+          IS_RELEASE: ${{ needs.check.outputs.is_release }}
+          BUILD_REF: ${{ needs.check.outputs.build_ref }}
+        run: |
+          BACKEND_BASE="${REGISTRY}/${IMAGE_REPO}-backend"
+          FRONTEND_BASE="${REGISTRY}/${IMAGE_REPO}-frontend"
+
+          TAGS=("latest")
+          if [[ "$IS_RELEASE" == "true" ]]; then
+            TAGS+=("stable")
+            RAW_TAG="${BUILD_REF#refs/tags/}"
+            VERSION="${RAW_TAG#v}"
+            if [[ "$VERSION" =~ ^([0-9]+)\.([0-9]+)\.([0-9]+)(-([0-9A-Za-z.-]+))?$ ]]; then
+              TAGS+=("$VERSION")
+              if [[ -z "${BASH_REMATCH[4]}" ]]; then
+                TAGS+=("${BASH_REMATCH[1]}.${BASH_REMATCH[2]}")
+              fi
+            else
+              echo "::warning::Release build_ref '${BUILD_REF}' did not match semver; promoting :latest and :stable only"
+            fi
           else
-            echo "🔧 **Development Build**: main branch" >> $GITHUB_STEP_SUMMARY
+            TAGS+=("main")
           fi
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### Backend Tags" >> $GITHUB_STEP_SUMMARY
-          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-          echo "${{ steps.meta-backend.outputs.tags }}" >> $GITHUB_STEP_SUMMARY
-          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### Frontend Tags" >> $GITHUB_STEP_SUMMARY
-          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-          echo "${{ steps.meta-frontend.outputs.tags }}" >> $GITHUB_STEP_SUMMARY
-          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+
+          BACKEND_ARGS=()
+          FRONTEND_ARGS=()
+          for tag in "${TAGS[@]}"; do
+            BACKEND_ARGS+=(--tag "${BACKEND_BASE}:${tag}")
+            FRONTEND_ARGS+=(--tag "${FRONTEND_BASE}:${tag}")
+          done
+
+          docker buildx imagetools create "${BACKEND_ARGS[@]}" "${BACKEND_BASE}@${BACKEND_DIGEST}"
+          docker buildx imagetools create "${FRONTEND_ARGS[@]}" "${FRONTEND_BASE}@${FRONTEND_DIGEST}"
+
+          echo "promoted_tags=${TAGS[*]}" >> "$GITHUB_OUTPUT"
+
+      - name: Generate Summary
+        env:
+          IS_RELEASE: ${{ needs.check.outputs.is_release }}
+          BUILD_REF: ${{ needs.check.outputs.build_ref }}
+          IMAGE_REPO: ${{ needs.build-and-push.outputs.image_repo }}
+          BACKEND_DIGEST: ${{ needs.build-and-push.outputs.backend_digest }}
+          FRONTEND_DIGEST: ${{ needs.build-and-push.outputs.frontend_digest }}
+          PROMOTED_TAGS: ${{ steps.promote.outputs.promoted_tags }}
+        run: |
+          {
+            echo "## 🚀 Docker Images Verified & Promoted"
+            echo ""
+            if [[ "$IS_RELEASE" == "true" ]]; then
+              echo "📦 **Release Build**: ${BUILD_REF}"
+            else
+              echo "🔧 **Development Build**: main branch"
+            fi
+            echo ""
+            echo "- **Backend Digest**: \`${IMAGE_REPO}-backend@${BACKEND_DIGEST}\`"
+            echo "- **Frontend Digest**: \`${IMAGE_REPO}-frontend@${FRONTEND_DIGEST}\`"
+            echo "- **Promoted Tags**: \`${PROMOTED_TAGS}\`"
+          } >> "$GITHUB_STEP_SUMMARY"

@@ -31,22 +31,7 @@ export default tseslint.config(
   {
     // Configuration for non-TypeScript files (JS, MJS)
     files: ["**/*.{js,mjs}"],
-    languageOptions: {
-      parserOptions: {
-        project: null, // Disable type checking for JS files
-      },
-    },
-    rules: {
-      // Disable type-checking rules for JS files
-      "@typescript-eslint/await-thenable": "off",
-      "@typescript-eslint/no-floating-promises": "off",
-      "@typescript-eslint/no-misused-promises": "off",
-      "@typescript-eslint/no-unsafe-assignment": "off",
-      "@typescript-eslint/no-unsafe-call": "off",
-      "@typescript-eslint/no-unsafe-member-access": "off",
-      "@typescript-eslint/no-unsafe-argument": "off",
-      "@typescript-eslint/no-unsafe-return": "off",
-    },
+    ...tseslint.configs.disableTypeChecked,
   },
   {
     // Configuration for test files - allow unsafe calls for mocks
