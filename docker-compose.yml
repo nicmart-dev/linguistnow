@@ -36,7 +36,7 @@ services:
   # Backend API Server (Node.js Express)
   # ---------------------------------------------------------------------------
   backend:
-    image: ${BACKEND_IMAGE:-ghcr.io/nicmart-dev/linguistnow-backend:latest}
+    image: ${BACKEND_IMAGE:-ghcr.io/nicmart-dev/linguistnow-backend:stable}
     build:
       context: .
       dockerfile: server/Dockerfile
@@ -108,7 +108,7 @@ services:
   # Frontend Application (React + Nginx)
   # ---------------------------------------------------------------------------
   frontend:
-    image: ${FRONTEND_IMAGE:-ghcr.io/nicmart-dev/linguistnow-frontend:latest}
+    image: ${FRONTEND_IMAGE:-ghcr.io/nicmart-dev/linguistnow-frontend:stable}
     build:
       context: .
       dockerfile: client/Dockerfile
