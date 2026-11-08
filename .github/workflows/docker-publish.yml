@@ -86,7 +86,7 @@ jobs:
           DOCKER_RELEVANT=false
           while IFS= read -r file; do
             case "$file" in
-              server/*|client/*|shared/*|package.json|pnpm-lock.yaml|*Dockerfile*|docker-compose*|.github/workflows/docker-publish.yml|.github/scripts/smoke-test-containers.mjs)
+              server/*|client/*|shared/*|e2e/*|package.json|pnpm-lock.yaml|pnpm-workspace.yaml|*Dockerfile*|docker-compose*|.github/workflows/docker-publish.yml|.github/scripts/smoke-test-containers.mjs)
                 # Skip unit test files
                 if [[ ! "$file" =~ \.(test|spec)\.(ts|tsx)$ ]]; then
                   DOCKER_RELEVANT=true
@@ -273,27 +273,53 @@ jobs:
           build-args: |
             VITE_API_URL=${{ github.event.inputs.vite_api_url || secrets.VITE_API_URL || env.DEFAULT_API_URL }}
             VITE_BASE_URL=${{ github.event.inputs.vite_base_url || secrets.VITE_BASE_URL || env.DEFAULT_BASE_URL }}
-            VITE_GOOGLE_CLIENT_ID=${{ secrets.VITE_GOOGLE_CLIENT_ID || '' }}
+            VITE_GOOGLE_CLIENT_ID=${{ secrets.VITE_GOOGLE_CLIENT_ID || (github.event_name == 'pull_request' && 'e2e-smoke-google-client-id' || '') }}
 
       # =========================================================================
       # PR Smoke Test (local loaded images)
       # =========================================================================
+      - name: Set up pnpm for PR smoke test
+        if: github.event_name == 'pull_request'
+        uses: pnpm/action-setup@v6
+        with:
+          version: 9.15.2
+
       - name: Set up Node.js for PR smoke test
         if: github.event_name == 'pull_request'
         uses: actions/setup-node@v7
         with:
           node-version: "22"
+          cache: pnpm
+
+      - name: Install dependencies & build shared package (PR smoke test)
+        if: github.event_name == 'pull_request'
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm --filter ./shared build
+
+      - name: Install Playwright Chromium & system deps (PR smoke test)
+        if: github.event_name == 'pull_request'
+        run: pnpm --filter @linguistnow/e2e exec playwright install --with-deps chromium
 
       - name: Run container smoke tests (PR)
         if: github.event_name == 'pull_request'
         env:
           BACKEND_TAGS: ${{ steps.meta-backend.outputs.tags }}
           FRONTEND_TAGS: ${{ steps.meta-frontend.outputs.tags }}
+          RUN_PLAYWRIGHT_SMOKE: "true"
         run: |
           BACKEND_IMAGE_REF=$(printf '%s\n' "$BACKEND_TAGS" | head -n 1)
           FRONTEND_IMAGE_REF=$(printf '%s\n' "$FRONTEND_TAGS" | head -n 1)
           export BACKEND_IMAGE_REF FRONTEND_IMAGE_REF
           node .github/scripts/smoke-test-containers.mjs
+
+      - name: Upload Playwright Smoke Report (PR)
+        if: failure() && github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v6
+        with:
+          name: playwright-smoke-report-pr
+          path: e2e/playwright-smoke-report
+          retention-days: 7
 
       # =========================================================================
       # Summary
@@ -344,10 +370,24 @@ jobs:
           ref: ${{ needs.check.outputs.build_ref }}
           persist-credentials: false
 
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 9.15.2
+
       - name: Set up Node.js
         uses: actions/setup-node@v7
         with:
           node-version: "22"
+          cache: pnpm
+
+      - name: Install dependencies & build shared package
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm --filter ./shared build
+
+      - name: Install Playwright Chromium & system deps
+        run: pnpm --filter @linguistnow/e2e exec playwright install --with-deps chromium
 
       - name: Log in to Container Registry
         uses: docker/login-action@v4
@@ -361,7 +401,16 @@ jobs:
           BACKEND_IMAGE_REF: ${{ env.REGISTRY }}/${{ needs.build-and-push.outputs.image_repo }}-backend@${{ needs.build-and-push.outputs.backend_digest }}
           FRONTEND_IMAGE_REF: ${{ env.REGISTRY }}/${{ needs.build-and-push.outputs.image_repo }}-frontend@${{ needs.build-and-push.outputs.frontend_digest }}
           SMOKE_PULL_IMAGES: "true"
+          RUN_PLAYWRIGHT_SMOKE: "true"
         run: node .github/scripts/smoke-test-containers.mjs
+
+      - name: Upload Playwright Smoke Report (Release/Post-merge)
+        if: failure()
+        uses: actions/upload-artifact@v6
+        with:
+          name: playwright-smoke-report-release
+          path: e2e/playwright-smoke-report
+          retention-days: 7
 
   promote-latest:
     needs: [check, build-and-push, smoke-test]

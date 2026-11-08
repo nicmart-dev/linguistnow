@@ -99,6 +99,36 @@ jobs:
       - run: pnpm install --frozen-lockfile --ignore-scripts
       - run: pnpm check:peers
 
+  e2e:
+    name: e2e
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 9.15.2
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Install Playwright Chromium & system deps
+        run: pnpm --filter @linguistnow/e2e exec playwright install --with-deps chromium
+      - name: Run Playwright E2E suite
+        run: pnpm --filter @linguistnow/e2e exec playwright test --project=chromium
+      - name: Check for flaky tests
+        if: always()
+        run: node .github/scripts/check-e2e-flakes.mjs
+      - name: Upload Playwright Report
+        if: failure()
+        uses: actions/upload-artifact@v6
+        with:
+          name: playwright-report
+          path: e2e/playwright-report
+          retention-days: 7
+
   dependency-review:
     name: dependency-review
     if: github.event_name == 'pull_request'
@@ -120,7 +150,7 @@ jobs:
   # Replaced when Phase 4 migrates main branch protection to a Repository Ruleset.
   lint-and-test:
     name: lint-and-test
-    needs: [lint, typecheck, build, unit, peer-deps, dependency-review]
+    needs: [lint, typecheck, build, unit, peer-deps, e2e, dependency-review]
     if: always()
     runs-on: ubuntu-24.04
     steps:
