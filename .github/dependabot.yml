@@ -1,68 +1,38 @@
-# Dependabot configuration
-# Security alerts remain active for all ecosystems.
-# Dependency version updates:
-# - npm: Handled consolidated via .github/workflows/dependency-updates.yml (open-pull-requests-limit: 0)
-# - github-actions & docker: Handled by Dependabot with semver-major protection
+# Dependabot configuration - Security Monitoring Only
+#
+# Version updates across npm, GitHub Actions, and Docker are managed by Renovate
+# (see renovate.json) with automated gating, cooldowns, and automerge.
+#
+# Dependabot is configured here for security monitoring only (open-pull-requests-limit: 0
+# prevents routine version PRs while retaining automated security alerts and security PRs).
 # https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
 
 version: 2
 updates:
-  # Monorepo npm dependencies - security monitoring only (no automatic PRs)
-  # Automatic version updates are handled by .github/workflows/dependency-updates.yml using native pnpm
+  # Monorepo npm dependencies - security monitoring only
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 0
 
-  # GitHub Actions workflows
+  # GitHub Actions workflows - security monitoring only
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
-      day: "monday"
-      time: "09:00"
-      timezone: "Etc/UTC"
-    open-pull-requests-limit: 5
-    commit-message:
-      prefix: "build"
-      include: "scope"
-    groups:
-      actions:
-        patterns:
-          - "*"
-    ignore:
-      - dependency-name: "*"
-        update-types: ["version-update:semver-major"]
+    open-pull-requests-limit: 0
 
-  # Docker images for client
+  # Docker images for client - security monitoring only
   - package-ecosystem: "docker"
     directory: "/client"
     schedule:
       interval: "weekly"
-      day: "monday"
-      time: "09:00"
-      timezone: "Etc/UTC"
-    open-pull-requests-limit: 5
-    commit-message:
-      prefix: "build"
-      include: "scope"
-    ignore:
-      - dependency-name: "*"
-        update-types: ["version-update:semver-major"]
+    open-pull-requests-limit: 0
 
-  # Docker images for server
+  # Docker images for server - security monitoring only
   - package-ecosystem: "docker"
     directory: "/server"
     schedule:
       interval: "weekly"
-      day: "monday"
-      time: "09:00"
-      timezone: "Etc/UTC"
-    open-pull-requests-limit: 5
-    commit-message:
-      prefix: "build"
-      include: "scope"
-    ignore:
-      - dependency-name: "*"
-        update-types: ["version-update:semver-major"]
+    open-pull-requests-limit: 0
