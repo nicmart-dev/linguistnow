@@ -71,6 +71,12 @@
       "qs": ">=6.14.1",
       "serialize-javascript": ">=7.0.5",
       "typescript": "^5.9.3"
-    }
+    },
+    "onlyBuiltDependencies": [
+      "@playwright/test",
+      "@swc/core",
+      "esbuild",
+      "oxlint"
+    ]
   }
 }

@@ -1,0 +1,94 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "description": "Autonomous dependency update policy with strict gate verification and automerge",
+  "extends": ["config:recommended"],
+  "dependencyDashboard": true,
+  "dependencyDashboardTitle": "Dependency Dashboard",
+  "platformAutomerge": true,
+  "automerge": true,
+  "automergeType": "pr",
+  "rebaseWhen": "behind-base-branch",
+  "prConcurrentLimit": 5,
+  "prHourlyLimit": 0,
+  "minimumReleaseAge": "3 days",
+  "semanticCommits": "enabled",
+  "semanticCommitType": "build",
+  "semanticCommitScope": "deps",
+  "commitMessageAction": "update",
+  "commitMessageTopic": "{{depName}}",
+  "commitMessageExtra": "to {{newVersion}}",
+  "lockFileMaintenance": {
+    "enabled": true,
+    "automerge": true,
+    "schedule": ["before 6am on monday"]
+  },
+  "packageRules": [
+    {
+      "description": "Conventional commit scope for development dependencies",
+      "matchDepTypes": ["devDependencies"],
+      "semanticCommitScope": "deps-dev"
+    },
+    {
+      "description": "Group all non-major npm updates into a single weekly automerge PR",
+      "matchManagers": ["npm"],
+      "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
+      "groupName": "all non-major dependencies",
+      "groupSlug": "all-non-major",
+      "schedule": ["before 6am on monday"]
+    },
+    {
+      "description": "Require 7-day cooldown on major dependency updates to avoid zero-day supply chain regressions",
+      "matchUpdateTypes": ["major"],
+      "minimumReleaseAge": "7 days"
+    },
+    {
+      "description": "Monorepo group: TanStack libraries",
+      "matchPackagePatterns": ["^@tanstack/"],
+      "groupName": "tanstack monorepo"
+    },
+    {
+      "description": "Monorepo group: Radix UI primitives",
+      "matchPackagePatterns": ["^@radix-ui/"],
+      "groupName": "radix-ui monorepo"
+    },
+    {
+      "description": "Monorepo group: Vitest testing framework",
+      "matchPackagePatterns": ["^vitest$", "^@vitest/"],
+      "groupName": "vitest monorepo"
+    },
+    {
+      "description": "Monorepo group: ESLint & TypeScript tooling",
+      "matchPackagePatterns": ["^eslint$", "^@eslint/", "^typescript-eslint$"],
+      "groupName": "eslint monorepo"
+    },
+    {
+      "description": "Monorepo group: Playwright test suite",
+      "matchPackagePatterns": ["^@playwright/"],
+      "groupName": "playwright monorepo"
+    },
+    {
+      "description": "GitHub Actions: pinned to full SHAs and grouped with automerge",
+      "matchManagers": ["github-actions"],
+      "groupName": "github actions",
+      "pinDigests": true,
+      "schedule": ["before 6am on monday"]
+    },
+    {
+      "description": "Docker base images: pinned to digest and grouped with automerge",
+      "matchManagers": ["dockerfile", "docker-compose"],
+      "groupName": "docker base images",
+      "pinDigests": true,
+      "schedule": ["before 6am on monday"]
+    },
+    {
+      "description": "Vulnerability alert fixes bypass release age cooldown and automerge immediately once CI passes",
+      "matchPackagePatterns": ["*"],
+      "matchCurrentVersion": "!null",
+      "vulnerabilityAlerts": {
+        "enabled": true,
+        "minimumReleaseAge": "0 days",
+        "automerge": true
+      }
+    }
+  ]
+}
