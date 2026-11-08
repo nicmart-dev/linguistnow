@@ -1,0 +1,16 @@
+# Critical gate and configuration files requiring review by the repository owner
+#
+# Note: As documented in the agentic automation plan, .github/ workflows are intentionally
+# not covered by required CODEOWNERS approvals to allow automated dependency updates
+# without human deadlocks, protected instead by the 'main-governance' ruleset, scoped App
+# token permissions (no 'workflows' capability), and non-blocking audit notifications.
+
+/e2e/playwright.config.ts        @nicmart-dev
+/e2e/playwright.smoke.config.ts  @nicmart-dev
+**/vitest.config.ts              @nicmart-dev
+/eslint.config.mjs               @nicmart-dev
+/.oxlintrc.json                  @nicmart-dev
+/commitlint.config.js            @nicmart-dev
+/pnpm-workspace.yaml             @nicmart-dev
+/.npmrc                          @nicmart-dev
+/renovate.json                   @nicmart-dev
