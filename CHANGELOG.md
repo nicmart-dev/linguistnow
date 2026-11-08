@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.9.4](https://github.com/nicmart-dev/linguistnow/compare/v1.9.3...v1.9.4) (2026-11-08)
+
+### 🐛 Bug Fixes
+
+- **docker:** optimize frankfurter startup and backfill ([#178](https://github.com/nicmart-dev/linguistnow/issues/178)) ([#201](https://github.com/nicmart-dev/linguistnow/issues/201)) ([87edcd1](https://github.com/nicmart-dev/linguistnow/commit/87edcd1a9bd64208140d7bc4fd39643cbf615e19))
+
+### 👷 Continuous Integration
+
+- **ci:** add test integrity checks, CODEOWNERS, and AGENTS guide ([#200](https://github.com/nicmart-dev/linguistnow/issues/200)) ([38467bb](https://github.com/nicmart-dev/linguistnow/commit/38467bbbd812fe742451f0a8559d34d064a77a83))
+- **ci:** enforce typecheck, build, coverage, and PR checks ([70ce928](https://github.com/nicmart-dev/linguistnow/commit/70ce928f47159757a9eb13d2eafafeab052e36e9))
+- **docker:** gate latest image promotion on smoke tests ([#197](https://github.com/nicmart-dev/linguistnow/issues/197)) ([b5c390c](https://github.com/nicmart-dev/linguistnow/commit/b5c390c1ac10e20b2c975b4db039d29ad5b158e3))
+
+### ✅ Tests
+
+- **tests:** add Playwright Tier A E2E and Tier B smoke suite ([#198](https://github.com/nicmart-dev/linguistnow/issues/198)) ([74e614e](https://github.com/nicmart-dev/linguistnow/commit/74e614eb9187fcc27febf6d5a1c9c0ad7a31e9f7))
+
 ## [1.9.3](https://github.com/nicmart-dev/linguistnow/compare/v1.9.2...v1.9.3) (2026-11-08)
 
 ### 🐛 Bug Fixes
