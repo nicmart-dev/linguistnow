@@ -366,7 +366,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v7
         with:
-          ref: ${{ needs.check.outputs.build_ref }}
           persist-credentials: false
 
       - name: Set up pnpm
