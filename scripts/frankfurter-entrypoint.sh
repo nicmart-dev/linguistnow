@@ -44,22 +44,22 @@ bundle exec ruby -e '
   if File.exist?(config_ru)
     content = File.read(config_ru)
     unless content.include?("LegacyRewrite")
-      middleware = %Q{
+      middleware = %q{
 class LegacyRewrite
   def initialize(app)
     @app = app
   end
   def call(env)
     path = env["PATH_INFO"]
-    if path == "/latest" || path =~ %r{\\A/\\d{4}-\\d{2}-\\d{2}} || path == "/currencies"
-      env["PATH_INFO"] = "/v1\#{path}"
+    if path == "/latest" || path =~ %r{\A/\d{4}-\d{2}-\d{2}} || path == "/currencies"
+      env["PATH_INFO"] = "/v1" + path
     end
     @app.call(env)
   end
 end
 use LegacyRewrite
-      }
-      new_content = content.sub("run App.freeze.app", "\#{middleware}\nrun App.freeze.app")
+}
+      new_content = content.sub("run App.freeze.app", middleware + "\nrun App.freeze.app")
       File.write(config_ru, new_content)
     end
   end
@@ -69,18 +69,18 @@ use LegacyRewrite
   if File.exist?(schedule_file)
     content = File.read(schedule_file)
     unless content.include?("rates_prune")
-      prune_job = %Q{
+      prune_job = %q{
 unless dry_run
   scheduler.cron("0 1 * * *") do # rates_prune
     cutoff = (Date.today - Integer(ENV.fetch("RETENTION_DAYS", 90))).to_s
     if DB.table_exists?(:rates)
       deleted = DB[:rates].where { date < cutoff }.delete
-      Log.info("Pruned \#{deleted} rates older than \#{cutoff}") if deleted.positive?
+      Log.info("Pruned #{deleted} rates older than #{cutoff}") if deleted.positive?
     end
   end
 end
-      }
-      new_content = content.sub("scheduler.join unless dry_run", "\#{prune_job}\nscheduler.join unless dry_run")
+}
+      new_content = content.sub("scheduler.join unless dry_run", prune_job + "\nscheduler.join unless dry_run")
       File.write(schedule_file, new_content)
     end
   end
