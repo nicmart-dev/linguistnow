@@ -73,25 +73,74 @@ jobs:
 
       - name: Check changed files
         id: changed_files
-        if: github.event_name == 'workflow_run'
+        if: github.event_name == 'workflow_run' || github.event_name == 'pull_request'
         env:
+          EVENT: ${{ github.event_name }}
           COMMIT_SHA: ${{ github.event.workflow_run.head_sha }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          BASE_REF: ${{ github.base_ref }}
         run: |
-          # Get changed files in the commit
-          CHANGED_FILES=$(git diff-tree --no-commit-id --name-only -r "$COMMIT_SHA" 2>/dev/null || echo "")
+          if [[ "$EVENT" == "pull_request" ]]; then
+            BASE_TARGET=""
+            if [[ -n "$BASE_SHA" ]] && git rev-parse --verify "$BASE_SHA" >/dev/null 2>&1; then
+              BASE_TARGET="$BASE_SHA"
+            elif git rev-parse --verify "origin/${BASE_REF:-main}" >/dev/null 2>&1; then
+              BASE_TARGET="origin/${BASE_REF:-main}"
+            elif git rev-parse --verify origin/main >/dev/null 2>&1; then
+              BASE_TARGET="origin/main"
+            fi
+
+            if [[ -n "$BASE_TARGET" ]]; then
+              echo "Diffing against base: $BASE_TARGET"
+              CHANGED_FILES=$(git diff --name-only "$BASE_TARGET...HEAD" 2>/dev/null || echo "")
+            else
+              echo "Warning: Base target not found, falling back to HEAD~1"
+              CHANGED_FILES=$(git diff --name-only HEAD~1...HEAD 2>/dev/null || echo "")
+            fi
+
+            if [[ -z "$CHANGED_FILES" && "$BASE_TARGET" != "origin/main" ]] && git rev-parse --verify origin/main >/dev/null 2>&1; then
+              echo "Falling back to origin/main diff"
+              CHANGED_FILES=$(git diff --name-only origin/main...HEAD 2>/dev/null || echo "")
+            fi
+          else
+            CHANGED_FILES=$(git diff-tree --no-commit-id --name-only -r "$COMMIT_SHA" 2>/dev/null || echo "")
+          fi
+
           echo "Changed files:"
           echo "$CHANGED_FILES"
 
           # Check if any Docker-relevant files changed
           DOCKER_RELEVANT=false
+          if [[ "$EVENT" == "pull_request" && -z "$CHANGED_FILES" ]]; then
+            echo "Warning: No changed files detected for PR; defaulting to Docker-relevant to prevent false negatives"
+            DOCKER_RELEVANT=true
+          fi
+
           while IFS= read -r file; do
+            file=$(echo "$file" | tr -d '\r' | xargs)
+            [[ -z "$file" ]] && continue
+
             case "$file" in
               server/*|client/*|shared/*|e2e/*|package.json|pnpm-lock.yaml|pnpm-workspace.yaml|*Dockerfile*|docker-compose*|.github/workflows/docker-publish.yml|.github/scripts/smoke-test-containers.mjs)
-                # Skip unit test files
-                if [[ ! "$file" =~ \.(test|spec)\.(ts|tsx)$ ]]; then
-                  DOCKER_RELEVANT=true
-                  echo "Docker-relevant: $file"
+                # Skip documentation files
+                if [[ "$file" =~ \.md$ || "$file" =~ (^|/)docs/ ]]; then
+                  echo "Skipping doc file: $file"
+                  continue
                 fi
+
+                # Skip unit test files and test configs/setup (smoke tests remain relevant)
+                if [[ "$file" =~ \.(test|spec)\.(ts|tsx)$ || "$file" =~ vitest\.config\.ts$ || "$file" =~ client/src/test/setup\.ts$ ]]; then
+                  if [[ "$file" =~ smoke ]]; then
+                    DOCKER_RELEVANT=true
+                    echo "Docker-relevant (smoke test): $file"
+                  else
+                    echo "Skipping unit test file: $file"
+                  fi
+                  continue
+                fi
+
+                DOCKER_RELEVANT=true
+                echo "Docker-relevant: $file"
                 ;;
             esac
           done <<< "$CHANGED_FILES"
@@ -127,11 +176,17 @@ jobs:
             echo "Decision: Build from manual trigger"
 
           elif [[ "$EVENT" == "pull_request" ]]; then
-            # PR - always build for testing
-            echo "should_build=true" >> "$GITHUB_OUTPUT"
-            echo "build_ref=$GITHUB_REF_FULL" >> "$GITHUB_OUTPUT"
-            echo "is_release=false" >> "$GITHUB_OUTPUT"
-            echo "Decision: Build for PR"
+            if [[ "$DOCKER_RELEVANT" == "true" ]]; then
+              echo "should_build=true" >> "$GITHUB_OUTPUT"
+              echo "build_ref=$GITHUB_REF_FULL" >> "$GITHUB_OUTPUT"
+              echo "is_release=false" >> "$GITHUB_OUTPUT"
+              echo "Decision: Build for PR (Docker-relevant files changed)"
+            else
+              echo "should_build=false" >> "$GITHUB_OUTPUT"
+              echo "build_ref=$GITHUB_REF_FULL" >> "$GITHUB_OUTPUT"
+              echo "is_release=false" >> "$GITHUB_OUTPUT"
+              echo "Decision: Fast-pass PR (no Docker-relevant changes)"
+            fi
 
           elif [[ "$EVENT" == "workflow_run" ]]; then
             # After release workflow completed
@@ -169,6 +224,7 @@ jobs:
           SHOULD_BUILD: ${{ steps.decide.outputs.should_build }}
           BUILD_REF: ${{ steps.decide.outputs.build_ref }}
           IS_RELEASE: ${{ steps.decide.outputs.is_release }}
+          DOCKER_RELEVANT: ${{ steps.changed_files.outputs.docker_relevant }}
         run: |
           {
             echo "## 🔍 Docker Build Decision"
@@ -176,6 +232,7 @@ jobs:
             echo "| Property | Value |"
             echo "|----------|-------|"
             echo "| Event | ${EVENT} |"
+            echo "| Docker Relevant | ${DOCKER_RELEVANT:-N/A} |"
             echo "| Should Build | ${SHOULD_BUILD} |"
             echo "| Build Ref | ${BUILD_REF} |"
             echo "| Is Release | ${IS_RELEASE} |"
@@ -183,7 +240,7 @@ jobs:
 
   build-and-push:
     needs: check
-    if: needs.check.outputs.should_build == 'true'
+    if: needs.check.outputs.should_build == 'true' || github.event_name == 'pull_request'
     runs-on: ubuntu-24.04
     permissions:
       contents: read
@@ -196,7 +253,18 @@ jobs:
       frontend_digest: ${{ steps.build-frontend.outputs.digest }}
 
     steps:
+      - name: Fast-pass non-Docker PR
+        if: needs.check.outputs.should_build != 'true'
+        run: |
+          echo "Skipping container build and smoke test: non-Docker PR"
+          {
+            echo "## ⚡ Docker Build Fast-Pass"
+            echo ""
+            echo "Skipping container build and smoke test: non-Docker PR (no Docker-relevant changes detected)."
+          } >> "$GITHUB_STEP_SUMMARY"
+
       - name: Checkout repository
+        if: needs.check.outputs.should_build == 'true'
         uses: actions/checkout@v7
         with:
           ref: ${{ needs.check.outputs.build_ref }}
@@ -204,13 +272,15 @@ jobs:
 
       - name: Normalize image repository name
         id: image-repo
+        if: needs.check.outputs.should_build == 'true'
         run: echo "value=${GITHUB_REPOSITORY,,}" >> "$GITHUB_OUTPUT"
 
       - name: Set up Docker Buildx
+        if: needs.check.outputs.should_build == 'true'
         uses: docker/setup-buildx-action@v4
 
       - name: Log in to Container Registry
-        if: github.event_name != 'pull_request'
+        if: needs.check.outputs.should_build == 'true' && github.event_name != 'pull_request'
         uses: docker/login-action@v4
         with:
           registry: ${{ env.REGISTRY }}
@@ -222,6 +292,7 @@ jobs:
       # =========================================================================
       - name: Extract metadata for Backend
         id: meta-backend
+        if: needs.check.outputs.should_build == 'true'
         uses: docker/metadata-action@v6
         with:
           images: ${{ env.REGISTRY }}/${{ steps.image-repo.outputs.value }}-backend
@@ -231,6 +302,7 @@ jobs:
 
       - name: Build and push Backend
         id: build-backend
+        if: needs.check.outputs.should_build == 'true'
         uses: docker/build-push-action@v7
         with:
           context: .
@@ -251,6 +323,7 @@ jobs:
       # =========================================================================
       - name: Extract metadata for Frontend
         id: meta-frontend
+        if: needs.check.outputs.should_build == 'true'
         uses: docker/metadata-action@v6
         with:
           images: ${{ env.REGISTRY }}/${{ steps.image-repo.outputs.value }}-frontend
@@ -260,6 +333,7 @@ jobs:
 
       - name: Build and push Frontend
         id: build-frontend
+        if: needs.check.outputs.should_build == 'true'
         uses: docker/build-push-action@v7
         with:
           context: .
@@ -279,29 +353,29 @@ jobs:
       # PR Smoke Test (local loaded images)
       # =========================================================================
       - name: Set up pnpm for PR smoke test
-        if: github.event_name == 'pull_request'
+        if: needs.check.outputs.should_build == 'true' && github.event_name == 'pull_request'
         uses: pnpm/action-setup@v6
         with:
           version: 9.15.2
 
       - name: Set up Node.js for PR smoke test
-        if: github.event_name == 'pull_request'
+        if: needs.check.outputs.should_build == 'true' && github.event_name == 'pull_request'
         uses: actions/setup-node@v7
         with:
           node-version: "22"
 
       - name: Install dependencies & build shared package (PR smoke test)
-        if: github.event_name == 'pull_request'
+        if: needs.check.outputs.should_build == 'true' && github.event_name == 'pull_request'
         run: |
           pnpm install --frozen-lockfile --ignore-scripts
           pnpm --filter ./shared build
 
       - name: Install Playwright Chromium & system deps (PR smoke test)
-        if: github.event_name == 'pull_request'
+        if: needs.check.outputs.should_build == 'true' && github.event_name == 'pull_request'
         run: pnpm --filter @linguistnow/e2e exec playwright install --with-deps chromium
 
       - name: Run container smoke tests (PR)
-        if: github.event_name == 'pull_request'
+        if: needs.check.outputs.should_build == 'true' && github.event_name == 'pull_request'
         env:
           BACKEND_TAGS: ${{ steps.meta-backend.outputs.tags }}
           FRONTEND_TAGS: ${{ steps.meta-frontend.outputs.tags }}
@@ -313,7 +387,7 @@ jobs:
           node .github/scripts/smoke-test-containers.mjs
 
       - name: Upload Playwright Smoke Report (PR)
-        if: failure() && github.event_name == 'pull_request'
+        if: failure() && needs.check.outputs.should_build == 'true' && github.event_name == 'pull_request'
         uses: actions/upload-artifact@v6
         with:
           name: playwright-smoke-report-pr
@@ -324,7 +398,7 @@ jobs:
       # Summary
       # =========================================================================
       - name: Generate Summary
-        if: github.event_name != 'pull_request'
+        if: needs.check.outputs.should_build == 'true' && github.event_name != 'pull_request'
         env:
           IS_RELEASE: ${{ needs.check.outputs.is_release }}
           BUILD_REF: ${{ needs.check.outputs.build_ref }}
