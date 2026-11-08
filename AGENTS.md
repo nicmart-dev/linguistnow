@@ -25,7 +25,7 @@ Always use `pnpm` (version 9.x):
 # Install dependencies
 pnpm install --frozen-lockfile
 
-# Linting & static analysis (oxlint + eslint)
+# Linting & static analysis (oxlint + eslint + yaml validation)
 pnpm lint
 
 # TypeScript verification across all 4 workspaces
