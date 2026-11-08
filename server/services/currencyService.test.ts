@@ -208,6 +208,42 @@ describe("currencyService", () => {
       expect(result.rates).toEqual(mockFallbackResponse.rates);
     });
 
+    it("should retry with /v1/latest when primary endpoint returns 404 without /v1 prefix", async () => {
+      const mockV1Response = {
+        base: "USD",
+        date: "2024-01-15",
+        rates: { EUR: 0.85, GBP: 0.73 },
+      };
+
+      vi.mocked(global.fetch)
+        .mockResolvedValueOnce({
+          ok: false,
+          status: 404,
+          statusText: "Not Found",
+        } as Response)
+        .mockResolvedValueOnce({
+          ok: true,
+          json: () => Promise.resolve(mockV1Response),
+        } as Response);
+
+      mockSetex.mockResolvedValueOnce("OK");
+
+      const result = await refreshRates();
+
+      expect(global.fetch).toHaveBeenCalledTimes(2);
+      expect(global.fetch).toHaveBeenNthCalledWith(
+        1,
+        "http://localhost:8080/latest?base=USD",
+        expect.any(Object),
+      );
+      expect(global.fetch).toHaveBeenNthCalledWith(
+        2,
+        "http://localhost:8080/v1/latest?base=USD",
+        expect.any(Object),
+      );
+      expect(result.rates).toEqual(mockV1Response.rates);
+    });
+
     it("should handle Redis storage failure gracefully", async () => {
       const mockResponse = {
         base: "USD",

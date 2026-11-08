@@ -175,14 +175,95 @@ services:
     restart: unless-stopped
     ports:
       - "${FRANKFURTER_BIND_IP:-127.0.0.1}:${FRANKFURTER_PORT:-8080}:8080"
+    environment:
+      - DATABASE_URL=sqlite:///app/data/frankfurter.sqlite3
+      - FRANKFURTER_RETENTION_DAYS=${FRANKFURTER_RETENTION_DAYS:-90}
     volumes:
       - frankfurter-data:/app/data
+    command:
+      - sh
+      - -c
+      - |
+        ruby -e '
+          retention_days = Integer(ENV.fetch("FRANKFURTER_RETENTION_DAYS", 90))
+          providers_dir = "/app/db/seeds/providers"
+          if Dir.exist?(providers_dir)
+            Dir.glob("#{providers_dir}/*.json").each do |file|
+              File.delete(file) unless File.basename(file) == "ecb.json"
+            end
+
+            ecb_file = "#{providers_dir}/ecb.json"
+            if File.exist?(ecb_file)
+              require "json"
+              require "date"
+              data = JSON.parse(File.read(ecb_file))
+              data["coverage_start"] = (Date.today - retention_days).to_s
+              File.write(ecb_file, JSON.pretty_generate(data))
+            end
+          end
+
+          config_ru = "/app/config.ru"
+          if File.exist?(config_ru)
+            content = File.read(config_ru)
+            unless content.include?("LegacyRewrite")
+              middleware = %Q{
+        class LegacyRewrite
+          def initialize(app)
+            @app = app
+          end
+          def call(env)
+            path = env["PATH_INFO"]
+            if path == "/latest" || path =~ %r{\\A/\\d{4}-\\d{2}-\\d{2}} || path == "/currencies"
+              env["PATH_INFO"] = "/v1\#{path}"
+            end
+            @app.call(env)
+          end
+        end
+        use LegacyRewrite
+              }
+              new_content = content.sub("run App.freeze.app", "\#{middleware}\nrun App.freeze.app")
+              File.write(config_ru, new_content)
+            end
+          end
+
+          schedule_file = "/app/bin/schedule"
+          if File.exist?(schedule_file)
+            content = File.read(schedule_file)
+            unless content.include?("rates_prune")
+              prune_job = %Q{
+        unless dry_run
+          scheduler.cron("0 1 * * *") do # rates_prune
+            cutoff = (Date.today - Integer(ENV.fetch("FRANKFURTER_RETENTION_DAYS", 90))).to_s
+            if DB.table_exists?(:rates)
+              deleted = DB[:rates].where { date < cutoff }.delete
+              Log.info("Pruned \#{deleted} rates older than \#{cutoff}") if deleted.positive?
+            end
+          end
+        end
+              }
+              new_content = content.sub("scheduler.join unless dry_run", "\#{prune_job}\nscheduler.join unless dry_run")
+              File.write(schedule_file, new_content)
+            end
+          end
+        '
+        bundle exec rake db:setup
+        ruby -e '
+          require_relative "boot"
+          require "db"
+          require "date"
+          cutoff = (Date.today - Integer(ENV.fetch("FRANKFURTER_RETENTION_DAYS", 90))).to_s
+          if DB.table_exists?(:rates)
+            deleted = DB[:rates].where { date < cutoff }.delete
+            puts "Pruned #{deleted} historical rates older than #{cutoff}" if deleted.positive?
+          end
+        '
+        exec bundle exec foreman start
     healthcheck:
       test: ["CMD-SHELL", "ruby -rnet/http -e 'res = Net::HTTP.get_response(URI(\"http://localhost:8080/latest\")); exit(res.is_a?(Net::HTTPSuccess) ? 0 : 1)'"]
-      interval: 60s
+      interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 45m
+      start_period: 30s
     logging:
       driver: "json-file"
       options:
