@@ -56,7 +56,9 @@
         "saveSuccess": "プロフィールが正常に保存されました",
         "saveError": "プロフィールの保存に失敗しました",
         "saving": "保存中...",
-        "currencyReadOnly": "通貨選択は通貨換算サポートと共に利用可能になります"
+        "currencyReadOnly": "通貨選択は通貨換算サポートと共に利用可能になります",
+        "removeLanguage": "{{language}} を削除",
+        "removeSpecialization": "{{specialization}} を削除"
     },
     "dashboard": {
         "linguistsDescription": "以下は{{startDate}}から{{endDate}}まで（含む）のスケジュールです。",
@@ -281,7 +283,8 @@
         "languageIcon": "言語",
         "dashboard": "ダッシュボード",
         "settings": "設定",
-        "home": "ホーム"
+        "home": "ホーム",
+        "logout": "ログアウト"
     },
     "general": {
         "loading": "読み込み中..."

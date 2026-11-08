@@ -117,10 +117,14 @@ const FilterBar: React.FC<FilterBarProps> = ({
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 {/* Date Range Picker */}
                 <div className="lg:col-span-2">
-                    <label className="text-sm font-medium mb-2 block">
+                    <label
+                        htmlFor="filter-date-range"
+                        className="text-sm font-medium mb-2 block"
+                    >
                         {t('dashboard.dateRange.label')}
                     </label>
                     <DateRangePicker
+                        id="filter-date-range"
                         startDate={filters.startDate}
                         endDate={filters.endDate}
                         onDateChange={onDateChange}
@@ -128,7 +132,10 @@ const FilterBar: React.FC<FilterBarProps> = ({
                 </div>
                 {/* Language Filter */}
                 <div>
-                    <label className="text-sm font-medium mb-2 block">
+                    <label
+                        htmlFor="filter-languages"
+                        className="text-sm font-medium mb-2 block"
+                    >
                         {t('dashboard.filters.languages')}
                     </label>
                     <Select
@@ -140,7 +147,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
                             )
                         }}
                     >
-                        <SelectTrigger>
+                        <SelectTrigger id="filter-languages">
                             <SelectValue
                                 placeholder={t(
                                     'dashboard.filters.languagesPlaceholder'
@@ -171,7 +178,10 @@ const FilterBar: React.FC<FilterBarProps> = ({
 
                 {/* Specialization Filter */}
                 <div>
-                    <label className="text-sm font-medium mb-2 block">
+                    <label
+                        htmlFor="filter-specialization"
+                        className="text-sm font-medium mb-2 block"
+                    >
                         {t('dashboard.filters.specialization')}
                     </label>
                     <Select
@@ -183,7 +193,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
                             )
                         }}
                     >
-                        <SelectTrigger>
+                        <SelectTrigger id="filter-specialization">
                             <SelectValue
                                 placeholder={t(
                                     'dashboard.filters.specializationPlaceholder'
@@ -214,7 +224,10 @@ const FilterBar: React.FC<FilterBarProps> = ({
 
                 {/* Currency Selector */}
                 <div>
-                    <label className="text-sm font-medium mb-2 block">
+                    <label
+                        htmlFor="filter-display-currency"
+                        className="text-sm font-medium mb-2 block"
+                    >
                         {t('dashboard.filters.displayCurrency')}
                     </label>
                     <Select
@@ -228,7 +241,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
                             )
                         }}
                     >
-                        <SelectTrigger>
+                        <SelectTrigger id="filter-display-currency">
                             <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -307,7 +320,10 @@ const FilterBar: React.FC<FilterBarProps> = ({
                 {/* Rating Filter */}
                 {filterOptions && (
                     <div>
-                        <label className="text-sm font-medium mb-2 block">
+                        <label
+                            htmlFor="filter-min-rating"
+                            className="text-sm font-medium mb-2 block"
+                        >
                             {t('dashboard.filters.minRating')}
                         </label>
                         <Select
@@ -321,7 +337,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
                                 )
                             }}
                         >
-                            <SelectTrigger>
+                            <SelectTrigger id="filter-min-rating">
                                 <SelectValue
                                     placeholder={t('dashboard.filters.all')}
                                 />
@@ -346,7 +362,10 @@ const FilterBar: React.FC<FilterBarProps> = ({
                 {/* Project Size Filter */}
                 <div>
                     <div className="flex items-center gap-2 mb-2">
-                        <label className="text-sm font-medium block">
+                        <label
+                            htmlFor="filter-project-hours"
+                            className="text-sm font-medium block"
+                        >
                             {t('dashboard.filters.projectSize')}
                         </label>
                         <div
@@ -357,6 +376,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
                         </div>
                     </div>
                     <input
+                        id="filter-project-hours"
                         type="number"
                         min="0"
                         step="1"
@@ -385,7 +405,10 @@ const FilterBar: React.FC<FilterBarProps> = ({
 
                 {/* Availability Toggle */}
                 <div>
-                    <label className="text-sm font-medium mb-2 block">
+                    <label
+                        htmlFor="filter-availability"
+                        className="text-sm font-medium mb-2 block"
+                    >
                         {t('dashboard.filters.availability')}
                     </label>
                     <Select
@@ -394,7 +417,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
                             updateFilter('availableOnly', value === 'available')
                         }}
                     >
-                        <SelectTrigger>
+                        <SelectTrigger id="filter-availability">
                             <SelectValue />
                         </SelectTrigger>
                         <SelectContent>

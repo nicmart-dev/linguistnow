@@ -41,6 +41,7 @@ import {
 } from '@/utils/date-presets'
 
 interface DateRangePickerProps {
+    id?: string
     startDate?: string // ISO date string (YYYY-MM-DD)
     endDate?: string // ISO date string (YYYY-MM-DD)
     onDateChange: (
@@ -52,11 +53,13 @@ interface DateRangePickerProps {
 /**
  * A date range picker component with calendar popover and preset options.
  * Supports localization and various date range presets (today, this week, etc.).
+ * @param id - Optional ID applied to the trigger button
  * @param startDate - Start date as ISO string (YYYY-MM-DD)
  * @param endDate - End date as ISO string (YYYY-MM-DD)
  * @param onDateChange - Callback fired when date range changes
  */
 const DateRangePicker: React.FC<DateRangePickerProps> = ({
+    id,
     startDate,
     endDate,
     onDateChange,
@@ -236,6 +239,7 @@ const DateRangePicker: React.FC<DateRangePickerProps> = ({
         >
             <PopoverTrigger asChild>
                 <Button
+                    id={id}
                     variant="outline"
                     className="w-auto min-w-[280px] justify-start text-left font-normal"
                 >

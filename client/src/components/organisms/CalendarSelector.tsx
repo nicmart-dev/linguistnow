@@ -237,7 +237,10 @@ const CalendarSelector = ({ userDetails, onSave }: CalendarSelectorProps) => {
                     'Select calendars for availability checking. We only check free/busy slots, not event content.'
                 )}
             </p>
-            <label className="mb-2 block text-sm font-medium text-gray-700">
+            <label
+                htmlFor="calendar-selector"
+                className="mb-2 block text-sm font-medium text-gray-700"
+            >
                 {t('calendarSelector.chooseCalendars')}
             </label>
 
@@ -254,6 +257,7 @@ const CalendarSelector = ({ userDetails, onSave }: CalendarSelectorProps) => {
                         >
                             <PopoverTrigger asChild>
                                 <Button
+                                    id="calendar-selector"
                                     variant="outline"
                                     role="combobox"
                                     aria-expanded={open}
@@ -324,7 +328,10 @@ const CalendarSelector = ({ userDetails, onSave }: CalendarSelectorProps) => {
                                                                     )
                                                                 }}
                                                             >
-                                                                <X className="h-3 w-3 text-muted-foreground hover:text-foreground" />
+                                                                <X
+                                                                    aria-hidden="true"
+                                                                    className="h-3 w-3 text-muted-foreground hover:text-foreground"
+                                                                />
                                                             </span>
                                                         )}
                                                     </Badge>

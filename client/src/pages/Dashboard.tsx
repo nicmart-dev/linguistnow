@@ -104,7 +104,14 @@ const Dashboard = ({ userName }: DashboardProps) => {
                 )
 
                 logger.log('Search results:', response.data)
-                setLinguists(response.data.linguists)
+                const linguistsWithCurrency = response.data.linguists.map(
+                    (linguist) => ({
+                        ...linguist,
+                        displayCurrency:
+                            linguist.displayCurrency ?? filters.displayCurrency,
+                    })
+                )
+                setLinguists(linguistsWithCurrency)
 
                 // Check if currency conversion was requested but rates weren't converted
                 if (filters.displayCurrency) {
@@ -251,147 +258,150 @@ const Dashboard = ({ userName }: DashboardProps) => {
                     </div>
 
                     {/* View Mode Toggle and Bulk Actions */}
-                    <div className="w-full mb-4 flex justify-between items-center">
-                        <div className="flex flex-wrap gap-2">
-                            {(() => {
-                                const incompleteLinguists = linguists.filter(
-                                    (l) => !l.setupStatus.isComplete
-                                )
-                                if (incompleteLinguists.length === 0)
-                                    return null
+                    <Tabs
+                        value={viewMode}
+                        onValueChange={(v) => {
+                            setViewMode(v as 'list' | 'card')
+                        }}
+                        className="w-full"
+                    >
+                        <div className="w-full mb-4 flex justify-between items-center">
+                            <div className="flex flex-wrap gap-2">
+                                {(() => {
+                                    const incompleteLinguists =
+                                        linguists.filter(
+                                            (l) => !l.setupStatus.isComplete
+                                        )
+                                    if (incompleteLinguists.length === 0)
+                                        return null
 
-                                return (
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={() => {
-                                            const accountSettingsUrl = `${window.location.origin}/settings`
+                                    return (
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() => {
+                                                const accountSettingsUrl = `${window.location.origin}/settings`
 
-                                            // Map field identifiers to their display labels (always in English for emails)
-                                            const fieldLabelMap: Record<
-                                                string,
-                                                string
-                                            > = {
-                                                calendars: tEmail(
-                                                    'calendarSelector.title',
-                                                    'Calendar Selection'
-                                                ),
-                                                timezone: tEmail(
-                                                    'availabilitySettings.timezone',
-                                                    'Timezone'
-                                                ),
-                                                working_hours: tEmail(
-                                                    'availabilitySettings.workingHours',
-                                                    'Working Hours'
-                                                ),
-                                            }
-
-                                            // Collect all unique missing items across all linguists
-                                            const allMissingItems =
-                                                new Set<string>()
-                                            incompleteLinguists.forEach(
-                                                (linguist) => {
-                                                    linguist.setupStatus.missingItems.forEach(
-                                                        (item) => {
-                                                            allMissingItems.add(
-                                                                item
-                                                            )
-                                                        }
-                                                    )
+                                                // Map field identifiers to their display labels (always in English for emails)
+                                                const fieldLabelMap: Record<
+                                                    string,
+                                                    string
+                                                > = {
+                                                    calendars: tEmail(
+                                                        'calendarSelector.title',
+                                                        'Calendar Selection'
+                                                    ),
+                                                    timezone: tEmail(
+                                                        'availabilitySettings.timezone',
+                                                        'Timezone'
+                                                    ),
+                                                    working_hours: tEmail(
+                                                        'availabilitySettings.workingHours',
+                                                        'Working Hours'
+                                                    ),
                                                 }
-                                            )
 
-                                            // Convert to display labels
-                                            const missingItemsLabels =
-                                                Array.from(allMissingItems)
-                                                    .map(
-                                                        (item) =>
-                                                            fieldLabelMap[
-                                                                item
-                                                            ] || item
-                                                    )
-                                                    .sort()
+                                                // Collect all unique missing items across all linguists
+                                                const allMissingItems =
+                                                    new Set<string>()
+                                                incompleteLinguists.forEach(
+                                                    (linguist) => {
+                                                        linguist.setupStatus.missingItems.forEach(
+                                                            (item) => {
+                                                                allMissingItems.add(
+                                                                    item
+                                                                )
+                                                            }
+                                                        )
+                                                    }
+                                                )
 
-                                            const emailBody = tEmail(
-                                                'dashboard.booking.setupReminderBodyBulk',
+                                                // Convert to display labels
+                                                const missingItemsLabels =
+                                                    Array.from(allMissingItems)
+                                                        .map(
+                                                            (item) =>
+                                                                fieldLabelMap[
+                                                                    item
+                                                                ] || item
+                                                        )
+                                                        .sort()
+
+                                                const emailBody = tEmail(
+                                                    'dashboard.booking.setupReminderBodyBulk',
+                                                    {
+                                                        missingItems:
+                                                            missingItemsLabels.join(
+                                                                ', '
+                                                            ),
+                                                        accountSettingsUrl,
+                                                    }
+                                                )
+
+                                                // Get all email addresses (comma-separated) for BCC
+                                                const emailAddresses =
+                                                    incompleteLinguists
+                                                        .map((l) => l.email)
+                                                        .join(',')
+
+                                                window.open(
+                                                    `mailto:?bcc=${emailAddresses}&subject=${encodeURIComponent(tEmail('dashboard.booking.setupReminderSubjectBulk'))}&body=${encodeURIComponent(emailBody)}`,
+                                                    '_blank'
+                                                )
+                                            }}
+                                        >
+                                            {t(
+                                                'dashboard.booking.sendSetupReminderToAll',
                                                 {
-                                                    missingItems:
-                                                        missingItemsLabels.join(
-                                                            ', '
-                                                        ),
-                                                    accountSettingsUrl,
+                                                    count: incompleteLinguists.length,
                                                 }
-                                            )
+                                            )}
+                                        </Button>
+                                    )
+                                })()}
+                                {(() => {
+                                    const expiredTokenLinguists =
+                                        linguists.filter(
+                                            (l) =>
+                                                l.setupStatus.isComplete &&
+                                                l.setupStatus.tokenExpired
+                                        )
+                                    if (expiredTokenLinguists.length === 0)
+                                        return null
 
-                                            // Get all email addresses (comma-separated) for BCC
-                                            const emailAddresses =
-                                                incompleteLinguists
-                                                    .map((l) => l.email)
-                                                    .join(',')
+                                    return (
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() => {
+                                                const accountSettingsUrl = `${window.location.origin}/settings`
+                                                const emailBody = tEmail(
+                                                    'dashboard.booking.reloginReminderBodyBulk',
+                                                    {
+                                                        accountSettingsUrl,
+                                                    }
+                                                )
+                                                const emailAddresses =
+                                                    expiredTokenLinguists
+                                                        .map((l) => l.email)
+                                                        .join(',')
 
-                                            window.open(
-                                                `mailto:?bcc=${emailAddresses}&subject=${encodeURIComponent(tEmail('dashboard.booking.setupReminderSubjectBulk'))}&body=${encodeURIComponent(emailBody)}`,
-                                                '_blank'
-                                            )
-                                        }}
-                                    >
-                                        {t(
-                                            'dashboard.booking.sendSetupReminderToAll',
-                                            {
-                                                count: incompleteLinguists.length,
-                                            }
-                                        )}
-                                    </Button>
-                                )
-                            })()}
-                            {(() => {
-                                const expiredTokenLinguists = linguists.filter(
-                                    (l) =>
-                                        l.setupStatus.isComplete &&
-                                        l.setupStatus.tokenExpired
-                                )
-                                if (expiredTokenLinguists.length === 0)
-                                    return null
-
-                                return (
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={() => {
-                                            const accountSettingsUrl = `${window.location.origin}/settings`
-                                            const emailBody = tEmail(
-                                                'dashboard.booking.reloginReminderBodyBulk',
+                                                window.open(
+                                                    `mailto:?bcc=${emailAddresses}&subject=${encodeURIComponent(tEmail('dashboard.booking.reloginReminderSubjectBulk'))}&body=${encodeURIComponent(emailBody)}`,
+                                                    '_blank'
+                                                )
+                                            }}
+                                        >
+                                            {t(
+                                                'dashboard.booking.sendReloginReminderToAll',
                                                 {
-                                                    accountSettingsUrl,
+                                                    count: expiredTokenLinguists.length,
                                                 }
-                                            )
-                                            const emailAddresses =
-                                                expiredTokenLinguists
-                                                    .map((l) => l.email)
-                                                    .join(',')
-
-                                            window.open(
-                                                `mailto:?bcc=${emailAddresses}&subject=${encodeURIComponent(tEmail('dashboard.booking.reloginReminderSubjectBulk'))}&body=${encodeURIComponent(emailBody)}`,
-                                                '_blank'
-                                            )
-                                        }}
-                                    >
-                                        {t(
-                                            'dashboard.booking.sendReloginReminderToAll',
-                                            {
-                                                count: expiredTokenLinguists.length,
-                                            }
-                                        )}
-                                    </Button>
-                                )
-                            })()}
-                        </div>
-                        <Tabs
-                            value={viewMode}
-                            onValueChange={(v) => {
-                                setViewMode(v as 'list' | 'card')
-                            }}
-                        >
+                                            )}
+                                        </Button>
+                                    )
+                                })()}
+                            </div>
                             <TabsList>
                                 <TabsTrigger value="list">
                                     {t('dashboard.viewMode.list')}
@@ -400,137 +410,137 @@ const Dashboard = ({ userName }: DashboardProps) => {
                                     {t('dashboard.viewMode.card')}
                                 </TabsTrigger>
                             </TabsList>
-                        </Tabs>
-                    </div>
+                        </div>
 
-                    {/* Linguists Display */}
-                    {loading ? (
-                        <Skeleton />
-                    ) : (
-                        <Tabs value={viewMode} className="w-full">
-                            <TabsContent value="list">
-                                <LinguistTable linguists={linguists} />
-                            </TabsContent>
-                            <TabsContent value="card">
-                                {linguists.length === 0 ? (
-                                    <div className="text-center py-8 text-gray-500">
-                                        {t('dashboard.noResults')}
-                                    </div>
-                                ) : (
-                                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
-                                        {linguists.map((linguist) => (
-                                            <div
-                                                key={linguist.id}
-                                                className="relative"
-                                            >
-                                                <LinguistCard
-                                                    linguist={linguist}
-                                                    showTimeline={false}
-                                                />
-                                                {linguist.setupStatus
-                                                    .isComplete &&
-                                                    !linguist.setupStatus
-                                                        .tokenExpired &&
-                                                    linguist.availability
-                                                        ?.isAvailable && (
-                                                        <div className="mt-2">
-                                                            <Button
-                                                                size="sm"
-                                                                onClick={() => {
-                                                                    handleBookLinguist(
-                                                                        linguist
-                                                                    )
-                                                                }}
-                                                                className="w-full"
-                                                            >
-                                                                {t(
-                                                                    'dashboard.booking.bookButton'
-                                                                )}
-                                                            </Button>
-                                                        </div>
-                                                    )}
-                                                {!linguist.setupStatus
-                                                    .isComplete && (
-                                                    <div className="mt-2">
-                                                        <Button
-                                                            size="sm"
-                                                            variant="outline"
-                                                            onClick={() => {
-                                                                const accountSettingsUrl = `${window.location.origin}/settings`
-                                                                // Map field identifiers to their display labels (always in English for emails)
-                                                                const fieldLabelMap: Record<
-                                                                    string,
-                                                                    string
-                                                                > = {
-                                                                    calendars:
-                                                                        tEmail(
-                                                                            'calendarSelector.title',
-                                                                            'Calendar Selection'
-                                                                        ),
-                                                                    timezone:
-                                                                        tEmail(
-                                                                            'availabilitySettings.timezone',
-                                                                            'Timezone'
-                                                                        ),
-                                                                    working_hours:
-                                                                        tEmail(
-                                                                            'availabilitySettings.workingHours',
-                                                                            'Working Hours'
-                                                                        ),
-                                                                }
-                                                                const missingItemsLabels =
-                                                                    linguist.setupStatus.missingItems.map(
-                                                                        (
-                                                                            item
-                                                                        ) =>
-                                                                            fieldLabelMap[
-                                                                                item
-                                                                            ] ||
-                                                                            item
-                                                                    )
-                                                                window.open(
-                                                                    `mailto:${linguist.email}?subject=${encodeURIComponent(tEmail('dashboard.booking.setupReminderSubjectBulk'))}&body=${encodeURIComponent(tEmail('dashboard.booking.setupReminderBodyBulk', { missingItems: missingItemsLabels.join(', '), accountSettingsUrl }))}`,
-                                                                    '_blank'
-                                                                )
-                                                            }}
-                                                            className="w-full"
-                                                        >
-                                                            {t(
-                                                                'dashboard.booking.sendSetupReminder'
-                                                            )}
-                                                        </Button>
-                                                    </div>
-                                                )}
-                                                {linguist.setupStatus
-                                                    .isComplete &&
-                                                    linguist.setupStatus
-                                                        .tokenExpired && (
+                        {/* Linguists Display */}
+                        {loading ? (
+                            <Skeleton />
+                        ) : (
+                            <>
+                                <TabsContent value="list">
+                                    <LinguistTable linguists={linguists} />
+                                </TabsContent>
+                                <TabsContent value="card">
+                                    {linguists.length === 0 ? (
+                                        <div className="text-center py-8 text-gray-500">
+                                            {t('dashboard.noResults')}
+                                        </div>
+                                    ) : (
+                                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
+                                            {linguists.map((linguist) => (
+                                                <div
+                                                    key={linguist.id}
+                                                    className="relative"
+                                                >
+                                                    <LinguistCard
+                                                        linguist={linguist}
+                                                        showTimeline={false}
+                                                    />
+                                                    {linguist.setupStatus
+                                                        .isComplete &&
+                                                        !linguist.setupStatus
+                                                            .tokenExpired &&
+                                                        linguist.availability
+                                                            ?.isAvailable && (
+                                                            <div className="mt-2">
+                                                                <Button
+                                                                    size="sm"
+                                                                    onClick={() => {
+                                                                        handleBookLinguist(
+                                                                            linguist
+                                                                        )
+                                                                    }}
+                                                                    className="w-full"
+                                                                >
+                                                                    {t(
+                                                                        'dashboard.booking.bookButton'
+                                                                    )}
+                                                                </Button>
+                                                            </div>
+                                                        )}
+                                                    {!linguist.setupStatus
+                                                        .isComplete && (
                                                         <div className="mt-2">
                                                             <Button
                                                                 size="sm"
                                                                 variant="outline"
                                                                 onClick={() => {
                                                                     const accountSettingsUrl = `${window.location.origin}/settings`
+                                                                    // Map field identifiers to their display labels (always in English for emails)
+                                                                    const fieldLabelMap: Record<
+                                                                        string,
+                                                                        string
+                                                                    > = {
+                                                                        calendars:
+                                                                            tEmail(
+                                                                                'calendarSelector.title',
+                                                                                'Calendar Selection'
+                                                                            ),
+                                                                        timezone:
+                                                                            tEmail(
+                                                                                'availabilitySettings.timezone',
+                                                                                'Timezone'
+                                                                            ),
+                                                                        working_hours:
+                                                                            tEmail(
+                                                                                'availabilitySettings.workingHours',
+                                                                                'Working Hours'
+                                                                            ),
+                                                                    }
+                                                                    const missingItemsLabels =
+                                                                        linguist.setupStatus.missingItems.map(
+                                                                            (
+                                                                                item
+                                                                            ) =>
+                                                                                fieldLabelMap[
+                                                                                    item
+                                                                                ] ||
+                                                                                item
+                                                                        )
                                                                     window.open(
-                                                                        `mailto:${linguist.email}?subject=${encodeURIComponent(tEmail('dashboard.booking.reloginReminderSubjectBulk'))}&body=${encodeURIComponent(tEmail('dashboard.booking.reloginReminderBodyBulk', { accountSettingsUrl }))}`,
+                                                                        `mailto:${linguist.email}?subject=${encodeURIComponent(tEmail('dashboard.booking.setupReminderSubjectBulk'))}&body=${encodeURIComponent(tEmail('dashboard.booking.setupReminderBodyBulk', { missingItems: missingItemsLabels.join(', '), accountSettingsUrl }))}`,
                                                                         '_blank'
                                                                     )
                                                                 }}
                                                                 className="w-full"
                                                             >
                                                                 {t(
-                                                                    'dashboard.booking.sendReloginReminder'
+                                                                    'dashboard.booking.sendSetupReminder'
                                                                 )}
                                                             </Button>
                                                         </div>
                                                     )}
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-                            </TabsContent>
-                        </Tabs>
-                    )}
+                                                    {linguist.setupStatus
+                                                        .isComplete &&
+                                                        linguist.setupStatus
+                                                            .tokenExpired && (
+                                                            <div className="mt-2">
+                                                                <Button
+                                                                    size="sm"
+                                                                    variant="outline"
+                                                                    onClick={() => {
+                                                                        const accountSettingsUrl = `${window.location.origin}/settings`
+                                                                        window.open(
+                                                                            `mailto:${linguist.email}?subject=${encodeURIComponent(tEmail('dashboard.booking.reloginReminderSubjectBulk'))}&body=${encodeURIComponent(tEmail('dashboard.booking.reloginReminderBodyBulk', { accountSettingsUrl }))}`,
+                                                                            '_blank'
+                                                                        )
+                                                                    }}
+                                                                    className="w-full"
+                                                                >
+                                                                    {t(
+                                                                        'dashboard.booking.sendReloginReminder'
+                                                                    )}
+                                                                </Button>
+                                                            </div>
+                                                        )}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </TabsContent>
+                            </>
+                        )}
+                    </Tabs>
 
                     {/* Booking Modal */}
                     {selectedLinguist && (

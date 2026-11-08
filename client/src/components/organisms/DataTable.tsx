@@ -65,11 +65,11 @@ export function DataTable<T extends Record<string, unknown>>({
         <div className="w-full overflow-x-auto">
             <div className="flex items-center py-4">
                 <Input
+                    aria-label={t('dashboard.filterEmailPlaceholder')}
                     placeholder={t('dashboard.filterEmailPlaceholder')}
                     value={
                         (table.getColumn('email')?.getFilterValue() as
-                            | string
-                            | undefined) ?? ''
+                            string | undefined) ?? ''
                     }
                     onChange={(event) =>
                         table

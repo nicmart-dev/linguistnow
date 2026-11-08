@@ -80,7 +80,9 @@
         "saveSuccess": "Profile saved successfully",
         "saveError": "Failed to save profile",
         "saving": "Saving...",
-        "currencyReadOnly": "Currency selection will be available with currency exchange support"
+        "currencyReadOnly": "Currency selection will be available with currency exchange support",
+        "removeLanguage": "Remove {{language}}",
+        "removeSpecialization": "Remove {{specialization}}"
     },
     "dashboard": {
         "linguistsDescription": "Here is the schedule from {{startDate}} until {{endDate}} included.",
@@ -304,6 +306,7 @@
         "home": "Home",
         "dashboard": "Dashboard",
         "settings": "Settings",
+        "logout": "Logout",
         "menuIcon": "menu",
         "languageIcon": "language"
     },

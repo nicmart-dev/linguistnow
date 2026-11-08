@@ -96,21 +96,21 @@ describe('AvailabilityBadge', () => {
         const { container } = render(<AvailabilityBadge status="available" />)
         const badge = container.firstElementChild
         expect(badge?.className).toContain('bg-emerald-50')
-        expect(badge?.className).toContain('text-emerald-600')
+        expect(badge?.className).toContain('text-emerald-800')
     })
 
     it('applies correct styling for unavailable status', () => {
         const { container } = render(<AvailabilityBadge status="unavailable" />)
         const badge = container.firstElementChild
         expect(badge?.className).toContain('bg-red-50')
-        expect(badge?.className).toContain('text-red-600')
+        expect(badge?.className).toContain('text-red-700')
     })
 
     it('applies correct styling for limited status', () => {
         const { container } = render(<AvailabilityBadge status="limited" />)
         const badge = container.firstElementChild
         expect(badge?.className).toContain('bg-amber-50')
-        expect(badge?.className).toContain('text-amber-600')
+        expect(badge?.className).toContain('text-amber-800')
     })
 
     it('applies correct styling for setup-incomplete status', () => {
@@ -128,7 +128,7 @@ describe('AvailabilityBadge', () => {
         )
         const badge = container.firstElementChild
         expect(badge?.className).toContain('bg-orange-50')
-        expect(badge?.className).toContain('text-orange-600')
+        expect(badge?.className).toContain('text-orange-800')
     })
 
     it('renders decorative SVG icon for each status', () => {

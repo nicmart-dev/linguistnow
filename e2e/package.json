@@ -1,0 +1,21 @@
+{
+  "name": "@linguistnow/e2e",
+  "version": "1.9.3",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "type-check": "tsc --noEmit",
+    "test:e2e": "playwright test",
+    "test:e2e:all-browsers": "playwright test --project=chromium --project=firefox --project=webkit",
+    "test:e2e:quarantined": "playwright test --grep @quarantine",
+    "test:smoke": "playwright test --config=playwright.smoke.config.ts"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
+    "@linguistnow/shared": "workspace:*",
+    "@playwright/test": "^1.65.0",
+    "@types/node": "^26.6.6",
+    "typescript": "^5.9.3",
+    "zod": "^4.6.7"
+  }
+}

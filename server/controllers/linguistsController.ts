@@ -700,8 +700,7 @@ export const searchLinguists = async (
         }
 
         const hourlyRate = fields[AIRTABLE_FIELDS.HOURLY_RATE] as
-          | number
-          | undefined;
+          number | undefined;
         const currency = fields[AIRTABLE_FIELDS.CURRENCY] as string | undefined;
 
         // Convert rate if displayCurrency is specified
@@ -771,6 +770,10 @@ export const searchLinguists = async (
           hourlyRate,
           currency,
           hourlyRateConverted,
+          displayCurrency:
+            hourlyRateConverted !== undefined
+              ? query.displayCurrency
+              : undefined,
           timezone: preferences.timezone,
           rating: fields[AIRTABLE_FIELDS.RATING] as number | undefined,
           setupStatus,

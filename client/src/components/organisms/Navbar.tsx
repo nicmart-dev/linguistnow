@@ -30,6 +30,7 @@ const Navbar = ({ userDetails }: NavbarProps) => {
                     {/* Menu toggle button only displayed on mobile */}
                     <button
                         type="button"
+                        aria-label={t('nav.menuIcon')}
                         className="cursor-pointer md:hidden block"
                         onClick={() => {
                             setMenuOpen(!menuOpen)
@@ -106,9 +107,11 @@ const Navbar = ({ userDetails }: NavbarProps) => {
                         userDetails.role !== 'Project Manager') && (
                         <Link
                             to="/settings"
+                            aria-label={t('nav.settings')}
                             className="inline-block no-underline hover:text-black"
                         >
                             <svg
+                                aria-hidden="true"
                                 className="fill-current hover:text-black"
                                 xmlns="http://www.w3.org/2000/svg"
                                 width="24"
@@ -159,9 +162,11 @@ const Navbar = ({ userDetails }: NavbarProps) => {
                     {userDetails && (
                         <Link
                             to="/logout"
+                            aria-label={t('nav.logout')}
                             className="pl-3 inline-block no-underline hover:text-black"
                         >
                             <svg
+                                aria-hidden="true"
                                 className="fill-current hover:text-black"
                                 xmlns="http://www.w3.org/2000/svg"
                                 width="24"

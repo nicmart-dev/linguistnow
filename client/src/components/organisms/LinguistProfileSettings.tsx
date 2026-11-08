@@ -386,12 +386,16 @@ const LinguistProfileSettings: React.FC<LinguistProfileSettingsProps> = ({
 
             {/* Hourly Rate with Currency */}
             <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700">
+                <label
+                    htmlFor="hourly-rate"
+                    className="text-sm font-medium text-gray-700"
+                >
                     {t('linguistProfile.hourlyRate')}
                 </label>
                 <div className="flex gap-2">
                     <div className="w-32">
                         <Input
+                            id="hourly-rate"
                             type="number"
                             step="0.01"
                             min="0"
@@ -403,7 +407,11 @@ const LinguistProfileSettings: React.FC<LinguistProfileSettingsProps> = ({
                         />
                     </div>
                     <Select value={currency} onValueChange={setCurrency}>
-                        <SelectTrigger className="w-[140px]">
+                        <SelectTrigger
+                            id="hourly-rate-currency"
+                            aria-label={t('linguistProfile.currency')}
+                            className="w-[140px]"
+                        >
                             <SelectValue>
                                 {selectedCurrency
                                     ? `${selectedCurrency.symbol} ${selectedCurrency.code}`
@@ -434,12 +442,16 @@ const LinguistProfileSettings: React.FC<LinguistProfileSettingsProps> = ({
 
             {/* Language Pairs */}
             <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label
+                    htmlFor="language-pairs"
+                    className="block text-sm font-medium text-gray-700 mb-2"
+                >
                     {t('linguistProfile.languagePairs')}
                 </label>
                 <Popover open={languagesOpen} onOpenChange={setLanguagesOpen}>
                     <PopoverTrigger asChild>
                         <Button
+                            id="language-pairs"
                             variant="outline"
                             role="combobox"
                             aria-expanded={languagesOpen}
@@ -461,6 +473,14 @@ const LinguistProfileSettings: React.FC<LinguistProfileSettingsProps> = ({
                                             <span
                                                 role="button"
                                                 tabIndex={0}
+                                                aria-label={t(
+                                                    'linguistProfile.removeLanguage',
+                                                    {
+                                                        language: lang,
+                                                        defaultValue:
+                                                            'Remove {{language}}',
+                                                    }
+                                                )}
                                                 className="ml-1 ring-offset-background rounded-full outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 cursor-pointer"
                                                 onKeyDown={(e) => {
                                                     if (
@@ -490,7 +510,10 @@ const LinguistProfileSettings: React.FC<LinguistProfileSettingsProps> = ({
                                                     )
                                                 }}
                                             >
-                                                <X className="h-3 w-3 text-muted-foreground hover:text-foreground" />
+                                                <X
+                                                    aria-hidden="true"
+                                                    className="h-3 w-3 text-muted-foreground hover:text-foreground"
+                                                />
                                             </span>
                                         </Badge>
                                     ))
@@ -545,7 +568,10 @@ const LinguistProfileSettings: React.FC<LinguistProfileSettingsProps> = ({
 
             {/* Specialization */}
             <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label
+                    htmlFor="specializations"
+                    className="block text-sm font-medium text-gray-700 mb-2"
+                >
                     {t('linguistProfile.specialization')}
                 </label>
                 <Popover
@@ -554,6 +580,7 @@ const LinguistProfileSettings: React.FC<LinguistProfileSettingsProps> = ({
                 >
                     <PopoverTrigger asChild>
                         <Button
+                            id="specializations"
                             variant="outline"
                             role="combobox"
                             aria-expanded={specializationsOpen}
@@ -577,6 +604,14 @@ const LinguistProfileSettings: React.FC<LinguistProfileSettingsProps> = ({
                                             <span
                                                 role="button"
                                                 tabIndex={0}
+                                                aria-label={t(
+                                                    'linguistProfile.removeSpecialization',
+                                                    {
+                                                        specialization: spec,
+                                                        defaultValue:
+                                                            'Remove {{specialization}}',
+                                                    }
+                                                )}
                                                 className="ml-1 ring-offset-background rounded-full outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 cursor-pointer"
                                                 onKeyDown={(e) => {
                                                     if (
@@ -608,7 +643,10 @@ const LinguistProfileSettings: React.FC<LinguistProfileSettingsProps> = ({
                                                     )
                                                 }}
                                             >
-                                                <X className="h-3 w-3 text-muted-foreground hover:text-foreground" />
+                                                <X
+                                                    aria-hidden="true"
+                                                    className="h-3 w-3 text-muted-foreground hover:text-foreground"
+                                                />
                                             </span>
                                         </Badge>
                                     ))

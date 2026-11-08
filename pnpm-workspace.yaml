@@ -2,4 +2,5 @@ packages:
   - "client"
   - "server"
   - "shared"
+  - "e2e"
 

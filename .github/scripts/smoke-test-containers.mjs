@@ -1,9 +1,40 @@
 import { execFileSync, spawnSync } from "node:child_process";
+import { createServer } from "node:net";
 
 const STARTUP_TIMEOUT_MS = 45_000;
 const POLL_INTERVAL_MS = 500;
 const REQUEST_TIMEOUT_MS = 10_000;
-const EXPECTED_CORS_ORIGIN = "http://smoke-frontend.local";
+const SMOKE_SESSION_SECRET =
+  process.env.SMOKE_SESSION_SECRET ||
+  "smoke-test-only-dummy-session-secret-min-32-chars";
+
+/**
+ * Reserve an available ephemeral localhost TCP port so backend CORS and
+ * frontend port binding share the exact same origin.
+ * @returns {Promise<number>}
+ */
+function allocateLocalPort() {
+  return new Promise((resolve, reject) => {
+    const server = createServer();
+    server.unref();
+    server.on("error", reject);
+    server.listen(0, "127.0.0.1", () => {
+      const address = server.address();
+      if (!address || typeof address === "string") {
+        server.close(() => reject(new Error("Failed to allocate local port")));
+        return;
+      }
+      const { port } = address;
+      server.close((closeErr) => {
+        if (closeErr) {
+          reject(closeErr);
+          return;
+        }
+        resolve(port);
+      });
+    });
+  });
+}
 
 /**
  * Execute a Docker CLI command and return trimmed stdout.
@@ -167,21 +198,84 @@ function dumpLogs(containerNames) {
   }
 }
 
-const MOCK_FRANKFURTER_SCRIPT = [
+const MOCK_EXTERNAL_SCRIPT = [
   'const http = require("node:http");',
+  "const users = [",
+  "  {",
+  '    id: "recPM000000000001",',
+  '    createdTime: "2026-01-01T00:00:00.000Z",',
+  "    fields: {",
+  '      Email: "pm@example.com",',
+  '      Name: "Morgan Taylor",',
+  '      Picture: "https://example.com/pm.png",',
+  '      Role: "Project Manager",',
+  '      "Calendar IDs": "primary",',
+  '      Timezone: "America/Los_Angeles",',
+  '      "Working Hours Start": "09:00",',
+  '      "Working Hours End": "17:00",',
+  '      "Off Days": ["Sunday", "Saturday"]',
+  "    }",
+  "  },",
+  "  {",
+  '    id: "recLing0000000001",',
+  '    createdTime: "2026-01-01T00:00:00.000Z",',
+  "    fields: {",
+  '      Email: "linguist@example.com",',
+  '      Name: "Alice Smoke",',
+  '      Picture: "https://example.com/alice.png",',
+  '      Role: "Linguist",',
+  '      "Hourly Rate": 50,',
+  '      Currency: "USD",',
+  '      Languages: ["EN-FR"],',
+  '      Specialization: ["Legal"],',
+  "      Rating: 5,",
+  '      Timezone: "America/Los_Angeles"',
+  "    }",
+  "  }",
+  "];",
+  "function filterRecords(formula) {",
+  "  if (!formula) return users;",
+  "  let result = users;",
+  "  const lowerEmail = /LOWER\\(\\{Email\\}\\)\\s*=\\s*'([^']+)'/.exec(formula);",
+  "  const exactEmail = /\\{Email\\}\\s*=\\s*'([^']+)'/.exec(formula);",
+  "  const roleMatch = /\\{Role\\}\\s*=\\s*'([^']+)'/.exec(formula);",
+  "  if (lowerEmail) {",
+  "    const t = lowerEmail[1].toLowerCase();",
+  '    result = result.filter((r) => String(r.fields.Email || "").toLowerCase() === t);',
+  "  } else if (exactEmail) {",
+  "    const t = exactEmail[1].toLowerCase();",
+  '    result = result.filter((r) => String(r.fields.Email || "").toLowerCase() === t);',
+  "  }",
+  "  if (roleMatch) {",
+  "    result = result.filter((r) => r.fields.Role === roleMatch[1]);",
+  "  }",
+  "  return result;",
+  "}",
+  "function sendJson(res, status, payload) {",
+  '  res.writeHead(status, { "Content-Type": "application/json" });',
+  "  res.end(JSON.stringify(payload));",
+  "}",
   "const server = http.createServer((req, res) => {",
-  '  if (req.url && req.url.startsWith("/latest")) {',
-  '    res.writeHead(200, { "Content-Type": "application/json" });',
-  "    res.end(JSON.stringify({",
+  '  const url = new URL(req.url || "/", "http://127.0.0.1:8080");',
+  '  if (url.pathname === "/latest") {',
+  "    return sendJson(res, 200, {",
   "      amount: 1,",
   '      base: "USD",',
   '      date: "2026-11-08",',
   "      rates: { EUR: 0.92, GBP: 0.79, CAD: 1.38 }",
-  "    }));",
-  "    return;",
+  "    });",
   "  }",
-  '  res.writeHead(200, { "Content-Type": "application/json" });',
-  '  res.end(JSON.stringify({ status: "ok" }));',
+  '  if (url.pathname.startsWith("/v0/appsmoketestbase/Users")) {',
+  '    const formula = url.searchParams.get("filterByFormula") || "";',
+  "    return sendJson(res, 200, { records: filterRecords(formula) });",
+  "  }",
+  '  if (url.pathname === "/v1/sys/health") {',
+  "    return sendJson(res, 200, { initialized: true, sealed: false });",
+  "  }",
+  '  if (url.pathname.startsWith("/v1/")) {',
+  "    return sendJson(res, 404, { errors: [] });",
+  "  }",
+  '  return sendJson(res, 200, { status: "ok" });',
   "});",
   'server.listen(8080, "0.0.0.0", () => {',
   '  console.log("mock-external listening on 8080");',
@@ -192,12 +286,16 @@ async function main() {
   const backendImage = process.env.BACKEND_IMAGE_REF?.trim();
   const frontendImage = process.env.FRONTEND_IMAGE_REF?.trim();
   const shouldPull = process.env.SMOKE_PULL_IMAGES === "true";
+  const runPlaywrightSmoke = process.env.RUN_PLAYWRIGHT_SMOKE === "true";
 
   if (!backendImage || !frontendImage) {
     throw new Error(
       "BACKEND_IMAGE_REF and FRONTEND_IMAGE_REF environment variables are required.",
     );
   }
+
+  const reservedFrontendPort = await allocateLocalPort();
+  const expectedCorsOrigin = `http://127.0.0.1:${String(reservedFrontendPort)}`;
 
   const runId = `${String(process.pid)}-${String(Date.now())}`;
   const networkName = `linguistnow-smoke-${runId}`;
@@ -254,7 +352,7 @@ async function main() {
       "node:22-alpine",
       "node",
       "-e",
-      MOCK_FRANKFURTER_SCRIPT,
+      MOCK_EXTERNAL_SCRIPT,
     ]);
     startedContainers.push(mockName);
 
@@ -268,7 +366,7 @@ async function main() {
           mockName,
           "node",
           "-e",
-          'fetch("http://127.0.0.1:8080/latest?base=USD").then((r) => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))',
+          'Promise.all([fetch("http://127.0.0.1:8080/latest?base=USD"),fetch("http://127.0.0.1:8080/v0/appsmoketestbase/Users")]).then((rs) => process.exit(rs.every((r) => r.ok) ? 0 : 1)).catch(() => process.exit(1))',
         ]);
         return probe.ok;
       },
@@ -291,7 +389,7 @@ async function main() {
       "-e",
       "NODE_ENV=production",
       "-e",
-      `FRONTEND_URL=${EXPECTED_CORS_ORIGIN}`,
+      `FRONTEND_URL=${expectedCorsOrigin}`,
       "-e",
       "BACKEND_URL=http://127.0.0.1:5050",
       "-e",
@@ -303,13 +401,17 @@ async function main() {
       "-e",
       "AIRTABLE_PERSONAL_ACCESS_TOKEN=patsmoketesttoken",
       "-e",
+      "AIRTABLE_ENDPOINT_URL=http://mock-external:8080",
+      "-e",
+      "VAULT_ADDR=http://mock-external:8080",
+      "-e",
       "REDIS_URL=redis://redis:6379",
       "-e",
       "FRANKFURTER_URL=http://mock-external:8080",
       "-e",
       "FRANKFURTER_FALLBACK_URL=disabled",
       "-e",
-      "SESSION_SECRET=smoke-test-only-dummy-session-secret-min-32-chars",
+      `SESSION_SECRET=${SMOKE_SESSION_SECRET}`,
       backendImage,
     ]);
     startedContainers.push(backendName);
@@ -339,16 +441,15 @@ async function main() {
 
     console.log("Checking backend CORS headers...");
     const corsRes = await fetchWithTimeout(`${backendUrl}/api/health`, {
-      headers: { Origin: EXPECTED_CORS_ORIGIN },
+      headers: { Origin: expectedCorsOrigin },
     });
     assert(
       corsRes.status === 200,
       `CORS check returned ${String(corsRes.status)}`,
     );
     assert(
-      corsRes.headers.get("access-control-allow-origin") ===
-        EXPECTED_CORS_ORIGIN,
-      `Expected Access-Control-Allow-Origin=${EXPECTED_CORS_ORIGIN}, got ${String(corsRes.headers.get("access-control-allow-origin"))}`,
+      corsRes.headers.get("access-control-allow-origin") === expectedCorsOrigin,
+      `Expected Access-Control-Allow-Origin=${expectedCorsOrigin}, got ${String(corsRes.headers.get("access-control-allow-origin"))}`,
     );
 
     console.log("Checking backend OpenAPI spec (/api-docs.json)...");
@@ -416,7 +517,7 @@ async function main() {
       "--network-alias",
       "frontend",
       "-p",
-      "127.0.0.1::80",
+      `127.0.0.1:${String(reservedFrontendPort)}:80`,
       frontendImage,
     ]);
     startedContainers.push(frontendName);
@@ -494,7 +595,28 @@ async function main() {
       `Expected manifest short_name LinguistNow, got ${String(manifestJson?.short_name)}`,
     );
 
-    console.log("All container smoke checks passed!");
+    console.log("All HTTP container smoke checks passed!");
+
+    if (runPlaywrightSmoke) {
+      console.log(
+        "Running Tier B Playwright @smoke suite against live containers...",
+      );
+      const isWin = process.platform === "win32";
+      const runner = isWin ? process.env.ComSpec || "cmd.exe" : "pnpm";
+      const args = isWin
+        ? ["/d", "/c", "pnpm.cmd", "--filter", "@linguistnow/e2e", "test:smoke"]
+        : ["--filter", "@linguistnow/e2e", "test:smoke"];
+      execFileSync(runner, args, {
+        env: {
+          ...process.env,
+          SMOKE_FRONTEND_URL: frontendUrl,
+          SMOKE_BACKEND_URL: backendUrl,
+          SMOKE_SESSION_SECRET,
+        },
+        stdio: "inherit",
+      });
+      console.log("Tier B Playwright @smoke suite passed!");
+    }
   } catch (error) {
     console.error("Container smoke test failed:", error);
     dumpLogs(startedContainers);

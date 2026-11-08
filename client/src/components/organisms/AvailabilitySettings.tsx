@@ -677,6 +677,7 @@ const AvailabilitySettings: React.FC<AvailabilitySettingsProps> = ({
                 <Popover open={timezoneOpen} onOpenChange={setTimezoneOpen}>
                     <PopoverTrigger asChild>
                         <Button
+                            id="timezone"
                             variant="outline"
                             role="combobox"
                             aria-expanded={timezoneOpen}

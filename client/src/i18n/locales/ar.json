@@ -56,7 +56,9 @@
         "saveSuccess": "تم حفظ الملف الشخصي بنجاح",
         "saveError": "فشل حفظ الملف الشخصي",
         "saving": "جارٍ الحفظ...",
-        "currencyReadOnly": "سيتم توفير اختيار العملة مع دعم تحويل العملات"
+        "currencyReadOnly": "سيتم توفير اختيار العملة مع دعم تحويل العملات",
+        "removeLanguage": "إزالة {{language}}",
+        "removeSpecialization": "إزالة {{specialization}}"
     },
     "dashboard": {
         "linguistsDescription": "إليك الجدول من {{startDate}} حتى {{endDate}} شاملاً.",
@@ -281,7 +283,8 @@
         "languageIcon": "اللغة",
         "dashboard": "لوحة التحكم",
         "settings": "الإعدادات",
-        "home": "الرئيسية"
+        "home": "الرئيسية",
+        "logout": "تسجيل الخروج"
     },
     "general": {
         "loading": "جاري التحميل..."

@@ -56,7 +56,9 @@
         "saveSuccess": "Профиль успешно сохранен",
         "saveError": "Не удалось сохранить профиль",
         "saving": "Сохранение...",
-        "currencyReadOnly": "Выбор валюты будет доступен с поддержкой конвертации валют"
+        "currencyReadOnly": "Выбор валюты будет доступен с поддержкой конвертации валют",
+        "removeLanguage": "Удалить {{language}}",
+        "removeSpecialization": "Удалить {{specialization}}"
     },
     "dashboard": {
         "linguistsDescription": "Вот расписание с {{startDate}} до {{endDate}} включительно.",
@@ -281,7 +283,8 @@
         "languageIcon": "язык",
         "dashboard": "Панель управления",
         "settings": "Настройки",
-        "home": "Главная"
+        "home": "Главная",
+        "logout": "Выйти"
     },
     "general": {
         "loading": "Загрузка..."

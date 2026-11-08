@@ -56,7 +56,9 @@
         "saveSuccess": "Perfil salvo com sucesso",
         "saveError": "Erro ao salvar o perfil",
         "saving": "Salvando...",
-        "currencyReadOnly": "A seleção de moeda estará disponível com suporte de conversão de moeda"
+        "currencyReadOnly": "A seleção de moeda estará disponível com suporte de conversão de moeda",
+        "removeLanguage": "Remover {{language}}",
+        "removeSpecialization": "Remover {{specialization}}"
     },
     "dashboard": {
         "linguistsDescription": "Aqui está o cronograma de {{startDate}} até {{endDate}} incluído.",
@@ -281,7 +283,8 @@
         "languageIcon": "idioma",
         "dashboard": "Painel",
         "settings": "Configurações",
-        "home": "Início"
+        "home": "Início",
+        "logout": "Sair"
     },
     "general": {
         "loading": "Carregando..."

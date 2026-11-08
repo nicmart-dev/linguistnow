@@ -56,7 +56,9 @@
         "saveSuccess": "프로필이 성공적으로 저장되었습니다",
         "saveError": "프로필 저장 실패",
         "saving": "저장 중...",
-        "currencyReadOnly": "통화 선택은 통화 환전 지원과 함께 사용할 수 있습니다"
+        "currencyReadOnly": "통화 선택은 통화 환전 지원과 함께 사용할 수 있습니다",
+        "removeLanguage": "{{language}} 제거",
+        "removeSpecialization": "{{specialization}} 제거"
     },
     "dashboard": {
         "linguistsDescription": "다음은 {{startDate}}부터 {{endDate}}까지(포함)의 일정입니다.",
@@ -281,7 +283,8 @@
         "languageIcon": "언어",
         "dashboard": "대시보드",
         "settings": "설정",
-        "home": "홈"
+        "home": "홈",
+        "logout": "로그아웃"
     },
     "general": {
         "loading": "로딩 중..."

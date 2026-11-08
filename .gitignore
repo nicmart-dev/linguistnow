@@ -151,3 +151,13 @@ docker-compose.override.yml
 docker-compose.override.yaml
 docker-compose*.override.yml
 docker-compose*.override.yaml
+
+
+# Playwright E2E artifacts
+playwright-report/
+test-results/
+blob-report/
+e2e/playwright-report/
+e2e/test-results/
+e2e/blob-report/
+e2e/.auth/
