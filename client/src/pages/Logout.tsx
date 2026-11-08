@@ -3,7 +3,7 @@ import { googleLogout } from '@react-oauth/google'
 import { useNavigate } from 'react-router-dom'
 import Hero from '@/components/organisms/Hero'
 import { useTranslation } from 'react-i18next'
-import type { AirtableUserFields } from '@linguistnow/shared'
+import type { AuthenticatedUser } from '@/auth-users/utils'
 
 /**
  * Logout page component that handles Google OAuth logout flow.
@@ -13,8 +13,8 @@ import type { AirtableUserFields } from '@linguistnow/shared'
  * @returns Logout confirmation UI with Hero component
  */
 interface LogoutProps {
-    setUserDetails: (user: AirtableUserFields | null) => void
-    userDetails: AirtableUserFields | null
+    setUserDetails: (user: AuthenticatedUser | null) => void
+    userDetails: AuthenticatedUser | null
 }
 
 export const Logout: React.FC<LogoutProps> = ({

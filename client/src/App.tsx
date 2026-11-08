@@ -13,8 +13,7 @@ import Footer from '@/components/organisms/Footer'
 import PrivacyPolicy from '@/pages/PrivacyPolicy'
 import NotFound from '@/pages/NotFound'
 import ScrollToTop from '@/components/organisms/ScrollToTop'
-import type { User } from '@linguistnow/shared'
-import { fetchUserDetails } from '@/auth-users/utils'
+import { fetchUserDetails, type AuthenticatedUser } from '@/auth-users/utils'
 
 /**
  * Main application component that handles authentication state and routing.
@@ -33,8 +32,10 @@ export const App = ({
     setIsRestoringAuth,
     googleClientId,
 }: {
-    setUserDetails: (user: User | null) => void
-    userDetails: User | null
+    setUserDetails: React.Dispatch<
+        React.SetStateAction<AuthenticatedUser | null>
+    >
+    userDetails: AuthenticatedUser | null
     isRestoringAuth: boolean
     setIsRestoringAuth: (value: boolean) => void
     googleClientId: string
@@ -93,8 +94,10 @@ const AppContent = ({
     setIsRestoringAuth,
     googleClientId,
 }: {
-    setUserDetails: (user: User | null) => void
-    userDetails: User | null
+    setUserDetails: React.Dispatch<
+        React.SetStateAction<AuthenticatedUser | null>
+    >
+    userDetails: AuthenticatedUser | null
     isRestoringAuth: boolean
     setIsRestoringAuth: (value: boolean) => void
     googleClientId: string
@@ -237,7 +240,7 @@ const AppContent = ({
  */
 interface PrivateRouteProps {
     element: React.ReactElement
-    userDetails: User | null
+    userDetails: AuthenticatedUser | null
     isRestoringAuth: boolean
 }
 
@@ -256,7 +259,9 @@ const PrivateRoute = ({
 
 // App wrapper component that initializes state and validates configuration
 const AppWrapper = () => {
-    const [userDetails, setUserDetails] = useState<User | null>(null)
+    const [userDetails, setUserDetails] = useState<AuthenticatedUser | null>(
+        null
+    )
     const [isRestoringAuth, setIsRestoringAuth] = useState(true)
 
     const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || ''

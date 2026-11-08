@@ -45,7 +45,6 @@ interface LinguistProfileSettingsProps {
         Languages?: string[] | string
         Specialization?: string[] | string
         Role?: string
-        [key: string]: unknown
     }
     onSave: (profile: {
         hourlyRate?: number | null
@@ -223,7 +222,9 @@ const LinguistProfileSettings: React.FC<LinguistProfileSettingsProps> = ({
         const currentHourlyRate = userDetails['Hourly Rate']?.toString() || ''
 
         const timer = setTimeout(() => {
-            const currentCurrency = (userDetails.Currency || 'USD').toUpperCase()
+            const currentCurrency = (
+                userDetails.Currency || 'USD'
+            ).toUpperCase()
             if (
                 hourlyRate !== currentHourlyRate ||
                 currency !== currentCurrency ||
@@ -310,7 +311,9 @@ const LinguistProfileSettings: React.FC<LinguistProfileSettingsProps> = ({
             }
 
             // Currency: include if changed
-            const currentCurrency = (userDetails.Currency || 'USD').toUpperCase()
+            const currentCurrency = (
+                userDetails.Currency || 'USD'
+            ).toUpperCase()
             if (currency !== currentCurrency) {
                 profile.currency = currency
             }

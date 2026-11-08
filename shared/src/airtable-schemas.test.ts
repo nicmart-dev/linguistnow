@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import {
   parseArrayField,
   parseUserPreferences,
+  OffDaysSchema,
   AirtableUserFieldsSchema,
   parseAirtableUserFields,
   parseAirtableUserFieldsStrict,
@@ -72,10 +73,25 @@ describe("airtable-schemas", () => {
 
     it("should convert day names to numbers", () => {
       const fields = {
-        "Off Days": ["Monday", "Friday"],
+        "Off Days": ["Monday", "5", "invalid", "9"],
       };
       const result = parseUserPreferences(fields);
       expect(result.offDays).toEqual([1, 5]);
+    });
+
+    it("should fall back to empty offDays when preferences are invalid", () => {
+      const result = parseUserPreferences({
+        "Working Hours Start": 900,
+      });
+      expect(result).toEqual({ offDays: [] });
+    });
+  });
+
+  describe("OffDaysSchema", () => {
+    it("should handle empty and mixed day values", () => {
+      expect(OffDaysSchema.parse(undefined)).toEqual([]);
+      expect(OffDaysSchema.parse([])).toEqual([]);
+      expect(OffDaysSchema.parse(["Sunday", 3, "Friday"])).toEqual([0, 3, 5]);
     });
   });
 

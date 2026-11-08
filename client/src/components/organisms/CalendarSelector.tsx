@@ -22,7 +22,11 @@ import { cn } from '@/lib/utils'
 // logger import removed - not currently used
 
 interface CalendarSelectorProps {
-    userDetails: Record<string, unknown> | null
+    userDetails: {
+        Email?: string
+        email?: string
+        'Calendar IDs'?: string
+    } | null
     onSave: (calendars: string[]) => Promise<void>
 }
 
@@ -93,8 +97,7 @@ const CalendarSelector = ({ userDetails, onSave }: CalendarSelectorProps) => {
                 // Only mark as expired if refresh token is invalid (not just access token)
                 // Access token expiration is now handled automatically by the server
                 const errorData = err.response.data as
-                    | { code?: string }
-                    | undefined
+                    { code?: string } | undefined
                 const errorCode = errorData?.code
 
                 if (

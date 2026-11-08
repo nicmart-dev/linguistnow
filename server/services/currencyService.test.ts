@@ -7,15 +7,17 @@ const mockSetex = vi.fn();
 const mockOn = vi.fn();
 
 vi.mock("ioredis", () => {
+  class MockRedis {
+    get = mockGet;
+    setex = mockSetex;
+    on = mockOn;
+    constructor() {
+      // Constructor does nothing
+    }
+  }
   return {
-    default: class {
-      get = mockGet;
-      setex = mockSetex;
-      on = mockOn;
-      constructor() {
-        // Constructor does nothing
-      }
-    },
+    default: MockRedis,
+    Redis: MockRedis,
   };
 });
 

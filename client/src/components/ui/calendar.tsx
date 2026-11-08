@@ -9,6 +9,7 @@ import {
 import {
     DayPicker,
     getDefaultClassNames,
+    type DayButtonProps,
     type DayPickerProps,
 } from 'react-day-picker'
 
@@ -96,7 +97,7 @@ function Calendar({
                         : '[&>svg]:text-muted-foreground flex h-8 items-center gap-1 rounded-md pl-2 pr-1 text-sm [&>svg]:size-3.5',
                     defaultClassNames.caption_label
                 ),
-                table: 'w-full border-separate border-spacing-[2px]',
+                month_grid: 'w-full border-separate border-spacing-[2px]',
                 weekdays: cn('', defaultClassNames.weekdays),
                 weekday: cn(
                     'text-muted-foreground w-8 h-8 select-none text-center rounded-md text-xs font-normal',
@@ -196,25 +197,12 @@ function Calendar({
     )
 }
 
-interface CalendarDayButtonProps {
-    className?: string
-    day: { date: Date }
-    modifiers: {
-        focused?: boolean
-        selected?: boolean
-        range_start?: boolean
-        range_end?: boolean
-        range_middle?: boolean
-    }
-    [key: string]: unknown
-}
-
 function CalendarDayButton({
     className,
     day,
     modifiers,
     ...props
-}: CalendarDayButtonProps) {
+}: DayButtonProps) {
     const defaultClassNames = getDefaultClassNames()
 
     const ref = React.useRef<HTMLButtonElement>(null)

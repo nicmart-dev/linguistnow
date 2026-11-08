@@ -8,11 +8,28 @@ import { useNavigate } from 'react-router-dom'
 import { googleLogout } from '@react-oauth/google'
 import { useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
-import { getAuthHeaders } from '@/auth-users/utils'
+import { getAuthHeaders, type AuthenticatedUser } from '@/auth-users/utils'
+
+interface ApiErrorPayload {
+    details?: string
+    error?: string
+    message?: string
+    airtableError?: unknown
+}
+
+interface AccountSettingsProps {
+    userDetails: AuthenticatedUser | null
+    setUserDetails: React.Dispatch<
+        React.SetStateAction<AuthenticatedUser | null>
+    >
+}
 
 /* The AccountSettings component utilizes the CalendarSelector component 
 to allow the user to select and save their calendars. */
-const AccountSettings = ({ userDetails, setUserDetails }) => {
+const AccountSettings = ({
+    userDetails,
+    setUserDetails,
+}: AccountSettingsProps) => {
     const { t } = useTranslation()
     const navigate = useNavigate()
     const [isDeleting, setIsDeleting] = useState(false)
@@ -33,7 +50,7 @@ const AccountSettings = ({ userDetails, setUserDetails }) => {
     }, [calendarsSaved, isLinguist])
 
     /* Save user selected calendars */
-    const handleSaveCalendars = async (updatedCalendars) => {
+    const handleSaveCalendars = async (updatedCalendars: string[]) => {
         setCalendarsSaved(false)
         try {
             // Validate: at least one calendar must be selected
@@ -53,7 +70,7 @@ const AccountSettings = ({ userDetails, setUserDetails }) => {
 
             // Get email from userDetails - use lowercase 'email' from User type, or fallback to uppercase 'Email' for Airtable compatibility
             const userEmail = userDetails?.email || userDetails?.Email
-            if (!userEmail) {
+            if (!userDetails || !userEmail) {
                 console.error(
                     'User email not found in userDetails:',
                     userDetails
@@ -116,11 +133,16 @@ const AccountSettings = ({ userDetails, setUserDetails }) => {
     }
 
     /* Save user availability preferences */
-    const handleSaveAvailabilityPreferences = async (preferences) => {
+    const handleSaveAvailabilityPreferences = async (preferences: {
+        timezone?: string
+        workingHoursStart?: string
+        workingHoursEnd?: string
+        offDays?: number[]
+    }) => {
         try {
             // Get email from userDetails - use lowercase 'email' from User type, or fallback to uppercase 'Email' for Airtable compatibility
             const userEmail = userDetails?.email || userDetails?.Email
-            if (!userEmail) {
+            if (!userDetails || !userEmail) {
                 console.error(
                     'User email not found in userDetails:',
                     userDetails
@@ -184,11 +206,16 @@ const AccountSettings = ({ userDetails, setUserDetails }) => {
     }
 
     /* Save user profile settings (hourly rate, currency, languages, specialization) */
-    const handleSaveProfile = async (profile) => {
+    const handleSaveProfile = async (profile: {
+        hourlyRate?: number | null
+        currency?: string
+        languages?: string[]
+        specialization?: string[]
+    }) => {
         try {
             // Get email from userDetails - use lowercase 'email' from User type, or fallback to uppercase 'Email' for Airtable compatibility
             const userEmail = userDetails?.email || userDetails?.Email
-            if (!userEmail) {
+            if (!userDetails || !userEmail) {
                 console.error(
                     'User email not found in userDetails:',
                     userDetails
@@ -212,10 +239,12 @@ const AccountSettings = ({ userDetails, setUserDetails }) => {
             )
 
             if (!response.ok) {
-                let errorData = {}
+                let errorData: ApiErrorPayload = {}
                 try {
                     const text = await response.text()
-                    errorData = text ? JSON.parse(text) : {}
+                    errorData = text
+                        ? (JSON.parse(text) as ApiErrorPayload)
+                        : {}
                 } catch (parseError) {
                     console.error('Failed to parse error response:', parseError)
                 }
@@ -339,7 +368,7 @@ const AccountSettings = ({ userDetails, setUserDetails }) => {
 
     return (
         <>
-            <Hero userName={userDetails.Name} cta={handleGoToCalendar} />
+            <Hero userName={userDetails?.Name} cta={handleGoToCalendar} />
             <main className="container mx-auto px-3 mb-5">
                 <div>
                     <p className="max-w-3xl text-sm text-gray-600 my-4">

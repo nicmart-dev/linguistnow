@@ -41,8 +41,10 @@
         "build": "vite build",
         "preview": "vite preview",
         "build:css": "postcss build ./src/tailwind.css -o ./public/tailwind.min.css",
+        "type-check": "tsc --noEmit",
         "test": "vitest",
-        "test:run": "vitest run"
+        "test:run": "vitest run",
+        "test:coverage": "vitest run --coverage"
     },
     "devDependencies": {
         "@tailwindcss/postcss": "^4.3.3",

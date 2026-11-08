@@ -3,8 +3,7 @@
  * Uses Redis for persistent caching across server restarts
  */
 
-// Note: ioredis types are bundled but ESLint has trouble resolving them
-import Redis, { type Redis as RedisClient } from "ioredis";
+import { Redis } from "ioredis";
 
 import { env } from "../env.js";
 
@@ -23,7 +22,7 @@ export interface ExchangeRates {
 }
 
 // Redis client (lazy init)
-let redis: RedisClient | null = null;
+let redis: Redis | null = null;
 let redisAvailable = false;
 
 // In-memory fallback cache (used when Redis is unavailable)
@@ -72,12 +71,11 @@ export function resetRedisClient(): void {
  * @returns Redis client instance or null if unavailable
  * @internal Exported for testing only
  */
-export function getRedisClient(): RedisClient | null {
+export function getRedisClient(): Redis | null {
   if (!redis) {
     try {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const client = new Redis(env.REDIS_URL, {
-        retryStrategy: (times) => {
+        retryStrategy: (times: number) => {
           // Stop retrying after 5 attempts
           if (times > 5) {
             redisAvailable = false;
@@ -96,7 +94,6 @@ export function getRedisClient(): RedisClient | null {
       // This allows tests to work and production to gracefully degrade
       redisAvailable = true;
 
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
       client.on("error", (err: Error) => {
         // Only log if not already marked as unavailable (avoid spam)
         if (redisAvailable) {
@@ -108,18 +105,15 @@ export function getRedisClient(): RedisClient | null {
         redisAvailable = false;
       });
 
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
       client.on("connect", () => {
         console.log("Redis connected for FX rate caching");
         redisAvailable = true;
       });
 
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
       client.on("ready", () => {
         redisAvailable = true;
       });
 
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
       client.on("close", () => {
         if (redisAvailable) {
           console.warn(
@@ -129,7 +123,6 @@ export function getRedisClient(): RedisClient | null {
         redisAvailable = false;
       });
 
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       redis = client;
     } catch (error) {
       console.warn(

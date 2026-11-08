@@ -10,6 +10,7 @@
     "type-check": "tsc --noEmit",
     "test": "vitest",
     "test:run": "vitest run",
+    "test:coverage": "vitest run --coverage",
     "airtable:validate": "tsx airtable/validate-schema.ts",
     "airtable:sync": "tsx airtable/sync-schema.ts",
     "airtable:debug": "tsx airtable/debug-schema.ts"

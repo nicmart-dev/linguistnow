@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import type { Request, Response } from "express";
+import type { NextFunction, Request, Response } from "express";
 import currencyRoutes from "./currencyRoutes.js";
 
 // Mock currencyService
@@ -16,24 +16,54 @@ vi.mock("../services/currencyService.js", () => ({
   hasRates: (): Promise<boolean> => mockHasRates() as Promise<boolean>,
 }));
 
+type RouteHandler = (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => Promise<void> | void;
+
+interface RouterLayer {
+  route?: {
+    path?: string;
+    methods?: Record<string, boolean>;
+    stack: Array<{ handle: RouteHandler }>;
+  };
+}
+
+function getRouteHandler(
+  path: string,
+  method: "get" | "post",
+  stackIndex = 0,
+): RouteHandler {
+  const routes = currencyRoutes.stack as unknown as RouterLayer[];
+  const layer = routes.find(
+    (r) => r.route?.path === path && r.route?.methods?.[method],
+  );
+  if (!layer?.route) {
+    throw new Error(`Route not found: ${method.toUpperCase()} ${path}`);
+  }
+  return layer.route.stack[stackIndex].handle;
+}
+
 describe("currencyRoutes", () => {
   let mockRequest: Partial<Request>;
   let mockResponse: Partial<Response>;
   let jsonSpy: ReturnType<typeof vi.fn>;
   let statusSpy: ReturnType<typeof vi.fn>;
+  const mockNext: NextFunction = vi.fn();
 
   beforeEach(() => {
     vi.clearAllMocks();
 
-    jsonSpy = vi.fn().mockReturnValue(mockResponse);
-    statusSpy = vi.fn().mockReturnValue({
+    jsonSpy = vi.fn().mockImplementation(() => mockResponse);
+    statusSpy = vi.fn().mockImplementation(() => ({
       json: jsonSpy,
       status: statusSpy,
-    });
+    }));
 
     mockResponse = {
-      json: jsonSpy,
-      status: statusSpy,
+      json: jsonSpy as unknown as Response["json"],
+      status: statusSpy as unknown as Response["status"],
     };
 
     mockRequest = {
@@ -52,17 +82,9 @@ describe("currencyRoutes", () => {
 
       mockRefreshRates.mockResolvedValueOnce(mockRates);
 
-      // Find the refresh route handler
-      const routes = currencyRoutes.stack;
-      const refreshRoute = routes.find(
-        (r: any) => r.route?.path === "/refresh" && r.route?.methods?.post,
-      );
-
-      expect(refreshRoute).toBeDefined();
-
-      // Call the actual handler directly (index 2: after apiKeyAuth and rateLimit middleware)
-      const handler = refreshRoute.route.stack[2].handle;
-      await handler(mockRequest, mockResponse);
+      // Index 2: after apiKeyAuth and rateLimit middleware
+      const handler = getRouteHandler("/refresh", "post", 2);
+      await handler(mockRequest as Request, mockResponse as Response, mockNext);
 
       expect(mockRefreshRates).toHaveBeenCalled();
       expect(jsonSpy).toHaveBeenCalledWith(mockRates);
@@ -73,13 +95,8 @@ describe("currencyRoutes", () => {
       const error = new Error("Frankfurter API error");
       mockRefreshRates.mockRejectedValueOnce(error);
 
-      const routes = currencyRoutes.stack;
-      const refreshRoute = routes.find(
-        (r: any) => r.route?.path === "/refresh" && r.route?.methods?.post,
-      );
-
-      const handler = refreshRoute.route.stack[2].handle;
-      await handler(mockRequest, mockResponse);
+      const handler = getRouteHandler("/refresh", "post", 2);
+      await handler(mockRequest as Request, mockResponse as Response, mockNext);
 
       expect(statusSpy).toHaveBeenCalledWith(500);
       expect(jsonSpy).toHaveBeenCalledWith({
@@ -100,13 +117,8 @@ describe("currencyRoutes", () => {
 
       mockGetRates.mockResolvedValueOnce(mockRates);
 
-      const routes = currencyRoutes.stack;
-      const ratesRoute = routes.find(
-        (r: any) => r.route?.path === "/rates" && r.route?.methods?.get,
-      );
-
-      const handler = ratesRoute.route.stack[0].handle;
-      await handler(mockRequest, mockResponse);
+      const handler = getRouteHandler("/rates", "get");
+      await handler(mockRequest as Request, mockResponse as Response, mockNext);
 
       expect(mockGetRates).toHaveBeenCalled();
       expect(jsonSpy).toHaveBeenCalledWith(mockRates);
@@ -116,13 +128,8 @@ describe("currencyRoutes", () => {
       const error = new Error("Redis error");
       mockGetRates.mockRejectedValueOnce(error);
 
-      const routes = currencyRoutes.stack;
-      const ratesRoute = routes.find(
-        (r: any) => r.route?.path === "/rates" && r.route?.methods?.get,
-      );
-
-      const handler = ratesRoute.route.stack[0].handle;
-      await handler(mockRequest, mockResponse);
+      const handler = getRouteHandler("/rates", "get");
+      await handler(mockRequest as Request, mockResponse as Response, mockNext);
 
       expect(statusSpy).toHaveBeenCalledWith(500);
       expect(jsonSpy).toHaveBeenCalledWith({
@@ -142,13 +149,8 @@ describe("currencyRoutes", () => {
 
       mockConvert.mockResolvedValueOnce(85);
 
-      const routes = currencyRoutes.stack;
-      const convertRoute = routes.find(
-        (r: any) => r.route?.path === "/convert" && r.route?.methods?.get,
-      );
-
-      const handler = convertRoute.route.stack[0].handle;
-      await handler(mockRequest, mockResponse);
+      const handler = getRouteHandler("/convert", "get");
+      await handler(mockRequest as Request, mockResponse as Response, mockNext);
 
       expect(mockConvert).toHaveBeenCalledWith(100, "USD", "EUR");
       expect(jsonSpy).toHaveBeenCalledWith({
@@ -168,13 +170,8 @@ describe("currencyRoutes", () => {
 
       mockConvert.mockResolvedValueOnce(85.123456);
 
-      const routes = currencyRoutes.stack;
-      const convertRoute = routes.find(
-        (r: any) => r.route?.path === "/convert" && r.route?.methods?.get,
-      );
-
-      const handler = convertRoute.route.stack[0].handle;
-      await handler(mockRequest, mockResponse);
+      const handler = getRouteHandler("/convert", "get");
+      await handler(mockRequest as Request, mockResponse as Response, mockNext);
 
       expect(jsonSpy).toHaveBeenCalledWith({
         amount: 100,
@@ -193,13 +190,8 @@ describe("currencyRoutes", () => {
 
       mockConvert.mockResolvedValueOnce(85);
 
-      const routes = currencyRoutes.stack;
-      const convertRoute = routes.find(
-        (r: any) => r.route?.path === "/convert" && r.route?.methods?.get,
-      );
-
-      const handler = convertRoute.route.stack[0].handle;
-      await handler(mockRequest, mockResponse);
+      const handler = getRouteHandler("/convert", "get");
+      await handler(mockRequest as Request, mockResponse as Response, mockNext);
 
       expect(mockConvert).toHaveBeenCalledWith(100, "USD", "EUR");
     });
@@ -211,13 +203,8 @@ describe("currencyRoutes", () => {
         to: "EUR",
       };
 
-      const routes = currencyRoutes.stack;
-      const convertRoute = routes.find(
-        (r: any) => r.route?.path === "/convert" && r.route?.methods?.get,
-      );
-
-      const handler = convertRoute.route.stack[0].handle;
-      await handler(mockRequest, mockResponse);
+      const handler = getRouteHandler("/convert", "get");
+      await handler(mockRequest as Request, mockResponse as Response, mockNext);
 
       expect(statusSpy).toHaveBeenCalledWith(400);
       expect(jsonSpy).toHaveBeenCalledWith({
@@ -233,13 +220,8 @@ describe("currencyRoutes", () => {
         to: "EUR",
       };
 
-      const routes = currencyRoutes.stack;
-      const convertRoute = routes.find(
-        (r: any) => r.route?.path === "/convert" && r.route?.methods?.get,
-      );
-
-      const handler = convertRoute.route.stack[0].handle;
-      await handler(mockRequest, mockResponse);
+      const handler = getRouteHandler("/convert", "get");
+      await handler(mockRequest as Request, mockResponse as Response, mockNext);
 
       expect(statusSpy).toHaveBeenCalledWith(400);
       expect(jsonSpy).toHaveBeenCalledWith({
@@ -253,13 +235,8 @@ describe("currencyRoutes", () => {
         to: "EUR",
       };
 
-      const routes = currencyRoutes.stack;
-      const convertRoute = routes.find(
-        (r: any) => r.route?.path === "/convert" && r.route?.methods?.get,
-      );
-
-      const handler = convertRoute.route.stack[0].handle;
-      await handler(mockRequest, mockResponse);
+      const handler = getRouteHandler("/convert", "get");
+      await handler(mockRequest as Request, mockResponse as Response, mockNext);
 
       expect(statusSpy).toHaveBeenCalledWith(400);
       expect(jsonSpy).toHaveBeenCalledWith({
@@ -273,13 +250,8 @@ describe("currencyRoutes", () => {
         from: "USD",
       };
 
-      const routes = currencyRoutes.stack;
-      const convertRoute = routes.find(
-        (r: any) => r.route?.path === "/convert" && r.route?.methods?.get,
-      );
-
-      const handler = convertRoute.route.stack[0].handle;
-      await handler(mockRequest, mockResponse);
+      const handler = getRouteHandler("/convert", "get");
+      await handler(mockRequest as Request, mockResponse as Response, mockNext);
 
       expect(statusSpy).toHaveBeenCalledWith(400);
       expect(jsonSpy).toHaveBeenCalledWith({
@@ -297,13 +269,8 @@ describe("currencyRoutes", () => {
       const error = new Error("Currency XXX not supported");
       mockConvert.mockRejectedValueOnce(error);
 
-      const routes = currencyRoutes.stack;
-      const convertRoute = routes.find(
-        (r: any) => r.route?.path === "/convert" && r.route?.methods?.get,
-      );
-
-      const handler = convertRoute.route.stack[0].handle;
-      await handler(mockRequest, mockResponse);
+      const handler = getRouteHandler("/convert", "get");
+      await handler(mockRequest as Request, mockResponse as Response, mockNext);
 
       expect(statusSpy).toHaveBeenCalledWith(500);
       expect(jsonSpy).toHaveBeenCalledWith({
@@ -317,13 +284,8 @@ describe("currencyRoutes", () => {
     it("should return true when rates are cached", async () => {
       mockHasRates.mockResolvedValueOnce(true);
 
-      const routes = currencyRoutes.stack;
-      const checkRoute = routes.find(
-        (r: any) => r.route?.path === "/check" && r.route?.methods?.get,
-      );
-
-      const handler = checkRoute.route.stack[0].handle;
-      await handler(mockRequest, mockResponse);
+      const handler = getRouteHandler("/check", "get");
+      await handler(mockRequest as Request, mockResponse as Response, mockNext);
 
       expect(mockHasRates).toHaveBeenCalled();
       expect(jsonSpy).toHaveBeenCalledWith({ hasRates: true });
@@ -332,13 +294,8 @@ describe("currencyRoutes", () => {
     it("should return false when rates are not cached", async () => {
       mockHasRates.mockResolvedValueOnce(false);
 
-      const routes = currencyRoutes.stack;
-      const checkRoute = routes.find(
-        (r: any) => r.route?.path === "/check" && r.route?.methods?.get,
-      );
-
-      const handler = checkRoute.route.stack[0].handle;
-      await handler(mockRequest, mockResponse);
+      const handler = getRouteHandler("/check", "get");
+      await handler(mockRequest as Request, mockResponse as Response, mockNext);
 
       expect(jsonSpy).toHaveBeenCalledWith({ hasRates: false });
     });
@@ -347,13 +304,8 @@ describe("currencyRoutes", () => {
       const error = new Error("Redis error");
       mockHasRates.mockRejectedValueOnce(error);
 
-      const routes = currencyRoutes.stack;
-      const checkRoute = routes.find(
-        (r: any) => r.route?.path === "/check" && r.route?.methods?.get,
-      );
-
-      const handler = checkRoute.route.stack[0].handle;
-      await handler(mockRequest, mockResponse);
+      const handler = getRouteHandler("/check", "get");
+      await handler(mockRequest as Request, mockResponse as Response, mockNext);
 
       expect(statusSpy).toHaveBeenCalledWith(500);
       expect(jsonSpy).toHaveBeenCalledWith({
