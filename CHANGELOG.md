@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.9.6](https://github.com/nicmart-dev/linguistnow/compare/v1.9.5...v1.9.6) (2026-11-08)
+
+### 🐛 Bug Fixes
+
+* **docker:** resolve frankfurter healthcheck and rewrite injection ([#206](https://github.com/nicmart-dev/linguistnow/issues/206)) ([f62a25d](https://github.com/nicmart-dev/linguistnow/commit/f62a25d4acbf1d43bc6fb2598359396aa6837f9e))
+
+### 👷 Continuous Integration
+
+* **docker:** fast-pass container build on non-docker prs ([#204](https://github.com/nicmart-dev/linguistnow/issues/204)) ([c2a816f](https://github.com/nicmart-dev/linguistnow/commit/c2a816f2b64d5fc9d04146a0ed9510b6c1c980bc))
+
 ## [1.9.5](https://github.com/nicmart-dev/linguistnow/compare/v1.9.4...v1.9.5) (2026-11-08)
 
 ### 🐛 Bug Fixes
