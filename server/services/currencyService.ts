@@ -212,9 +212,23 @@ async function getCachedRates(): Promise<ExchangeRates | null> {
  */
 async function fetchFrankfurterRates(baseUrl: string): Promise<ExchangeRates> {
   const trimmedUrl = baseUrl.replace(/\/+$/, "");
-  const response = await fetch(`${trimmedUrl}/latest?base=USD`, {
+  let response = await fetch(`${trimmedUrl}/latest?base=USD`, {
     signal: AbortSignal.timeout(10000), // 10 second timeout
   });
+
+  // If a Frankfurter v2 instance without legacy root rewrite returns 404, fallback to /v1/latest
+  if (response.status === 404 && !trimmedUrl.endsWith("/v1")) {
+    try {
+      const v1Response = await fetch(`${trimmedUrl}/v1/latest?base=USD`, {
+        signal: AbortSignal.timeout(10000),
+      });
+      if (v1Response.ok) {
+        response = v1Response;
+      }
+    } catch {
+      // Retain original response error on network failure
+    }
+  }
 
   if (!response.ok) {
     throw new Error(
