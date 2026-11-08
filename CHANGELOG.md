@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.10.0](https://github.com/nicmart-dev/linguistnow/compare/v1.9.7...v1.10.0) (2026-11-08)
+
+### ✨ Features
+
+* **ci:** add automated yaml validation to lint-staged and ci gates ([#210](https://github.com/nicmart-dev/linguistnow/issues/210)) ([ef84428](https://github.com/nicmart-dev/linguistnow/commit/ef844288e0be5e04ae7b510b12273ab97cbc1193))
+
 ## [1.9.7](https://github.com/nicmart-dev/linguistnow/compare/v1.9.6...v1.9.7) (2026-11-08)
 
 ### 🐛 Bug Fixes
