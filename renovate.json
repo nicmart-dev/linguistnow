@@ -22,6 +22,11 @@
     "automerge": true,
     "schedule": ["before 6am on monday"]
   },
+  "vulnerabilityAlerts": {
+    "enabled": true,
+    "minimumReleaseAge": "0 days",
+    "automerge": true
+  },
   "packageRules": [
     {
       "description": "Conventional commit scope for development dependencies",
@@ -43,27 +48,27 @@
     },
     {
       "description": "Monorepo group: TanStack libraries",
-      "matchPackagePatterns": ["^@tanstack/"],
+      "matchPackageNames": ["@tanstack/*"],
       "groupName": "tanstack monorepo"
     },
     {
       "description": "Monorepo group: Radix UI primitives",
-      "matchPackagePatterns": ["^@radix-ui/"],
+      "matchPackageNames": ["@radix-ui/*"],
       "groupName": "radix-ui monorepo"
     },
     {
       "description": "Monorepo group: Vitest testing framework",
-      "matchPackagePatterns": ["^vitest$", "^@vitest/"],
+      "matchPackageNames": ["vitest", "@vitest/*"],
       "groupName": "vitest monorepo"
     },
     {
       "description": "Monorepo group: ESLint & TypeScript tooling",
-      "matchPackagePatterns": ["^eslint$", "^@eslint/", "^typescript-eslint$"],
+      "matchPackageNames": ["eslint", "@eslint/*", "typescript-eslint"],
       "groupName": "eslint monorepo"
     },
     {
       "description": "Monorepo group: Playwright test suite",
-      "matchPackagePatterns": ["^@playwright/"],
+      "matchPackageNames": ["@playwright/*"],
       "groupName": "playwright monorepo"
     },
     {
@@ -79,16 +84,6 @@
       "groupName": "docker base images",
       "pinDigests": true,
       "schedule": ["before 6am on monday"]
-    },
-    {
-      "description": "Vulnerability alert fixes bypass release age cooldown and automerge immediately once CI passes",
-      "matchPackagePatterns": ["*"],
-      "matchCurrentVersion": "!null",
-      "vulnerabilityAlerts": {
-        "enabled": true,
-        "minimumReleaseAge": "0 days",
-        "automerge": true
-      }
     }
   ]
 }
