@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.10.1](https://github.com/nicmart-dev/linguistnow/compare/v1.10.0...v1.10.1) (2026-11-09)
+
+### 🐛 Bug Fixes
+
+* **config:** resolve renovate v44 schema warnings ([#213](https://github.com/nicmart-dev/linguistnow/issues/213)) ([ca38671](https://github.com/nicmart-dev/linguistnow/commit/ca386712fbb112fafc6bdc6e3d8388edf27c7c90))
+
+### 👷 Continuous Integration
+
+* **ci:** add canary recovery and pin production images ([#212](https://github.com/nicmart-dev/linguistnow/issues/212)) ([759a8f4](https://github.com/nicmart-dev/linguistnow/commit/759a8f416458d5ebb16027cfdb05cc75bf9463ed)), references [#199](https://github.com/nicmart-dev/linguistnow/issues/199)
+* **ci:** configure renovate automerge and package security policies ([#211](https://github.com/nicmart-dev/linguistnow/issues/211)) ([18938b3](https://github.com/nicmart-dev/linguistnow/commit/18938b3ba943e2d9f0b9ec6e47989048f2f9b847))
+
 ## [1.10.0](https://github.com/nicmart-dev/linguistnow/compare/v1.9.7...v1.10.0) (2026-11-08)
 
 ### ✨ Features
